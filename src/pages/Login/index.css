@@ -1,0 +1,41 @@
+.login__page {
+  display: flex;
+  height: 100vh;
+  padding: 0 20px;
+  font-family: "open sans";
+  background-color: rgba(240, 242, 245, 0.8);
+  overflow: auto;
+}
+.login__logo {
+  max-width: 50%;
+  margin: auto 0;
+  padding-right: 200px;
+}
+
+.login__form {
+  width: 400px;
+  display: block;
+  margin: auto auto;
+}
+.login__form--button {
+  display: block;
+  width: 100%;
+}
+
+h1 {
+  color: #141414;
+  font-size: 48px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  line-height: 72px;
+  margin: 0px 0px 15px;
+  text-align: left;
+}
+h5 {
+  color: #8c8c8c !important;
+  font-size: 20px;
+  letter-spacing: -0.3px;
+  line-height: 30px;
+  margin: 0px 0px 10px;
+  text-align: left;
+}
