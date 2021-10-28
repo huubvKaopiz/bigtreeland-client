@@ -3,33 +3,20 @@ import ReactDOM from "react-dom";
 import reportWebVitals from "./reportWebVitals";
 import { store } from "./store/store";
 import { Provider } from "react-redux";
-import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
-import About from "./pages/About";
-import Home from "./pages/Home";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
+import { LoginForm } from './pages/Login';
+import AuthProvider from './layoutes/AuthProvider';
 import "./index.css";
 
 ReactDOM.render(
   <React.StrictMode>
     <Provider store={store}>
       <Router>
-        <div>
-          <nav>
-            <ul>
-              <li>
-                <Link to="/">Home</Link>
-              </li>
-              <li>
-                <Link to="/about">About</Link>
-              </li>
-            </ul>
-          </nav>
-
-          <Switch>
-            <Route path="/about" component={About} />
-            <Route exact path="/" component={Home} />
-          </Switch>
-        </div>
+        <Switch>
+          <Route path='/login' component={LoginForm} />
+          <AuthProvider />
+        </Switch>
       </Router>
     </Provider>
   </React.StrictMode>,
