@@ -7,6 +7,7 @@ import {
   LogoutOutlined,
   IdcardOutlined,
   AppstoreOutlined,
+  SolutionOutlined
 } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
 import { Route, useHistory } from "react-router-dom";
@@ -14,6 +15,7 @@ import Users from "../pages/Users";
 import Home from "../pages/Home";
 import Employees from "../pages/Employees";
 import Classes from "../pages/Classes";
+import Permissions from "../pages/Permissions";
 import { actionLogout } from "../store/auth/slice";
 
 const { Header, Content, Footer, Sider } = Layout;
@@ -28,7 +30,7 @@ function DefaultLayout(): JSX.Element {
 
   return (
     <Layout style={{ minHeight: 1500 }}>
-      <Sider>
+      <Sider breakpoint="lg" collapsedWidth="0">
         <div className="logo" style={{ height: 60 }}>
           <h2 style={{ color: "white", padding: 10 }}>
             <CoffeeOutlined /> Bigtreeland
@@ -64,6 +66,13 @@ function DefaultLayout(): JSX.Element {
             >
               Lớp học
             </Menu.Item>
+            <Menu.Item
+              key="6"
+              icon={<SolutionOutlined />}
+              onClick={() => history.push("/permissions")}
+            >
+              Vai trò người dùng
+            </Menu.Item>
           </Menu>
           <Menu.Item key="5" icon={<LogoutOutlined />} onClick={handleLogout}>
             Logout
@@ -73,10 +82,11 @@ function DefaultLayout(): JSX.Element {
       <Layout className="site-layout">
         {/* <Header className="site-layout-background" style={{ padding: 0 }} /> */}
         <Content style={{ margin: "0 16px" }}>
+          <Route exact path="/" component={Home} />
           <Route path="/users" component={Users} />
           <Route path="/employees" component={Employees} />
           <Route path="/classes" component={Classes} />
-          <Route exact path="/" component={Home} />
+          <Route path="/permissions" component={Permissions} />
         </Content>
         <Footer style={{ textAlign: "center" }}>
           Ant Design ©2021 Created by Ant UED
