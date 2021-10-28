@@ -6,13 +6,13 @@ export interface User {
   access_token: string;
   expires_in: number;
   token_type: string;
-  created_at: "2021-10-27T20:51:36.000000Z";
-  deleted_at: null;
-  email: "admin@gmail.com";
-  email_verified_at: null;
-  id: 1;
-  name: "admin";
-  updated_at: "2021-10-27T20:51:36.000000Z";
+  created_at: string;
+  deleted_at: string;
+  email: string;
+  email_verified_at: string;
+  id: number;
+  name: string;
+  updated_at: string;
 }
 
 export interface AuthState {
