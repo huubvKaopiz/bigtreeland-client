@@ -126,6 +126,7 @@ function LoginForm(): JSX.Element {
                   style={{ display: "block", width: "100%" }}
                   type="primary"
                   htmlType="submit"
+                  loading={loading}
                 >
                   Login
                 </Button>
