@@ -3,7 +3,7 @@ import { Layout, Menu, Breadcrumb } from "antd";
 import {
     HomeOutlined,
     TeamOutlined,
-    RobotOutlined,
+    CoffeeOutlined,
     LogoutOutlined,
     IdcardOutlined,
     AppstoreOutlined
@@ -27,9 +27,9 @@ function DefaultLayout(): JSX.Element {
 
     return (
         <Layout style={{ minHeight: 1500 }}>
-            <Sider collapsible>
+            <Sider>
                 <div className="logo" style={{ height: 60 }}>
-                    <h2 style={{ color: "white", padding: 10 }}><RobotOutlined /> Bigtreeland</h2>
+                    <h2 style={{ color: "white", padding: 10 }}><CoffeeOutlined /> Bigtreeland</h2>
                 </div>
                 <Menu theme="dark" defaultSelectedKeys={["1"]} mode="inline">
                     <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']}>
@@ -52,7 +52,7 @@ function DefaultLayout(): JSX.Element {
                 </Menu>
             </Sider>
             <Layout className="site-layout">
-                <Header className="site-layout-background" style={{ padding: 0 }} />
+                {/* <Header className="site-layout-background" style={{ padding: 0 }} /> */}
                 <Content style={{ margin: "0 16px" }}>
                     <Route path="/users" component={Users} />
                     <Route path="/employees" component={Employees} />
@@ -60,7 +60,7 @@ function DefaultLayout(): JSX.Element {
                     <Route exact path="/" component={Home} />
                 </Content>
                 <Footer style={{ textAlign: "center" }}>
-                    Ant Design ©2018 Created by Ant UED
+                    Ant Design ©2021 Created by Ant UED
                 </Footer>
             </Layout>
         </Layout>
