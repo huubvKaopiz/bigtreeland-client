@@ -13,14 +13,13 @@ function LoginForm(): JSX.Element {
     // const counter = useSelector((state: RootState) => state.counter);
     // const dispatch = useAppDispatch();
 
-
     const onFinish = (values: LoginForm) => {
         console.log('Success:', values);
     };
     return (
-        <Layout>
-            <Content style={{minHeight:1500}} >
-                <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: 1000, backgroundColor: "white" }}>
+        <Layout style={{minHeight:1000}}>
+            <Content  >
+                <div  style={{ display: "flex", justifyContent: "center", alignItems: "center", height:"100vh", backgroundColor: "white" }}>
                     <Form
                         style={{ width: 500, paddingTop: 40, paddingLeft: 20, paddingRight: 30, paddingBottom: 20 }}
                         name="basic"

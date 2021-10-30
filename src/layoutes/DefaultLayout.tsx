@@ -26,7 +26,7 @@ function DefaultLayout(): JSX.Element {
     }
 
     return (
-        <Layout style={{ minHeight: 1500 }}>
+        <Layout style={{ minHeight: 1000 }}>
             <Sider>
                 <div className="logo" style={{ height: 60 }}>
                     <h2 style={{ color: "white", padding: 10 }}><CoffeeOutlined /> Bigtreeland</h2>

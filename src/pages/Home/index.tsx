@@ -9,7 +9,7 @@ function Home(): JSX.Element {
   console.log(counter);
 
   return (
-    <Layout.Content style={{minHeight:1500}}>
+    <Layout.Content style={{height:"100vh"}}>
       Home content
     </Layout.Content>
   );
