@@ -9,7 +9,7 @@ function Classes(): JSX.Element {
   console.log(counter);
 
   return (
-    <Layout.Content style={{height:1500}}>
+    <Layout.Content style={{height:"100vh"}}>
       Classes content
     </Layout.Content>
   );

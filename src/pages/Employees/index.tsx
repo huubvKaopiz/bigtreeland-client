@@ -9,7 +9,7 @@ function Employees(): JSX.Element {
   console.log(counter);
 
   return (
-    <Layout.Content style={{height:1500}}>
+    <Layout.Content style={{height:1000}}>
      Employees content
     </Layout.Content>
   );

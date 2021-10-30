@@ -10,10 +10,9 @@ function Home(): JSX.Element {
   console.log(counter);
 
   return (
-    <Layout.Content style={{ minHeight: 1500 }}>
-      <Wrapper>
-        <h1> Home content</h1>
-      </Wrapper>
+
+    <Layout.Content style={{height:"100vh"}}>
+      Home content
     </Layout.Content>
   );
 }

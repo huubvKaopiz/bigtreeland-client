@@ -27,7 +27,7 @@ function DefaultLayout(): JSX.Element {
   function handleLogout() {
     dispatch(actionLogout());
   }
-
+  
   return (
     <Layout style={{ minHeight: 1500 }}>
       <Sider breakpoint="lg" collapsedWidth="0">
