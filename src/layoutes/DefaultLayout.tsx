@@ -71,7 +71,7 @@ function DefaultLayout(): JSX.Element {
               icon={<SolutionOutlined />}
               onClick={() => history.push("/permissions")}
             >
-              Vai trò người dùng
+              Danh sách quyền
             </Menu.Item>
           </Menu>
           <Menu.Item key="5" icon={<LogoutOutlined />} onClick={handleLogout}>

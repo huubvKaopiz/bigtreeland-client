@@ -107,7 +107,7 @@ function Permissions(): JSX.Element {
 				<PageHeader
 					title="Permission"
 					className="permission__header"
-					subTitle="Quản lý phân quyền người dùng"
+					subTitle="Danh sách quyền người dùng"
 				></PageHeader>
 				<Divider className="permission__divider" />
 				<div className="permission__button">
