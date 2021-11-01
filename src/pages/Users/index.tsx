@@ -1,5 +1,6 @@
-import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
-import { Button, Form, Input, Layout, Modal, notification, Space, Spin, Table } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
+import { Button, Input, Layout, notification, Space, Spin, Table } from "antd";
+import UserService from "api/user.service";
 import { get } from "lodash";
 import React, { BaseSyntheticEvent, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -32,9 +33,12 @@ export default function Users(): JSX.Element {
 	const dispatch = useAppDispatch();
 	const users = useSelector((state: RootState) => state.counter.users);
 	const [loading, setLoading] = useState(false);
-	const [showAddFrom, setShowAddForm] = useState(false);
 	const [dataSource, setDataSource] = useState(userTableData);
 	const [filterValue, setFilterValue] = useState("");
+	
+	useEffect(() => {
+		UserService.getMe().then(console.log).catch(console.log).finally();
+	}, []);
 
 	useEffect(() => {
 		setLoading(true);
@@ -65,12 +69,39 @@ export default function Users(): JSX.Element {
 	}
 
 	function handleChangePass(user: User, passwordForm: PasswordFormProps) {
-		console.log(user.email);
-		console.log(passwordForm);
+		setLoading(true);
+		UserService.changePassword({
+			email: user.email,
+			oldPassword: passwordForm.old_password,
+			newPassword: passwordForm.new_password,
+		})
+			.then(() => {
+				notification.success({
+					message: "Đổi mật khẩu thành công!",
+				});
+			})
+			.catch(() => {
+				notification.error({
+					message: "Có lỗi xảy ra!",
+				});
+			})
+			.finally(() => setLoading(false));
 	}
 
 	function handleDeactive(user: User) {
-		console.log(user.email);
+		setLoading(true);
+		UserService.deactiveUser({ email: user.email })
+			.then(() => {
+				notification.success({
+					message: `Vô hiệu hoá tài khoản ${user.email} thành công!`,
+				});
+			})
+			.catch(() => {
+				notification.error({
+					message: "Có lỗi xảy ra!",
+				});
+			})
+			.finally(() => setLoading(false));
 	}
 
 	function handleSetPermission(user: User, permissionList: number[]) {
@@ -79,7 +110,19 @@ export default function Users(): JSX.Element {
 	}
 
 	function handleAddNewUser(userValue: AddNewUser) {
-		console.log(userValue);
+		setLoading(true);
+		UserService.createUser({ ...userValue })
+			.then(() => {
+				notification.success({
+					message: "Tạo người dùng mới thành công!",
+				});
+			})
+			.catch(() => {
+				notification.error({
+					message: "Có lỗi xảy ra!",
+				});
+			})
+			.finally(() => setLoading(false));
 	}
 
 	const ColActions = (user: User) => {

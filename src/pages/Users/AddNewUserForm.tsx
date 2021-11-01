@@ -29,7 +29,11 @@ function AddNewUserForm({ onAddUser }: { onAddUser: (userInfo: AddNewUser) => vo
 	function handleResetFormField() {
 		form.resetFields();
 	}
-
+	function handleAddUser(userInfo: AddNewUser) {
+		onAddUser(userInfo)
+		handleResetFormField()
+		setShowForm(false)
+	}
 	return (
 		<>
 			<Button type="primary" icon={<PlusOutlined />} onClick={() => setShowForm(true)}>
@@ -46,7 +50,7 @@ function AddNewUserForm({ onAddUser }: { onAddUser: (userInfo: AddNewUser) => vo
 				footer={false}
 				width={800}
 			>
-				<Form {...form_layout} labelAlign="left" name="nest-messages" onFinish={onAddUser} form={form}>
+				<Form {...form_layout} labelAlign="left" name="nest-messages" onFinish={handleAddUser} form={form}>
 					<Form.Item
 						name={"email"}
 						label="Email"
