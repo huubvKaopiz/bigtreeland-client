@@ -1,34 +1,30 @@
-import {
-  combineReducers,
-  configureStore,
-  getDefaultMiddleware,
-} from "@reduxjs/toolkit";
+import { combineReducers, configureStore, getDefaultMiddleware } from "@reduxjs/toolkit";
 import { useDispatch } from "react-redux";
-import counterReducer from "./counter/slice";
-import authReducer from "./auth/slice";
+import userReducer from "./users/slice";
+import auth from "./auth/slice";
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 
 const rootReducer = combineReducers({
-  auth: authReducer,
-  counter: counterReducer,
+	auth,
+	userReducer,
 });
 
 const persistConfig = {
-  key: "root",
-  storage,
-  whitelist: ["auth"],
+	key: "root",
+	storage,
+	whitelist: ["auth"],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 const customizedMiddleware = getDefaultMiddleware({
-  serializableCheck: false,
+	serializableCheck: false,
 });
 
 export const store = configureStore({
-  reducer: persistedReducer,
-  middleware: customizedMiddleware,
+	reducer: persistedReducer,
+	middleware: customizedMiddleware,
 });
 
 export const persistor = persistStore(store);
@@ -38,5 +34,4 @@ export type RootState = ReturnType<typeof store.getState>;
 // Inferred type: {posts: PostsState, comments: CommentsState, users: UsersState}
 export type AppDispatch = typeof store.dispatch;
 
-export const useAppDispatch: () => AppDispatch = () =>
-  useDispatch<AppDispatch>();
+export const useAppDispatch: () => AppDispatch = () => useDispatch<AppDispatch>();

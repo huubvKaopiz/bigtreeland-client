@@ -4,12 +4,13 @@ import UserService from "api/user.service";
 import { get } from "lodash";
 import React, { BaseSyntheticEvent, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { fetchUsers } from "store/counter/slice";
+import { fetchUsers } from "store/users/slice";
 import { RootState, useAppDispatch } from "store/store";
 import { AddNewUser, PasswordFormProps, User } from "utils/interfaces";
 import AddNewUserForm from "./AddNewUserForm";
 import ChangePassForm from "./changePassForm";
 import ChangePermisstion from "./ChangePermisstion";
+import { UserType } from "interface";
 
 const userTableData: User[] = [
 	{
@@ -31,20 +32,19 @@ const userTableData: User[] = [
 
 export default function Users(): JSX.Element {
 	const dispatch = useAppDispatch();
-	const users = useSelector((state: RootState) => state.counter.users);
+	const users = useSelector((state: RootState) => state.userReducer.users);
 	const [loading, setLoading] = useState(false);
 	const [dataSource, setDataSource] = useState(userTableData);
 	const [filterValue, setFilterValue] = useState("");
-	
-	useEffect(() => {
-		UserService.getMe().then(console.log).catch(console.log).finally();
-	}, []);
+
+	// useEffect(() => {
+	// 	UserService.getMe().then(console.log).catch(console.log).finally();
+	// }, []);
 
 	useEffect(() => {
 		setLoading(true);
-		dispatch(fetchUsers({ search: "" }))
+		dispatch(fetchUsers({}))
 			.then((res) => {
-				console.log(res);
 				if (get(res, "error", null)) {
 					notification.error({
 						message: get(res, "error.message", "Có lỗi xảy ra"),
@@ -141,6 +141,12 @@ export default function Users(): JSX.Element {
 	};
 	ColActions.displayName = "ColActions";
 
+	function getProfileUser(user: UserType) {
+		if (user.employee) return user.employee;
+		if (user.parent) return user.parent;
+		return null;
+	}
+
 	const columns = [
 		{
 			width: "25%",
@@ -151,14 +157,22 @@ export default function Users(): JSX.Element {
 		{
 			width: "20%",
 			title: "Phone",
-			dataIndex: "phone",
+			// dataIndex: "phone",
 			key: "phone",
+			// eslint-disable-next-line react/display-name
+			render: (user: UserType) => {
+				return <span>{get(getProfileUser(user), "phone", "")}</span>;
+			},
 		},
 		{
 			width: "20%",
 			title: "Role",
-			dataIndex: "role",
+			// dataIndex: "roles.0.name",
 			key: "role",
+			// eslint-disable-next-line react/display-name
+			render: (user: UserType) => {
+				return <span>{get(user, "roles.0.name", "")}</span>;
+			},
 		},
 		{
 			width: "35%",
@@ -183,7 +197,7 @@ export default function Users(): JSX.Element {
 					</div>
 				</div>
 				<Table
-					dataSource={dataSource}
+					dataSource={get(users, "data", [])}
 					columns={columns}
 					bordered
 					pagination={{ position: ["bottomCenter"], pageSize: 20 }}
