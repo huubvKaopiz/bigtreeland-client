@@ -1,3 +1,4 @@
+
 export interface User {
 	email: string;
 	phone: string;
@@ -24,3 +25,14 @@ export interface AddNewUser {
 	name?: string;
 	address?: string;
 }
+
+export interface Employee {
+    name:string;
+    birthday:string;
+    address:string;
+	gender:number;
+	phone:string;
+	interests:string;
+	dislikes: string;
+}
+
