@@ -15,6 +15,7 @@ export interface Permission {
 	guard_name: string;
 	created_at: string;
 	updated_at: string;
+	description?: string|null;
 }
 
 export interface AddNewUser {

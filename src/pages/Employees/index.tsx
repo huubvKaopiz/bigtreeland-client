@@ -1,19 +1,18 @@
-import React, { useEffect } from "react";
-// import { useSelector } from "react-redux";
-// import { RootState } from "../../store/store";
 import { Col, Input, Layout, Row, Space, Table } from "antd";
-import { Employee } from "../../interface/interfaces";
-import UpdateEmplyeeForm from "./updateEmployee";
+import { get } from "lodash";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { actionGetEmployees } from "store/employees/slice";
+import { RootState } from "../../store/store";
 import AddEmplyeeForm from "./addEmployeeFrom";
 import DeleteEmployeeModal from "./deleteEmployee";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "store/store";
-import { actionGetEmployees } from "store/employees/slice";
-import { get } from "lodash";
+import UpdateEmplyeeForm from "./updateEmployee";
+
+
 
 function Employees(): JSX.Element {
 	const dispatch = useDispatch();
-	const ColActions = (employee: Employee) => {
+	const ColActions = (/*employee: Employee*/) => {
 		return (
 			<Space size="middle">
 				<UpdateEmplyeeForm />
@@ -31,35 +30,35 @@ function Employees(): JSX.Element {
 
 	console.log(employees);
 
-	const dataSource: Employee[] = [
-		{
-			name: "Tran Thi Nham",
-			birthday: "26/03/1992",
-			address: "101E1 Thanh Xuan Bac Thanh Xuan HN",
-			phone: "0363723154",
-			gender: 0,
-			interests: "",
-			dislikes: "",
-		},
-		{
-			name: "Tran Thi Nham",
-			birthday: "26/03/1992",
-			address: "101E1 Thanh Xuan Bac Thanh Xuan HN",
-			phone: "0363723154",
-			gender: 0,
-			interests: "",
-			dislikes: "",
-		},
-		{
-			name: "Tran Thi Nham",
-			birthday: "26/03/1992",
-			address: "101E1 Thanh Xuan Bac Thanh Xuan HN",
-			phone: "0363723154",
-			gender: 0,
-			interests: "",
-			dislikes: "",
-		},
-	];
+	// const dataSource: Employee[] = [
+	// 	{
+	// 		name: "Tran Thi Nham",
+	// 		birthday: "26/03/1992",
+	// 		address: "101E1 Thanh Xuan Bac Thanh Xuan HN",
+	// 		phone: "0363723154",
+	// 		gender: 0,
+	// 		interests: "",
+	// 		dislikes: "",
+	// 	},
+	// 	{
+	// 		name: "Tran Thi Nham",
+	// 		birthday: "26/03/1992",
+	// 		address: "101E1 Thanh Xuan Bac Thanh Xuan HN",
+	// 		phone: "0363723154",
+	// 		gender: 0,
+	// 		interests: "",
+	// 		dislikes: "",
+	// 	},
+	// 	{
+	// 		name: "Tran Thi Nham",
+	// 		birthday: "26/03/1992",
+	// 		address: "101E1 Thanh Xuan Bac Thanh Xuan HN",
+	// 		phone: "0363723154",
+	// 		gender: 0,
+	// 		interests: "",
+	// 		dislikes: "",
+	// 	},
+	// ];
 
 	const columns = [
 		{

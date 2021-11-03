@@ -1,7 +1,5 @@
-import React from "react";
-import { useSelector } from "react-redux";
-import { RootState } from "../../store/store";
 import { Layout } from "antd";
+import React from "react";
 
 function Classes(): JSX.Element {
 	// const counter = useSelector((state: RootState) => state.counter);

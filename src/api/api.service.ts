@@ -10,7 +10,7 @@ export default {
 			params,
 		});
 	},
-	get<T>(resource: string, getParams: T): Promise<AxiosResponse> {
+	get<T>(resource: string, getParams?: T): Promise<AxiosResponse> {
 		return request({
 			url: resource,
 			method: "get",

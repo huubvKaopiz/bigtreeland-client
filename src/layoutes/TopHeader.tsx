@@ -1,14 +1,13 @@
 import { DownOutlined, MenuOutlined } from "@ant-design/icons";
-import { Button, Dropdown, Layout, Menu, notification } from "antd";
+import { Button, Dropdown, Layout, Menu } from "antd";
 import userService from "api/user.service";
+import { PasswordFormProps } from "interface/interfaces";
 import ChangePassForm from "pages/Users/changePassForm";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { actionLogout } from "store/auth/slice";
 import { RootState } from "store/store";
 import styled from "styled-components";
-import { PasswordFormProps } from "interface/interfaces";
-import { UserType as User } from "interface";
 
 const { Header } = Layout;
 

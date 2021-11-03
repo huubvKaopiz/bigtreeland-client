@@ -2,6 +2,7 @@
 import { SearchOutlined } from "@ant-design/icons";
 import { Button, Input, Layout, notification, Space, Spin, Table } from "antd";
 import UserService from "api/user.service";
+import PermissionService from "api/permission.service";
 import useIsMounted from "hooks/useIsMounted";
 import { UserType as User } from "interface";
 import { AddNewUser, PasswordFormProps } from "interface/interfaces";
@@ -23,10 +24,6 @@ export default function Users(): JSX.Element {
 	const isMounted = useIsMounted();
 
 	const userList = useMemo(() => get(users, "data", []), [users]);
-
-	// useEffect(() => {
-	// 	UserService.getMe().then(console.log).catch(console.log).finally();
-	// }, []);
 
 	useEffect(() => {
 		setDataSource(userList);
@@ -64,7 +61,7 @@ export default function Users(): JSX.Element {
 			.then(({ data }: any) => {
 				const roles: any[] = data.roles;
 				const isAdmin = roles.some((role) => role.guard_name === "api" && role.name === "admin");
-				if (!isAdmin) {					
+				if (!isAdmin) {
 					notification.error({
 						message: "Bạn không có quyền của Admin",
 					});
@@ -72,7 +69,7 @@ export default function Users(): JSX.Element {
 				}
 				return Promise.resolve();
 			})
-			.catch((e) => {
+			.catch(() => {
 				notification.error({
 					message: "Có lỗi xảy ra!",
 				});
@@ -82,7 +79,7 @@ export default function Users(): JSX.Element {
 				setLoading(false);
 			});
 	}
-	function handleChangePass(passwordForm: PasswordFormProps, id: string | number|undefined) {
+	function handleChangePass(passwordForm: PasswordFormProps, id: string | number | undefined) {
 		return checkIsAdminRole().then(() => {
 			return UserService.changePasswordOfUser({
 				user_id: id,
@@ -98,10 +95,10 @@ export default function Users(): JSX.Element {
 				notification.success({
 					message: `Vô hiệu hoá tài khoản ${user.email} thành công!`,
 				});
-				return Promise.resolve()
+				return Promise.resolve();
 			})
 			.then(() => {
-				// Huu.bv Todo update lai danh sách user 
+				// Huu.bv Todo update lai danh sách user
 			})
 			.catch(() => {
 				notification.error({
@@ -111,9 +108,30 @@ export default function Users(): JSX.Element {
 			.finally(() => isMounted && setLoading(false));
 	}
 
-	function handleSetPermission(user: User, permissionList: number[]) {
-		console.log(user.email);
-		console.log(permissionList);
+	function handleSetPermission(user: User, newPermissionList: number[], oldPermissionList: number[]) {
+		setLoading(true);
+		const listPermissionAdded = newPermissionList
+			.filter((permission) => !oldPermissionList.includes(permission))
+			.join(",");
+		const listPermissionRemoved = oldPermissionList
+			.filter((permission) => !newPermissionList.includes(permission))
+			.join(",");
+		PermissionService.setPermissionForUser({
+			user_id: user.id,
+			"permission_add_ids[0]": listPermissionAdded,
+			"permission_delete_ids[0]": listPermissionRemoved,
+		})
+			.then(() => {
+				notification.success({
+					message: `Cập nhật quyền cho tài khoản ${user.email} thành công!`,
+				});
+			})
+			.catch(() => {
+				notification.error({
+					message: "Có lỗi xảy ra!",
+				});
+			})
+			.finally(() => setLoading(false));
 	}
 
 	function handleAddNewUser(userValue: AddNewUser) {
@@ -127,10 +145,7 @@ export default function Users(): JSX.Element {
 				<Button size="small" danger onClick={() => handleDeactive(user)}>
 					Vô hiệu hoá
 				</Button>
-				<ChangePermisstion
-					user={user}
-					handleChangePermission={(user, permissionList) => handleSetPermission(user, permissionList)}
-				></ChangePermisstion>
+				<ChangePermisstion user={user} handleChangePermission={handleSetPermission}></ChangePermisstion>
 			</Space>
 		);
 	};

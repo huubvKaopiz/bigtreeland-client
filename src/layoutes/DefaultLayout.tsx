@@ -1,34 +1,22 @@
-import { useState } from "react";
-import { Layout, Menu, Breadcrumb } from "antd";
 import {
-	HomeOutlined,
-	TeamOutlined,
-	CoffeeOutlined,
-	LogoutOutlined,
-	IdcardOutlined,
-	AppstoreOutlined,
-	SolutionOutlined,
+	AppstoreOutlined, CoffeeOutlined, HomeOutlined, IdcardOutlined, SolutionOutlined, TeamOutlined
 } from "@ant-design/icons";
-import { useDispatch } from "react-redux";
+import { Layout, Menu } from "antd";
+import { useState } from "react";
 import { Route, useHistory } from "react-router-dom";
-import Users from "../pages/Users";
-import Home from "../pages/Home";
-import Employees from "../pages/Employees";
 import Classes from "../pages/Classes";
+import Employees from "../pages/Employees";
+import Home from "../pages/Home";
 import Permissions from "../pages/Permissions";
-import { actionLogout } from "../store/auth/slice";
+import Users from "../pages/Users";
 import TopHeader from "./TopHeader";
 
-const { Header, Content, Footer, Sider } = Layout;
+const { Content, Footer, Sider } = Layout;
 
 function DefaultLayout(): JSX.Element {
-	const dispatch = useDispatch();
 	const history = useHistory();
 	const [collapsed, setCollapsed] = useState(false);
 
-	function handleLogout() {
-		dispatch(actionLogout());
-	}
 
 	return (
 		<Layout>
@@ -68,10 +56,7 @@ function DefaultLayout(): JSX.Element {
 					<Menu.Item key="6" icon={<SolutionOutlined />} onClick={() => history.push("/permissions")}>
 						Danh sách quyền
 					</Menu.Item>
-					{/* </Menu> */}
-					{/* <Menu.Item key="5" icon={<LogoutOutlined />} onClick={handleLogout}>
-						Logout
-					</Menu.Item> */}
+					
 				</Menu>
 			</Sider>
 			<Layout className="site-layout">
