@@ -203,6 +203,7 @@ export default function Users(): JSX.Element {
 					columns={columns}
 					bordered
 					pagination={{ position: ["bottomCenter"], pageSize: 20 }}
+					size="small"
 				/>
 			</Spin>
 		</Layout.Content>
