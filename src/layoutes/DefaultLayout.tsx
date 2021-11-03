@@ -75,7 +75,7 @@ function DefaultLayout(): JSX.Element {
 				</Menu>
 			</Sider>
 			<Layout className="site-layout">
-				<TopHeader name="Admin" onClickMenu={() => setCollapsed(!collapsed)} />
+				<TopHeader onClickMenu={() => setCollapsed(!collapsed)} />
 				{/* <Header className="site-layout-background" style={{ padding: 0 }} /> */}
 				<Content style={{ margin: "0 16px" }}>
 					<Route exact path="/" component={Home} />

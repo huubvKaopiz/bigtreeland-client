@@ -1,8 +1,10 @@
 import React from "react";
 import { Button, Layout, Menu, Dropdown } from "antd";
 import { DownOutlined, MenuOutlined } from "@ant-design/icons";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
+import { actionLogout } from "store/auth/slice";
+import { RootState } from "store/store";
 
 const { Header } = Layout;
 
@@ -16,19 +18,17 @@ const HeaderWrapper = styled.div`
 `;
 
 interface TopHeaderType {
-	name: string;
 	onClickMenu: () => void;
 }
 
 function TopHeader(props: TopHeaderType): JSX.Element {
-	const { onClickMenu, name } = props;
+	const { onClickMenu } = props;
 	const dispatch = useDispatch();
-	// const { t, i18n } = useTranslation();
+	const user = useSelector((state: RootState) => state.auth.user);
 
-	// function onChangeLanguage(value) {
-	// i18n.changeLanguage(value.key);
-	// localStorage.setItem(languageKey, value.key);
-	// }
+	function handleLogout() {
+		dispatch(actionLogout());
+	}
 
 	return (
 		<Header style={{ padding: 0, background: "white" }}>
@@ -40,7 +40,7 @@ function TopHeader(props: TopHeaderType): JSX.Element {
 							<Menu>
 								<Menu.Item key="setting">Change setting</Menu.Item>
 								<Menu.Item key="change-password">Change password</Menu.Item>
-								<Menu.Item key="logout">
+								<Menu.Item key="logout" onClick={handleLogout}>
 									<span>Logout</span>
 								</Menu.Item>
 							</Menu>
@@ -48,7 +48,7 @@ function TopHeader(props: TopHeaderType): JSX.Element {
 						className="mr-2"
 					>
 						<Button>
-							<span>{name}</span>
+							<span>{user?.name}</span>
 							<DownOutlined />
 						</Button>
 					</Dropdown>
