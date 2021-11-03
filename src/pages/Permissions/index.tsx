@@ -13,7 +13,7 @@ const Wrapper = styled.div`
 		&__button {
 			display: flex;
 			justify-content: flex-end;
-            margin: 0 0 24px 0;
+			margin: 0 0 24px 0;
 		}
 	}
 `;
@@ -33,8 +33,9 @@ const tableColumn = [
 		title: "Id",
 		key: "id",
 		dataIndex: "id",
-		defaultSortOrder: "ascend" as 'ascend',
-        showSorterTooltip: false,
+		// eslint-disable-next-line @typescript-eslint/prefer-as-const
+		defaultSortOrder: "ascend" as "ascend",
+		showSorterTooltip: false,
 		sorter: {
 			compare: (a: Permission, b: Permission) => a.id - b.id,
 			multiple: 3,
@@ -62,7 +63,7 @@ const tableColumn = [
 		render: function UserLink(date: string): JSX.Element {
 			return <>{formatDate(date, DatePattern.DD_MM_YYYY_HH_mm_ss)}</>;
 		},
-        showSorterTooltip: false,
+		showSorterTooltip: false,
 		sorter: {
 			compare: (a: Permission, b: Permission) => dateSort(a.created_at, b.created_at),
 			multiple: 2,
@@ -75,8 +76,8 @@ const tableColumn = [
 		render: function UserLink(date: string): JSX.Element {
 			return <>{formatDate(date, DatePattern.DD_MM_YYYY_HH_mm_ss)}</>;
 		},
-        showSorterTooltip: false,
-        sorter: {
+		showSorterTooltip: false,
+		sorter: {
 			compare: (a: Permission, b: Permission) => dateSort(a.updated_at, b.updated_at),
 			multiple: 1,
 		},
@@ -86,7 +87,7 @@ const tableColumn = [
 		key: "action",
 		render: function ActionRow(text: string, record: Permission): JSX.Element {
 			return (
-				<Space size="large" style={{display: "flex", justifyContent: "center"}}>
+				<Space size="large" style={{ display: "flex", justifyContent: "center" }}>
 					<a>
 						<EditOutlined />
 					</a>
@@ -123,6 +124,7 @@ function Permissions(): JSX.Element {
 					loading={isLoading}
 					pagination={{ position: ["bottomCenter"], pageSize: 20 }}
 					dataSource={tableItem}
+					size="small"
 				/>
 			</Layout.Content>
 		</Wrapper>
