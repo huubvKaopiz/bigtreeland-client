@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 // import { useSelector } from "react-redux";
 // import { RootState } from "../../store/store";
 import { Col, Input, Layout, Row, Space, Table } from "antd";
@@ -6,8 +6,13 @@ import { Employee } from "../../utils/interfaces";
 import UpdateEmplyeeForm from "./updateEmployee";
 import AddEmplyeeForm from "./addEmployeeFrom";
 import DeleteEmployeeModal from "./deleteEmployee";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "store/store";
+import { actionGetEmployees } from "store/employees/slice";
+import { get } from "lodash";
 
 function Employees(): JSX.Element {
+	const dispatch = useDispatch();
 	const ColActions = (employee: Employee) => {
 		return (
 			<Space size="middle">
@@ -17,6 +22,14 @@ function Employees(): JSX.Element {
 		);
 	};
 	ColActions.displayName = "ColActions";
+
+	useEffect(() => {
+		dispatch(actionGetEmployees({}));
+	}, [dispatch]);
+
+	const employees = useSelector((state: RootState) => state.employeeReducer.employees);
+
+	console.log(employees);
 
 	const dataSource: Employee[] = [
 		{
@@ -97,7 +110,7 @@ function Employees(): JSX.Element {
 					<AddEmplyeeForm />
 				</Col>
 			</Row>
-			<Table size="small" dataSource={dataSource} columns={columns} bordered />
+			<Table size="small" dataSource={get(employees, "data", [])} columns={columns} bordered />
 		</Layout.Content>
 	);
 }

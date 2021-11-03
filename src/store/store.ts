@@ -2,12 +2,14 @@ import { combineReducers, configureStore, getDefaultMiddleware } from "@reduxjs/
 import { useDispatch } from "react-redux";
 import userReducer from "./users/slice";
 import auth from "./auth/slice";
+import employeeReducer from "./employees/slice";
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 
 const rootReducer = combineReducers({
 	auth,
 	userReducer,
+	employeeReducer,
 });
 
 const persistConfig = {
