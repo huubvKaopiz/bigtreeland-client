@@ -1,8 +1,5 @@
-import React, { useEffect } from "react";
-import { useSelector } from "react-redux";
-import { RootState } from "../../store/store";
 import { Layout } from "antd";
-import Wrapper from "./index.style";
+import React, { useEffect } from "react";
 import io from "socket.io-client";
 
 if (process.env.REACT_APP_SOCKET) {

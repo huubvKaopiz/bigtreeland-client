@@ -5,13 +5,16 @@ export default {
 	getMe(): Promise<AxiosResponse> {
 		return APIService.post("api/auth/me", {});
 	},
-	changePassword<T>(body: T): Promise<AxiosResponse> {
-		return APIService.post("api/auth/change-password", body);
+	changePasswordOfUser<T>(body: T): Promise<AxiosResponse> {
+		return APIService.post("api/auth/change-password-of-user", body);
+	},
+	changePasswordSelf<T>(body: T): Promise<AxiosResponse> {
+		return APIService.post("api/auth/change-password-of-user", body);
 	},
 	createUser<T>(body: T): Promise<AxiosResponse> {
-		return APIService.post("api/user/create-user", body);
+		return APIService.post("api/users", body);
 	},
-	deactiveUser<T>(body: T): Promise<AxiosResponse> {
-		return APIService.post("api/user/deactive", body);
+	deactiveUser<T>(userId: T): Promise<AxiosResponse> {
+		return APIService.delete(`api/users/${userId}`);
 	},
 };

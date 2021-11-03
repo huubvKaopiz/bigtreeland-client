@@ -10,7 +10,7 @@ export default {
 			params,
 		});
 	},
-	get<T>(resource: string, getParams: T): Promise<AxiosResponse> {
+	get<T>(resource: string, getParams?: T): Promise<AxiosResponse> {
 		return request({
 			url: resource,
 			method: "get",
@@ -21,21 +21,21 @@ export default {
 		return request({
 			url: resource,
 			method: "post",
-			params,
+			data: params,
 		});
 	},
 	update<T>(resource: string, slug: string, params: T): Promise<AxiosResponse> {
 		return request({
 			url: `${resource}/${slug}`,
 			method: "put",
-			params,
+			data: params,
 		});
 	},
 	put<T>(resource: string, params: T): Promise<AxiosResponse> {
 		return request({
 			url: resource,
 			method: "put",
-			params,
+			data: params,
 		});
 	},
 	delete(resource: string): Promise<AxiosResponse> {

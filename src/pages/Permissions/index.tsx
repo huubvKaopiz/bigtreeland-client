@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { PERMISSION_LIST } from "../../assets/mock-data/PermissionList";
 import { formatDate, dateSort, DatePattern } from "../../utils/dateUltils";
-import { Button, Layout, PageHeader, Divider, Space, Table } from "antd";
+import { Button, Layout, PageHeader, Divider, Space, Table, notification } from "antd";
 import { SearchOutlined, TeamOutlined, DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import { Permission } from "interface/interfaces";
+import RoleService from "api/role.service";
 
 const Wrapper = styled.div`
 	.permission {
@@ -17,14 +19,6 @@ const Wrapper = styled.div`
 		}
 	}
 `;
-
-interface Permission {
-	id: number;
-	name: string;
-	guard_name: string;
-	created_at: string;
-	updated_at: string;
-}
 
 // Todo use fetch to get PERMISSION_LIST
 const tableItem: Permission[] = PERMISSION_LIST;
@@ -85,13 +79,27 @@ const tableColumn = [
 	{
 		title: "",
 		key: "action",
-		render: function ActionRow(text: string, record: Permission): JSX.Element {
+		render: function ActionRow(_: string, record: Permission): JSX.Element {
 			return (
 				<Space size="large" style={{ display: "flex", justifyContent: "center" }}>
 					<a>
 						<EditOutlined />
 					</a>
-					<a>
+					<a
+						onClick={() => {
+							RoleService.deleteRole(record.id)
+								.then(() => {
+									notification.success({
+										message: `Xoá quyền ${record.name} thành công!`,
+									});
+								})
+								.catch(() => {
+									notification.error({
+										message: "Có lỗi xảy ra!",
+									});
+								});
+						}}
+					>
 						<DeleteOutlined />
 					</a>
 				</Space>
@@ -102,6 +110,15 @@ const tableColumn = [
 
 function Permissions(): JSX.Element {
 	const [isLoading, setIsLoading] = useState(false);
+
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	useEffect(() => {
+		setIsLoading(true);
+		setTimeout(() => {
+			setIsLoading(false);
+		}, 2000);
+	}, []);
+
 	return (
 		<Wrapper>
 			<Layout.Content>
