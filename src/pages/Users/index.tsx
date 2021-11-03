@@ -11,6 +11,7 @@ import AddNewUserForm from "./AddNewUserForm";
 import ChangePassForm from "./changePassForm";
 import ChangePermisstion from "./ChangePermisstion";
 import { UserType } from "interface";
+import useIsMounted from "hooks/useIsMounted";
 
 const userTableData: User[] = [
 	{
@@ -36,6 +37,7 @@ export default function Users(): JSX.Element {
 	const [loading, setLoading] = useState(false);
 	const [dataSource, setDataSource] = useState(userTableData);
 	const [filterValue, setFilterValue] = useState("");
+	const isMounted = useIsMounted();
 
 	// useEffect(() => {
 	// 	UserService.getMe().then(console.log).catch(console.log).finally();
@@ -52,9 +54,9 @@ export default function Users(): JSX.Element {
 				}
 			})
 			.finally(() => {
-				setLoading(false);
+				isMounted.current && setLoading(false);
 			});
-	}, [dispatch]);
+	}, [dispatch, isMounted]);
 
 	function handleTableFilter(e: BaseSyntheticEvent) {
 		const currentFiltervalue = e.target.value;
@@ -101,7 +103,7 @@ export default function Users(): JSX.Element {
 					message: "Có lỗi xảy ra!",
 				});
 			})
-			.finally(() => setLoading(false));
+			.finally(() => isMounted && setLoading(false));
 	}
 
 	function handleSetPermission(user: User, permissionList: number[]) {
@@ -122,7 +124,7 @@ export default function Users(): JSX.Element {
 					message: "Có lỗi xảy ra!",
 				});
 			})
-			.finally(() => setLoading(false));
+			.finally(() => isMounted.current && setLoading(false));
 	}
 
 	const ColActions = (user: User) => {

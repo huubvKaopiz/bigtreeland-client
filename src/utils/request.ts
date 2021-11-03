@@ -1,5 +1,7 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import { store } from "../store/store";
+import { get } from "lodash";
+import { actionLogout } from "store/auth/slice";
 
 const apiUrl = process.env.REACT_APP_API;
 
@@ -13,6 +15,16 @@ export default function request(options: AxiosRequestConfig): Promise<AxiosRespo
 	if (access_token) {
 		axios.defaults.headers.common["Authorization"] = `Bearer ${access_token}`;
 	}
+
+	axios.interceptors.response.use(
+		(response) => response,
+		(error) => {
+			if (get(error, "response.status", 1) === 401) {
+				store.dispatch(actionLogout());
+			}
+			throw error;
+		}
+	);
 
 	return axios(options);
 }
