@@ -1,10 +1,14 @@
-import React from "react";
-import { Button, Layout, Menu, Dropdown } from "antd";
 import { DownOutlined, MenuOutlined } from "@ant-design/icons";
+import { Button, Dropdown, Layout, Menu, notification } from "antd";
+import userService from "api/user.service";
+import ChangePassForm from "pages/Users/changePassForm";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import styled from "styled-components";
 import { actionLogout } from "store/auth/slice";
 import { RootState } from "store/store";
+import styled from "styled-components";
+import { PasswordFormProps } from "interface/interfaces";
+import { UserType as User } from "interface";
 
 const { Header } = Layout;
 
@@ -26,8 +30,19 @@ function TopHeader(props: TopHeaderType): JSX.Element {
 	const dispatch = useDispatch();
 	const user = useSelector((state: RootState) => state.auth.user);
 
+	useEffect(() => {
+		userService.getMe().then(console.log).catch(console.log).finally();
+	}, []);
+
 	function handleLogout() {
 		dispatch(actionLogout());
+	}
+
+	function handleChangePass(passwordForm: PasswordFormProps) {
+		return userService.changePasswordSelf({
+			current_password: passwordForm.old_password,
+			new_password: passwordForm.new_password,
+		});
 	}
 
 	return (
@@ -38,8 +53,10 @@ function TopHeader(props: TopHeaderType): JSX.Element {
 					<Dropdown
 						overlay={
 							<Menu>
-								<Menu.Item key="setting">Change setting</Menu.Item>
-								<Menu.Item key="change-password">Change password</Menu.Item>
+								<Menu.Item key="setting">Thay đổi cài đặt</Menu.Item>
+								<Menu.Item key="change-password">
+									<ChangePassForm handleChangePass={handleChangePass} />
+								</Menu.Item>
 								<Menu.Item key="logout" onClick={handleLogout}>
 									<span>Logout</span>
 								</Menu.Item>

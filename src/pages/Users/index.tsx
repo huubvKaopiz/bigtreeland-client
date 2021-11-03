@@ -1,47 +1,36 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { SearchOutlined } from "@ant-design/icons";
 import { Button, Input, Layout, notification, Space, Spin, Table } from "antd";
 import UserService from "api/user.service";
+import useIsMounted from "hooks/useIsMounted";
+import { UserType as User } from "interface";
+import { AddNewUser, PasswordFormProps } from "interface/interfaces";
 import { get } from "lodash";
-import React, { BaseSyntheticEvent, useEffect, useState } from "react";
+import React, { BaseSyntheticEvent, useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
-import { fetchUsers } from "store/users/slice";
 import { RootState, useAppDispatch } from "store/store";
-import { AddNewUser, PasswordFormProps, User } from "utils/interfaces";
+import { fetchUsers } from "store/users/slice";
 import AddNewUserForm from "./AddNewUserForm";
 import ChangePassForm from "./changePassForm";
 import ChangePermisstion from "./ChangePermisstion";
-import { UserType } from "interface";
-import useIsMounted from "hooks/useIsMounted";
-
-const userTableData: User[] = [
-	{
-		email: "nhamtkdh92@gmail.com",
-		phone: "0987654321",
-		role: "admin",
-	},
-	{
-		email: "coffee.sua@gmail.com",
-		phone: "123456789",
-		role: "teacher",
-	},
-	{
-		email: "huubuivan@gmail.com",
-		phone: "1345282122",
-		role: "parent",
-	},
-];
 
 export default function Users(): JSX.Element {
 	const dispatch = useAppDispatch();
 	const users = useSelector((state: RootState) => state.userReducer.users);
 	const [loading, setLoading] = useState(false);
-	const [dataSource, setDataSource] = useState(userTableData);
+	const [dataSource, setDataSource] = useState(get(users, "data", []));
 	const [filterValue, setFilterValue] = useState("");
 	const isMounted = useIsMounted();
+
+	const userList = useMemo(() => get(users, "data", []), [users]);
 
 	// useEffect(() => {
 	// 	UserService.getMe().then(console.log).catch(console.log).finally();
 	// }, []);
+
+	useEffect(() => {
+		setDataSource(userList);
+	}, [userList]);
 
 	useEffect(() => {
 		setLoading(true);
@@ -61,42 +50,58 @@ export default function Users(): JSX.Element {
 	function handleTableFilter(e: BaseSyntheticEvent) {
 		const currentFiltervalue = e.target.value;
 		setFilterValue(currentFiltervalue);
-		const filteredUserTableData = userTableData.filter(
+		const filteredUserTableData = userList.filter(
 			(entry: User) =>
 				entry.email.includes(currentFiltervalue) ||
-				entry.phone.includes(currentFiltervalue) ||
-				entry.role.includes(currentFiltervalue)
+				get(getProfileUser(entry), "phone", "").includes(currentFiltervalue) ||
+				entry.roles.includes(currentFiltervalue)
 		);
 		setDataSource(filteredUserTableData);
 	}
-
-	function handleChangePass(user: User, passwordForm: PasswordFormProps) {
+	function checkIsAdminRole() {
 		setLoading(true);
-		UserService.changePassword({
-			email: user.email,
-			oldPassword: passwordForm.old_password,
-			newPassword: passwordForm.new_password,
-		})
-			.then(() => {
-				notification.success({
-					message: "Đổi mật khẩu thành công!",
-				});
+		return UserService.getMe()
+			.then(({ data }: any) => {
+				const roles: any[] = data.roles;
+				const isAdmin = roles.some((role) => role.guard_name === "api" && role.name === "admin");
+				if (!isAdmin) {					
+					notification.error({
+						message: "Bạn không có quyền của Admin",
+					});
+					return Promise.reject();
+				}
+				return Promise.resolve();
 			})
-			.catch(() => {
+			.catch((e) => {
 				notification.error({
 					message: "Có lỗi xảy ra!",
 				});
+				return Promise.reject();
 			})
-			.finally(() => setLoading(false));
+			.finally(() => {
+				setLoading(false);
+			});
+	}
+	function handleChangePass(passwordForm: PasswordFormProps, id: string | number|undefined) {
+		return checkIsAdminRole().then(() => {
+			return UserService.changePasswordOfUser({
+				user_id: id,
+				new_password: passwordForm.new_password,
+			}).catch(() => Promise.reject());
+		});
 	}
 
 	function handleDeactive(user: User) {
 		setLoading(true);
-		UserService.deactiveUser({ email: user.email })
+		UserService.deactiveUser(user.id)
 			.then(() => {
 				notification.success({
 					message: `Vô hiệu hoá tài khoản ${user.email} thành công!`,
 				});
+				return Promise.resolve()
+			})
+			.then(() => {
+				// Huu.bv Todo update lai danh sách user 
 			})
 			.catch(() => {
 				notification.error({
@@ -112,25 +117,13 @@ export default function Users(): JSX.Element {
 	}
 
 	function handleAddNewUser(userValue: AddNewUser) {
-		setLoading(true);
-		UserService.createUser({ ...userValue })
-			.then(() => {
-				notification.success({
-					message: "Tạo người dùng mới thành công!",
-				});
-			})
-			.catch(() => {
-				notification.error({
-					message: "Có lỗi xảy ra!",
-				});
-			})
-			.finally(() => isMounted.current && setLoading(false));
+		return UserService.createUser({ ...userValue });
 	}
 
 	const ColActions = (user: User) => {
 		return (
 			<Space size="middle">
-				<ChangePassForm user={user} handleChangePass={(user, passwordForm) => handleChangePass(user, passwordForm)} />
+				<ChangePassForm userId={user.id} handleChangePass={handleChangePass} />
 				<Button size="small" danger onClick={() => handleDeactive(user)}>
 					Vô hiệu hoá
 				</Button>
@@ -143,7 +136,7 @@ export default function Users(): JSX.Element {
 	};
 	ColActions.displayName = "ColActions";
 
-	function getProfileUser(user: UserType) {
+	function getProfileUser(user: User) {
 		if (user.employee) return user.employee;
 		if (user.parent) return user.parent;
 		return null;
@@ -162,7 +155,7 @@ export default function Users(): JSX.Element {
 			// dataIndex: "phone",
 			key: "phone",
 			// eslint-disable-next-line react/display-name
-			render: (user: UserType) => {
+			render: (user: User) => {
 				return <span>{get(getProfileUser(user), "phone", "")}</span>;
 			},
 		},
@@ -172,7 +165,7 @@ export default function Users(): JSX.Element {
 			// dataIndex: "roles.0.name",
 			key: "role",
 			// eslint-disable-next-line react/display-name
-			render: (user: UserType) => {
+			render: (user: User) => {
 				return <span>{get(user, "roles.0.name", "")}</span>;
 			},
 		},
@@ -199,7 +192,7 @@ export default function Users(): JSX.Element {
 					</div>
 				</div>
 				<Table
-					dataSource={get(users, "data", [])}
+					dataSource={dataSource}
 					columns={columns}
 					bordered
 					pagination={{ position: ["bottomCenter"], pageSize: 20 }}

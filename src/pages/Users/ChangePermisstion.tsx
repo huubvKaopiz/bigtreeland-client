@@ -1,7 +1,7 @@
 import { Button, Col, Modal, Row, Select, Tag } from "antd";
 import { PERMISSION_LIST } from "assets/mock-data/PermissionList";
 import React, { useState } from "react";
-import { User } from "utils/interfaces";
+import { UserType as User } from "interface/index";
 
 interface Props {
 	user: User;

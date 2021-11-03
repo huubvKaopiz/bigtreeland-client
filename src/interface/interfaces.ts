@@ -5,7 +5,7 @@ export interface User {
 	role: string;
 }
 export interface PasswordFormProps {
-	old_password: string;
+	old_password?: string;
 	new_password: string;
 	confirm_new_password: string;
 }

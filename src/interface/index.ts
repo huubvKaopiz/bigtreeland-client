@@ -12,7 +12,7 @@ export interface UserType {
 	email: "admin@gmail.com";
 	email_verified_at: null;
 	employee: null;
-	id: 1;
+	id: string | number;
 	name: "admin";
 	parent: null;
 	permissions: [];

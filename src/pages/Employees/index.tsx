@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 // import { useSelector } from "react-redux";
 // import { RootState } from "../../store/store";
 import { Col, Input, Layout, Row, Space, Table } from "antd";
-import { Employee } from "../../utils/interfaces";
+import { Employee } from "../../interface/interfaces";
 import UpdateEmplyeeForm from "./updateEmployee";
 import AddEmplyeeForm from "./addEmployeeFrom";
 import DeleteEmployeeModal from "./deleteEmployee";
