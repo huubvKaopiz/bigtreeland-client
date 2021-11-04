@@ -1,20 +1,22 @@
 import { PlusOutlined } from "@ant-design/icons";
-import { Button, Form, Input, Modal, notification, Select, Space, Spin } from "antd";
-import { AxiosResponse } from "axios";
+import { Button, Form, Input, Modal, Select, Space, Spin } from "antd";
 import validateMessage from "lib/validateMessage";
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import { AddNewUser } from "interface/interfaces";
+import { useSelector } from "react-redux";
+import { RootState, useAppDispatch } from "store/store";
+import { actionGetUsers, actionResetStatusAddUser } from "store/users/slice";
 
-function AddNewUserForm({ onAddUser }: { onAddUser: (userInfo: AddNewUser) => Promise<AxiosResponse> }): JSX.Element {
+function AddNewUserForm({ onAddUser }: { onAddUser: (userInfo: AddNewUser) => void }): JSX.Element {
 	const [showForm, setShowForm] = useState(false);
-	const [loading, setLoading] = useState(false);
 	const [form] = Form.useForm();
+	const status = useSelector((state: RootState) => state.userReducer.statusAddUser);
+	const dispatch = useAppDispatch();
 
 	const form_layout = {
 		labelCol: { span: 8 },
 		wrapperCol: { span: 16 },
 	};
-	// Huu.bv get listRole từ redux
 	const listRole = [
 		{
 			label: "admin",
@@ -33,27 +35,17 @@ function AddNewUserForm({ onAddUser }: { onAddUser: (userInfo: AddNewUser) => Pr
 		form.resetFields();
 	}
 	function handleAddUser(userInfo: AddNewUser) {
-		setLoading(true)
-		onAddUser(userInfo)
-			.then(() => {
-				notification.success({
-					message: "Tạo người dùng mới thành công!",
-				});
-				handleResetFormField();
-				setShowForm(false);
-				return Promise.resolve()
-			})
-			.then(() => {
-				// Huu.bv Todo update lai danh sách user 
-			})
-			.catch((e) => {
-				notification.error({
-					message: "Có lỗi xảy ra!",
-				});
-				console.log(e.response?.data?.message);
-			})
-			.finally(() => setLoading(false));
+		onAddUser(userInfo);
 	}
+
+	useEffect(() => {
+		if (status === "success") {
+			setShowForm(false);
+			dispatch(actionResetStatusAddUser());
+			dispatch(actionGetUsers({}));
+		}
+	}, [status, dispatch]);
+
 	return (
 		<>
 			<Button type="primary" icon={<PlusOutlined />} onClick={() => setShowForm(true)}>
@@ -70,7 +62,7 @@ function AddNewUserForm({ onAddUser }: { onAddUser: (userInfo: AddNewUser) => Pr
 				footer={false}
 				width={800}
 			>
-				<Spin spinning={loading}>
+				<Spin spinning={status === "loading"}>
 					<Form {...form_layout} labelAlign="left" name="nest-messages" onFinish={handleAddUser} form={form}>
 						<Form.Item
 							name={"email"}
@@ -93,7 +85,11 @@ function AddNewUserForm({ onAddUser }: { onAddUser: (userInfo: AddNewUser) => Pr
 						<Form.Item name={"role_id"} label="Role" rules={[{ required: true, message: validateMessage.REQUIRE }]}>
 							<Select options={listRole} />
 						</Form.Item>
-						<Form.Item name={"password"} label="Mật khẩu" rules={[{ required: true, message: validateMessage.REQUIRE }]}>
+						<Form.Item
+							name={"password"}
+							label="Mật khẩu"
+							rules={[{ required: true, message: validateMessage.REQUIRE }]}
+						>
 							<Input.Password />
 						</Form.Item>
 						<Form.Item wrapperCol={{ offset: 8 }}>

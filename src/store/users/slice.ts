@@ -1,10 +1,16 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { notification } from "antd";
 import { ListUserType } from "interface";
+import { AddNewUser } from "interface/interfaces";
 import request from "../../utils/request";
 
 export interface UserReducerState {
-	value: number;
 	users: ListUserType | null;
+	statusGetUser: "idle" | "loading" | "success" | "error";
+	statusChangePassword: "idle" | "loading" | "success" | "error";
+	statusDeactiveUser: "idle" | "loading" | "success" | "error";
+	statusSetPermissionsForUser: "idle" | "loading" | "success" | "error";
+	statusAddUser: "idle" | "loading" | "success" | "error";
 }
 
 export interface ParamGetUsers {
@@ -12,11 +18,15 @@ export interface ParamGetUsers {
 }
 
 const initialState: UserReducerState = {
-	value: 0,
 	users: null,
+	statusGetUser: "idle",
+	statusChangePassword: "idle",
+	statusDeactiveUser: "idle",
+	statusSetPermissionsForUser: "idle",
+	statusAddUser: "idle",
 };
 
-export const fetchUsers = createAsyncThunk("getUsers", async (params: ParamGetUsers) => {
+export const actionGetUsers = createAsyncThunk("actionGetUsers", async (params: ParamGetUsers) => {
 	const response = await request({
 		url: "/api/users",
 		method: "get",
@@ -25,33 +35,132 @@ export const fetchUsers = createAsyncThunk("getUsers", async (params: ParamGetUs
 	return response.data;
 });
 
-export const counterSlice = createSlice({
-	name: "counter",
+export const actionChangePassworfOfUser = createAsyncThunk(
+	"actionChangePassworfOfUser",
+	async (data: { new_password: string; user_id: number }) => {
+		const response = await request({
+			url: "/api/users/change-password-of-user",
+			method: "post",
+			data,
+		});
+		return response.data;
+	}
+);
+
+export const actionDeactiveUser = createAsyncThunk("actionDeactiveUser", async (userId: number) => {
+	const response = await request({
+		url: `/api/users/${userId}`,
+		method: "delete",
+	});
+	return response.data;
+});
+
+export const actionSetPermissionsForUser = createAsyncThunk(
+	"actionSetPermissionsForUser",
+	async (data: { user_id: number; permission_add_ids: number[]; permission_delete_ids: number[] }) => {
+		const response = await request({
+			url: "/api/permissions/set-permission-for-user",
+			method: "post",
+			data,
+		});
+		return response.data;
+	}
+);
+
+export const actionAddUser = createAsyncThunk("actionAddUser", async (data: AddNewUser) => {
+	const response = await request({
+		url: "/api/users",
+		method: "post",
+		data,
+	});
+	return response.data;
+});
+
+export const slice = createSlice({
+	name: "users",
 	initialState,
 	reducers: {
-		increment: (state) => {
-			// Redux Toolkit allows us to write "mutating" logic in reducers. It
-			// doesn't actually mutate the state because it uses the Immer library,
-			// which detects changes to a "draft state" and produces a brand new
-			// immutable state based off those changes
-			state.value += 1;
+		actionResetStatusAddUser(state) {
+			state.statusAddUser = "idle";
 		},
-		decrement: (state) => {
-			state.value -= 1;
+		actionResetStatusDeactiveUser(state) {
+			state.statusDeactiveUser = "idle";
 		},
-		incrementByAmount: (state, action: PayloadAction<number>) => {
-			state.value += action.payload;
+		actionResetStatusChangePassword(state) {
+			state.statusChangePassword = "idle";
 		},
 	},
 
 	extraReducers: (builder) => {
-		builder.addCase(fetchUsers.fulfilled, (state, action) => {
-			state.users = action.payload as ListUserType;
-		});
+		builder
+			// GET USERS
+			.addCase(actionGetUsers.pending, (state) => {
+				state.statusGetUser = "loading";
+			})
+			.addCase(actionGetUsers.fulfilled, (state, action) => {
+				state.users = action.payload as ListUserType;
+				state.statusGetUser = "success";
+			})
+			.addCase(actionGetUsers.rejected, (state) => {
+				state.statusGetUser = "error";
+				state.users = null;
+			})
+
+			// CHANGE PASSWORD FOR USER
+			.addCase(actionChangePassworfOfUser.pending, (state) => {
+				state.statusChangePassword = "loading";
+			})
+			.addCase(actionChangePassworfOfUser.fulfilled, (state, action) => {
+				state.statusChangePassword = "success";
+				notification.success({ message: "Đổi mật khẩu thành công" });
+			})
+			.addCase(actionChangePassworfOfUser.rejected, (state, action) => {
+				state.statusChangePassword = "error";
+				notification.error({ message: "Có lỗi xảy ra" });
+			})
+
+			//  DEACTIVE USER
+			.addCase(actionDeactiveUser.pending, (state) => {
+				state.statusDeactiveUser = "loading";
+			})
+			.addCase(actionDeactiveUser.fulfilled, (state, action) => {
+				state.statusDeactiveUser = "success";
+				notification.success({ message: "Vô hiệu hoá tài khoản thành công" });
+			})
+			.addCase(actionDeactiveUser.rejected, (state, action) => {
+				state.statusDeactiveUser = "error";
+				notification.error({ message: "Có lỗi xảy ra" });
+			})
+
+			// SET PERMISSIONS FOR USER
+			.addCase(actionSetPermissionsForUser.pending, (state) => {
+				state.statusSetPermissionsForUser = "loading";
+			})
+			.addCase(actionSetPermissionsForUser.fulfilled, (state, action) => {
+				state.statusSetPermissionsForUser = "success";
+				notification.success({ message: "Cập nhật quyền cho tài khoản thành công" });
+			})
+			.addCase(actionSetPermissionsForUser.rejected, (state, action) => {
+				state.statusSetPermissionsForUser = "error";
+				notification.error({ message: "Có lỗi xảy ra" });
+			})
+
+			// ADD USER
+			.addCase(actionAddUser.pending, (state) => {
+				state.statusAddUser = "loading";
+			})
+			.addCase(actionAddUser.fulfilled, (state, action) => {
+				state.statusAddUser = "success";
+				notification.success({ message: "Thêm user thành công" });
+			})
+			.addCase(actionAddUser.rejected, (state, action) => {
+				state.statusAddUser = "error";
+				notification.error({ message: "Có lỗi xảy ra" });
+			});
 	},
 });
 
-// Action creators are generated for each case reducer function
-export const { increment, decrement, incrementByAmount } = counterSlice.actions;
+export const { actionResetStatusAddUser, actionResetStatusDeactiveUser, actionResetStatusChangePassword } =
+	slice.actions;
 
-export default counterSlice.reducer;
+export default slice.reducer;

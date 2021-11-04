@@ -2,7 +2,7 @@ import { DownOutlined, MenuOutlined } from "@ant-design/icons";
 import { Button, Dropdown, Layout, Menu } from "antd";
 import userService from "api/user.service";
 import { PasswordFormProps } from "interface/interfaces";
-import ChangePassForm from "pages/Users/changePassForm";
+import ChangePassForm from "pages/Users/ChangePassword";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { actionLogout } from "store/auth/slice";
@@ -54,7 +54,7 @@ function TopHeader(props: TopHeaderType): JSX.Element {
 							<Menu>
 								<Menu.Item key="setting">Thay đổi cài đặt</Menu.Item>
 								<Menu.Item key="change-password">
-									<ChangePassForm handleChangePass={handleChangePass} />
+									{/* <ChangePassForm handleChangePass={handleChangePass} /> */}
 								</Menu.Item>
 								<Menu.Item key="logout" onClick={handleLogout}>
 									<span>Logout</span>

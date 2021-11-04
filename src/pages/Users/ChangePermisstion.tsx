@@ -41,6 +41,7 @@ function ChangePermisstion({ user, handleChangePermission }: Props): JSX.Element
 				setUserPermissionSelected([...permissionList]);
 			});
 	}, [showForm, user.id]);
+
 	function handleOkButton() {
 		setShowForm(false);
 		if (handleChangePermission) {

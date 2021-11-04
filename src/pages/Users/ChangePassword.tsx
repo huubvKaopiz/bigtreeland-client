@@ -1,44 +1,43 @@
-import { Button, Form, Input, Modal, notification, Space, Spin } from "antd";
-import { AxiosResponse } from "axios";
+import { Button, Form, Input, Modal, Space, Spin } from "antd";
 import validateMessage from "lib/validateMessage";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { RootState, useAppDispatch } from "store/store";
+import { actionResetStatusChangePassword } from "store/users/slice";
 import { PasswordFormProps } from "../../interface/interfaces";
 
 interface Props {
-	handleChangePass: (passwordForm: PasswordFormProps, userId: string | number | undefined) => Promise<AxiosResponse>;
-	userId?: string | number;
+	handleChangePass: (payload: { new_password: string; user_id: number }) => void;
+	userId?: number;
 }
 
-function ChangePassForm(props: Props): JSX.Element {
+function ChangePassword(props: Props): JSX.Element {
 	const [showForm, setShowForm] = useState(false);
-	const [loading, setLoading] = useState(false);
 	const [form] = Form.useForm();
-
+	const { handleChangePass, userId } = props;
+	const statusChangePassword = useSelector((state: RootState) => state.userReducer.statusChangePassword);
 	const selfChagnePassword = !props.userId;
-	const userId = props.userId;
+	const dispatch = useAppDispatch();
+
+	useEffect(() => {
+		if (statusChangePassword === "success") {
+			setShowForm(false);
+			dispatch(actionResetStatusChangePassword());
+		}
+	}, [statusChangePassword, dispatch]);
 
 	const from_layout = {
 		labelCol: { span: 8 },
 		wrapperCol: { span: 16 },
 	};
 
-	function handleChangePass(passwordValue: PasswordFormProps) {
-		setLoading(true);
-		props
-			.handleChangePass(passwordValue, userId)
-			.then(() => {
-				notification.success({
-					message: "Đổi mật khẩu thành công!",
-				});
-				setShowForm(false);
-				handleResetFormField();
-			})
-			.catch(() => {
-				notification.error({
-					message: "Có lỗi xảy ra!",
-				});
-			})
-			.finally(() => setLoading(false));
+	function onFinish(passwordValue: PasswordFormProps) {
+		if (!userId) return;
+		const payload = {
+			user_id: userId,
+			new_password: passwordValue.new_password,
+		};
+		handleChangePass(payload);
 	}
 
 	function handleResetFormField() {
@@ -63,8 +62,8 @@ function ChangePassForm(props: Props): JSX.Element {
 				footer={false}
 				width={800}
 			>
-				<Spin spinning={loading}>
-					<Form {...from_layout} labelAlign="left" name="nest-messages" onFinish={handleChangePass} form={form}>
+				<Spin spinning={statusChangePassword === "loading"}>
+					<Form {...from_layout} labelAlign="left" name="nest-messages" onFinish={onFinish} form={form}>
 						{selfChagnePassword && (
 							<Form.Item
 								name={"old_password"}
@@ -115,4 +114,4 @@ function ChangePassForm(props: Props): JSX.Element {
 	);
 }
 
-export default ChangePassForm;
+export default ChangePassword;
