@@ -3,6 +3,8 @@ import { useDispatch } from "react-redux";
 import userReducer from "./users/slice";
 import auth from "./auth/slice";
 import employeeReducer from "./employees/slice";
+import roleReducer from "./roles/slice";
+import permissionReducer from "./permissions/slice";
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 
@@ -10,6 +12,8 @@ const rootReducer = combineReducers({
 	auth,
 	userReducer,
 	employeeReducer,
+	roleReducer,
+	permissionReducer,
 });
 
 const persistConfig = {

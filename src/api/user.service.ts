@@ -6,7 +6,7 @@ export default {
 		return APIService.post("api/auth/me", {});
 	},
 	changePasswordOfUser<T>(body: T): Promise<AxiosResponse> {
-		return APIService.post("api/auth/change-password-of-user", body);
+		return APIService.post("api/users/change-password-of-user", body);
 	},
 	changePasswordSelf<T>(body: T): Promise<AxiosResponse> {
 		return APIService.post("api/auth/change-password-of-user", body);

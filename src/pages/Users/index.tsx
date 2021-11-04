@@ -14,21 +14,38 @@ import { fetchUsers } from "store/users/slice";
 import AddNewUserForm from "./AddNewUserForm";
 import ChangePassForm from "./changePassForm";
 import ChangePermisstion from "./ChangePermisstion";
+import { actionGetRoles } from "store/roles/slice";
+import { actionGetPermissions } from "store/permissions/slice";
 
 export default function Users(): JSX.Element {
 	const dispatch = useAppDispatch();
 	const users = useSelector((state: RootState) => state.userReducer.users);
 	const [loading, setLoading] = useState(false);
+	// dung luon users, ko can dataSource
 	const [dataSource, setDataSource] = useState(get(users, "data", []));
 	const [filterValue, setFilterValue] = useState("");
 	const isMounted = useIsMounted();
 	const userLogin = useSelector((state: RootState) => state.auth.user);
 
-	const userList = useMemo(() => get(users, "data", []), [users]);
+	// const userList = useMemo(() => get(users, "data", []), [users]);
+
+	const roles = useSelector((state: RootState) => state.roleReducer.roles);
+	const permissions = useSelector((state: RootState) => state.permissionReducer.permissions);
+
+	console.log("roles", roles);
+	console.log("permissions", permissions);
+
+	// useEffect(() => {
+	// 	setDataSource(userList);
+	// }, [userList]);
 
 	useEffect(() => {
-		setDataSource(userList);
-	}, [userList]);
+		dispatch(actionGetRoles());
+	}, [dispatch]);
+
+	useEffect(() => {
+		dispatch(actionGetPermissions());
+	}, [dispatch]);
 
 	useEffect(() => {
 		setLoading(true);
@@ -46,19 +63,22 @@ export default function Users(): JSX.Element {
 	}, [dispatch, isMounted]);
 
 	function handleTableFilter(e: BaseSyntheticEvent) {
-		const currentFiltervalue = e.target.value;
-		setFilterValue(currentFiltervalue);
-		const filteredUserTableData = userList.filter(
-			(entry: User) =>
-				entry.email.includes(currentFiltervalue) ||
-				get(getProfileUser(entry), "phone", "").includes(currentFiltervalue) ||
-				entry.roles.includes(currentFiltervalue)
-		);
-		setDataSource(filteredUserTableData);
+		// TOTO: search user from api
+		// const currentFiltervalue = e.target.value;
+		// setFilterValue(currentFiltervalue);
+		// const filteredUserTableData = userList.filter(
+		// 	(entry: User) =>
+		// 		entry.email.includes(currentFiltervalue) ||
+		// 		get(getProfileUser(entry), "phone", "").includes(currentFiltervalue) ||
+		// 		entry.roles.includes(currentFiltervalue)
+		// );
+		// setDataSource(filteredUserTableData);
 	}
 
 	// function checkIsAdminRole() {
 	// 	setLoading(true);
+	// get Me lay o user login: userLogin
+	// console.log(userLogin)
 	// 	return UserService.getMe()
 	// 		.then(({ data }: any) => {
 	// 			const roles: any[] = data.roles;
@@ -88,6 +108,7 @@ export default function Users(): JSX.Element {
 			new_password: passwordForm.new_password,
 		}).catch(() => Promise.reject());
 
+		// cho nay ko can check admin role, call api loi se return ve 403
 		// return checkIsAdminRole().then(() => {
 		// 	return UserService.changePasswordOfUser({
 		// 		user_id: id,
@@ -212,7 +233,7 @@ export default function Users(): JSX.Element {
 					</div>
 				</div>
 				<Table
-					dataSource={dataSource}
+					dataSource={get(users, "data", [])}
 					columns={columns}
 					bordered
 					pagination={{ position: ["bottomCenter"], pageSize: 20 }}
