@@ -22,6 +22,7 @@ export default function Users(): JSX.Element {
 	const [dataSource, setDataSource] = useState(get(users, "data", []));
 	const [filterValue, setFilterValue] = useState("");
 	const isMounted = useIsMounted();
+	const userLogin = useSelector((state: RootState) => state.auth.user);
 
 	const userList = useMemo(() => get(users, "data", []), [users]);
 
@@ -55,37 +56,44 @@ export default function Users(): JSX.Element {
 		);
 		setDataSource(filteredUserTableData);
 	}
-	function checkIsAdminRole() {
-		setLoading(true);
-		return UserService.getMe()
-			.then(({ data }: any) => {
-				const roles: any[] = data.roles;
-				const isAdmin = roles.some((role) => role.guard_name === "api" && role.name === "admin");
-				if (!isAdmin) {
-					notification.error({
-						message: "Bạn không có quyền của Admin",
-					});
-					return Promise.reject();
-				}
-				return Promise.resolve();
-			})
-			.catch(() => {
-				notification.error({
-					message: "Có lỗi xảy ra!",
-				});
-				return Promise.reject();
-			})
-			.finally(() => {
-				setLoading(false);
-			});
-	}
+
+	// function checkIsAdminRole() {
+	// 	setLoading(true);
+	// 	return UserService.getMe()
+	// 		.then(({ data }: any) => {
+	// 			const roles: any[] = data.roles;
+	// 			const isAdmin = roles.some((role) => role.guard_name === "api" && role.name === "admin");
+	// 			if (!isAdmin) {
+	// 				notification.error({
+	// 					message: "Bạn không có quyền của Admin",
+	// 				});
+	// 				return Promise.reject();
+	// 			}
+	// 			return Promise.resolve();
+	// 		})
+	// 		.catch(() => {
+	// 			notification.error({
+	// 				message: "Có lỗi xảy ra!",
+	// 			});
+	// 			return Promise.reject();
+	// 		})
+	// 		.finally(() => {
+	// 			setLoading(false);
+	// 		});
+	// }
+
 	function handleChangePass(passwordForm: PasswordFormProps, id: string | number | undefined) {
-		return checkIsAdminRole().then(() => {
-			return UserService.changePasswordOfUser({
-				user_id: id,
-				new_password: passwordForm.new_password,
-			}).catch(() => Promise.reject());
-		});
+		return UserService.changePasswordOfUser({
+			user_id: id,
+			new_password: passwordForm.new_password,
+		}).catch(() => Promise.reject());
+
+		// return checkIsAdminRole().then(() => {
+		// 	return UserService.changePasswordOfUser({
+		// 		user_id: id,
+		// 		new_password: passwordForm.new_password,
+		// 	}).catch(() => Promise.reject());
+		// });
 	}
 
 	function handleDeactive(user: User) {
@@ -99,6 +107,7 @@ export default function Users(): JSX.Element {
 			})
 			.then(() => {
 				// Huu.bv Todo update lai danh sách user
+				dispatch(fetchUsers({}));
 			})
 			.catch(() => {
 				notification.error({
@@ -110,16 +119,12 @@ export default function Users(): JSX.Element {
 
 	function handleSetPermission(user: User, newPermissionList: number[], oldPermissionList: number[]) {
 		setLoading(true);
-		const listPermissionAdded = newPermissionList
-			.filter((permission) => !oldPermissionList.includes(permission))
-			.join(",");
-		const listPermissionRemoved = oldPermissionList
-			.filter((permission) => !newPermissionList.includes(permission))
-			.join(",");
+		const listPermissionAdded = newPermissionList.filter((permission) => !oldPermissionList.includes(permission));
+		const listPermissionRemoved = oldPermissionList.filter((permission) => !newPermissionList.includes(permission));
 		PermissionService.setPermissionForUser({
 			user_id: user.id,
-			"permission_add_ids[0]": listPermissionAdded,
-			"permission_delete_ids[0]": listPermissionRemoved,
+			permission_add_ids: listPermissionAdded,
+			permission_delete_ids: listPermissionRemoved,
 		})
 			.then(() => {
 				notification.success({

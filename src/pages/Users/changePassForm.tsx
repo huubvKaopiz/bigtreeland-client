@@ -5,7 +5,7 @@ import React, { useState } from "react";
 import { PasswordFormProps } from "../../interface/interfaces";
 
 interface Props {
-	handleChangePass: (passwordForm: PasswordFormProps, userId: string | number|undefined) => Promise<AxiosResponse>;
+	handleChangePass: (passwordForm: PasswordFormProps, userId: string | number | undefined) => Promise<AxiosResponse>;
 	userId?: string | number;
 }
 
@@ -47,7 +47,11 @@ function ChangePassForm(props: Props): JSX.Element {
 
 	return (
 		<div>
-			{selfChagnePassword ? <span onClick={() => setShowForm(true)}>Đổi mật khẩu</span> : <Button onClick={() => setShowForm(true)}>Đổi mật khẩu </Button>}
+			{selfChagnePassword ? (
+				<span onClick={() => setShowForm(true)}>Đổi mật khẩu</span>
+			) : (
+				<Button onClick={() => setShowForm(true)}>Đổi mật khẩu </Button>
+			)}
 			<Modal
 				title="Thay đổi mật khẩu"
 				centered
