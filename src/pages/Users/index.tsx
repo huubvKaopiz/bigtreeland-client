@@ -26,6 +26,7 @@ export default function Users(): JSX.Element {
 	const [filterValue, setFilterValue] = useState("");
 	const isMounted = useIsMounted();
 	const userLogin = useSelector((state: RootState) => state.auth.user);
+	const [search, setSearch] = useState("");
 
 	// const userList = useMemo(() => get(users, "data", []), [users]);
 
@@ -49,7 +50,7 @@ export default function Users(): JSX.Element {
 
 	useEffect(() => {
 		setLoading(true);
-		dispatch(fetchUsers({}))
+		dispatch(fetchUsers({ search }))
 			.then((res) => {
 				if (get(res, "error", null)) {
 					notification.error({
@@ -60,19 +61,10 @@ export default function Users(): JSX.Element {
 			.finally(() => {
 				isMounted.current && setLoading(false);
 			});
-	}, [dispatch, isMounted]);
+	}, [dispatch, isMounted, search]);
 
 	function handleTableFilter(e: BaseSyntheticEvent) {
-		// TOTO: search user from api
-		// const currentFiltervalue = e.target.value;
-		// setFilterValue(currentFiltervalue);
-		// const filteredUserTableData = userList.filter(
-		// 	(entry: User) =>
-		// 		entry.email.includes(currentFiltervalue) ||
-		// 		get(getProfileUser(entry), "phone", "").includes(currentFiltervalue) ||
-		// 		entry.roles.includes(currentFiltervalue)
-		// );
-		// setDataSource(filteredUserTableData);
+		setSearch(e.target.value);
 	}
 
 	// function checkIsAdminRole() {
@@ -224,7 +216,7 @@ export default function Users(): JSX.Element {
 				<div style={{ marginBottom: 20, display: "flex", justifyContent: "space-between" }}>
 					<Input
 						placeholder="Tìm kiếm thông qua email, phone hoặc role"
-						value={filterValue}
+						value={search}
 						onChange={handleTableFilter}
 						prefix={<SearchOutlined />}
 					/>
