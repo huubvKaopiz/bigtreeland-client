@@ -10,6 +10,23 @@ export interface ParamGetUsers {
 	search?: string;
 }
 
+export interface EmployeeParams {
+	name:string;
+	emaul:string;
+	password:'password';
+	phone:string;
+	gender:number;
+	birthday:string;
+	address:string;
+	interests:string;
+	disklikes:string;
+	identifier:number;
+	basic_salary:string;
+	sales_salary:string;
+	working_day:string;
+	position:string;
+}
+
 const initialState: UserReducerState = {
 	employees: null,
 };
@@ -20,6 +37,25 @@ export const actionGetEmployees = createAsyncThunk("getEmployees", async (params
 		method: "get",
 		params,
 	});
+	return response.data;
+});
+
+export const actionAddEmployee = createAsyncThunk("addEmployee", async(data:EmployeeParams) => {
+	const response = await request({
+		url:"/api/employees",
+		method:"post",
+		data,
+	})
+	console.log(response)
+	return response.data;
+});
+
+export const actionUpdateEmployee = createAsyncThunk("updateEmployee", async ( data:EmployeeParams, eID:any) => {
+	const response = await request({
+		url:`/api/employees/${eID}`,
+		method:"put",
+		data,
+	})
 	return response.data;
 });
 

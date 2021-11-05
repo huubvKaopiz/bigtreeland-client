@@ -1,21 +1,21 @@
-import { Col, Input, Layout, Row, Space, Table } from "antd";
-import { get } from "lodash";
 import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { actionGetEmployees } from "store/employees/slice";
+// import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
+import { Button, Col, Input, Layout, Row, Space, Table } from "antd";
+import { EmployeeContractType, EmployeeType } from "interface";
+import UpdateEmplyeeForm from "./updateEmployee";
 import AddEmplyeeForm from "./addEmployeeFrom";
 import DeleteEmployeeModal from "./deleteEmployee";
-import UpdateEmplyeeForm from "./updateEmployee";
-
-
+import { useDispatch, useSelector } from "react-redux";
+import { actionGetEmployees, actionAddEmployee, EmployeeParams } from "store/employees/slice";
+import { get } from "lodash";
 
 function Employees(): JSX.Element {
 	const dispatch = useDispatch();
-	const ColActions = (/*employee: Employee*/) => {
+	const ColActions = (text:string, record:EmployeeType) => {
 		return (
 			<Space size="middle">
-				<UpdateEmplyeeForm />
+				<UpdateEmplyeeForm employee={record} />
 				<DeleteEmployeeModal />
 			</Space>
 		);
@@ -26,39 +26,13 @@ function Employees(): JSX.Element {
 		dispatch(actionGetEmployees({}));
 	}, [dispatch]);
 
+	const handleAddEmployee = (params:EmployeeParams) => {
+		dispatch(actionAddEmployee(params));
+	}
+
 	const employees = useSelector((state: RootState) => state.employeeReducer.employees);
 
 	console.log(employees);
-
-	// const dataSource: Employee[] = [
-	// 	{
-	// 		name: "Tran Thi Nham",
-	// 		birthday: "26/03/1992",
-	// 		address: "101E1 Thanh Xuan Bac Thanh Xuan HN",
-	// 		phone: "0363723154",
-	// 		gender: 0,
-	// 		interests: "",
-	// 		dislikes: "",
-	// 	},
-	// 	{
-	// 		name: "Tran Thi Nham",
-	// 		birthday: "26/03/1992",
-	// 		address: "101E1 Thanh Xuan Bac Thanh Xuan HN",
-	// 		phone: "0363723154",
-	// 		gender: 0,
-	// 		interests: "",
-	// 		dislikes: "",
-	// 	},
-	// 	{
-	// 		name: "Tran Thi Nham",
-	// 		birthday: "26/03/1992",
-	// 		address: "101E1 Thanh Xuan Bac Thanh Xuan HN",
-	// 		phone: "0363723154",
-	// 		gender: 0,
-	// 		interests: "",
-	// 		dislikes: "",
-	// 	},
-	// ];
 
 	const columns = [
 		{
@@ -66,9 +40,14 @@ function Employees(): JSX.Element {
 			title: "Họ tên",
 			dataIndex: "name",
 			key: "name",
+			render: function NameCol(name:string):JSX.Element {
+				return(
+				<Button type="link">{name}</Button>
+				)
+			}
 		},
 		{
-			width: "15%",
+			width: "10%",
 			title: "Số điện thoại",
 			dataIndex: "phone",
 			key: "phone",
@@ -84,12 +63,29 @@ function Employees(): JSX.Element {
 			title: "Giới tính",
 			dataIndex: "gender",
 			key: "gender",
+			align:"center" as any,
+			render: function GenderCol(gender:number):JSX.Element {
+				return(
+				<span>{gender === 0 ? 'Nữ' : 'Nam'}</span>
+				)
+			}
 		},
 		{
-			width: "30%",
+			width: "25%",
 			title: "Địa chỉ",
 			dataIndex: "address",
 			key: "address",
+		},
+		{
+			width: "10%",
+			title: "Vị trí",
+			dataIndex: "employee_contract",
+			key: "employee_contract",
+			render: function PositionCol(contract:EmployeeContractType):JSX.Element {
+				return(
+				<span>{contract.position}</span>
+				)
+			},
 		},
 		{
 			width: "15%",
@@ -106,7 +102,7 @@ function Employees(): JSX.Element {
 					<Input.Search allowClear />
 				</Col>
 				<Col span={6} style={{ marginLeft: 20 }}>
-					<AddEmplyeeForm />
+					<AddEmplyeeForm handleSubmit = {handleAddEmployee}/>
 				</Col>
 			</Row>
 			<Table size="small" dataSource={get(employees, "data", [])} columns={columns} bordered />
