@@ -26,11 +26,11 @@ const initialState: UserReducerState = {
 	statusAddUser: "idle",
 };
 
-export const actionGetUsers = createAsyncThunk("actionGetUsers", async (params: ParamGetUsers) => {
+export const actionGetUsers = createAsyncThunk("actionGetUsers", async (params?: ParamGetUsers) => {
 	const response = await request({
 		url: "/api/users",
 		method: "get",
-		params,
+		params: params,
 	});
 	return response.data;
 });
@@ -110,11 +110,11 @@ export const slice = createSlice({
 			.addCase(actionChangePassworfOfUser.pending, (state) => {
 				state.statusChangePassword = "loading";
 			})
-			.addCase(actionChangePassworfOfUser.fulfilled, (state, action) => {
+			.addCase(actionChangePassworfOfUser.fulfilled, (state) => {
 				state.statusChangePassword = "success";
 				notification.success({ message: "Đổi mật khẩu thành công" });
 			})
-			.addCase(actionChangePassworfOfUser.rejected, (state, action) => {
+			.addCase(actionChangePassworfOfUser.rejected, (state) => {
 				state.statusChangePassword = "error";
 				notification.error({ message: "Có lỗi xảy ra" });
 			})
@@ -123,11 +123,11 @@ export const slice = createSlice({
 			.addCase(actionDeactiveUser.pending, (state) => {
 				state.statusDeactiveUser = "loading";
 			})
-			.addCase(actionDeactiveUser.fulfilled, (state, action) => {
+			.addCase(actionDeactiveUser.fulfilled, (state) => {
 				state.statusDeactiveUser = "success";
 				notification.success({ message: "Vô hiệu hoá tài khoản thành công" });
 			})
-			.addCase(actionDeactiveUser.rejected, (state, action) => {
+			.addCase(actionDeactiveUser.rejected, (state) => {
 				state.statusDeactiveUser = "error";
 				notification.error({ message: "Có lỗi xảy ra" });
 			})
@@ -136,11 +136,11 @@ export const slice = createSlice({
 			.addCase(actionSetPermissionsForUser.pending, (state) => {
 				state.statusSetPermissionsForUser = "loading";
 			})
-			.addCase(actionSetPermissionsForUser.fulfilled, (state, action) => {
+			.addCase(actionSetPermissionsForUser.fulfilled, (state) => {
 				state.statusSetPermissionsForUser = "success";
 				notification.success({ message: "Cập nhật quyền cho tài khoản thành công" });
 			})
-			.addCase(actionSetPermissionsForUser.rejected, (state, action) => {
+			.addCase(actionSetPermissionsForUser.rejected, (state) => {
 				state.statusSetPermissionsForUser = "error";
 				notification.error({ message: "Có lỗi xảy ra" });
 			})
@@ -149,11 +149,11 @@ export const slice = createSlice({
 			.addCase(actionAddUser.pending, (state) => {
 				state.statusAddUser = "loading";
 			})
-			.addCase(actionAddUser.fulfilled, (state, action) => {
+			.addCase(actionAddUser.fulfilled, (state) => {
 				state.statusAddUser = "success";
 				notification.success({ message: "Thêm user thành công" });
 			})
-			.addCase(actionAddUser.rejected, (state, action) => {
+			.addCase(actionAddUser.rejected, (state) => {
 				state.statusAddUser = "error";
 				notification.error({ message: "Có lỗi xảy ra" });
 			});

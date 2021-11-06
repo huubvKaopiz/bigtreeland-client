@@ -133,7 +133,7 @@ export default function Users(): JSX.Element {
 					dataSource={get(users, "data", [])}
 					columns={columns}
 					bordered
-					pagination={{ position: ["bottomCenter"], pageSize: 20 }}
+					pagination={{ pageSize: 20 }}
 					size="small"
 				/>
 			</Spin>
