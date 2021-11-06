@@ -1,9 +1,13 @@
+import { PermistionType } from "store/permissions/slice";
+
 export interface RoleType {
 	created_at: "2021-11-02T00:50:17.000000Z";
 	guard_name: "api";
-	id: 1;
-	name: "admin";
+	id: number;
+	name: string;
 	updated_at: "2021-11-02T00:50:17.000000Z";
+	users: UserType[]
+	permissions: PermistionType[]
 }
 
 export interface UserType {
@@ -160,4 +164,16 @@ export interface Student {
 	hope: string;
 	knowledge_status: number;
 	is_special: number;
+}
+
+
+export interface OptionType {
+	label: string;
+	value: string | number;
+}
+
+export interface RoleCreateFormType {
+	name: string;
+	permission_ids: React.Key[];
+	user_ids: React.Key[]
 }

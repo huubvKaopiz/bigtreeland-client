@@ -2,6 +2,7 @@
 import { Button, Col, Modal, Row, Select, Tag } from "antd";
 import PermissionService from "api/permission.service";
 import { PERMISSION_LIST } from "assets/mock-data/PermissionList";
+import useIsMounted from "hooks/useIsMounted";
 import { UserType as User } from "interface/index";
 import React, { useEffect, useState } from "react";
 
@@ -25,22 +26,23 @@ const permissionList: PermissionOptions[] = PERMISSION_LIST.map((item) => {
 
 function ChangePermisstion({ user, handleChangePermission }: Props): JSX.Element {
 	const [showForm, setShowForm] = useState(false);
+	const isMounted = useIsMounted()
 	const [userPermissionList, setUserPermissionList] = useState<number[]>([]);
 	const [userPermissionSelected, setUserPermissionSelected] = useState<number[]>([]);
-
+	
+	
 	useEffect(() => {
 		if (showForm)
 			PermissionService.getListPermissionOfUser(user.id).then(({ data }: { data: any }) => {
-				const permissionList = data.roles.reduce((list: number[], current: any) => {
-					const currentPermission = current.permissions;
-					list = [...new Set([...list, ...currentPermission])];
-					return list;
-				}, []);
-
-				setUserPermissionList([...permissionList]);
-				setUserPermissionSelected([...permissionList]);
+				const permissionList: number[] = data.permissions.reduce((list : number[], permissionDetail: any) => {
+					list.push(permissionDetail.id)
+					return list
+				},[])
+				
+				showForm && isMounted && setUserPermissionList([...permissionList]);
+				showForm && isMounted && setUserPermissionSelected([...permissionList]);
 			});
-	}, [showForm, user.id]);
+	}, [showForm, user.id, isMounted]);
 
 	function handleOkButton() {
 		setShowForm(false);
@@ -65,7 +67,6 @@ function ChangePermisstion({ user, handleChangePermission }: Props): JSX.Element
 			</Button>
 			<Modal
 				title={`Phân quyền cho user ${user.email}`}
-				centered
 				width={800}
 				visible={showForm}
 				onCancel={handleCancelButton}
@@ -79,6 +80,7 @@ function ChangePermisstion({ user, handleChangePermission }: Props): JSX.Element
 							<Select
 								mode="multiple"
 								showArrow
+								listHeight={600}
 								style={{ width: "100%" }}
 								options={permissionList}
 								placeholder={`Phân quyền cho user ${user.email}`}

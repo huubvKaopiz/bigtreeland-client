@@ -139,7 +139,7 @@ function Permissions(): JSX.Element {
 				<Table
 					columns={tableColumn}
 					loading={isLoading}
-					pagination={{ position: ["bottomCenter"], pageSize: 20 }}
+					pagination={{ pageSize: 20 }}
 					dataSource={tableItem}
 					size="small"
 				/>
