@@ -10,7 +10,7 @@ export function formatDate(strDateInput: string, pattern: string): moment.Moment
 	if (!strDateInput) {
 		return "";
 	}
-	return moment(strDateInput, pattern).format(pattern);
+	return moment(strDateInput).format(pattern);
 }
 
 export function dateSort(strDateA: string, strDateB: string): number {

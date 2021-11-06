@@ -1,13 +1,20 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { ListUserType } from "interface";
+import React from "react";
 import request from "../../utils/request";
 
+export interface PermistionType {
+	description: null | string | number;
+	guard_name: 'string';
+	name: string;
+	id: number;
+	key?: React.Key;
+}
 export interface PermissionsState {
-	permissions: ListUserType | null;
+	permissions: PermistionType[] | [];
 }
 
 const initialState: PermissionsState = {
-	permissions: null,
+	permissions: [],
 };
 
 export const actionGetPermissions = createAsyncThunk("actionGetPermissions", async () => {
@@ -25,7 +32,7 @@ export const slice = createSlice({
 
 	extraReducers: (builder) => {
 		builder.addCase(actionGetPermissions.fulfilled, (state, action) => {
-			state.permissions = action.payload as ListUserType;
+			state.permissions = action.payload as PermistionType[];
 		});
 	},
 });
