@@ -1,91 +1,23 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button, Col, Input, Layout, Row, Space, Table } from "antd";
-import { UnorderedListOutlined } from "@ant-design/icons";
 import AddStudentModal from './addStudentModal';
-import EditStudentModal from './editStudentModal';
-import { Student } from '../../interface';
+import { StudentType } from '../../interface';
+import { useSelector } from 'react-redux';
+import { RootState, useAppDispatch } from 'store/store';
+import { actionGetStudents } from 'store/students/slice';
 
 export default function Students():JSX.Element {
+	const dispatch = useAppDispatch();
+	const loadListStatus =  useSelector((state:RootState) => state.studentReducer.getStudentsStatus);
 
-    const ColActions = (text:string, record: Student) => {
-		return (
-			<Space size="middle">
-				{/* <Button type="link" icon={<UnorderedListOutlined />}  onClick={() => history.push("/classes-detail")}/> */}
-				<EditStudentModal />
-			</Space>
-		);
-	}
-	ColActions.displayName = "ColActions";
-
-	const dataSource: Student[] = [
-		{
-            name:"Nguyen Van A",
-            parent: {
-                user_id:1,
-                name:"Tran Thi Nham"
-            },
-            birthday:"",
-            gender:1,
-            school: "",
-            class:{
-                id:1,
-                name:'Lớp Tiếng Anh 3'
-            },
-            admission_date:"",
-            address:"",
-            interests:"",
-            dislikes:"",
-            personality:"",
-            hope:"",
-            knowledge_status:6,
-            is_special:0
-		},
-		{
-            name:"Nguyen Van A",
-            parent: {
-                user_id:1,
-                name:"Tran Thi Nham"
-            },
-            birthday:"",
-            gender:1,
-            school: "",
-            class:{
-                id:1,
-                name:'Lớp Tiếng Anh 3'
-            },
-            admission_date:"",
-            address:"",
-            interests:"",
-            dislikes:"",
-            personality:"",
-            hope:"",
-            knowledge_status:6,
-            is_special:0
-		},
-		{
-            name:"Nguyen Van A",
-            parent: {
-                user_id:1,
-                name:"Tran Thi Nham"
-            },
-            birthday:"",
-            gender:1,
-            school: "",
-            class:{
-                id:1,
-                name:'Lớp Tiếng Anh 3'
-            },
-            admission_date:"",
-            address:"",
-            interests:"",
-            dislikes:"",
-            personality:"",
-            hope:"",
-            knowledge_status:6,
-            is_special:0
-		},
-	];
+	useEffect(() =>{
+		if(loadListStatus === "idle"){
+			dispatch(actionGetStudents({page:1}))
+		}
+	},[dispatch,loadListStatus])
+	const students = useSelector((state:RootState) => state.studentReducer.students);
+	console.log(students);
 
 	const columns = [
 
@@ -131,7 +63,13 @@ export default function Students():JSX.Element {
 			width: '15%',
 			title: "Action",
 			key: "action",
-			render: ColActions
+			render: function ActionCol(text:string, record:StudentType):JSX.Element {
+				return(
+					<Space>
+						<Button>Delete</Button>
+					</Space>
+				)	
+			}
 		},
 	]
 
@@ -143,10 +81,9 @@ export default function Students():JSX.Element {
 				</Col>
 				<Col span={6} style={{ marginLeft: 20 }}>
 					< AddStudentModal/>
-					
 				</Col>
 			</Row>
-			<Table dataSource={dataSource} columns={columns} bordered />
+			<Table columns={columns} bordered  loading={loadListStatus === "loading" ? true : false}/>
 		</Layout.Content>
 	);
 }

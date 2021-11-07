@@ -1,39 +1,37 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 // import { useSelector } from "react-redux";
-import { RootState } from "../../store/store";
+import { RootState, useAppDispatch } from "../../store/store";
 import { Button, Col, Input, Layout, Row, Space, Table } from "antd";
 import { EmployeeContractType, EmployeeType } from "interface";
 import UpdateEmplyeeForm from "./updateEmployee";
 import AddEmplyeeForm from "./addEmployeeFrom";
 import DeleteEmployeeModal from "./deleteEmployee";
-import { useDispatch, useSelector } from "react-redux";
-import { actionGetEmployees, actionAddEmployee, EmployeeParams } from "store/employees/slice";
+import {  useSelector } from "react-redux";
+import { actionGetEmployees} from "store/employees/slice";
 import { get } from "lodash";
 
 function Employees(): JSX.Element {
-	const dispatch = useDispatch();
+	const dispatch = useAppDispatch();
+	const [search, setSearch] = useState('');
+
+	
+	useEffect(() => {
+		if(search.length >= 3){
+			dispatch(actionGetEmployees({}));
+		}
+	}, [dispatch, search]);
+
+	const employees = useSelector((state: RootState) => state.employeeReducer.employees);
+	
 	const ColActions = (text:string, record:EmployeeType) => {
 		return (
 			<Space size="middle">
 				<UpdateEmplyeeForm employee={record} />
-				<DeleteEmployeeModal />
+				<DeleteEmployeeModal employee={record} />
 			</Space>
 		);
 	};
 	ColActions.displayName = "ColActions";
-
-	useEffect(() => {
-		dispatch(actionGetEmployees({}));
-	}, [dispatch]);
-
-	const handleAddEmployee = (params:EmployeeParams) => {
-		dispatch(actionAddEmployee(params));
-	}
-
-	const employees = useSelector((state: RootState) => state.employeeReducer.employees);
-
-	console.log(employees);
-
 	const columns = [
 		{
 			width: "15%",
@@ -65,6 +63,7 @@ function Employees(): JSX.Element {
 			key: "gender",
 			align:"center" as any,
 			render: function GenderCol(gender:number):JSX.Element {
+				console.log(gender)
 				return(
 				<span>{gender === 0 ? 'Nữ' : 'Nam'}</span>
 				)
@@ -99,10 +98,10 @@ function Employees(): JSX.Element {
 		<Layout.Content style={{ height: 1000 }}>
 			<Row style={{ marginBottom: 20, marginTop: 20 }} justify="start">
 				<Col span={10}>
-					<Input.Search allowClear />
+					<Input.Search allowClear onChange={(e:any) =>setSearch(e.value) }/>
 				</Col>
 				<Col span={6} style={{ marginLeft: 20 }}>
-					<AddEmplyeeForm handleSubmit = {handleAddEmployee}/>
+					<AddEmplyeeForm />
 				</Col>
 			</Row>
 			<Table size="small" dataSource={get(employees, "data", [])} columns={columns} bordered />

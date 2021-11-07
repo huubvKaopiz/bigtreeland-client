@@ -1,9 +1,12 @@
 import { Form, Modal, Button, Input, Select, DatePicker, Divider, Upload } from "antd";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import moment from 'moment';
 // import numeral from "numeral";
 import { EditOutlined, UploadOutlined } from "@ant-design/icons";
 import { EmployeeType } from "interface";
+import { actionGetEmployees, actionUpdateEmployee, EmployeeParams } from "store/employees/slice";
+import { RootState, useAppDispatch } from "store/store";
+import { useSelector } from "react-redux";
 
 
 
@@ -15,22 +18,38 @@ const dateFormat = 'DD/MM/YYYY';
 export default function UpdateEmplyeeForm(props:PropsType): JSX.Element {
     const {employee} = props;
     const [show, setShow] = useState(false);
+    const dispatch = useAppDispatch();
+    const status = useSelector((state:RootState) => state.employeeReducer.updateEmployeeStatus);
 
+    useEffect(()=>{
+        if(status==='success'){
+            setShow(false);
+            dispatch(actionGetEmployees({}));
+        }
+    },[status, dispatch]);
 
-
-     function handleReset() {
-        console.log('reset');
-        
+    const handleSubmit = (values:any) => {
+        const data:EmployeeParams = {
+            name:values.name,
+            email:values.email,
+            phone:values.phone,
+            gender:values.gender,
+            birthday:moment(values.birthday).format("YYYY-MM-DD"),
+            address:values.address,
+            interests:values.interests,
+            disklikes:values.disklikes,
+            identifier:values.identifier,
+            basic_salary:values.basic_salary,
+            sales_salary:values.sales_salary,
+            working_day:moment(values.working_day).format("YYYY-MM-DD"),
+            position:values.position,
+        }
+        const params = {
+            data,
+            eID:employee.id
+        }
+        dispatch(actionUpdateEmployee(params));
     }
-
-    const normFile = () => {
-        // console.log('Upload event:', e);
-        // if (Array.isArray(e: {name:'string'})) {
-        //   return e;
-        // }
-        // return e && e.fileList;
-      };
-
       console.log(employee);
 
     const IsNumeric = { pattern: /^-{0,1}\d*\.{0,1}\d+$/, message: "Giá trị nhập phải là số" };
@@ -45,8 +64,8 @@ export default function UpdateEmplyeeForm(props:PropsType): JSX.Element {
                 okText='Lưu thông tin'
                 cancelText='Huỷ bỏ'
                 footer = {[
-                    <Button key="cancel">Huỷ bỏ</Button>,
-                    <Button key="submit" htmlType="submit" form="ueForm"></Button>
+                    <Button key="cancel" onClick={()=> setShow(false)}>Huỷ bỏ</Button>,
+                    <Button type="primary" key="submit" htmlType="submit" form="ueForm">Lưu thông tin</Button>
                 ]}
             >
                 <Form
@@ -56,18 +75,26 @@ export default function UpdateEmplyeeForm(props:PropsType): JSX.Element {
                     layout="horizontal"
                     initialValues={{ 
                         'name':employee.name,
+                        'email':employee.email,
                         'phone':employee.phone,
+                        'birthday':moment(employee.birthday),
                         'gender':employee.gender,
                         'address':employee.address,
                         'interests':employee.interests,
                         'disklikes':employee.dislikes,
                         'basic_salary':employee.employee_contract.basic_salary,
+                        'sales_salary':employee.employee_contract.basic_salary,
                         'position':employee.employee_contract.position,
+                        'working_day':moment(employee.employee_contract.working_day)
                     }}
                     // onValuesChange={}
+                    onFinish={handleSubmit}
                 >
                      <Divider >Thông tin cơ bản</Divider>
                     <Form.Item name='name' label="Họ tên" rules={[{required:true, message:'Họ tên không được để trống!'}]}>
+                        <Input />
+                    </Form.Item>
+                    <Form.Item name='email' label="email" rules={[{required:true, message:'Email không được để trống!'}]}>
                         <Input />
                     </Form.Item>
                     <Form.Item name='phone' label="Số điện thoại" rules={[{required:true, message:'Số điện thoại không được để trống!'}]}>
@@ -81,7 +108,7 @@ export default function UpdateEmplyeeForm(props:PropsType): JSX.Element {
                         </Select>
                     </Form.Item>
                     <Form.Item name='birthday' label="Ngày sinh">
-                        <DatePicker defaultValue={moment(employee.birthday)} format={dateFormat} />
+                        <DatePicker format={dateFormat} />
                     </Form.Item>
                     <Form.Item name='address' label="Địa chỉ">
                         <Input />
@@ -99,20 +126,20 @@ export default function UpdateEmplyeeForm(props:PropsType): JSX.Element {
                     <Form.Item rules={[IsNumeric]} name={['contract', 'basic_salary']} label="Lương cơ bản">
                         <Input />
                     </Form.Item>
-                    <Form.Item name={['contract', 'sales_salary']} label="Lương doanh số">
+                    <Form.Item name='sales_salary' label="Lương doanh số">
                         <Input />
                     </Form.Item>
-                    <Form.Item  name={['contract', 'position']} label="Vị trí">
+                    <Form.Item  name= 'position' label="Vị trí">
                         <Input />
                     </Form.Item>
-                    <Form.Item  name={['contract', 'working_date']} label="Ngày vào làm">
-                        <DatePicker />
+                    <Form.Item  name= 'working_date' label="Ngày vào làm">
+                        <DatePicker format={dateFormat} />
                     </Form.Item>
                     <Form.Item
-                        name={['contract', 'contract_file']}
+                        name= 'contract_file'
                         label="File đính kèm"
                         valuePropName="fileList"
-                        getValueFromEvent={normFile}
+                        // getValueFromEvent={normFile}
                     >
                         <Upload name="logo" action="/upload.do" listType="picture">
                             <Button icon={<UploadOutlined />}>Click to upload</Button>

@@ -1,28 +1,30 @@
 import { Form, Modal, Button, Input, Select, DatePicker, Divider, Upload } from "antd";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { PlusOutlined, UploadOutlined } from "@ant-design/icons";
-import { EmployeeParams } from "store/employees/slice";
+import { actionAddEmployee, actionGetEmployees, EmployeeParams } from "store/employees/slice";
 import moment from "moment";
+import { RootState, useAppDispatch } from "store/store";
+import { useSelector } from "react-redux";
 
 const IsNumeric = { pattern: /^-{0,1}\d*\.{0,1}\d+$/, message: "Giá trị nhập phải là số" };
 
-export default function AddEmplyeeForm({ handleSubmit }: { handleSubmit: (params: EmployeeParams) => void }): JSX.Element {
+export default function AddEmplyeeForm(): JSX.Element {
     const [show, setShow] = useState(false);
     const [employee_form] = Form.useForm();
-    const normFile = (e: any) => {
-        console.log('Upload event:', e);
-        if (Array.isArray(e)) {
+    const dispatch = useAppDispatch();
+    const status = useSelector((state: RootState) => state.employeeReducer.addEmployeeStatus);
 
-            return e;
+    useEffect(()=>{
+        if(status === 'success'){
+            setShow(false);
+            dispatch(actionGetEmployees({}));
         }
-        console.log("files:", e && e.fileList[0].name)
-    };
+    },[status, dispatch])
 
-    const submitForm = async (values: any) => {
+    const submitForm = (values: any) => {
         const params:EmployeeParams = {
             name:values.name,
-            emaul:values.email,
-            password:'password',
+            email:values.email,
             phone:values.phone,
             gender:values.gender,
             birthday:moment(values.birthday).format("YYYY-MM-DD"),
@@ -35,7 +37,8 @@ export default function AddEmplyeeForm({ handleSubmit }: { handleSubmit: (params
             working_day:moment(values.working_day).format("YYYY-MM-DD"),
             position:values.position,
         }
-        handleSubmit(params);
+       dispatch(actionAddEmployee(params));
+       setShow(false);
     }
 
     return (
@@ -114,7 +117,7 @@ export default function AddEmplyeeForm({ handleSubmit }: { handleSubmit: (params
                         name="contract_file"
                         label="File đính kèm"
                         valuePropName="fileList"
-                        getValueFromEvent={normFile}
+                        // getValueFromEvent={normFile}
                     >
                         <Upload name="logo" action="/upload.do" listType="picture">
                             <Button icon={<UploadOutlined />}>Click to upload</Button>

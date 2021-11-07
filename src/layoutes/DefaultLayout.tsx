@@ -1,14 +1,14 @@
 import {
-	AppstoreOutlined,
 	CoffeeOutlined,
-	ContactsOutlined,
+	ReadOutlined,
 	HomeOutlined,
 	IdcardOutlined,
-	SolutionOutlined,
+	DollarOutlined,
 	TeamOutlined,
 	SecurityScanOutlined,
 } from "@ant-design/icons";
-import { Layout, Menu } from "antd";
+import { Layout, Menu, SubMenu } from "antd";
+
 // import { actionLogout } from "../store/auth/slice";
 import ClassDetail from "pages/Classes/classDetail";
 import Roles from "pages/Roles";
@@ -43,21 +43,23 @@ function DefaultLayout(): JSX.Element {
 						<Menu.Item key="2" icon={<TeamOutlined />} onClick={() => history.push("/users")}>
 							Người dùng
 						</Menu.Item>
-						<Menu.Item key="3" icon={<IdcardOutlined />} onClick={() => history.push("/employees")}>
-							Nhân viên
-						</Menu.Item>
-						<Menu.Item key="4" icon={<AppstoreOutlined />} onClick={() => history.push("/classes")}>
-							Lớp học
-						</Menu.Item>
-						<Menu.Item key="5" icon={<ContactsOutlined />} onClick={() => history.push("/students")}>
-							Học sinh
-						</Menu.Item>
-						<Menu.Item key="6" icon={<SolutionOutlined />} onClick={() => history.push("/permissions")}>
-							Danh sách quyền
-						</Menu.Item>
-						<Menu.Item key="7" icon={<SecurityScanOutlined />} onClick={() => history.push("/roles")}>
-							Quản lý vai trò
-						</Menu.Item>
+						<SubMenu key="sub1" icon={<IdcardOutlined />} title="Nhân viên">
+							<Menu.Item key="3" onClick={() => history.push("/employees")}>Nhân viên</Menu.Item>
+							<Menu.Item key="4" onClick={() => history.push("/payrolls")}>Bảng lương</Menu.Item>
+						</SubMenu>
+						<SubMenu key="sub2" icon={<ReadOutlined />} title="QL học tập">
+							<Menu.Item key="5" onClick={() => history.push("/classes")}> Lớp học </Menu.Item>
+							<Menu.Item key="6" onClick={() => history.push("/students")}>Học sinh</Menu.Item>
+							<Menu.Item key="7" onClick={() => history.push("/parents")}>Phụ huynh</Menu.Item>
+						</SubMenu>
+						<SubMenu key="sub3" icon={<DollarOutlined />} title="Thu Chi">
+							<Menu.Item key="8" onClick={() => history.push("/payment-slip")}>QL Chi tiêu</Menu.Item>
+							<Menu.Item key="9" onClick={() => history.push("/revenue")}>QL doanh thu</Menu.Item>
+						</SubMenu>
+						<SubMenu key="sub4" icon={<SecurityScanOutlined />} title="Phân quyền">
+							<Menu.Item key="10" onClick={() => history.push("/permissions")}>DS quyền</Menu.Item>
+							<Menu.Item key="11" onClick={() => history.push("/roles")}>Vai trò</Menu.Item>
+						</SubMenu>
 					</Menu>
 					{/* <Menu.Item key="5" icon={<LogoutOutlined />} onClick={handleLogout}>
             Logout
