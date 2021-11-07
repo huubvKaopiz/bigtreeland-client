@@ -24,6 +24,37 @@ export interface UserType {
 	updated_at: "2021-11-02T00:50:17.000000Z";
 }
 
+export interface ParentType {
+	id: 1;
+	name: "parent";
+	deleted_at: null;
+	created_at: null;
+	updated_at: null;
+	user: {
+		id: 3;
+		email: "parent@gmail.com"
+	}
+	students:{
+		id:number;
+		name:string;
+	}[];
+}
+
+export interface ClassType {
+	id: 1;
+	name: "Lớp tiếng Anh 3";
+	schedule:string;
+	employee:{id:number, name:number};
+	students_num:0;
+	sessions_num: 24;
+	fee_per_session: 300000;
+	start_date: string;
+	end_date: string;
+	deleted_at: string;
+	created_at: "2021-11-06T16:01:41.000000Z";
+	updated_at: "2021-11-06T16:01:41.000000Z"
+}
+
 export interface User {
 	email: string;
 	phone: string;
@@ -51,14 +82,14 @@ export interface AddNewUser {
 }
 
 export interface EmployeeContractType {
-	id: 1,
-	employee_id: 2,
-	basic_salary: '10000000',
-	sales_salary: null,
-	working_day: null,
-	position: 'Teacher',
-	deleted_at: null,
-	created_at: '2021-11-03T14:52:10.000000Z',
+	id: 1;
+	employee_id: 2;
+	basic_salary: '10000000';
+	sales_salary: null;
+	working_day: null;
+	position: 'Teacher';
+	deleted_at: null;
+	created_at: '2021-11-03T14:52:10.000000Z';
 	updated_at: '2021-11-03T14:52:10.000000Z'
 }
 
@@ -81,6 +112,25 @@ export interface EmployeeType {
 	roles: RoleType[];
 	updated_at: "2021-11-02T00:50:17.000000Z";
 	employee_contract:EmployeeContractType;
+}
+
+export interface StudentType {
+	birthday: "1990-12-14";
+    name: "dfsdf";
+    admission_date:" 1990-12-14";
+    gender: 0;
+    school: null;
+    address: null;
+    interests: null;
+    dislikes: null;
+    personality: null;
+    hope: null;
+    knowledge_status: null;
+    is_special: false;
+    parent_id: 2;
+    updated_at: "2021-11-06T05:06:35.000000Z";
+    created_at:" 2021-11-06T05:06:35.000000Z";
+    id: 1
 }
 
 export interface ListUserType {
@@ -112,6 +162,51 @@ export interface ListEmployeeType {
 	prev_page_url: null;
 	to: 3;
 	total: 3;
+}
+
+export interface ListStudentType {
+	current_page: 1;
+    data: StudentType[];
+    first_page_url: "http://45.32.101.219:8000/api/students?page=1";
+    from: 1;
+    last_page: 1;
+    last_page_url: "http://45.32.101.219:8000/api/students?page=1";
+    next_page_url: null;
+    path:" http://45.32.101.219:8000/api/students";
+    per_page: 20;
+    prev_page_url: null;
+    to: 1;
+    total: 0
+}
+
+export interface ListParentType {
+	current_page: 1;
+    data: ParentType[];
+    first_page_url: "http://45.32.101.219:8000/api/parents?page=1";
+    from: 1;
+    last_page: 1;
+    last_page_url: "http://45.32.101.219:8000/api/parents?page=1";
+    next_page_url: null;
+    path:"http://45.32.101.219:8000/api/parents?page=1";
+    per_page: 20;
+    prev_page_url: null;
+    to: 1;
+    total: 0
+}
+
+export interface ListClassesType {
+	current_page: 1;
+    data: ClassType[];
+    first_page_url: "http://45.32.101.219:8000/api/parents?page=1";
+    from: 1;
+    last_page: 1;
+    last_page_url: "http://45.32.101.219:8000/api/parents?page=1";
+    next_page_url: null;
+    path:"http://45.32.101.219:8000/api/parents?page=1";
+    per_page: 20;
+    prev_page_url: null;
+    to: 1;
+    total: 0
 }
 
 export interface Employee {
@@ -152,10 +247,6 @@ export interface Student {
 	birthday: string;
 	gender: number;
 	school: string;
-	class: {
-		id: number;
-		name: string;
-	};
 	admission_date: string;
 	address: string;
 	interests: string;
