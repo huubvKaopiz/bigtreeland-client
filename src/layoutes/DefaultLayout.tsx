@@ -7,7 +7,7 @@ import {
 	TeamOutlined,
 	SecurityScanOutlined,
 } from "@ant-design/icons";
-import { Layout, Menu, SubMenu } from "antd";
+import { Layout, Menu } from "antd";
 
 // import { actionLogout } from "../store/auth/slice";
 import ClassDetail from "pages/Classes/classDetail";
@@ -23,7 +23,7 @@ import Permissions from "../pages/Permissions";
 import Users from "../pages/Users";
 
 const { Content, Footer, Sider } = Layout;
-
+const { SubMenu } = Menu;
 function DefaultLayout(): JSX.Element {
 	const history = useHistory();
 
