@@ -7,8 +7,8 @@ import {
 	TeamOutlined,
 	SecurityScanOutlined,
 } from "@ant-design/icons";
-import { Layout, Menu } from "antd";
-import SubMenu from "antd/lib/menu/SubMenu";
+import { Layout, Menu, SubMenu } from "antd";
+
 // import { actionLogout } from "../store/auth/slice";
 import ClassDetail from "pages/Classes/classDetail";
 import Roles from "pages/Roles";
