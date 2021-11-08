@@ -8,7 +8,7 @@ export interface RoleState {
 	statusCreateRole: "idle" | "loading" | "success" | "error";
 	statusGetRole: "idle" | "loading" | "success" | "error";
 	statusDeleteRole: "idle" | "loading" | "success" | "error";
-	statusSetPermissionForRole: "idle" | "loading" | "success" | "error";
+	statusUpdateRole: "idle" | "loading" | "success" | "error";
 }
 
 const initialState: RoleState = {
@@ -16,7 +16,7 @@ const initialState: RoleState = {
 	statusCreateRole: "idle",
 	statusGetRole: "idle",
 	statusDeleteRole: "idle",
-	statusSetPermissionForRole: "idle",
+	statusUpdateRole: "idle",
 };
 
 export const actionGetRoles = createAsyncThunk("actionGetRoles", async (id?: number) => {
@@ -62,14 +62,46 @@ export const actionCreateRole = createAsyncThunk("actionCreateRole", async (data
 	return createRoleResponse.data;
 });
 
-export const actionSetPermissionForRole = createAsyncThunk("actionSetPermissionForRole", async (data: any) => {
-	const setPermissionForRole = await request({
-		url: "/api/permissions/set-permission-for-role",
-		method: "post",
-		data: { role_id: data.role_id, permission_add_ids: data.added, permission_delete_ids: data.removed },
-	});
-	return setPermissionForRole.data;
+export const actionUpdateRole = createAsyncThunk("actionUpdateRole", async (data: any) => {
+	let actionUpdateRole;
+	if (data.role_name)
+		actionUpdateRole = await request({
+			url: `/api/roles/${data.role_id}`,
+			method: "put",
+			data: { name: data.role_name },
+		});
+
+	if (data.user_ids) {
+		actionUpdateRole = await request({
+			url: "/api/roles/set-role-for-list-user",
+			method: "post",
+			data: { role_id: data.role_id, user_ids: data.user_ids },
+		});
+	}
+	if (data.permission) {
+		actionUpdateRole = await request({
+			url: "/api/permissions/set-permission-for-role",
+			method: "post",
+			data: {
+				role_id: data.role_id,
+				permission_add_ids: data.permission.added,
+				permission_delete_ids: data.permission.removed,
+			},
+		});
+	}
+
+	return actionUpdateRole?.data;
 });
+
+// export const actionUpdateRole = createAsyncThunk("actionUpdateRole", async (data: any) => {
+// 	const actionUpdateRole = await request({
+// 		url: `/api/roles/${data.role_id}`,
+// 		method: "put",
+// 		data: { name: data.role_name },
+// 	});
+
+// 	return actionUpdateRole.data;
+// });
 
 export const slice = createSlice({
 	name: "roles",
@@ -84,8 +116,8 @@ export const slice = createSlice({
 		actionResetStatusDeleteRole(state) {
 			state.statusDeleteRole = "idle";
 		},
-		actionResetStatusSetPermissionForRole(state) {
-			state.statusSetPermissionForRole = "idle";
+		actionResetStatusUpdateRole(state) {
+			state.statusUpdateRole = "idle";
 		},
 	},
 
@@ -131,15 +163,15 @@ export const slice = createSlice({
 			})
 
 			// Delete Row
-			.addCase(actionSetPermissionForRole.fulfilled, (state) => {
-				state.statusSetPermissionForRole = "success";
+			.addCase(actionUpdateRole.fulfilled, (state) => {
+				state.statusUpdateRole = "success";
 				notification.success({ message: "Cập nhật danh sách quyền thành công!" });
 			})
-			.addCase(actionSetPermissionForRole.pending, (state) => {
-				state.statusSetPermissionForRole = "loading";
+			.addCase(actionUpdateRole.pending, (state) => {
+				state.statusUpdateRole = "loading";
 			})
-			.addCase(actionSetPermissionForRole.rejected, (state) => {
-				state.statusSetPermissionForRole = "error";
+			.addCase(actionUpdateRole.rejected, (state) => {
+				state.statusUpdateRole = "error";
 				notification.error({ message: "Có lỗi xảy ra" });
 			});
 	},
@@ -148,6 +180,6 @@ export const {
 	actionResetStatusCreateRole,
 	actionResetStatusGetRole,
 	actionResetStatusDeleteRole,
-	actionResetStatusSetPermissionForRole,
+	actionResetStatusUpdateRole,
 } = slice.actions;
 export default slice.reducer;
