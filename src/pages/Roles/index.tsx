@@ -11,21 +11,24 @@ import {
 	actionGetRoles,
 	actionResetStatusDeleteRole,
 	actionResetStatusGetRole,
+	actionResetStatusUpdateRole,
 } from "store/roles/slice";
 import { RootState, useAppDispatch } from "store/store";
 import { DatePattern, dateSort, formatDate } from "utils/dateUltils";
 import AddRolesForm from "./AddRolesForm";
 import RoleDetail from "./RoleDetail";
+import { actionUpdateRole } from "store/roles/slice";
+import { UpdateRoleDataType } from "interface/api-params-interface";
 
 function Roles(): JSX.Element {
 	const dispatch = useAppDispatch();
 	const statusCreateRole = useSelector((state: RootState) => state.roleReducer.statusCreateRole);
 	const statusGetRoles = useSelector((state: RootState) => state.roleReducer.statusGetRole);
 	const statusDeleteRoles = useSelector((state: RootState) => state.roleReducer.statusDeleteRole);
+	const statusUpdateRole = useSelector((state: RootState) => state.roleReducer.statusUpdateRole);
 	const listRoles = useSelector((state: RootState) => state.roleReducer.roles);
 
 	const [showDetail, setShowDetail] = useState(false);
-	const [detaileEditable, setDetaileEditable] = useState(false);
 	const [roleDetail, setRoleDetail] = useState<RoleType>();
 
 	//Get roles for mounted
@@ -36,14 +39,22 @@ function Roles(): JSX.Element {
 	useEffect(() => {
 		if (statusCreateRole === "success") dispatch(actionGetRoles());
 		if (statusGetRoles === "success") dispatch(actionResetStatusGetRole());
+		if (statusUpdateRole === "success") {
+			dispatch(actionGetRoles());
+			dispatch(actionResetStatusUpdateRole());
+		}
 		if (statusDeleteRoles === "success") {
 			dispatch(actionGetRoles());
 			dispatch(actionResetStatusDeleteRole());
 		}
-	}, [dispatch, statusCreateRole, statusDeleteRoles, statusGetRoles]);
+	}, [dispatch, statusCreateRole, statusDeleteRoles, statusGetRoles, statusUpdateRole]);
 
 	function handleAddRoles(formValue: RoleCreateFormType, permissionsSelected: React.Key[]) {
 		dispatch(actionCreateRole({ ...formValue, permission_ids: [...permissionsSelected] }));
+	}
+
+	function handlelUpdateRoles(updateObject: UpdateRoleDataType) {
+		dispatch(actionUpdateRole(updateObject));
 	}
 
 	const tableColumn = [
@@ -85,8 +96,11 @@ function Roles(): JSX.Element {
 			title: "Số thành viên",
 			key: "users",
 			dataIndex: "users",
-			render: function UserLink(users: UserType[]): JSX.Element {
-				return <a>{users.length}</a>;
+			render: function UserLink(users: UserType[], record: RoleType): JSX.Element {
+				return <a onClick={() => {
+					setShowDetail(true);
+					setRoleDetail(record);
+				}}>{users.length}</a>;
 			},
 			showSorterTooltip: false,
 			sorter: {
@@ -125,24 +139,13 @@ function Roles(): JSX.Element {
 			key: "action",
 			render: function ActionRow(_: string, record: RoleType): JSX.Element {
 				return (
-					<Space size="large" style={{ display: "flex", justifyContent: "center" }}>
-						<a
-							onClick={() => {
-								setShowDetail(true);
-								setDetaileEditable(true);
-								setRoleDetail(record);
-							}}
-						>
-							<EditOutlined />
-						</a>
-						<a
-							onClick={() => {
-								dispatch(actionDeleteRoles(record.id));
-							}}
-						>
-							<DeleteOutlined />
-						</a>
-					</Space>
+					<a
+						onClick={() => {
+							dispatch(actionDeleteRoles(record.id));
+						}}
+					>
+						<DeleteOutlined />
+					</a>
 				);
 			},
 		},
@@ -166,7 +169,12 @@ function Roles(): JSX.Element {
 				dataSource={listRoles}
 				// size="small"
 			/>
-			<RoleDetail roleDetail={roleDetail} show={showDetail} onClose={() => setShowDetail(false)} />
+			<RoleDetail
+				roleDetail={roleDetail}
+				show={showDetail}
+				onClose={() => setShowDetail(false)}
+				onChange={handlelUpdateRoles}
+			/>
 		</Layout.Content>
 	);
 }
