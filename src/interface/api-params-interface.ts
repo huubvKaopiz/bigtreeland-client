@@ -1,0 +1,6 @@
+export interface UpdateRoleDataType {
+	role_id: number | undefined;
+	role_name?: string;
+	user_ids?: React.Key[];
+	permission?: undefined | { added: React.Key[]; removed: React.Key[] };
+}

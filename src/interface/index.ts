@@ -1,3 +1,4 @@
+import React from "react";
 import { PermistionType } from "store/permissions/slice";
 
 export interface RoleType {
@@ -22,6 +23,7 @@ export interface UserType {
 	permissions: [];
 	roles: RoleType[];
 	updated_at: "2021-11-02T00:50:17.000000Z";
+	key?: React.Key
 }
 
 export interface ParentType {
