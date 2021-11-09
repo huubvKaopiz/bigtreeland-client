@@ -5,7 +5,8 @@ import request from "utils/request";
 
 export interface StudentReducerState {
 	students: ListStudentType | null;
-	getStudentsStatus:"idle" | "loading" | "success" | "error";
+    getStudentsStatus:"idle" | "loading" | "success" | "error";
+    getStudentStatus:"idle" | "loading" | "success" | "error";
 	addStudentStatus:"idle" | "loading" | "success" | "error";
 	updateStudentStatus:"idle" | "loading" | "success" | "error";
 	updateStudentStatusStatus:"idle" | "loading" | "success" | "error";
@@ -39,7 +40,8 @@ export interface StudentParams {
 
 const initialState: StudentReducerState = {
 	students: null,
-	getStudentsStatus:"idle",
+    getStudentsStatus:"idle",
+    getStudentStatus:"idle",
 	addStudentStatus:"idle",
 	updateStudentStatus:"idle",
 	updateStudentStatusStatus:"idle",

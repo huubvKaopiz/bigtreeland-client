@@ -13,27 +13,46 @@ import {
 import { PlusOutlined } from "@ant-design/icons";
 import { RootState, useAppDispatch } from 'store/store';
 import { useSelector } from 'react-redux';
-import { actionGetStudents } from 'store/students/slice';
+import { actionAddStudent, actionGetStudents } from 'store/students/slice';
+import { ParentType } from 'interface';
+import moment from 'moment';
+import { actionGetParents } from 'store/parents/slice';
+import { get } from 'lodash';
 
 export default function AddStudentModal(): JSX.Element {
     const [show, setShow] = useState(false);
     const dispatch = useAppDispatch();
-    const status = useSelector((state:RootState) => state.studentReducer.addStudentStatus);
+    const status = useSelector((state: RootState) => state.studentReducer.addStudentStatus);
+  
+    useEffect(() => {
+        if (status === "success") {
+            setShow(false);
+            dispatch(actionGetStudents({ page: 1 }));
+        }
+    }, [status, dispatch]);
 
     useEffect(()=>{
-        if(status === "success"){
-            setShow(false);
-            dispatch(actionGetStudents({page:1}));
-        }
-    },[status, dispatch]);
+       if(parent === null || show === true){
+        dispatch(actionGetParents({}));
+       }
+    })
+
+    const parents = useSelector((state: RootState) => state.parentReducer.parents);
+  
+    const listParents:ParentType[] = get(parents,"data",[]);
 
     const handleSubmit = (values: any) => {
-        console.log("submit form:", values.name);
-        const data = {
-
+        console.log("submit form:", values);
+        const data = { 
+            ...values, 
+            birthday: moment(values.birthday).format("YYYY-MM-DD"), 
+            admission_date: moment(values.admission_date).format("YYYY-MM-DD"),
+            is_special: values.is_special === true ? 1 : 0, 
         }
+        dispatch(actionAddStudent(data));
     }
 
+    console.log(listParents)
     return (
         <div>
             <Button type="primary" icon={<PlusOutlined />} onClick={() => setShow(true)}>Thêm học sinh</Button>
@@ -59,9 +78,14 @@ export default function AddStudentModal(): JSX.Element {
                     </Form.Item>
                     <Form.Item name="parent_id" label="Phụ huynh">
                         <Select>
-                            <Select.Option value={1}>Nam</Select.Option>
-                            <Select.Option value={0}>Nữ</Select.Option>
-                            <Select.Option value={2}>Khác</Select.Option>
+                            {
+                                listParents.map((parent: ParentType) => {
+                                    return (
+                                        <Select.Option key={parent.id} value={parent.id}>{parent.name} - {parent.user.phone}</Select.Option>
+                                    )
+                                })
+                            }
+
                         </Select>
                     </Form.Item>
                     <Form.Item name="gender" label="Giới tính" wrapperCol={{ span: 2 }}>

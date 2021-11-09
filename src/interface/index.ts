@@ -34,7 +34,9 @@ export interface ParentType {
 	updated_at: null;
 	user: {
 		id: 3;
-		email: "parent@gmail.com"
+		email: "parent@gmail.com";
+		phone:string;
+		phone_verified_at:string;
 	}
 	students:{
 		id:number;
@@ -120,7 +122,8 @@ export interface StudentType {
 	birthday: "1990-12-14";
     name: "dfsdf";
     admission_date:" 1990-12-14";
-    gender: 0;
+	gender: 0;
+	class:string;
     school: null;
     address: null;
     interests: null;
@@ -220,6 +223,7 @@ export interface Employee {
 	interests: "";
 	dislikes: "";
 }
+
 
 export interface ClassI {
 	name: string;

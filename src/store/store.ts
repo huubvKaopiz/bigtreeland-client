@@ -4,6 +4,8 @@ import userReducer from "./users/slice";
 import auth from "./auth/slice";
 import employeeReducer from "./employees/slice";
 import studentReducer from './students/slice';
+import parentReducer from './parents/slice';
+import classReducer from './classes/slice';
 import roleReducer from "./roles/slice";
 import permissionReducer from "./permissions/slice";
 import { persistStore, persistReducer } from "redux-persist";
@@ -16,6 +18,9 @@ const rootReducer = combineReducers({
 	roleReducer,
 	permissionReducer,
 	studentReducer,
+	parentReducer,
+	classReducer,
+
 });
 
 const persistConfig = {

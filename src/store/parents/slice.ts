@@ -52,7 +52,7 @@ export const actionAddParent = createAsyncThunk("actionAddParent", async (data: 
 })
 
 
-export const actionUpdateParent = createAsyncThunk("actionUdpateParent", async (params: { data: GetParentsPrams, pID: number }) => {
+export const actionUpdateParent = createAsyncThunk("actionUpdateParent", async (params: { data: GetParentsPrams, pID: number }) => {
     const { data, pID } = params;
     const response = await request({
         url: `/api/parents/${pID}`,
@@ -121,3 +121,4 @@ export const parentSlice = createSlice({
 
     }
 })
+export default parentSlice.reducer;

@@ -1,60 +1,29 @@
-import React from "react";
-// import { useSelector } from "react-redux";
-// import { RootState } from "../../store/store";
-import { ClassI } from "../../interface";
+import React, {useEffect } from "react";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store/store";
+import { ClassType } from "../../interface";
 import { Button, Col, Input, Layout, Row, Space, Table } from "antd";
 import { UnorderedListOutlined } from "@ant-design/icons";
 import EditClassModal from "./editClassModal";
 import AddClassModal from "./addClassModal";
 import { useHistory } from "react-router-dom";
+import { useAppDispatch } from "store/store";
+import { actionGetClasses } from "store/classes/slice";
+import { get } from "lodash";
 
 function Classes(): JSX.Element {
+	const dispatch = useAppDispatch();
+	const getStatus = useSelector((state:RootState) => state.classReducer.getClassesStatus)
+	const classes = useSelector((state:RootState) => state.classReducer.classes)
 	const history = useHistory();
-	const ColActions = () => {
-		return (
-			<Space size="middle">
-				<Button type="link" icon={<UnorderedListOutlined />}  onClick={() => history.push("/classes-detail")}/>
-				<EditClassModal />
-			</Space>
-		);
-	}
-	ColActions.displayName = "ColActions";
 
-	const dataSource: ClassI[] = [
-		{
-			name: "Tiếng Anh 2",
-			teacher:{
-				id:1,
-				name:"Mss Nham",
-			},
-			sessions_num: 24,
-			students_num: 20,
-			fee_per_session: '300.000',
-			schedule: '2,4,6'
-		},
-		{
-			name: "Tiếng Anh 3",
-			teacher:{
-				id:1,
-				name:"Mss Nham",
-			},
-			sessions_num: 24,
-			students_num: 20,
-			fee_per_session: '300.000',
-			schedule: '2,4,6'
-		},
-		{
-			name: "Tiếng Anh 4",
-			teacher:{
-				id:1,
-				name:"Mss Nham",
-			},
-			sessions_num: 24,
-			students_num: 20,
-			fee_per_session: '300.000',
-			schedule: '2,4,6'
-		},
-	];
+	useEffect(() => {
+		if(getStatus === "idle"){
+			dispatch(actionGetClasses({page:1}));
+		}
+	},[getStatus,dispatch])
+
+	
 
 	const columns = [
 
@@ -67,11 +36,16 @@ function Classes(): JSX.Element {
 		{
 			width: '15%',
 			title: "Giáo viên",
-			dataIndex: "teacher",
-			key: "teacher"
+			dataIndex: "employee",
+			key: "employee",
+			render: function TeacherCol(value:{name:string, id:number}):JSX.Element {
+				return(
+				<Button type="link">{value.name}</Button>
+				)
+			}
 		},
 		{
-			width: '5%',
+			width: '10%',
 			title: "Số buổi",
 			dataIndex: "sessions_num",
 			key: "sessions_num"
@@ -89,7 +63,7 @@ function Classes(): JSX.Element {
 			key: "fee_per_session"
 		},
 		{
-			width: '10%',
+			width: '20%',
 			title: "Lịch học",
 			dataIndex: "schedule",
 			key: "schedule"
@@ -98,7 +72,14 @@ function Classes(): JSX.Element {
 			width: '15%',
 			title: "Action",
 			key: "action",
-			render: ColActions
+			render: function ActionCol(record:ClassType):JSX.Element{
+				return (
+					<Space size="middle">
+						<Button type="link" icon={<UnorderedListOutlined />}  onClick={() => history.push(`/classes-detail/${record.id}`)}/>
+						<EditClassModal />
+					</Space>
+				);
+			}
 		},
 	]
 
@@ -113,7 +94,7 @@ function Classes(): JSX.Element {
 					
 				</Col>
 			</Row>
-			<Table dataSource={dataSource} columns={columns} bordered />
+			<Table dataSource={get(classes,"data",[])} columns={columns} bordered />
 		</Layout.Content>
 	);
 }

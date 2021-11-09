@@ -1,4 +1,4 @@
-import { Button, Space } from "antd";
+import { Button, Space, Tooltip } from "antd";
 import Modal from "antd/lib/modal/Modal";
 import React, { useEffect, useState } from "react";
 import {DeleteOutlined,WarningOutlined } from "@ant-design/icons";
@@ -26,7 +26,7 @@ export default function DeleteEmployeeModal(props:{employee:EmployeeType}): JSX.
     }
     return (
        <Space>
-           <Button type="link" icon={<DeleteOutlined />} danger onClick={() => setShow(true)}/>
+           <Tooltip placement="top" title="Xoá nhân viên"><Button type="link" icon={<DeleteOutlined />} danger onClick={() => setShow(true)}/></Tooltip>
            <Modal 
             visible={show}
             title={<><WarningOutlined twoToneColor="#eb2f96" /> Bạn muốn xoá nhân viên </>}
