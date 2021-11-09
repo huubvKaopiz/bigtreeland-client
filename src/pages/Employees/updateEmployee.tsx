@@ -1,4 +1,4 @@
-import { Form, Modal, Button, Input, Select, DatePicker, Divider, Upload } from "antd";
+import { Form, Modal, Button, Input, Select, DatePicker, Divider, Upload, Tooltip } from "antd";
 import React, { useEffect, useState } from "react";
 import moment from 'moment';
 // import numeral from "numeral";
@@ -55,7 +55,7 @@ export default function UpdateEmplyeeForm(props:PropsType): JSX.Element {
     const IsNumeric = { pattern: /^-{0,1}\d*\.{0,1}\d+$/, message: "Giá trị nhập phải là số" };
     return (
         <div>
-            <Button type="link" icon={<EditOutlined />} onClick={() => setShow(true)}/>
+            <Tooltip placement="top" title="Sửa thông tin"><Button type="link" icon={<EditOutlined />} onClick={() => setShow(true)}/></Tooltip>
             <Modal
                 width={1000}
                 visible={show}
@@ -82,10 +82,10 @@ export default function UpdateEmplyeeForm(props:PropsType): JSX.Element {
                         'address':employee.address,
                         'interests':employee.interests,
                         'disklikes':employee.dislikes,
-                        'basic_salary':employee.employee_contract.basic_salary,
-                        'sales_salary':employee.employee_contract.basic_salary,
-                        'position':employee.employee_contract.position,
-                        'working_day':moment(employee.employee_contract.working_day)
+                        'basic_salary':employee.employee_contract && employee.employee_contract.basic_salary,
+                        'sales_salary':employee.employee_contract &&  employee.employee_contract.sales_salary,
+                        'position':employee.employee_contract &&  employee.employee_contract.position,
+                        'working_day':employee.employee_contract &&  moment(employee.employee_contract.working_day)
                     }}
                     // onValuesChange={}
                     onFinish={handleSubmit}

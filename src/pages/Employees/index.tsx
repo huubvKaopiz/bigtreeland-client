@@ -13,13 +13,13 @@ import { get } from "lodash";
 function Employees(): JSX.Element {
 	const dispatch = useAppDispatch();
 	const [search, setSearch] = useState('');
-
+	const status = useSelector((state:RootState) => state.employeeReducer.getEmployeesStatus)
 	
 	useEffect(() => {
-		if(search.length >= 3){
+		if(search.length >= 3 || status === "idle"){
 			dispatch(actionGetEmployees({}));
 		}
-	}, [dispatch, search]);
+	}, [dispatch, search, status]);
 
 	const employees = useSelector((state: RootState) => state.employeeReducer.employees);
 	
@@ -82,7 +82,7 @@ function Employees(): JSX.Element {
 			key: "employee_contract",
 			render: function PositionCol(contract:EmployeeContractType):JSX.Element {
 				return(
-				<span>{contract.position}</span>
+				<span>{contract && contract.position}</span>
 				)
 			},
 		},
@@ -98,7 +98,7 @@ function Employees(): JSX.Element {
 		<Layout.Content style={{ height: 1000 }}>
 			<Row style={{ marginBottom: 20, marginTop: 20 }} justify="start">
 				<Col span={10}>
-					<Input.Search allowClear onChange={(e:any) =>setSearch(e.value) }/>
+					<Input.Search allowClear onChange={({target:input}) => setSearch(input.value) }/>
 				</Col>
 				<Col span={6} style={{ marginLeft: 20 }}>
 					<AddEmplyeeForm />

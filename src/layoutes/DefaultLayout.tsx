@@ -11,6 +11,7 @@ import { Layout, Menu } from "antd";
 
 // import { actionLogout } from "../store/auth/slice";
 import ClassDetail from "pages/Classes/classDetail";
+import Parents from "pages/Parents";
 import Roles from "pages/Roles";
 import Students from "pages/Students";
 import React from "react";
@@ -75,6 +76,7 @@ function DefaultLayout(): JSX.Element {
 					<Route path="/classes" component={Classes} />
 					<Route path="/classes-detail" component={ClassDetail} />
 					<Route path="/students" component={Students} />
+					<Route path="/parents" component={Parents} />
 					<Route path="/permissions" component={Permissions} />
 					<Route path="/roles" component={Roles} />
 				</Content>

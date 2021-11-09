@@ -150,3 +150,5 @@ export const classSlice = createSlice({
 
     }
 })
+
+export default classSlice.reducer;
