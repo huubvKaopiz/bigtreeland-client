@@ -5,6 +5,9 @@ import { actionAddEmployee, actionGetEmployees, EmployeeParams } from "store/emp
 import moment from "moment";
 import { RootState, useAppDispatch } from "store/store";
 import { useSelector } from "react-redux";
+import { actionGetRoles } from "store/roles/slice";
+import { get } from "lodash";
+import { RoleType } from "interface";
 
 const IsNumeric = { pattern: /^-{0,1}\d*\.{0,1}\d+$/, message: "Giá trị nhập phải là số" };
 
@@ -14,31 +17,28 @@ export default function AddEmplyeeForm(): JSX.Element {
     const dispatch = useAppDispatch();
     const status = useSelector((state: RootState) => state.employeeReducer.addEmployeeStatus);
 
-    useEffect(()=>{
-        if(status === 'success'){
+    useEffect(() => {
+        if (status === 'success') {
             setShow(false);
             dispatch(actionGetEmployees({}));
         }
-    },[status, dispatch])
+    }, [status, dispatch])
+
+    useEffect(()=>{
+        dispatch(actionGetRoles());
+    },[dispatch]);
+
+    const roles = useSelector((state: RootState) => state.roleReducer.roles);
+    console.log(roles)
 
     const submitForm = (values: any) => {
-        const params:EmployeeParams = {
-            name:values.name,
-            email:values.email,
-            phone:values.phone,
-            gender:values.gender,
-            birthday:moment(values.birthday).format("YYYY-MM-DD"),
-            address:values.address,
-            interests:values.interests,
-            disklikes:values.disklikes,
-            identifier:values.identifier,
-            basic_salary:values.basic_salary,
-            sales_salary:values.sales_salary,
-            working_day:moment(values.working_day).format("YYYY-MM-DD"),
-            position:values.position,
-        }
-       dispatch(actionAddEmployee(params));
-       setShow(false);
+        const data = {
+            ...values,
+            birthday: moment(values.birthday).format("YYYY-MM-DD"),
+            working_day: moment(values.working_day).format("YYYY-MM-DD")};
+
+        dispatch(actionAddEmployee(data));
+        setShow(false);
     }
 
     return (
@@ -107,8 +107,17 @@ export default function AddEmplyeeForm(): JSX.Element {
                     <Form.Item name='sales_salary' label="Lương doanh số" rules={[IsNumeric]}>
                         <Input />
                     </Form.Item>
-                    <Form.Item name='position' label="Vị trí">
-                        <Input />
+                    <Form.Item name='role_id' label="Vị trí">
+                        <Select>
+                            <Select.Option value={0}>Nhân viên</Select.Option>
+                            {
+                                roles.map((role:RoleType) => {
+                                    return(
+                                        <Select.Option key={role.id} value={role.id}>{role.name}</Select.Option> 
+                                    )
+                                })
+                            }
+                        </Select>
                     </Form.Item>
                     <Form.Item name='working_day' label="Ngày vào làm">
                         <DatePicker />
@@ -117,7 +126,7 @@ export default function AddEmplyeeForm(): JSX.Element {
                         name="contract_file"
                         label="File đính kèm"
                         valuePropName="fileList"
-                        // getValueFromEvent={normFile}
+                    // getValueFromEvent={normFile}
                     >
                         <Upload name="logo" action="/upload.do" listType="picture">
                             <Button icon={<UploadOutlined />}>Click to upload</Button>

@@ -28,6 +28,10 @@ export default function Students(): JSX.Element {
 			title: "Họ tên",
 			dataIndex: "name",
 			key: "name",
+			render: function nameCol(value: string): JSX.Element {
+			return <strong>{value}</strong>
+			},
+			
 		},
 		{
 			width: "10%",

@@ -14,6 +14,7 @@ export interface UserReducerState {
 export interface ParamGetUsers {
 	search?: string;
 	page?:number;
+	class_id?:number;
 }
 
 export interface EmployeeParams {
@@ -41,7 +42,7 @@ const initialState: UserReducerState = {
 };
 
 export const actionGetEmployees = createAsyncThunk("actionGetEmployees", async (params: ParamGetUsers) => {
-	console.log("add employee action")
+	console.log("get employee action")
 	const response = await request({
 		url: "/api/employees",
 		method: "get",
@@ -96,7 +97,7 @@ export const employeeSlice = createSlice({
 
 	extraReducers: (builder) => {
 		builder.addCase(actionGetEmployees.pending, (state) => {
-			state.getEmployeesStatus="idle";
+			state.getEmployeesStatus="loading";
 		})
 		.addCase(actionGetEmployees.fulfilled, (state, action) => {
 			state.employees = action.payload as ListEmployeeType;

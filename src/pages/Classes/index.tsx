@@ -1,4 +1,4 @@
-import React, {useEffect } from "react";
+import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 import { ClassType } from "../../interface";
@@ -13,17 +13,17 @@ import { get } from "lodash";
 
 function Classes(): JSX.Element {
 	const dispatch = useAppDispatch();
-	const getStatus = useSelector((state:RootState) => state.classReducer.getClassesStatus)
-	const classes = useSelector((state:RootState) => state.classReducer.classes)
+	const getStatus = useSelector((state: RootState) => state.classReducer.getClassesStatus)
+	const classes = useSelector((state: RootState) => state.classReducer.classes)
 	const history = useHistory();
 
 	useEffect(() => {
-		if(getStatus === "idle"){
-			dispatch(actionGetClasses({page:1}));
+		if (getStatus === "idle") {
+			dispatch(actionGetClasses({ page: 1 }));
 		}
-	},[getStatus,dispatch])
+	}, [getStatus, dispatch])
 
-	
+
 
 	const columns = [
 
@@ -38,9 +38,9 @@ function Classes(): JSX.Element {
 			title: "Giáo viên",
 			dataIndex: "employee",
 			key: "employee",
-			render: function TeacherCol(value:{name:string, id:number}):JSX.Element {
-				return(
-				<Button type="link">{value.name}</Button>
+			render: function TeacherCol(value: { name: string, id: number }): JSX.Element {
+				return (
+					<Button type="link">{value.name}</Button>
 				)
 			}
 		},
@@ -72,11 +72,11 @@ function Classes(): JSX.Element {
 			width: '15%',
 			title: "Action",
 			key: "action",
-			render: function ActionCol(record:ClassType):JSX.Element{
+			render: function ActionCol(record: ClassType): JSX.Element {
 				return (
 					<Space size="middle">
-						<Button type="link" icon={<UnorderedListOutlined />}  onClick={() => history.push(`/classes-detail/${record.id}`)}/>
-						<EditClassModal />
+						<Button type="link" icon={<UnorderedListOutlined />} onClick={() => history.push(`/classes-detail/${record.id}`)} />
+						<EditClassModal calssInfo={record} />
 					</Space>
 				);
 			}
@@ -91,10 +91,10 @@ function Classes(): JSX.Element {
 				</Col>
 				<Col span={6} style={{ marginLeft: 20 }}>
 					<AddClassModal />
-					
+
 				</Col>
 			</Row>
-			<Table dataSource={get(classes,"data",[])} columns={columns} bordered />
+			<Table dataSource={get(classes, "data", [])} columns={columns} bordered />
 		</Layout.Content>
 	);
 }

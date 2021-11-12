@@ -105,15 +105,15 @@ export interface EmployeeType {
 	employee: null;
 	id: 1;
 	name: "admin";
-	phone:'';
 	address: "1";
 	birthday: "2021-12-14";
 	gender: 0;
 	interests: "1";
 	dislikes: "2";
-	parent: null;
-	permissions: [];
-	roles: RoleType[];
+	user:{
+		id:number;
+		phone:string;
+	}
 	updated_at: "2021-11-02T00:50:17.000000Z";
 	employee_contract:EmployeeContractType;
 }
@@ -227,6 +227,7 @@ export interface Employee {
 
 export interface ClassI {
 	name: string;
+	id:number;
 	teacher: {
 		id: number;
 		name: string;

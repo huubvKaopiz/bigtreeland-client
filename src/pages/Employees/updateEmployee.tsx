@@ -3,12 +3,12 @@ import React, { useEffect, useState } from "react";
 import moment from 'moment';
 // import numeral from "numeral";
 import { EditOutlined, UploadOutlined } from "@ant-design/icons";
-import { EmployeeType } from "interface";
+import { EmployeeType, RoleType } from "interface";
 import { actionGetEmployees, actionUpdateEmployee, EmployeeParams } from "store/employees/slice";
 import { RootState, useAppDispatch } from "store/store";
 import { useSelector } from "react-redux";
-
-
+import { actionGetRoles } from "store/roles/slice";
+import { get } from "lodash";
 
 interface PropsType {
     employee:EmployeeType;
@@ -28,22 +28,17 @@ export default function UpdateEmplyeeForm(props:PropsType): JSX.Element {
         }
     },[status, dispatch]);
 
+    useEffect(()=>{
+        dispatch(actionGetRoles());
+    },[dispatch]);
+
+    const roles = useSelector((state: RootState) => state.roleReducer.roles);
+
     const handleSubmit = (values:any) => {
-        const data:EmployeeParams = {
-            name:values.name,
-            email:values.email,
-            phone:values.phone,
-            gender:values.gender,
-            birthday:moment(values.birthday).format("YYYY-MM-DD"),
-            address:values.address,
-            interests:values.interests,
-            disklikes:values.disklikes,
-            identifier:values.identifier,
-            basic_salary:values.basic_salary,
-            sales_salary:values.sales_salary,
-            working_day:moment(values.working_day).format("YYYY-MM-DD"),
-            position:values.position,
-        }
+        const data = {
+            ...values,
+            birthday: moment(values.birthday).format("YYYY-MM-DD"),
+            working_day: moment(values.working_day).format("YYYY-MM-DD")};
         const params = {
             data,
             eID:employee.id
@@ -76,16 +71,16 @@ export default function UpdateEmplyeeForm(props:PropsType): JSX.Element {
                     initialValues={{ 
                         'name':employee.name,
                         'email':employee.email,
-                        'phone':employee.phone,
+                        'phone':employee.user.phone,
                         'birthday':moment(employee.birthday),
                         'gender':employee.gender,
                         'address':employee.address,
                         'interests':employee.interests,
                         'disklikes':employee.dislikes,
-                        'basic_salary':employee.employee_contract && employee.employee_contract.basic_salary,
-                        'sales_salary':employee.employee_contract &&  employee.employee_contract.sales_salary,
-                        'position':employee.employee_contract &&  employee.employee_contract.position,
-                        'working_day':employee.employee_contract &&  moment(employee.employee_contract.working_day)
+                        'basic_salary':get(employee,"employee_contract.basic_salary",""),
+                        'sales_salary':get(employee,"employee_contract.sales_salary",""),
+                        'role_id':get(employee,"user,roles[0].id",0),
+                        'working_day':moment(get(employee,"employee_contract.working_day",""))
                     }}
                     // onValuesChange={}
                     onFinish={handleSubmit}
@@ -129,8 +124,17 @@ export default function UpdateEmplyeeForm(props:PropsType): JSX.Element {
                     <Form.Item name='sales_salary' label="Lương doanh số">
                         <Input />
                     </Form.Item>
-                    <Form.Item  name= 'position' label="Vị trí">
-                        <Input />
+                    <Form.Item name='role_id' label="Vị trí">
+                        <Select>
+                            <Select.Option value={0}>Nhân viên</Select.Option>
+                            {
+                                roles.map((role:RoleType) => {
+                                    return(
+                                        <Select.Option key={role.id} value={role.id}>{role.name}</Select.Option> 
+                                    )
+                                })
+                            }
+                        </Select>
                     </Form.Item>
                     <Form.Item  name= 'working_date' label="Ngày vào làm">
                         <DatePicker format={dateFormat} />
