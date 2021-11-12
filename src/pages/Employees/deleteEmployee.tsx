@@ -7,7 +7,7 @@ import { RootState, useAppDispatch } from "store/store";
 import { useSelector } from "react-redux";
 import { actionDeleteEmployee, actionGetEmployees } from "store/employees/slice";
 
-export default function DeleteEmployeeModal(props:{employee:EmployeeType}): JSX.Element {
+function DeleteEmployeeModal(props:{employee:EmployeeType}): JSX.Element {
     const {employee} = props;
     const [show, setShow] = useState(false);
     const dispatch = useAppDispatch();
@@ -40,3 +40,5 @@ export default function DeleteEmployeeModal(props:{employee:EmployeeType}): JSX.
        </Space>
     )
 }
+
+export default React.memo(DeleteEmployeeModal)

@@ -14,8 +14,9 @@ const Wrapper = styled.div`
 		}
 		&__button {
 			display: flex;
-			justify-content: flex-end;
+			justify-content: flex-start;
 			margin: 0 0 24px 0;
+			padding-top: 20px;
 		}
 	}
 `;
@@ -122,12 +123,6 @@ function Permissions(): JSX.Element {
 	return (
 		<Wrapper>
 			<Layout.Content>
-				<PageHeader
-					title="Permission"
-					className="permission__header"
-					subTitle="Danh sách quyền người dùng"
-				></PageHeader>
-				<Divider className="permission__divider" />
 				<div className="permission__button">
 					<Space>
 						<Button type="primary">

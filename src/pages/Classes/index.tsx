@@ -10,6 +10,7 @@ import { useHistory } from "react-router-dom";
 import { useAppDispatch } from "store/store";
 import { actionGetClasses } from "store/classes/slice";
 import { get } from "lodash";
+import { formatCurrency } from "utils/ultil";
 
 function Classes(): JSX.Element {
 	const dispatch = useAppDispatch();
@@ -60,7 +61,10 @@ function Classes(): JSX.Element {
 			width: '10%',
 			title: "Học phí / buổi",
 			dataIndex: "fee_per_session",
-			key: "fee_per_session"
+			key: "fee_per_session",
+			render: function amountCol(amount: number): JSX.Element {
+				return <span>{formatCurrency(amount)}</span>;
+			},
 		},
 		{
 			width: '20%',
