@@ -15,7 +15,7 @@ interface PropsType {
 }
 const dateFormat = 'DD/MM/YYYY';
 
-export default function UpdateEmplyeeForm(props:PropsType): JSX.Element {
+function UpdateEmplyeeForm(props:PropsType): JSX.Element {
     const {employee} = props;
     const [show, setShow] = useState(false);
     const dispatch = useAppDispatch();
@@ -156,3 +156,4 @@ export default function UpdateEmplyeeForm(props:PropsType): JSX.Element {
     )
 
 }
+export default React.memo(UpdateEmplyeeForm)

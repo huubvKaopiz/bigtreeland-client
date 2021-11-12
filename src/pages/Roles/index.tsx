@@ -1,8 +1,8 @@
 import DeleteOutlined from "@ant-design/icons/lib/icons/DeleteOutlined";
-import EditOutlined from "@ant-design/icons/lib/icons/EditOutlined";
-import TeamOutlined from "@ant-design/icons/lib/icons/TeamOutlined";
+import UserOutlined from "@ant-design/icons/lib/icons/UserOutlined";
 import { Col, Input, Layout, Row, Space, Table } from "antd";
 import { RoleCreateFormType, RoleType, UserType } from "interface";
+import { UpdateRoleDataType } from "interface/api-params-interface";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import {
@@ -11,14 +11,12 @@ import {
 	actionGetRoles,
 	actionResetStatusDeleteRole,
 	actionResetStatusGetRole,
-	actionResetStatusUpdateRole,
+	actionResetStatusUpdateRole, actionUpdateRole
 } from "store/roles/slice";
 import { RootState, useAppDispatch } from "store/store";
 import { DatePattern, dateSort, formatDate } from "utils/dateUltils";
 import AddRolesForm from "./AddRolesForm";
 import RoleDetail from "./RoleDetail";
-import { actionUpdateRole } from "store/roles/slice";
-import { UpdateRoleDataType } from "interface/api-params-interface";
 
 function Roles(): JSX.Element {
 	const dispatch = useAppDispatch();
@@ -85,7 +83,7 @@ function Roles(): JSX.Element {
 						}}
 					>
 						<Space>
-							<TeamOutlined />
+							<UserOutlined />
 							{text}
 						</Space>
 					</a>
@@ -97,10 +95,16 @@ function Roles(): JSX.Element {
 			key: "users",
 			dataIndex: "users",
 			render: function UserLink(users: UserType[], record: RoleType): JSX.Element {
-				return <a onClick={() => {
-					setShowDetail(true);
-					setRoleDetail(record);
-				}}>{users.length}</a>;
+				return (
+					<a
+						onClick={() => {
+							setShowDetail(true);
+							setRoleDetail(record);
+						}}
+					>
+						{users.length}
+					</a>
+				);
 			},
 			showSorterTooltip: false,
 			sorter: {

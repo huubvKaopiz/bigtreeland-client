@@ -34,7 +34,7 @@ function LoginForm(): JSX.Element {
 	const userLogin = useSelector((state: RootState) => state.auth.user);
 	const statusUserVerify = useSelector((state: RootState) => state.auth.statusUserVerified);
 	const isMounted = useIsMounted();
-	
+
 	console.log(statusUserVerify, userLogin);
 	useEffect(() => {
 		initializeFirebase();
@@ -44,25 +44,31 @@ function LoginForm(): JSX.Element {
 		dispatch(actionLogin(values)).then((res) => {
 			if (isMounted.current) setLoading(false);
 			if (get(res, "payload", null)) {
-				const payload = res.payload as AxiosError;
-				if (payload?.response?.status !== 400)
-					notification.error({
-						message: get(res, "payload.response.data.error", "Login fail"),
+				if (res.meta.requestStatus === "fulfilled")
+					notification.success({
+						message: "Đăng nhập thành công!",
 					});
-				if (payload?.response?.status === 400) {
-					const phoneField: string = form.getFieldValue("phone");
-					const phone = phoneField.split("")
-					phone[0] = '+84'
-					console.log(phone.join(""))
-					signInWithPhoneNumber(auth(), phone.join(""), window.recaptchaVerifier)
-						.then((confirmationResult) => {
-							console.log("sending sms");
-							window.confirmationResult = confirmationResult;
-						})
-						.catch((error) => {
-							console.log(error);
-							// Error; SMS not sent
+				else {
+					const payload = res.payload as AxiosError;
+					if (payload?.response?.status === 400) {
+						const phoneField: string = form.getFieldValue("phone");
+						const phone = phoneField.split("");
+						phone[0] = "+84";
+						console.log(phone.join(""));
+						signInWithPhoneNumber(auth(), phone.join(""), window.recaptchaVerifier)
+							.then((confirmationResult) => {
+								console.log("sending sms");
+								window.confirmationResult = confirmationResult;
+							})
+							.catch((error) => {
+								console.log(error);
+								// Error; SMS not sent
+							});
+					} else {
+						notification.error({
+							message: get(res, "payload.response.data.error", "Login fail"),
 						});
+					}
 				}
 			}
 		});
