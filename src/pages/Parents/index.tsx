@@ -15,11 +15,11 @@ export default function Parents(): JSX.Element {
 	const status = useSelector((state: RootState) => state.parentReducer.getParentsStatus);
 	const parents = useSelector((state: RootState) => state.parentReducer.parents);
 
-	// useEffect(() => {
-	//     if (status === "idle") {
-	//         dispatch(actionGetParents({ page: 1 }));
-	//     }
-	// }, [dispatch, status])
+	useEffect(() => {
+		if (status === "idle") {
+			dispatch(actionGetParents({ page: 1 }));
+		}
+	}, [dispatch, status]);
 
 	const columns = [
 		{

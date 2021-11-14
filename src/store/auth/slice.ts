@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosError } from "axios";
 import { get, merge } from "lodash";
 import request from "../../utils/request";
-
+import Cookies from "js-cookie";
 export interface User {
 	access_token: string;
 	expires_in: number;
@@ -50,6 +50,8 @@ export const actionLogin = createAsyncThunk("auth/actionLogin", async (data: Pay
 
 		const response = merge(responseLogin.data, responseMe.data);
 
+		Cookies.set("auth", JSON.stringify(response));
+
 		return response;
 	} catch (error) {
 		return rejectWithValue(error);
@@ -57,22 +59,22 @@ export const actionLogin = createAsyncThunk("auth/actionLogin", async (data: Pay
 });
 
 export const actionVerifyAccount = createAsyncThunk("verifyAccount", async (data: any) => {
-  const reponseVerify = await request({
-    url: "/api/auth/verify-account",
-    method: "POST",
-    data,
-  });
+	const reponseVerify = await request({
+		url: "/api/auth/verify-account",
+		method: "POST",
+		data,
+	});
 
-  const responseMe = await request({
-    url: "/api/auth/me",
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${get(reponseVerify, "data.access_token", "")}`,
-    },
-  });
-  const response = merge(reponseVerify.data, responseMe.data);
-  return response;
-})
+	const responseMe = await request({
+		url: "/api/auth/me",
+		method: "POST",
+		headers: {
+			Authorization: `Bearer ${get(reponseVerify, "data.access_token", "")}`,
+		},
+	});
+	const response = merge(reponseVerify.data, responseMe.data);
+	return response;
+});
 
 export const slice = createSlice({
 	name: "auth",
