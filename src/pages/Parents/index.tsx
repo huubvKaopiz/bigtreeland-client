@@ -16,10 +16,8 @@ export default function Parents(): JSX.Element {
 	const parents = useSelector((state: RootState) => state.parentReducer.parents);
 
 	useEffect(() => {
-		if (status === "idle") {
-			dispatch(actionGetParents({ page: 1 }));
-		}
-	}, [dispatch, status]);
+		dispatch(actionGetParents({ page: 1 }));
+	}, [dispatch]);
 
 	const columns = [
 		{
