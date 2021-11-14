@@ -1,7 +1,7 @@
 import { combineReducers, configureStore, getDefaultMiddleware } from "@reduxjs/toolkit";
 import { useDispatch } from "react-redux";
 import userReducer from "./users/slice";
-import auth from "./auth/slice";
+import auth, { actionLogout } from "./auth/slice";
 import employeeReducer from "./employees/slice";
 import studentReducer from "./students/slice";
 import parentReducer from "./parents/slice";
@@ -10,6 +10,8 @@ import roleReducer from "./roles/slice";
 import permissionReducer from "./permissions/slice";
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
+import { get } from "lodash";
+import { api } from "utils/request";
 
 const rootReducer = combineReducers({
 	auth,
@@ -25,6 +27,7 @@ const rootReducer = combineReducers({
 const persistConfig = {
 	key: "root",
 	storage,
+	whitelist: ["auth"],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -46,3 +49,20 @@ export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 
 export const useAppDispatch: () => AppDispatch = () => useDispatch<AppDispatch>();
+
+store.subscribe(() => {
+	const access_token = get(store.getState(), "auth.user.access_token", "");
+	if (access_token) {
+		api.defaults.headers.common["Authorization"] = "Bearer ".concat(access_token);
+	}
+
+	api.interceptors.response.use(
+		(response) => response,
+		(error) => {
+			if (get(error, "response.status", 1) === 401) {
+				store.dispatch(actionLogout());
+			}
+			throw error;
+		}
+	);
+});
