@@ -3,13 +3,14 @@ import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import { PersistGate } from "redux-persist/integration/react";
+import { initLib } from "utils/initLib";
 import "./index.css";
 import AuthProvider from "./layoutes/AuthProvider";
 import { LoginForm } from "./pages/Login";
 import reportWebVitals from "./reportWebVitals";
 import { persistor, store } from "./store/store";
 
-
+initLib();
 
 ReactDOM.render(
 	<React.StrictMode>

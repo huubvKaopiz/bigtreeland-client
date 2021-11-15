@@ -23,7 +23,8 @@ export interface UserType {
 	permissions: [];
 	roles: RoleType[];
 	updated_at: "2021-11-02T00:50:17.000000Z";
-	key?: React.Key
+	key?: React.Key;
+	phone?: number;
 }
 
 export interface ParentType {

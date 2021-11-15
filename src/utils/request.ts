@@ -1,5 +1,4 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
-import { get } from "lodash";
 
 const apiUrl = process.env.REACT_APP_API;
 

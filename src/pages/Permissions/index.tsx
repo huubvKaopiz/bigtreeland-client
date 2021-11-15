@@ -1,11 +1,11 @@
+import { DeleteOutlined, EditOutlined, SearchOutlined, TeamOutlined } from "@ant-design/icons";
+import { Button, Layout, notification, Space, Table } from "antd";
+import RoleService from "api/role.service";
+import { Permission } from "interface/interfaces";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { PERMISSION_LIST } from "../../assets/mock-data/PermissionList";
-import { formatDate, dateSort, DatePattern } from "../../utils/dateUltils";
-import { Button, Layout, PageHeader, Divider, Space, Table, notification } from "antd";
-import { SearchOutlined, TeamOutlined, DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import { Permission } from "interface/interfaces";
-import RoleService from "api/role.service";
+import { DatePattern, dateSort, formatDate } from "../../utils/dateUltils";
 
 const Wrapper = styled.div`
 	.permission {
