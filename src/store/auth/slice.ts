@@ -2,7 +2,6 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosError } from "axios";
 import { get, merge } from "lodash";
 import request from "../../utils/request";
-import Cookies from "js-cookie";
 export interface User {
 	access_token: string;
 	expires_in: number;
@@ -49,8 +48,6 @@ export const actionLogin = createAsyncThunk("auth/actionLogin", async (data: Pay
 		});
 
 		const response = merge(responseLogin.data, responseMe.data);
-
-		Cookies.set("auth", JSON.stringify(response));
 
 		return response;
 	} catch (error) {

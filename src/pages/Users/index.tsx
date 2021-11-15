@@ -14,7 +14,6 @@ import {
 	actionResetStatusDeactiveUser,
 	actionSetPermissionsForUser,
 } from "store/users/slice";
-
 import AddNewUserForm from "./AddNewUserForm";
 import ChangePassword from "./ChangePassword";
 import ChangePermisstion from "./ChangePermisstion";
@@ -64,6 +63,7 @@ export default function Users(): JSX.Element {
 	}
 
 	function getProfileUser(user: User) {
+		if (!user) return null;
 		if (user.employee) return user.employee;
 		if (user.parent) return user.parent;
 		return null;
@@ -88,6 +88,10 @@ export default function Users(): JSX.Element {
 			title: "Email",
 			dataIndex: "email",
 			key: "email",
+			// eslint-disable-next-line react/display-name
+			render: (_: any, user: User) => {
+				return <span>{get(getProfileUser(user), "email", "")}</span>;
+			},
 		},
 		{
 			width: "20%",
@@ -95,7 +99,7 @@ export default function Users(): JSX.Element {
 			key: "phone",
 			// eslint-disable-next-line react/display-name
 			render: (user: User) => {
-				return <span>{get(getProfileUser(user), "phone", "")}</span>;
+				return <span>{user.phone}</span>;
 			},
 		},
 		{

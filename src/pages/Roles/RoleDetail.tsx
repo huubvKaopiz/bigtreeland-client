@@ -5,7 +5,7 @@ import { UpdateRoleDataType } from "interface/api-params-interface";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { PermistionType } from "store/permissions/slice";
-import { RootState, useAppDispatch } from "store/store";
+import { RootState } from "store/store";
 import { ArrayEquals } from "utils/objectUtils";
 
 

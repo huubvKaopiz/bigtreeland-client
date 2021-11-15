@@ -1,122 +1,126 @@
 /* eslint-disable @typescript-eslint/prefer-as-const */
+import EditOutlined from "@ant-design/icons/lib/icons/EditOutlined";
 import UserOutlined from "@ant-design/icons/lib/icons/UserOutlined";
-import { Button, Col, DatePicker, Input, Layout, Row, Space, Spin, Statistic, Table } from "antd";
-import React, { useEffect, useMemo, useState } from "react";
+import { Button, Col, DatePicker, Input, Layout, Row, Space, Spin, Statistic, Table, Tooltip } from "antd";
+import moment from "moment";
+import React, { useCallback, useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { actionGetPayments, PaymentSearchParam, PaymentTypeEnum, resetGetPaymentStatus } from "store/payments/slice";
+import { RootState, useAppDispatch } from "store/store";
 import { DatePattern, formatDate } from "utils/dateUltils";
 import { formatCurrency } from "utils/ultil";
 import AddNewPayment from "./AddNewPayment";
+import PaymentDetails from "./PaymentDetails";
 const { RangePicker } = DatePicker;
 
 function Payment(): JSX.Element {
-	const [searchRange, setSearchRange] = useState<string[]>([]);
+	const dispatch = useAppDispatch();
+	const [searchRange, setSearchRange] = useState<string[]>(["", ""]);
 	const [loading, setLoading] = useState(false);
 	const [rawTableData, setRawTableData] = useState<any>([]);
-	const [filteredTableData, setFilteredTableData] = useState<any>(null);
-	const [incomeValue, setIncomeValue] = useState(0);
 	const [spenValue, setSpenValue] = useState(0);
+	const [searchText, setSearchText] = useState("");
+	const [showDrawer, setShowDrawer] = useState(false);
+	const [currentDrawerData, setCurrentDrawerData] = useState(null);
 
-	console.log("re-render");
-	const tableSource = useMemo(
-		() => [
-			{
-				id: 1,
-				name: "Tran Thi Nham",
-				type: 0,
-				amount: 15000000,
-				reason: "Mua iphone để dùng",
-				note: "lên đời",
-				date: new Date(),
-			},
-			{
-				id: 1,
-				name: "Bui Van Huu",
-				type: 0,
-				amount: 300000,
-				reason: "Mua Mac M1 để code",
-				note: "Mac cũ bé quá",
-				date: new Date(),
-			},
-			{
-				id: 1,
-				name: "Quỳnh",
-				type: 1,
-				amount: 1000000,
-				reason: "Bán quần xì để có tiền",
-				note: "dạo này ăn chơi hơi lố",
-				date: new Date(),
-			},
-		],
-		[]
-	);
+	const paymentTableData = useSelector((state: RootState) => state.paymentReducer.payments);
+	const statusGetPayment = useSelector((state: RootState) => state.paymentReducer.getPaymentStatus);
 
 	useEffect(() => {
-		setRawTableData(tableSource);
-		const payment = { income: 0, spend: 0 };
-		if (filteredTableData) {
-			payment.income = filteredTableData.reduce((amount: number, object: any) => {
-				return object.type === 1 ? (amount += object.amount) : amount;
-			}, 0);
-			payment.spend = filteredTableData.reduce((amount: number, object: any) => {
-				return object.type === 0 ? (amount += object.amount) : amount;
-			}, 0);
-		} else {
-			payment.income = tableSource.reduce((amount: number, object: any) => {
-				return object.type === 1 ? (amount += object.amount) : amount;
-			}, 0);
-			payment.spend = tableSource.reduce((amount: number, object: any) => {
-				return object.type === 0 ? (amount += object.amount) : amount;
-			}, 0);
-		}
-		setIncomeValue(payment.income);
-		setSpenValue(payment.spend);
-	}, [filteredTableData, tableSource]);
+		console.log("call when mounted");
+		const startOfMonth = moment().startOf("month").format("YYYY-MM-DD");
+		const endOfMonth = moment().endOf("month").format("YYYY-MM-DD");
+		setSearchRange([startOfMonth, endOfMonth]);
+		// dispatch(actionGetPayments({fromDate: startOfMonth, toDate: endOfMonth}));
+		// Todo change to get defaut current month
+		dispatch(actionGetPayments());
+	}, [dispatch]);
 
-	function handleTableFilter(textFilter: string) {
-		const filterData = rawTableData.filter((o: any) =>
-			Object.keys(o).some((k) => String(o[k]).toLowerCase().includes(textFilter.toLowerCase()))
-		);
-		setFilteredTableData(filterData);
+	useEffect(() => {
+		if (statusGetPayment === "loading") setLoading(true);
+		else if (statusGetPayment === "success") {
+			const spendAmount = paymentTableData?.reduce((pre, current) => pre + +current.amount, 0);
+			(spendAmount || spendAmount === 0) && setSpenValue(spendAmount);
+			setRawTableData(paymentTableData);
+			dispatch(resetGetPaymentStatus());
+			setLoading(false);
+		} else if (statusGetPayment === "error") {
+			setLoading(false);
+		}
+	}, [dispatch, paymentTableData, statusGetPayment]);
+
+	useEffect(() => {
+		const spendAmount = paymentTableData?.reduce((pre, current) => pre + +current.amount, 0);
+		if (spendAmount) setSpenValue(spendAmount);
+	}, [paymentTableData]);
+
+	const refreshTable = useCallback(() => {
+		dispatch(actionGetPayments());
+	}, [dispatch]);
+
+	function handleTableFilter() {
+		dispatch(actionGetPayments({ search: searchText }));
 	}
 
 	function searchRangeChange(_: any, dateString: string[]) {
-		setSearchRange(dateString);
+		setSearchRange([dateString[0], dateString[1]]);
+		console.log(dateString[0], dateString[1]);
 	}
 
 	function handleSearchRange() {
-		const start = searchRange[0];
-		const end = searchRange[1];
-		console.log(start, end);
+		const searchObj: PaymentSearchParam = {};
+		const fromDate = searchRange[0];
+		const toDate = searchRange[1];
+		if (fromDate) searchObj.fromDate = fromDate;
+		if (toDate) searchObj.toDate = toDate;
+		dispatch(actionGetPayments({ ...searchObj }));
+	}
 
-		setLoading(true);
-		setTimeout(() => setLoading(false), 2000);
-		// Todo call action to search range
+	function handleShowDrawer(state: boolean) {
+		setShowDrawer(state);
 	}
 
 	const tableColumn = [
 		{
-			width: "15%",
-			title: "Họ tên",
-			dataIndex: "name",
-			key: "name",
-			render: function NameCol(name: string): JSX.Element {
+			width: "10%",
+			title: "Người lập",
+			dataIndex: "__",
+			key: "creator",
+			render: function NameCol(_: string, row: any): JSX.Element {
 				return (
-					<a>
+					<div>
 						<Space>
 							<UserOutlined />
-							{name}
+							{row.creator.name}
 						</Space>
-					</a>
+					</div>
 				);
 			},
 		},
 		{
-			width: "5%",
-			title: "Thu/Chi",
+			width: "10%",
+			title: "Người chi",
+			dataIndex: "_",
+			key: "payer",
+			render: function NameCol(_: string, row: any): JSX.Element {
+				return (
+					<div>
+						<Space>
+							<UserOutlined />
+							{row.payer.name}
+						</Space>
+					</div>
+				);
+			},
+		},
+		{
+			width: "8%",
+			title: "Loại chi",
 			dataIndex: "type",
 			key: "type",
 			align: "center" as "center",
 			render: function TypeCol(type: number): JSX.Element {
-				return <span style={{ color: type === 0 ? "#cf1322" : "#3f8600" }}>{type === 0 ? "Chi" : "Thu"}</span>;
+				return <span style={{ color: type === 0 ? "#cf1322" : "#3f8600" }}>{PaymentTypeEnum[type]}</span>;
 			},
 		},
 		{
@@ -125,28 +129,50 @@ function Payment(): JSX.Element {
 			dataIndex: "amount",
 			key: "amount",
 			render: function amountCol(amount: number, row: any): JSX.Element {
-				return <span style={{ color: row.type === 0 ? "#cf1322" : "#3f8600" }}>{formatCurrency(amount)}</span>;
+				return <span style={{ color: "#cf1322" }}>{formatCurrency(amount)}</span>;
 			},
 		},
 		{
-			width: "40%",
+			width: "25%",
 			title: "Lý do",
 			dataIndex: "reason",
 			key: "reason",
 		},
 		{
-			width: "18%",
+			width: "12%",
 			title: "Ghi chú",
 			dataIndex: "note",
 			key: "note",
 		},
 		{
-			width: "12%",
+			width: "8%",
+			title: "Trạng thái",
+			dataIndex: "status",
+			key: "status",
+		},
+		{
+			width: "10%",
 			title: "Ngày tạo",
 			dataIndex: "date",
 			key: "date",
 			render: function dateCol(date: string): JSX.Element {
 				return <>{formatDate(date, DatePattern.DD_MM_YYYY_HH_mm_ss)}</>;
+			},
+		},
+		{
+			width: "5%",
+			title: "Action",
+			key: "action",
+			render: function actionCol(value: string, row: any): JSX.Element {
+				return (
+					<Tooltip placement="top" title="Sửa thông tin">
+						<Button onClick={(e)=> {
+							console.log("click button")
+							e.stopPropagation()
+						}} type="link" icon={<EditOutlined />}>
+						</Button>
+					</Tooltip>
+				);
 			},
 		},
 	];
@@ -155,14 +181,18 @@ function Payment(): JSX.Element {
 		<Layout.Content style={{ height: 1000 }}>
 			<Row style={{ marginBottom: 20, marginTop: 20 }} justify="start">
 				<Col span={10}>
-					<Input.Search allowClear onChange={({ target: input }) => handleTableFilter(input.value)} />
+					<Input.Search onSearch={handleTableFilter} onChange={({ target: input }) => setSearchText(input.value)} />
 				</Col>
 				<Col style={{ marginLeft: 20 }}>
-					<AddNewPayment />
+					<AddNewPayment refreshTable={refreshTable} />
 				</Col>
 				<Col style={{ marginLeft: 20 }}>
 					<Row justify="start">
-						<RangePicker allowEmpty={[true, true]} onChange={searchRangeChange} />
+						<RangePicker
+							allowEmpty={[true, true]}
+							onChange={searchRangeChange}
+							defaultValue={[moment().startOf("month"), moment().endOf("month")]}
+						/>
 						<Button type="primary" onClick={handleSearchRange}>
 							Tìm kiếm
 						</Button>
@@ -170,25 +200,26 @@ function Payment(): JSX.Element {
 				</Col>
 			</Row>
 			<Row style={{ justifyContent: "space-between" }}>
-				<Space align="baseline" size="large">
-					<Statistic title="Tổng thu" value={incomeValue} suffix="VND" valueStyle={{ color: "#3f8600" }} />
-					<Statistic title="Tổng chi" value={spenValue} suffix="VND" valueStyle={{ color: "#cf1322" }} />
-				</Space>
-				<Statistic
-					title="Tổng thu - tổng chi"
-					value={incomeValue - spenValue}
-					suffix="VND"
-					valueStyle={{ color: incomeValue - spenValue < 0 ? "#cf1322" : "#3f8600" }}
-				/>
+				<Button type="primary"> Đặt ngưỡng chi tiêu </Button>
+				<Statistic title="Tổng chi" value={spenValue} suffix="VND" valueStyle={{ color: "#cf1322" }} />
 			</Row>
 			<Spin spinning={loading}>
 				<Table
 					size="small"
 					pagination={{ pageSize: 20 }}
-					dataSource={filteredTableData === null ? rawTableData : filteredTableData}
+					dataSource={rawTableData}
 					columns={tableColumn}
 					bordered
+					onRow={(record) => {
+						return {
+							onClick: (e) => {
+								handleShowDrawer(true);
+								setCurrentDrawerData(record);
+							},
+						};
+					}}
 				/>
+				<PaymentDetails handleShowDetail={handleShowDrawer} show={showDrawer} data={currentDrawerData}></PaymentDetails>
 			</Spin>
 		</Layout.Content>
 	);
