@@ -12,8 +12,8 @@ import { get, toLength } from "lodash";
 
 function Employees(): JSX.Element {
 	const dispatch = useAppDispatch();
-	const [search, setSearch] = useState('');
-	const status = useSelector((state: RootState) => state.employeeReducer.getEmployeesStatus)
+	const [search, setSearch] = useState("");
+	const status = useSelector((state: RootState) => state.employeeReducer.getEmployeesStatus);
 
 	useEffect(() => {
 		if (search.length >= 3 || status === "idle") {
@@ -39,10 +39,8 @@ function Employees(): JSX.Element {
 			dataIndex: "name",
 			key: "name",
 			render: function NameCol(name: string): JSX.Element {
-				return (
-					<Button type="link" >{name}</Button>
-				)
-			}
+				return <Button type="link">{name}</Button>;
+			},
 		},
 		{
 			width: "10%",
@@ -50,10 +48,8 @@ function Employees(): JSX.Element {
 			dataIndex: "user",
 			key: "phone",
 			render: function PhoneCol(user: UserType): JSX.Element {
-				return (
-					<span >{get(user, "phone", "")}</span>
-				)
-			}
+				return <span>{get(user, "phone", "")}</span>;
+			},
 		},
 		{
 			width: "10%",
@@ -68,11 +64,9 @@ function Employees(): JSX.Element {
 			key: "gender",
 			align: "center" as any,
 			render: function GenderCol(gender: number): JSX.Element {
-				console.log(gender)
-				return (
-					<span>{gender === 0 ? 'Nữ' : 'Nam'}</span>
-				)
-			}
+				console.log(gender);
+				return <span>{gender === 0 ? "Nữ" : "Nam"}</span>;
+			},
 		},
 		{
 			width: "25%",
@@ -88,16 +82,16 @@ function Employees(): JSX.Element {
 			render: function PhoneCol(user: UserType): JSX.Element {
 				return (
 					<>
-						{
-							get(user, "roles", []).map((role: { name: string, id: number }) => {
-								return (
-									<Tag color="blue" key={role.id}>{role.name}</Tag>
-								)
-							})
-						}
+						{get(user, "roles", []).map((role: { name: string; id: number }) => {
+							return (
+								<Tag color="blue" key={role.id}>
+									{role.name}
+								</Tag>
+							);
+						})}
 					</>
-				)
-			}
+				);
+			},
 		},
 		{
 			width: "15%",
@@ -117,7 +111,7 @@ function Employees(): JSX.Element {
 					<AddEmplyeeForm />
 				</Col>
 			</Row>
-			<Table size="small" dataSource={get(employees, "data", [])} columns={columns} bordered />
+			<Table size="small" dataSource={get(employees, "data", [])} rowKey="id" columns={columns} bordered />
 		</Layout.Content>
 	);
 }
