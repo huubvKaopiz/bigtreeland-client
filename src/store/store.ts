@@ -57,14 +57,14 @@ store.subscribe(() => {
 	if (access_token) {
 		api.defaults.headers.common["Authorization"] = "Bearer ".concat(access_token);
 	}
-
-	api.interceptors.response.use(
-		(response) => response,
-		(error) => {
-			if (get(error, "response.status", 1) === 401) {
-				store.dispatch(actionLogout());
-			}
-			throw error;
-		}
-	);
 });
+
+api.interceptors.response.use(
+	(response) => response,
+	(error) => {
+		if (get(error, "response.status", 1) === 401) {
+			store.dispatch(actionLogout());
+		}
+		throw error;
+	}
+);
