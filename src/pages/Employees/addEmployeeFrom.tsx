@@ -11,12 +11,13 @@ import { RoleType } from "interface";
 
 const IsNumeric = { pattern: /^-{0,1}\d*\.{0,1}\d+$/, message: "Giá trị nhập phải là số" };
 
-export default function AddEmplyeeForm(): JSX.Element {
+export default function AddEmplyeeForm(props: { roles: RoleType[] }): JSX.Element {
+    const { roles } = props;
+    const [aForm] = Form.useForm();
     const [show, setShow] = useState(false);
-    const [employee_form] = Form.useForm();
     const dispatch = useAppDispatch();
     const status = useSelector((state: RootState) => state.employeeReducer.addEmployeeStatus);
-
+  
     useEffect(() => {
         if (status === 'success') {
             setShow(false);
@@ -24,21 +25,33 @@ export default function AddEmplyeeForm(): JSX.Element {
         }
     }, [status, dispatch])
 
-    useEffect(()=>{
-        dispatch(actionGetRoles());
-    },[dispatch]);
-
-    const roles = useSelector((state: RootState) => state.roleReducer.roles);
-    console.log(roles)
-
     const submitForm = (values: any) => {
         const data = {
             ...values,
             birthday: moment(values.birthday).format("YYYY-MM-DD"),
-            working_day: moment(values.working_day).format("YYYY-MM-DD")};
+            working_day: moment(values.working_day).format("YYYY-MM-DD")
+        };
 
         dispatch(actionAddEmployee(data));
         setShow(false);
+    }
+
+    const reFresh = () => {
+        aForm.setFieldsValue({
+            name: '',
+            email: '',
+            phone: '',
+            gender: 0,
+            birthday: '',
+            address: '',
+            interests: '',
+            disklikes: '',
+            identifier: '',
+            basic_salary: '',
+            sales_salary: '',
+            role_id: 0,
+            working_day: '',
+        })
     }
 
     return (
@@ -52,20 +65,20 @@ export default function AddEmplyeeForm(): JSX.Element {
                 closable={true}
                 onCancel={() => setShow(false)}
                 footer={[
-                    <Button key="" onClick={() => setShow(false)}>
-                        Cancel
+                    <Button key="btncall" onClick={() => reFresh()}>
+                        Làm mới
                     </Button>,
                     <Button type="primary" form="eForm" key="submit" htmlType="submit">
-                        Submit
+                        Lưu lại
                     </Button>
                 ]}
             >
                 <Form
                     id="eForm"
+                    form={aForm}
                     labelCol={{ span: 6 }}
                     wrapperCol={{ span: 14 }}
                     layout="horizontal"
-                    form={employee_form}
                     onFinish={submitForm}
                 >
                     <Divider >Thông tin cơ bản</Divider>
@@ -79,7 +92,7 @@ export default function AddEmplyeeForm(): JSX.Element {
                         <Input />
                     </Form.Item>
                     <Form.Item name='gender' label="Giới tính" rules={[{ required: true, message: 'Giới tính không được để trống!' }]}>
-                        <Select>
+                        <Select defaultValue={1}>
                             <Select.Option value={1}>Nam</Select.Option>
                             <Select.Option value={0}>Nữ</Select.Option>
                             <Select.Option value={2}>Khác</Select.Option>
@@ -111,9 +124,9 @@ export default function AddEmplyeeForm(): JSX.Element {
                         <Select>
                             <Select.Option value={0}>Nhân viên</Select.Option>
                             {
-                                roles.map((role:RoleType) => {
-                                    return(
-                                        <Select.Option key={role.id} value={role.id}>{role.name}</Select.Option> 
+                                roles.map((role: RoleType) => {
+                                    return (
+                                        <Select.Option key={role.id} value={role.id}>{role.name}</Select.Option>
                                     )
                                 })
                             }

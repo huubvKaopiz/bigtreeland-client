@@ -1,105 +1,125 @@
 import { Layout, PageHeader, Tabs, Button, DatePicker, Descriptions, Table, Space } from 'antd';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import moment from 'moment';
-import { Attendance } from '../../interface';
+import { useParams } from "react-router-dom";
+import { RootState, useAppDispatch } from 'store/store';
+import { actionAddAttendance, actionGetAttendances } from 'store/attendances/slice';
+import { useSelector } from 'react-redux';
+import { actionGetClass } from 'store/classes/slice';
+import { get } from 'lodash';
+import AddStudentsModal from './addStudentsModal';
+import Checkbox from 'antd/lib/checkbox/Checkbox';
+// import numeral from 'numeral';
 
-const dateFormat = 'DD/MM/YY';
+const dateFormat = 'YYYY-MM-DD';
 export default function ClassDetail(): JSX.Element {
+    const params = useParams() as { class_id: string }
+    const dispatch = useAppDispatch();
     const { TabPane } = Tabs;
-    const today = moment(new Date()).format(dateFormat);
-    const attendance_columns = [
+    const [today, setToday] = useState(moment(new Date()).format(dateFormat));
+    // const classInfo = location.state.classInfo as ClassType;
+    const attendances = useSelector((state: RootState) => state.attendanceReducer.attendances)
+    const classInfo = useSelector((state: RootState) => state.classReducer.classInfo);
+    const attendantList: number[] = [];
+
+    useEffect(() => {
+        if (params.class_id) {
+            dispatch(actionGetAttendances({ class_id: parseInt(params.class_id) }));
+            dispatch(actionGetClass(parseInt(params.class_id)))
+        }
+    }, [dispatch, params])
+
+    function isAttendant(sID: number, atKey: string) {
+        const atList = attendances?.attendances[atKey];
+        // console.log(sID, atList)
+        const found = atList && atList.find((element: number) => element === sID);
+        if (found !== undefined && found > 0) return true;
+        else return false;
+    }
+
+    function handleCheckbox(e: any, sID: number) {
+        // console.log(e.target.checked, "-", sID)
+        if (e.target.checked === true) {
+            attendantList.push(sID);
+        } else {
+            const found = attendantList.indexOf(sID);
+            attendantList.splice(found, 1)
+        }
+        // console.log(attendantList)
+    }
+
+    function handleSubmit() {
+        if (attendantList.length > 0 && classInfo) {
+            const params = {
+                class_id: classInfo.id,
+                teacher_id: get(classInfo, "employee.id", 0),
+                student_ids: attendantList,
+                date: today
+            }
+            dispatch(actionAddAttendance(params))
+        }
+    }
+
+    const attendance_columns: any[] = [
         {
             title: 'Họ tên',
-            width: 180,
-            dataIndex: 'student',
-            key: 'student',
-            fixed: true
+            width: 80,
+            dataIndex: 'name',
+            key: 'name',
+            fixed: true,
+            render: function col(value: string): JSX.Element {
+                return (
+                    <strong>{value}</strong>
+                );
+            },
         },
         {
             title: 'Ngày sinh',
-            width: 160,
+            width: 30,
             dataIndex: 'birthday',
             key: 'birthday',
             fixed: true
         },
-        { 
-            title: '03/11/21', 
-            dataIndex: 'is_attended', 
-            key: '1', 
-            width: 100 
-        },
-        { title: '05/11/21', dataIndex: 'is_attended', key: '2', width: 100 },
-        { title: '05/11/21', dataIndex: 'is_attended', key: '3', width: 100 },
-        { title: '05/11/21', dataIndex: 'is_attended', key: '4', width: 100 },
-        { title: '05/11/21', dataIndex: 'is_attended', key: '5', width: 100 },
-        { title: '05/11/21', dataIndex: 'is_attended', key: '6', width: 100 },
-        { title: '05/11/21', dataIndex: 'is_attended', key: '7', width: 100 },
-        { title: '05/11/21', dataIndex: 'is_attended', key: '8', width: 100 },
-        { title: '05/11/21', dataIndex: 'is_attended', key: '9', width: 100 },
-        { title: '05/11/21', dataIndex: 'is_attended', key: '10', width: 100 },
-        { title: `${today}`, dataIndex: 'is_attended', key: '11', width: 100 },
+    ];
 
-        {
-            title: 'Action',
-            key: 'operation',
-            width: 100,
-            fixed: true,
-            render: function ActionRow(): JSX.Element {
+    for (const key in get(attendances, "attendances", [])) {
+        attendance_columns.push({
+            title: `${moment(key).format("DD/MM/YYYY")}`,
+            width: 80,
+            dataIndex: "",
+            key: `${key}`,
+            fixed: false,
+            render: function col(st: { id: number, name: string }): JSX.Element {
                 return (
-                    <Button type="link">Lưu lại </Button>
+                    <Checkbox checked={isAttendant(st.id, key)} disabled />
                 );
             },
-        },
-    ];
+        })
+    }
 
-    const schedule_data: Attendance[] = [
-        {
-            student: 'John Brown',
-            birthday: "26/03/2012",
-            is_attended: true
+    const todayCol = {
+        title: `${today}`,
+        key: 'operation',
+        dataIndex: "",
+        width: 80,
+        fixed: false,
+        render: function col(st: { id: number, name: string }): JSX.Element {
+            return (
+                <Checkbox onChange={(e) => handleCheckbox(e, st.id)} />
+            );
         },
-        {
-            student: 'John Baby',
-            birthday: "26/09/2014",
-            is_attended: true
-        },
-        {
-            student: 'John Baby',
-            birthday: "26/09/2014",
-            is_attended: true
-        },
-        {
-            student: 'John Baby',
-            birthday: "26/09/2014",
-            is_attended: true
-        },
-        {
-            student: 'John Baby',
-            birthday: "26/09/2014",
-            is_attended: true
-        },
-        {
-            student: 'John Baby',
-            birthday: "26/09/2014",
-            is_attended: true
-        },
-        {
-            student: 'John Baby',
-            birthday: "26/09/2014",
-            is_attended: true
-        },
-
-    ];
+    }
+    attendance_columns.push(todayCol);
 
     return (
         <Layout.Content>
             <PageHeader
                 className="site-page-header-responsive"
                 onBack={() => window.history.back()}
-                title="Lớp tiếng Anh 2"
+                title={classInfo?.name}
                 subTitle="Chi tiết lớp học"
                 extra={[
-                    <Button key="3" type="primary">Thêm học sinh</Button>,
+                    <AddStudentsModal key="addStudents" class_id={params.class_id} />,
                     <Button key="2">In danh sách</Button>,
                 ]}
                 footer={
@@ -108,9 +128,13 @@ export default function ClassDetail(): JSX.Element {
                         <TabPane tab="Điểm danh" key="1">
                             <Space style={{ paddingTop: 20, marginBottom: 20 }}>
                                 Ngày:
-                                <DatePicker defaultValue={moment(new Date(), dateFormat)} format={dateFormat} />
+                                <DatePicker
+                                    defaultValue={moment(new Date(), dateFormat)}
+                                    format={dateFormat}
+                                    onChange={(e) => setToday(moment(e).format("DD/MM/YYYY"))} />
+                                <Button type="primary" onClick={handleSubmit}>Lưu lại</Button>
                             </Space>
-                            <Table dataSource={schedule_data} columns={attendance_columns} scroll={{ x: 1200 }} bordered />
+                            <Table dataSource={get(attendances, "students", [])} columns={attendance_columns} scroll={{ x: 1200 }} bordered rowKey="id" />
                         </TabPane>
                         <TabPane tab="Học tập" key="2">
 
@@ -121,15 +145,14 @@ export default function ClassDetail(): JSX.Element {
                     </Tabs>
                 }
             >
-
                 <Descriptions size="small" column={2}>
-                    <Descriptions.Item label="Giáo viên">Mss Nhâm</Descriptions.Item>
-                    <Descriptions.Item label="Ngày bắt đầu">2017-01-10</Descriptions.Item>
-                    <Descriptions.Item label="Số buổi">24</Descriptions.Item>
-                    <Descriptions.Item label="Ngày kết thúc">2017-10-10</Descriptions.Item>
-                    <Descriptions.Item label="Số học sinh">20</Descriptions.Item>
+                    <Descriptions.Item label="Giáo viên"><a>{get(classInfo, "employee.name", "")}</a></Descriptions.Item>
+                    <Descriptions.Item label="Ngày bắt đầu">{moment(get(classInfo, "start_date", "")).format("DD-MM-YYYY")}</Descriptions.Item>
+                    <Descriptions.Item label="Số buổi">{classInfo?.sessions_num}</Descriptions.Item>
+                    <Descriptions.Item label="Ngày kết thúc">{moment(get(classInfo, "end_date", "")).format("DD-MM-YYYY")}</Descriptions.Item>
+                    <Descriptions.Item label="Số học sinh">{classInfo?.students_num}</Descriptions.Item>
                     <Descriptions.Item label="Lịch học">
-                        Thứ 2 19h40 - 21h10 & Thứ 5 19h40-21h10
+                        {classInfo?.schedule}
                     </Descriptions.Item>
                 </Descriptions>
             </PageHeader>

@@ -6,38 +6,37 @@ import {
     Input,
     Button,
     Select,
+    Spin,
 } from 'antd';
 import { PlusOutlined } from "@ant-design/icons";
 import { RootState, useAppDispatch } from 'store/store';
 import { useSelector } from 'react-redux';
 import { actionAddClass, actionGetClasses } from 'store/classes/slice';
-import { actionGetEmployees } from 'store/employees/slice';
 import { get } from 'lodash';
-import { EmployeeType } from 'interface';
+import { EmployeeType, ListEmployeeType } from 'interface';
 
+export default function AddClassModal(props: {
+    teachers: ListEmployeeType | null, searchTeacher: (search: string) => void,
+    searchStatus: string
+}): JSX.Element {
 
-export default function AddClassModal(): JSX.Element {
+    const { teachers, searchStatus, searchTeacher } = props;
     const [show, setShow] = useState(false);
-    const dispatch =  useAppDispatch();
-    const addStatus =  useSelector((state:RootState) => state.classReducer.addClassStatus);
+    const dispatch = useAppDispatch();
+    const addStatus = useSelector((state: RootState) => state.classReducer.addClassStatus);
 
-    useEffect(()=>{
-        if(addStatus === 'success'){
+    useEffect(() => {
+        if (addStatus === 'success') {
             setShow(false);
-            dispatch(actionGetClasses({page:1}));
+            dispatch(actionGetClasses({ page: 1 }));
         }
-    },[dispatch, addStatus]);
+    }, [dispatch, addStatus]);
 
-    useEffect(()=>{
-        dispatch(actionGetEmployees({class_id:0}))
-    }, [dispatch])
-
-    function handleSubmit(values:any) {
+    function handleSubmit(values: any) {
         dispatch(actionAddClass(values))
     }
 
-    const teachers =  useSelector((state:RootState) => state.employeeReducer.employees);
-
+    console.log("teachers:", teachers)
     return (
         <div>
             <Button type="primary" icon={<PlusOutlined />} onClick={() => setShow(true)}>Thêm lớp học</Button>
@@ -55,33 +54,37 @@ export default function AddClassModal(): JSX.Element {
                     // initialValues={}
                     onFinish={handleSubmit}
                 >
-            
-                <Form.Item label="Tên lớp" name="name">
-                    <Input />
-                </Form.Item>
-                <Form.Item label="Giáo viên" name="employee_id">
-                    <Select>
-                        <Select.Option value={-1}>Chọn sau</Select.Option>
-                        {
-                            teachers && get(teachers,"data",[]).map((tc:EmployeeType) => {
-                                return(
-                                <Select.Option value={tc.id} key={tc.id}>{tc.name} - {tc.user.phone}</Select.Option>
-                                )
-                            })
-                        }
-                    </Select>
-                </Form.Item>
-                <Form.Item label="Số buổi học" name="sessions_num">
-                    <Input />
-                </Form.Item>
-                <Form.Item label="Học phí" name="fee_per_session">
-                    <Input />
-                </Form.Item>
-                <Form.Item label="Lịch học" name="schedule">
-                    <Input />
-                </Form.Item>
-            </Form>
-        </Modal>
+
+                    <Form.Item label="Tên lớp" name="name">
+                        <Input />
+                    </Form.Item>
+                    <Form.Item label="Giáo viên" name="employee_id">
+                        <Select
+                            showSearch
+                            onSearch={(e) => searchTeacher(e)}
+                            notFoundContent={searchStatus === 'loading' ? <Spin size="small" /> : null}
+                        >
+                            <Select.Option value={-1}>Chọn sau</Select.Option>
+                            {
+                                teachers && get(teachers, "data", []).map((tc: EmployeeType) => {
+                                    return (
+                                        <Select.Option value={tc.id} key={tc.id}>{tc.name} - {tc.user.phone}</Select.Option>
+                                    )
+                                })
+                            }
+                        </Select>
+                    </Form.Item>
+                    <Form.Item label="Số buổi học" name="sessions_num">
+                        <Input />
+                    </Form.Item>
+                    <Form.Item label="Học phí" name="fee_per_session">
+                        <Input />
+                    </Form.Item>
+                    <Form.Item label="Lịch học" name="schedule">
+                        <Input />
+                    </Form.Item>
+                </Form>
+            </Modal>
         </div >
     )
 }

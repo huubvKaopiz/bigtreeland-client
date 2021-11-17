@@ -15,6 +15,7 @@ export interface StudentReducerState {
 export interface GetStudentPrams {
     search?:string;
     page?:number;
+    class_id?:number;
 }
 
 export interface UpdateStudentStatusParams {

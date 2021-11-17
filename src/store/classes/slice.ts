@@ -1,10 +1,12 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { notification } from "antd";
-import { ListClassesType } from "interface";
+import { ClassType, ListClassesType } from "interface";
 import request from "utils/request";
 
 export interface ClassReducerState {
     classes: ListClassesType | null;
+    classInfo: ClassType | null;
+    getClassStatus: "idle" | "loading" | "success" | "error";
     getClassesStatus: "idle" | "loading" | "success" | "error";
     addClassStatus: "idle" | "loading" | "success" | "error";
     updateClassStatus: "idle" | "loading" | "success" | "error";
@@ -28,11 +30,21 @@ export interface ClassParams {
 
 const initialState: ClassReducerState = {
     classes: null,
+    classInfo:null,
+    getClassStatus: "idle",
     getClassesStatus: "idle",
     addClassStatus: "idle",
     updateClassStatus: "idle",
     addStudentsStatus: "idle",
 };
+
+export const actionGetClass = createAsyncThunk("actionGetClass", async (class_id: number) => {
+    const response = await request({
+        url: `/api/classes/${class_id}`,
+        method: "get",
+    })
+    return response.data;
+})
 
 
 export const actionGetClasses = createAsyncThunk("actionGetClasses", async (params: GetClassesPrams) => {
@@ -102,6 +114,18 @@ export const classSlice = createSlice({
             })
             .addCase(actionGetClasses.rejected, (state) => {
                 state.getClassesStatus = "error";
+                notification.error({ message: "Lấy danh sách lớp học bị lỗi" })
+            })
+            //get class infomation
+            .addCase(actionGetClass.pending, (state) => {
+                state.getClassStatus = "loading";
+            })
+            .addCase(actionGetClass.fulfilled, (state, action) => {
+                state.classInfo = action.payload as ClassType;
+                state.getClassStatus = "success";
+            })
+            .addCase(actionGetClass.rejected, (state) => {
+                state.getClassStatus = "error";
                 notification.error({ message: "Lấy danh sách lớp học bị lỗi" })
             })
 

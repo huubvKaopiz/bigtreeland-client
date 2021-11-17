@@ -1,16 +1,18 @@
 import { combineReducers, configureStore, getDefaultMiddleware } from "@reduxjs/toolkit";
 import { useDispatch } from "react-redux";
-import { persistReducer, persistStore } from "redux-persist";
-import storage from "redux-persist/lib/storage";
+import userReducer from "./users/slice";
 import auth from "./auth/slice";
-import classReducer from "./classes/slice";
 import employeeReducer from "./employees/slice";
 import parentReducer from "./parents/slice";
 import paymentReducer from "./payments/slice";
-import permissionReducer from "./permissions/slice";
-import roleReducer from "./roles/slice";
 import studentReducer from "./students/slice";
-import userReducer from "./users/slice";
+import classReducer from "./classes/slice";
+import roleReducer from "./roles/slice";
+import attendanceReducer from './attendances/slice';
+import permissionReducer from "./permissions/slice";
+import { persistStore, persistReducer } from "redux-persist";
+import storage from "redux-persist/lib/storage";
+import { api } from "utils/request";
 
 const rootReducer = combineReducers({
 	auth,
@@ -22,12 +24,12 @@ const rootReducer = combineReducers({
 	parentReducer,
 	classReducer,
 	paymentReducer,
+	attendanceReducer
 });
 
 const persistConfig = {
 	key: "root",
 	storage,
-	whitelist: ["auth"],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

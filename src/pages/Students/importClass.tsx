@@ -1,26 +1,31 @@
-import { Button, Tooltip, Space, Select } from 'antd';
+import { Button, Tooltip, Space, Select, Spin } from 'antd';
 import { ImportOutlined } from '@ant-design/icons';
 import React, { useState } from 'react';
 import Modal from 'antd/lib/modal/Modal';
+import { ListClassesType, ClassType, StudentType } from 'interface';
+import { get } from 'lodash';
+import { useAppDispatch } from 'store/store';
+import { actionUpdateStudent } from 'store/students/slice';
 
-export default function ImportClass(props: { studen_id: number }): JSX.Element {
-    const { studen_id } = props;
+export default function ImportClass(props: { student: StudentType, classesList: ListClassesType | null, searchClass: (search: string) => void, searchStatus: string }): JSX.Element {
+    const { student, classesList, searchClass, searchStatus } = props;
     const [show, setShow] = useState(false);
+    const [classID, setClassID] = useState(null);
+    const dispatch = useAppDispatch();
 
-    const selectProps = {
-        // mode: 'multiple' as const,
-        style: { width: '100%' },
-        // value,
-        // options,
-        // onChange: (newValue: string[]) => {
-        //   setValue(newValue);
-        // },
-        placeholder: 'Chọn lớp học...',
-        maxTagCount: 'responsive' as const,
-      };
-    
+    const handleSelected = (value:any) =>{
+        setClassID(value);
+    }
+
     const handleSubmit = () => {
-        console.log("student:", studen_id)
+       if(classID){
+        //    dispatch(actionUpdateStudent({
+        //         data:{
+        //             ...student,
+        //             class_id:classID
+        //         }
+        //    }))
+       }
     }
     return (
         <>
@@ -35,7 +40,23 @@ export default function ImportClass(props: { studen_id: number }): JSX.Element {
                 ]}
             >
                 <Space direction="vertical" style={{ width: '100%' }}>
-                    <Select {...selectProps} />
+                    <Select
+                        style={{ width: '100%' }} 
+                        placeholder="Chọn lớp" 
+                        onChange={handleSelected}
+                        showSearch
+                        onSearch={(e) => searchClass(e)}
+                        notFoundContent={searchStatus === 'loading' ? <Spin size="small" /> : null}
+                        defaultValue={get(student,"class.id",0)}
+                    >
+                        {get(classesList, "data", []).map((cl: ClassType) => {
+                            return (
+                                <Select.Option key={cl.id} value={cl.id}>
+                                    {cl.name}
+                                </Select.Option>
+                            );
+                        })}
+                    </Select>
                 </Space>
             </Modal>
         </>

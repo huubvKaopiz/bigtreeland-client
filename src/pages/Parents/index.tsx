@@ -12,7 +12,7 @@ import AddStudent from "./addStudents";
 
 export default function Parents(): JSX.Element {
 	const dispatch = useAppDispatch();
-	const status = useSelector((state: RootState) => state.parentReducer.getParentsStatus);
+	// const status = useSelector((state: RootState) => state.parentReducer.getParentsStatus);
 	const parents = useSelector((state: RootState) => state.parentReducer.parents);
 
 	useEffect(() => {
@@ -25,6 +25,11 @@ export default function Parents(): JSX.Element {
 			title: "Họ tên",
 			dataIndex: "name",
 			key: "name",
+			render:function NameCol(name:string):JSX.Element {
+				return(
+					<strong>{name}</strong>
+				)
+			}
 		},
 		{
 			width: "10%",
@@ -49,14 +54,15 @@ export default function Parents(): JSX.Element {
 		{
 			width: "15%",
 			title: "Học sinh",
-			dataIndex: "stduents",
-			key: "stduents",
+			dataIndex: "students",
+			key: "students",
 			render: function StudentsCol(students: { id: number; name: string }[]): JSX.Element {
+				console.log(students)
 				return (
 					<div>
 						{students &&
 							students.map((student) => {
-								<Button type="link">{student.name}</Button>;
+								<a key={student.id}>{student.name}</a>;
 							})}
 					</div>
 				);
@@ -66,7 +72,7 @@ export default function Parents(): JSX.Element {
 			width: "15%",
 			title: "Action",
 			key: "action",
-			render: function ActionCol(text: string, record: ParentType): JSX.Element {
+			render: function ActionCol(record: ParentType): JSX.Element {
 				return (
 					<Space>
 						<DeleteParent parent={record} />

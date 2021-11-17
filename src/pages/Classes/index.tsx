@@ -10,21 +10,29 @@ import { useHistory } from "react-router-dom";
 import { useAppDispatch } from "store/store";
 import { actionGetClasses } from "store/classes/slice";
 import { get } from "lodash";
-import { formatCurrency } from "utils/ultil";
+import { actionGetEmployees } from "store/employees/slice";
+import numeral from "numeral";
 
 function Classes(): JSX.Element {
 	const dispatch = useAppDispatch();
+	const history = useHistory();
 	const getStatus = useSelector((state: RootState) => state.classReducer.getClassesStatus)
 	const classes = useSelector((state: RootState) => state.classReducer.classes)
-	const history = useHistory();
+	const teachers = useSelector((state: RootState) => state.employeeReducer.employees);
+	const seachStatus = useSelector((state: RootState) => state.employeeReducer.getEmployeesStatus);
 
 	useEffect(() => {
 		if (getStatus === "idle") {
 			dispatch(actionGetClasses({ page: 1 }));
 		}
 	}, [getStatus, dispatch])
+	useEffect(() => {
+		dispatch(actionGetEmployees({ class_id: 0 }))
+	}, [dispatch])
 
-
+	const searchTeacher = (search: string) => {
+		if (search.length >= 3 || search.length === 0) dispatch(actionGetEmployees({ class_id: 0, search }))
+	}
 
 	const columns = [
 
@@ -39,9 +47,9 @@ function Classes(): JSX.Element {
 			title: "Giáo viên",
 			dataIndex: "employee",
 			key: "employee",
-			render: function TeacherCol(value: { name: string, id: number }): JSX.Element {
+			render: function TeacherCol(value?: { name: string, id: number }): JSX.Element {
 				return (
-					<Button type="link">{value.name}</Button>
+					<Button type="link">{value && value.name}</Button>
 				)
 			}
 		},
@@ -63,7 +71,7 @@ function Classes(): JSX.Element {
 			dataIndex: "fee_per_session",
 			key: "fee_per_session",
 			render: function amountCol(amount: number): JSX.Element {
-				return <span>{formatCurrency(amount)}</span>;
+				return <span>{numeral(amount).format("0,0")}</span>;
 			},
 		},
 		{
@@ -79,8 +87,11 @@ function Classes(): JSX.Element {
 			render: function ActionCol(record: ClassType): JSX.Element {
 				return (
 					<Space size="middle">
-						<Button type="link" icon={<UnorderedListOutlined />} onClick={() => history.push(`/classes-detail/${record.id}`)} />
-						<EditClassModal calssInfo={record} />
+						<Button
+							type="link"
+							icon={<UnorderedListOutlined />}
+							onClick={() => history.push({ pathname: `/classes-detail/${record.id}`, state: { classInfo: record } })} />
+						<EditClassModal classInfo={record} teachers={teachers} searchTeacher={searchTeacher} searchStatus={seachStatus} />
 					</Space>
 				);
 			}
@@ -94,11 +105,16 @@ function Classes(): JSX.Element {
 					<Input.Search allowClear />
 				</Col>
 				<Col span={6} style={{ marginLeft: 20 }}>
-					<AddClassModal />
+					<AddClassModal teachers={teachers} searchTeacher={searchTeacher} searchStatus={seachStatus} />
 
 				</Col>
 			</Row>
-			<Table dataSource={get(classes, "data", [])} columns={columns} bordered />
+			<Table
+				dataSource={get(classes, "data", [])}
+				columns={columns}
+				loading={getStatus === "loading" ? true : false}
+				rowKey="id"
+				bordered />
 		</Layout.Content>
 	);
 }

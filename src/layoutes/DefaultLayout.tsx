@@ -108,7 +108,7 @@ function DefaultLayout(): JSX.Element {
 					<Route path="/users" component={Users} />
 					<Route path="/employees" component={Employees} />
 					<Route path="/classes" component={Classes} />
-					<Route path="/classes-detail" component={ClassDetail} />
+					<Route path="/classes-detail/:class_id" component={ClassDetail} />
 					<Route path="/students" component={Students} />
 					<Route path="/parents" component={Parents} />
 					<Route path="/permissions" component={Permissions} />

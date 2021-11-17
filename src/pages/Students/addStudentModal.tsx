@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Button, Modal, Form, Input, Select, DatePicker, InputNumber, Switch } from "antd";
+import { Button, Modal, Form, Input, Select, DatePicker, InputNumber, Switch, Spin } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { RootState, useAppDispatch } from "store/store";
 import { useSelector } from "react-redux";
 import { actionAddStudent, actionGetStudents } from "store/students/slice";
-import { ParentType } from "interface";
+import { ListParentType, ParentType } from "interface";
 import moment from "moment";
-import { actionGetParents } from "store/parents/slice";
 import { get } from "lodash";
 
-export default function AddStudentModal(): JSX.Element {
+export default function AddStudentModal(props: { parents: ListParentType | null, searchParent: (search: string) => void, searchStatus: string }): JSX.Element {
+	const { parents, searchParent, searchStatus } = props;
 	const [show, setShow] = useState(false);
 	const dispatch = useAppDispatch();
 	const status = useSelector((state: RootState) => state.studentReducer.addStudentStatus);
@@ -20,14 +20,6 @@ export default function AddStudentModal(): JSX.Element {
 			dispatch(actionGetStudents({ page: 1 }));
 		}
 	}, [status, dispatch]);
-
-	useEffect(() => {
-		if (parent === null || show === true) {
-			dispatch(actionGetParents({}));
-		}
-	}, [dispatch, show]);
-
-	const parents = useSelector((state: RootState) => state.parentReducer.parents);
 
 	const listParents: ParentType[] = get(parents, "data", []);
 
@@ -42,7 +34,7 @@ export default function AddStudentModal(): JSX.Element {
 		dispatch(actionAddStudent(data));
 	};
 
-	console.log(listParents);
+	// console.log(listParents);
 	return (
 		<div>
 			<Button type="primary" icon={<PlusOutlined />} onClick={() => setShow(true)}>
@@ -62,12 +54,22 @@ export default function AddStudentModal(): JSX.Element {
 					</Button>,
 				]}
 			>
-				<Form id="sForm" labelCol={{ span: 6 }} wrapperCol={{ span: 14 }} layout="horizontal" onFinish={handleSubmit}>
+				<Form 
+					id="sForm" 
+					labelCol={{ span: 6 }} 
+					wrapperCol={{ span: 14 }} 
+					layout="horizontal" 
+					onFinish={handleSubmit}>
+						
 					<Form.Item label="Họ và tên" name="name">
 						<Input />
 					</Form.Item>
 					<Form.Item name="parent_id" label="Phụ huynh">
-						<Select>
+						<Select
+							showSearch
+							onSearch={(e) => searchParent(e)}
+							notFoundContent={searchStatus === 'loading' ? <Spin size="small" /> : null}
+						>
 							{listParents.map((parent: ParentType) => {
 								return (
 									<Select.Option key={parent.id} value={parent.id}>
