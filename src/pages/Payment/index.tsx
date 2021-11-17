@@ -31,9 +31,7 @@ function Payment(): JSX.Element {
 		const startOfMonth = moment().startOf("month").format("YYYY-MM-DD");
 		const endOfMonth = moment().endOf("month").format("YYYY-MM-DD");
 		setSearchRange([startOfMonth, endOfMonth]);
-		// dispatch(actionGetPayments({fromDate: startOfMonth, toDate: endOfMonth}));
-		// Todo change to get defaut current month
-		dispatch(actionGetPayments());
+		dispatch(actionGetPayments({fromDate: startOfMonth, toDate: endOfMonth}));
 	}, [dispatch]);
 
 	useEffect(() => {
