@@ -70,7 +70,7 @@ function AddNewPayment({ refreshTable }: { refreshTable: () => void }): JSX.Elem
 						form={paymentForm}
 						onFinish={submitForm}
 					>
-						<Divider>Cập nhật chi tiêu mới</Divider>
+						<Divider>Thêm chi tiêu mới</Divider>
 						<Form.Item
 							name="pay_employee_id"
 							label="Người chi"

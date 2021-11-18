@@ -5,7 +5,6 @@ import { PaymentType, PaymentTypeEnum } from "store/payments/slice";
 import styled from "styled-components";
 import { formatCurrency } from "utils/ultil";
 import logo from "assets/image/mainlogo.png";
-import { relative } from "path";
 
 const Wrapper = styled.div`
 	position: relative;

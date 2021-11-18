@@ -7,7 +7,6 @@ declare global {
 }
 
 import {
-	ApplicationVerifier,
 	Auth,
 	ConfirmationResult,
 	getAuth,

@@ -25,12 +25,18 @@ export interface PaymentRequestAddType {
 	amount: number;
 	reason: string;
 	note: string;
+	status?: number;
 }
 
 export enum PaymentTypeEnum {
 	"Cố định",
 	"Phát sinh",
 }
+
+export const PaymentStatusList =  [
+	"Chưa xử lý", // = 0
+	"Đã xử lý", // = 1
+]
 
 export interface PaymentSearchParam {
 	search?: string;
@@ -99,7 +105,7 @@ export const slice = createSlice({
 			})
 			.addCase(actionAddNewPayment.fulfilled, (state) => {
 				state.addPaymentStatus = "success";
-				notification.success({ message: "Thêm chi tiêu thành công!" })
+				notification.success({ message: "Thêm chi tiêu thành công!" });
 			})
 			.addCase(actionAddNewPayment.rejected, (state) => {
 				state.addPaymentStatus = "error";

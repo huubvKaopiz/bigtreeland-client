@@ -134,6 +134,7 @@ export default function Users(): JSX.Element {
 					</div>
 				</div>
 				<Table
+					rowKey="id"
 					dataSource={get(users, "data", [])}
 					columns={columns}
 					bordered
