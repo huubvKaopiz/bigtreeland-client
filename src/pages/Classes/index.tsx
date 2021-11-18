@@ -30,7 +30,7 @@ function Classes(): JSX.Element {
 	}, [dispatch]);
 
 	const searchTeacher = (search: string) => {
-		// if (search.length >= 3 || search.length === 0) dispatch(actionGetEmployees({ class_id: 0, search }));
+		if (search.length >= 3 || search.length === 0) dispatch(actionGetEmployees({ class_id: 0, search }));
 	};
 
 	const columns = [
