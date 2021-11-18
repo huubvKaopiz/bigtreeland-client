@@ -8,33 +8,32 @@ import AddEmplyeeForm from "./addEmployeeFrom";
 import DeleteEmployeeModal from "./deleteEmployee";
 import { useSelector } from "react-redux";
 import { actionGetEmployees } from "store/employees/slice";
-import { get } from 'lodash';
+import { get } from "lodash";
 import { actionGetRoles } from "store/roles/slice";
 
 function Employees(): JSX.Element {
 	const dispatch = useAppDispatch();
-	const status = useSelector((state: RootState) => state.employeeReducer.getEmployeesStatus)
+	const status = useSelector((state: RootState) => state.employeeReducer.getEmployeesStatus);
 	const roles = useSelector((state: RootState) => state.roleReducer.roles);
 	const employees = useSelector((state: RootState) => state.employeeReducer.employees);
 
 	useEffect(() => {
-		if (status === "idle") {
-			dispatch(actionGetEmployees({}));
-		}
-	}, [dispatch, status]);
-	useEffect(()=>{
-        dispatch(actionGetRoles());
-    },[dispatch]);
+		dispatch(actionGetEmployees({}));
+	}, [dispatch]);
 
-	const handleSearch = (search:string) => {
-		dispatch(actionGetEmployees({search}));
-	}
-	
+	useEffect(() => {
+		dispatch(actionGetRoles());
+	}, [dispatch]);
+
+	const handleSearch = (search: string) => {
+		// dispatch(actionGetEmployees({search}));
+	};
+
 	const ColActions = (text: string, record: EmployeeType) => {
 		return (
 			<Space size="middle">
 				<UpdateEmplyeeForm employee={record} roles={roles} />
-				<DeleteEmployeeModal employee={record}/>
+				<DeleteEmployeeModal employee={record} />
 			</Space>
 		);
 	};
@@ -71,10 +70,8 @@ function Employees(): JSX.Element {
 			key: "gender",
 			align: "center" as any,
 			render: function GenderCol(gender: number): JSX.Element {
-				return (
-					<span>{gender === 0 ? 'Nữ' : 'Nam'}</span>
-				)
-			}
+				return <span>{gender === 0 ? "Nữ" : "Nam"}</span>;
+			},
 		},
 		{
 			width: "25%",
@@ -113,10 +110,10 @@ function Employees(): JSX.Element {
 		<Layout.Content style={{ height: 1000 }}>
 			<Row style={{ marginBottom: 20, marginTop: 20 }} justify="start">
 				<Col span={10}>
-					<Input.Search allowClear onSearch={(e) => handleSearch(e)}/>
+					<Input.Search allowClear onSearch={(e) => handleSearch(e)} />
 				</Col>
 				<Col span={6} style={{ marginLeft: 20 }}>
-					<AddEmplyeeForm  roles={roles}/>
+					<AddEmplyeeForm roles={roles} />
 				</Col>
 			</Row>
 			<Table size="small" dataSource={get(employees, "data", [])} rowKey="id" columns={columns} bordered />
