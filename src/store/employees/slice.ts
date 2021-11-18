@@ -42,7 +42,6 @@ const initialState: UserReducerState = {
 };
 
 export const actionGetEmployees = createAsyncThunk("actionGetEmployees", async (params: ParamGetUsers) => {
-	console.log("get employee action")
 	const response = await request({
 		url: "/api/employees",
 		method: "get",
