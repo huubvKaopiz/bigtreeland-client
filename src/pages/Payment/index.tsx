@@ -28,6 +28,8 @@ import {
 	PaymentTypeEnum,
 	PaymentStatusList,
 	resetGetPaymentStatus,
+	actionUpdatePaymentStatus,
+	resetUpdatePaymentStatus,
 } from "store/payments/slice";
 import { RootState, useAppDispatch } from "store/store";
 import styled from "styled-components";
@@ -61,6 +63,7 @@ function Payment(): JSX.Element {
 
 	const paymentTableData = useSelector((state: RootState) => state.paymentReducer.payments);
 	const statusGetPayment = useSelector((state: RootState) => state.paymentReducer.getPaymentStatus);
+	const statusUpdatePayment = useSelector((state: RootState) => state.paymentReducer.updatePaymentStatus);
 
 	const isEditting = (record: any) => record.id === editingKey;
 
@@ -73,17 +76,22 @@ function Payment(): JSX.Element {
 	}, [dispatch]);
 
 	useEffect(() => {
-		if (statusGetPayment === "loading") setLoading(true);
+		if (statusGetPayment === "loading" || statusUpdatePayment === "loading") setLoading(true);
 		else if (statusGetPayment === "success") {
 			const spendAmount = paymentTableData?.reduce((pre, current) => pre + +current.amount, 0);
 			(spendAmount || spendAmount === 0) && setSpenValue(spendAmount);
 			setRawTableData(paymentTableData);
 			dispatch(resetGetPaymentStatus());
 			setLoading(false);
-		} else if (statusGetPayment === "error") {
+		}
+		else if(statusUpdatePayment === "success") {
+			dispatch(resetUpdatePaymentStatus());
+			dispatch(actionGetPayments());
+		} 
+		else if (statusGetPayment === "error" || statusUpdatePayment === "error") {
 			setLoading(false);
 		}
-	}, [dispatch, paymentTableData, statusGetPayment]);
+	}, [dispatch, paymentTableData, statusGetPayment, statusUpdatePayment]);
 
 	useEffect(() => {
 		const spendAmount = paymentTableData?.reduce((pre, current) => pre + +current.amount, 0);
@@ -104,8 +112,7 @@ function Payment(): JSX.Element {
 	}
 
 	function handleUpdateRowData() {
-		// todo update status
-		// dispatch(actionUpdateStatus({id: editingKey, status: statusValueChange}))
+		dispatch(actionUpdatePaymentStatus({ id: +editingKey, status: +statusValueChange }));
 		// Get payment again after update.
 	}
 

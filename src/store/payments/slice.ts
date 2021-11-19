@@ -33,10 +33,10 @@ export enum PaymentTypeEnum {
 	"Phát sinh",
 }
 
-export const PaymentStatusList =  [
+export const PaymentStatusList = [
 	"Chưa xử lý", // = 0
 	"Đã xử lý", // = 1
-]
+];
 
 export interface PaymentSearchParam {
 	search?: string;
@@ -48,12 +48,14 @@ export interface PaymentState {
 	payments: PaymentType[] | null;
 	getPaymentStatus: "idle" | "loading" | "success" | "error";
 	addPaymentStatus: "idle" | "loading" | "success" | "error";
+	updatePaymentStatus: "idle" | "loading" | "success" | "error";
 }
 
 const initialState: PaymentState = {
 	payments: null,
 	getPaymentStatus: "idle",
 	addPaymentStatus: "idle",
+	updatePaymentStatus: "idle",
 };
 
 export const actionGetPayments = createAsyncThunk("actionGetPayments", async (params: PaymentSearchParam = {}) => {
@@ -74,6 +76,18 @@ export const actionAddNewPayment = createAsyncThunk("actionAddNewPayment", async
 	return response.data;
 });
 
+export const actionUpdatePaymentStatus = createAsyncThunk(
+	"actionUpdatePaymentStatus",
+	async (data: { id: number; status: number }) => {
+		const response = await request({
+			url: `/api/payment-slips/${data.id}`,
+			method: "put",
+			data: { status: data.status },
+		});
+		return response.data;
+	}
+);
+
 export const slice = createSlice({
 	name: "payments",
 	initialState,
@@ -83,6 +97,9 @@ export const slice = createSlice({
 		},
 		resetAddPaymentStatus(state) {
 			state.addPaymentStatus = "idle";
+		},
+		resetUpdatePaymentStatus(state) {
+			state.updatePaymentStatus = "idle";
 		},
 	},
 
@@ -109,10 +126,21 @@ export const slice = createSlice({
 			})
 			.addCase(actionAddNewPayment.rejected, (state) => {
 				state.addPaymentStatus = "error";
+			})
+
+			.addCase(actionUpdatePaymentStatus.fulfilled, (state) => {
+				state.updatePaymentStatus = "success";
+			})
+			.addCase(actionUpdatePaymentStatus.pending, (state) => {
+				state.updatePaymentStatus = "loading";
+			})
+			.addCase(actionUpdatePaymentStatus.rejected, (state) => {
+				state.updatePaymentStatus = "error";
+				notification.error({ message: "Có lỗi xảy ra!" });
 			});
 	},
 });
 
-export const { resetGetPaymentStatus } = slice.actions;
+export const { resetGetPaymentStatus, resetAddPaymentStatus, resetUpdatePaymentStatus } = slice.actions;
 
 export default slice.reducer;
