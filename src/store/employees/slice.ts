@@ -79,6 +79,7 @@ export const actionDeleteEmployee = createAsyncThunk("actionDeleteEmployee", asy
 	return response.data;
 });
 
+
 export const employeeSlice = createSlice({
 	name: "employee",
 	initialState,
@@ -91,6 +92,15 @@ export const employeeSlice = createSlice({
 		},
 		actionUpdateEmployee(state){
 			state.updateEmployeeStatus="idle";
+		}, 
+		actionResetAddEmployeeStatus(state){
+			state.addEmployeeStatus = "idle";
+		}, 
+		actionResetUpdateEmployeeSatus(state){
+			state.updateEmployeeStatus = "idle";
+		},
+		actionResetDeeleteEmployeeSatus(state){
+			state.deleteEmployeeStatus = "idle";
 		}
 	},
 
@@ -152,5 +162,6 @@ export const employeeSlice = createSlice({
 		
 	},
 });
+export const { actionResetAddEmployeeStatus, actionResetDeeleteEmployeeSatus, actionResetUpdateEmployeeSatus } = employeeSlice.actions;
 
 export default employeeSlice.reducer;

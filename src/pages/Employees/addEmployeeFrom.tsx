@@ -1,12 +1,10 @@
 import { Form, Modal, Button, Input, Select, DatePicker, Divider, Upload } from "antd";
 import React, { useEffect, useState } from "react";
 import { PlusOutlined, UploadOutlined } from "@ant-design/icons";
-import { actionAddEmployee, actionGetEmployees, EmployeeParams } from "store/employees/slice";
+import { actionAddEmployee, actionGetEmployees, actionResetAddEmployeeStatus } from "store/employees/slice";
 import moment from "moment";
 import { RootState, useAppDispatch } from "store/store";
 import { useSelector } from "react-redux";
-import { actionGetRoles } from "store/roles/slice";
-import { get } from "lodash";
 import { RoleType } from "interface";
 
 const IsNumeric = { pattern: /^-{0,1}\d*\.{0,1}\d+$/, message: "Giá trị nhập phải là số" };
@@ -22,6 +20,8 @@ export default function AddEmplyeeForm(props: { roles: RoleType[] }): JSX.Elemen
 		if (status === "success" && show) {
 			setShow(false);
 			dispatch(actionGetEmployees({}));
+			dispatch(actionResetAddEmployeeStatus)
+			console.log(status, show)
 		}
 	}, [status, dispatch, show]);
 
