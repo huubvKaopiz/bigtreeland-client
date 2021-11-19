@@ -27,9 +27,7 @@ export default function Users(): JSX.Element {
 
 	useEffect(() => {
 		if (statusDeactiveUser === "success") {
-			dispatch(actionGetUsers({}));
 			dispatch(actionResetStatusDeactiveUser());
-			return;
 		}
 		dispatch(actionGetUsers({ search }));
 	}, [dispatch, search, statusDeactiveUser]);

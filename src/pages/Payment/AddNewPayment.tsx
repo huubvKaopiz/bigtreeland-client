@@ -31,9 +31,10 @@ function AddNewPayment({ refreshTable }: { refreshTable: () => void }): JSX.Elem
 		} else if (statusAddNewPayment === "success") {
 			setLoading(false);
 			setShow(false);
+			paymentForm.resetFields();
 			refreshTable();
 		} else if (statusAddNewPayment === "error") setLoading(false);
-	}, [statusAddNewPayment, refreshTable]);
+	}, [statusAddNewPayment, refreshTable, paymentForm]);
 
 	function submitForm(formValue: PaymentRequestAddType): void {
 		const formData = { ...formValue };

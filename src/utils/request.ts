@@ -14,13 +14,14 @@ export default function request(options: AxiosRequestConfig): Promise<AxiosRespo
 export function uploadFile(file: File | FileList): Promise<AxiosResponse> {
 	const formData = new FormData();
 	if(file instanceof File){
-		formData.append("file", file);
+		formData.append("files[]", file);
 	}
 	else {
 		Array.from(file).forEach((f) => {
-			formData.append("file", f);
+			formData.append("files[]", f);
 		});
 	}
+	console.log(formData)
 	return api.post("api/files", formData, {
 		headers: {
 			"Content-Type": "multipart/form-data",
