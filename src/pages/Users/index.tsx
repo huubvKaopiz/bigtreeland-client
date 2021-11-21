@@ -3,7 +3,7 @@ import { Button, Input, Layout, Space, Spin, Table } from "antd";
 import { UserType as User } from "interface";
 import { AddNewUser } from "interface/interfaces";
 import { get } from "lodash";
-import { BaseSyntheticEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState, useAppDispatch } from "store/store";
 import {
@@ -12,7 +12,7 @@ import {
 	actionDeactiveUser,
 	actionGetUsers,
 	actionResetStatusDeactiveUser,
-	actionSetPermissionsForUser,
+	actionSetPermissionsForUser
 } from "store/users/slice";
 import AddNewUserForm from "./AddNewUserForm";
 import ChangePassword from "./ChangePassword";
@@ -28,12 +28,12 @@ export default function Users(): JSX.Element {
 	useEffect(() => {
 		if (statusDeactiveUser === "success") {
 			dispatch(actionResetStatusDeactiveUser());
+			dispatch(actionGetUsers({ search }));
 		}
-		dispatch(actionGetUsers({ search }));
 	}, [dispatch, search, statusDeactiveUser]);
 
-	function handleTableFilter(e: BaseSyntheticEvent) {
-		setSearch(e.target.value);
+	function handleTableFilter() {
+		dispatch(actionGetUsers({ search }));
 	}
 
 	function handleChangePass(payload: { new_password: string; user_id: number }) {
@@ -123,8 +123,8 @@ export default function Users(): JSX.Element {
 				<div style={{ marginBottom: 20, display: "flex", justifyContent: "space-between" }}>
 					<Input
 						placeholder="Tìm kiếm thông qua email, phone hoặc role"
-						value={search}
-						onChange={handleTableFilter}
+						onChange={e=> setSearch(e.target.value)}
+						onKeyUp={e => e.key === "Enter"  && handleTableFilter()}
 						prefix={<SearchOutlined />}
 					/>
 					<div style={{ marginLeft: 20 }}>

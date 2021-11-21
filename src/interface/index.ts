@@ -256,3 +256,11 @@ export interface RoleCreateFormType {
 	permission_ids: React.Key[];
 	user_ids: React.Key[]
 }
+
+export interface FileType {
+    "id": number;
+    "name": string;
+    "url": string;
+	"type"?: string;
+	"create_at"?: string;
+}

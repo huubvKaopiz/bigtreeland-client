@@ -6,6 +6,7 @@ import {
 	DollarOutlined,
 	TeamOutlined,
 	SecurityScanOutlined,
+	FileOutlined,
 } from "@ant-design/icons";
 import { Layout, Menu } from "antd";
 
@@ -23,6 +24,7 @@ import Home from "../pages/Home";
 import Permissions from "../pages/Permissions";
 import Users from "../pages/Users";
 import TopHeader from "./TopHeader";
+import Files from "pages/Files";
 
 const { Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
@@ -94,6 +96,9 @@ function DefaultLayout(): JSX.Element {
 							Vai trò
 						</Menu.Item>
 					</SubMenu>
+					<Menu.Item key="sub5" icon={<FileOutlined />} onClick={() => history.push("/files") }>
+						QL File
+					</Menu.Item>
 				</Menu>
 				{/* <Menu.Item key="5" icon={<LogoutOutlined />} onClick={handleLogout}>
             Logout
@@ -114,6 +119,7 @@ function DefaultLayout(): JSX.Element {
 					<Route path="/permissions" component={Permissions} />
 					<Route path="/roles" component={Roles} />
 					<Route path="/payment-slip" component={Payment} />
+					<Route path="/files" component={Files} />
 				</Content>
 				<Footer style={{ textAlign: "center" }}>Ant Design ©2021 Created by Ant UED</Footer>
 			</Layout>
