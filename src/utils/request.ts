@@ -11,21 +11,22 @@ export default function request(options: AxiosRequestConfig): Promise<AxiosRespo
 	return api(options);
 }
 
-export function uploadFile(file: File | FileList): Promise<AxiosResponse> {
+export function uploadFile(file: File | FileList | File[]): Promise<AxiosResponse> {
 	const formData = new FormData();
-	if(file instanceof File){
+	if (file instanceof File) {
 		formData.append("files[]", file);
-	}
-	else {
+	} else if (file instanceof FileList) {
 		Array.from(file).forEach((f) => {
 			formData.append("files[]", f);
 		});
+	} else {
+		file.forEach((f) => {
+			formData.append("files[]", f);
+		});
 	}
-	console.log(formData)
 	return api.post("api/files", formData, {
 		headers: {
 			"Content-Type": "multipart/form-data",
 		},
 	});
 }
-

@@ -3,14 +3,15 @@ import PlusOutlined from "@ant-design/icons/lib/icons/PlusOutlined";
 import { Button, Form, Modal, Spin } from "antd";
 import Dragger from "antd/lib/upload/Dragger";
 import { UploadFile } from "antd/lib/upload/interface";
-import React, { useState } from "react";
-import { actionUploadFile } from "store/files/slice";
-import { useAppDispatch } from "store/store";
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { actionUploadFile, resetUploadFileStatus } from "store/files/slice";
+import { RootState, useAppDispatch } from "store/store";
 import styled from "styled-components";
 import { dummyRequest } from "utils/ultil";
 
 export interface UploadFileModalProps {
-	onUploadFile: () => void;
+	onRefreshFileList: () => void;
 }
 
 const Wrapper = styled.div``;
@@ -19,16 +20,30 @@ function UploadFileModal(props: UploadFileModalProps): JSX.Element {
 	const dispatch = useAppDispatch();
 	const [show, setShow] = useState(false);
 	const [loading, setLoading] = useState(false);
-	const [fileList, setFileList] = useState<UploadFile<any>[]>([]);
+	const [fileList, setFileList] = useState<UploadFile[]>([]);
 	const [form] = Form.useForm();
+
+	const statusUploadFile = useSelector((state: RootState) => state.filesReducer.statusUploadFile);
+
+	useEffect(() => {
+		if (statusUploadFile === "success" || statusUploadFile === "error") {
+			setLoading(false);
+			dispatch(resetUploadFileStatus());
+			if (statusUploadFile === "success") {
+				setShow(false);
+				setFileList([]);
+			}
+		} else if (statusUploadFile === "loading") {
+			setLoading(true);
+		}
+	}, [dispatch, props, statusUploadFile]);
 
 	function handleUploadFile() {
 		if (fileList.length > 0) {
 			const listFileUpload = fileList.map((file) => {
-				return { ...file.originFileObj } as File;
+				return file.originFileObj as File;
 			});
-			// dispatch(actionUploadFile(listFileUpload));
-            console.log(listFileUpload)
+			dispatch(actionUploadFile(listFileUpload));
 		}
 	}
 
@@ -68,7 +83,7 @@ function UploadFileModal(props: UploadFileModalProps): JSX.Element {
 								}}
 								listType="picture-card"
 								fileList={fileList}
-								onChange={({ file, fileList }) => {
+								onChange={({ fileList }) => {
 									setFileList(fileList);
 								}}
 								// className="upload-list-inline"
