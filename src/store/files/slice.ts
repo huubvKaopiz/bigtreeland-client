@@ -27,7 +27,7 @@ export const actionGetListFile = createAsyncThunk("actionGetListFile", async (pa
 	return response.data.data;
 });
 
-export const actionUploadFile = createAsyncThunk("actionUploadFile", async (file: File | FileList) => {
+export const actionUploadFile = createAsyncThunk("actionUploadFile", async (file: File[] | File | FileList) => {
 	const response = await uploadFile(file);
 	return response.data;
 });
@@ -71,7 +71,7 @@ export const slice = createSlice({
 			// Upload
 			.addCase(actionUploadFile.fulfilled, (state) => {
 				notification.success({ message: `Upload file thành công!` });
-				state.statusUploadFile = "loading";
+				state.statusUploadFile = "success";
 			})
 			.addCase(actionUploadFile.pending, (state) => {
 				state.statusUploadFile = "loading";

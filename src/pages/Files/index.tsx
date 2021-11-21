@@ -1,6 +1,7 @@
 import DeleteOutlined from "@ant-design/icons/lib/icons/DeleteOutlined";
+import QuestionCircleOutlined from "@ant-design/icons/lib/icons/QuestionCircleOutlined";
 import SearchOutlined from "@ant-design/icons/lib/icons/SearchOutlined";
-import { Button, Input, Layout, Spin, Table } from "antd";
+import { Button, Input, Layout, Popconfirm, Spin, Table } from "antd";
 import { FileType } from "interface";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -53,11 +54,13 @@ function Files(): JSX.Element {
 			dispatch(resetUploadFileStatus());
 		} else if (statusDeleteFile === "error" || statusUploadFile === "error") {
 			setLoading(false);
+			if (statusDeleteFile === "error") dispatch(resetDeleteFileStatus());
+			else dispatch(resetUploadFileStatus());
 		}
-		if (statusGetFiles === "success") {
+		if (statusGetFiles === "success" || statusGetFiles === "error") {
 			dispatch(resetGetFileStatus());
 			setLoading(false);
-		}
+		} else if (statusGetFiles === "loading") setLoading(true);
 	}, [dispatch, search, statusDeleteFile, statusGetFiles, statusUploadFile]);
 
 	function handleTableFilter() {
@@ -68,6 +71,11 @@ function Files(): JSX.Element {
 	function handleDeleteFile(file: FileType) {
 		setLoading(true);
 		dispatch(actionDeleteUploadFile(+file.id));
+	}
+
+	function onRefreshFileList() {
+		setLoading(true);
+		dispatch(actionGetListFile({ search }));
 	}
 
 	const columns = [
@@ -107,7 +115,7 @@ function Files(): JSX.Element {
 						</>
 					);
 				const iconUrl = Object.keys(fileIconList).find((k) => k === file.type) as keyof typeof fileIconList;
-				return <img  className="img-center" src={fileIconList[iconUrl]} style={{ maxHeight: 50 }} />;
+				return <img className="img-center" src={fileIconList[iconUrl]} style={{ maxHeight: 50 }} />;
 			},
 		},
 		{
@@ -132,9 +140,17 @@ function Files(): JSX.Element {
 			key: "action",
 			// eslint-disable-next-line react/display-name
 			render: (file: FileType) => (
-				<a onClick={() => handleDeleteFile(file)} style={{ display: "block", margin: "0 auto", width: "fit-content" }}>
-					<DeleteOutlined />
-				</a>
+				<Popconfirm
+					title="Xác nhận xoá file?"
+					icon={<QuestionCircleOutlined />}
+					onConfirm={() => handleDeleteFile(file)}
+				>
+					<a
+						style={{ display: "block", margin: "0 auto", width: "fit-content" }}
+					>
+						<DeleteOutlined />
+					</a>
+				</Popconfirm>
 			),
 		},
 	];
@@ -151,11 +167,7 @@ function Files(): JSX.Element {
 							prefix={<SearchOutlined />}
 						/>
 						<div style={{ marginLeft: 20 }}>
-							<UploadFileModal
-								onUploadFile={() => {
-									//
-								}}
-							/>
+							<UploadFileModal onRefreshFileList={onRefreshFileList} />
 						</div>
 					</div>
 					<Table
