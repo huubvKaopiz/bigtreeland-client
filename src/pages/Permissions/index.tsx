@@ -78,7 +78,7 @@ const tableColumn = [
 		},
 	},
 	{
-		title: "",
+		title: "Action",
 		key: "action",
 		render: function ActionRow(_: string, record: Permission): JSX.Element {
 			return (
