@@ -229,6 +229,14 @@ export interface ListAttendancesType {
 	attendances: { [key: string]: number[] };
 }
 
+export interface TestType {
+	title: "Test 11";
+    date: "2021-12-14";
+    class_id: 1;
+    updated_at: "2021-11-21 22:37:19";
+    created_at: "2021-11-21 22:37:19";
+}
+
 export interface Employee {
 	name: "Tran Thi Nham";
 	birthday: "26/03/1992";

@@ -17,11 +17,10 @@ export default function AddEmplyeeForm(props: { roles: RoleType[] }): JSX.Elemen
 	const status = useSelector((state: RootState) => state.employeeReducer.addEmployeeStatus);
 
 	useEffect(() => {
-		if (status === "success" && show) {
+		if (status === "success") {
 			setShow(false);
 			dispatch(actionGetEmployees({}));
-			dispatch(actionResetAddEmployeeStatus)
-			console.log(status, show)
+			dispatch(actionResetAddEmployeeStatus())
 		}
 	}, [status, dispatch, show]);
 

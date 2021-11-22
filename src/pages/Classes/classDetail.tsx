@@ -9,6 +9,7 @@ import { actionGetClass } from 'store/classes/slice';
 import { get } from 'lodash';
 import AddStudentsModal from './addStudentsModal';
 import Checkbox from 'antd/lib/checkbox/Checkbox';
+import AddTest from './addTestModal';
 // import numeral from 'numeral';
 
 const dateFormat = 'YYYY-MM-DD';
@@ -133,11 +134,13 @@ export default function ClassDetail(): JSX.Element {
                                     format={dateFormat}
                                     onChange={(e) => setToday(moment(e).format("DD/MM/YYYY"))} />
                                 <Button type="primary" onClick={handleSubmit}>Lưu lại</Button>
-                            </Space>
+                            </Space >
                             <Table dataSource={get(attendances, "students", [])} columns={attendance_columns} scroll={{ x: 1200 }} bordered rowKey="id" />
                         </TabPane>
                         <TabPane tab="Học tập" key="2">
-
+                        <Space style={{ paddingTop: 20, marginBottom: 20 }}>
+                           <AddTest classInfo={classInfo}/>
+                        </Space>
                         </TabPane>
                         <TabPane tab="Bài test" key="3">
 
@@ -145,7 +148,7 @@ export default function ClassDetail(): JSX.Element {
                     </Tabs>
                 }
             >
-                <Descriptions size="small" column={2}>
+                <Descriptions size="small" column={2} style={{backgroundColor:"white", padding:20}}>
                     <Descriptions.Item label="Giáo viên"><a>{get(classInfo, "employee.name", "")}</a></Descriptions.Item>
                     <Descriptions.Item label="Ngày bắt đầu">{moment(get(classInfo, "start_date", "")).format("DD-MM-YYYY")}</Descriptions.Item>
                     <Descriptions.Item label="Số buổi">{classInfo?.sessions_num}</Descriptions.Item>

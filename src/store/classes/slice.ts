@@ -11,7 +11,8 @@ export interface ClassReducerState {
     addClassStatus: "idle" | "loading" | "success" | "error";
     updateClassStatus: "idle" | "loading" | "success" | "error";
     addStudentsStatus: "idle" | "loading" | "success" | "error";
-
+    addTestStatus: "idle" | "loading" | "success" | "error";
+    getTestsStatus: "idle" | "loading" | "success" | "error";
 
 }
 
@@ -27,6 +28,13 @@ export interface ClassParams {
     employee_id: 1;
 }
 
+export interface AddTestParms {
+    class_id:number;
+    title:string;
+    date:string;
+    content_file:number;
+}
+
 
 const initialState: ClassReducerState = {
     classes: null,
@@ -36,6 +44,8 @@ const initialState: ClassReducerState = {
     addClassStatus: "idle",
     updateClassStatus: "idle",
     addStudentsStatus: "idle",
+    addTestStatus:"idle",
+    getTestsStatus:"idle",
 };
 
 export const actionGetClass = createAsyncThunk("actionGetClass", async (class_id: number) => {
@@ -82,7 +92,18 @@ export const actionAddStudents = createAsyncThunk("actionAddStudents", async (pa
     const { data, cID } = params;
     const response = await request({
         url: `/api/classes/add-students/${cID}`,
-        method: "put",
+        method: "post",
+        data
+    })
+    return response.data;
+})
+
+
+export const actionAddTest = createAsyncThunk("actionAddTest", async (data:AddTestParms) => {
+    console.log(data)
+    const response = await request({
+        url: `/api/tests`,
+        method: "post",
         data
     })
     return response.data;
@@ -101,6 +122,9 @@ export const classSlice = createSlice({
         actionUpdateClass(state) {
             state.updateClassStatus = "idle";
         },
+        actionResetAddTestStatus(state) {
+            state.addTestStatus = "idle";
+        }
 
     },
     extraReducers: (builder) => {
@@ -171,8 +195,24 @@ export const classSlice = createSlice({
                 notification.error({ message: "Có lỗi xảy ra!" })
             })
 
+             // add test
+             .addCase(actionAddTest.pending, (state) => {
+                state.addTestStatus = "loading";
+            })
+            .addCase(actionAddTest.fulfilled, (state) => {
+                state.addTestStatus = "success";
+                notification.success({ message: "Tạo bài test thành công!" })
+
+            })
+            .addCase(actionAddTest.rejected, (state) => {
+                state.addTestStatus = "error";
+                notification.error({ message: "Có lỗi xảy ra!" })
+            })
+
 
     }
 })
+
+export const {actionResetAddTestStatus} = classSlice.actions;
 
 export default classSlice.reducer;

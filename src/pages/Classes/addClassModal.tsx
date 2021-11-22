@@ -18,11 +18,11 @@ export default function AddClassModal(props: {
 	const addStatus = useSelector((state: RootState) => state.classReducer.addClassStatus);
 
 	useEffect(() => {
-		if (addStatus === "success" && show) {
+		if (addStatus === "success") {
 			setShow(false);
 			dispatch(actionGetClasses({ page: 1 }));
 		}
-	}, [dispatch, addStatus, show]);
+	}, [dispatch, addStatus]);
 
 	function handleSubmit(values: any) {
 		dispatch(actionAddClass(values));
