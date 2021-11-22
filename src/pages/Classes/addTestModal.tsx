@@ -50,10 +50,11 @@ export default function AddTest(props: { classInfo: ClassType | null }): JSX.Ele
 	}
 
 	function handleSubmit(values: any) {
+		console.log(values);
 		const data = {
 			class_id: get(classInfo, "id", 0),
 			title: values.title,
-			date: values.date,
+			date: moment(values.date).format("YYYY-MM-DD"),
 			content_file: 1,
 		};
 		dispatch(actionAddTest(data));
@@ -79,7 +80,14 @@ export default function AddTest(props: { classInfo: ClassType | null }): JSX.Ele
 					</Button>,
 				]}
 			>
-				<Form id="aForm" labelCol={{ span: 4 }} wrapperCol={{ span: 14 }} layout="horizontal" onFinish={handleSubmit}>
+				<Form
+					id="aForm"
+					initialValues={{ date: moment(new Date()) }}
+					labelCol={{ span: 4 }}
+					wrapperCol={{ span: 14 }}
+					layout="horizontal"
+					onFinish={handleSubmit}
+				>
 					<Form.Item label="Tiêu đề" name="title" required>
 						<Input />
 					</Form.Item>
