@@ -13,6 +13,7 @@ import permissionReducer from "./permissions/slice";
 import roleReducer from "./roles/slice";
 import studentReducer from "./students/slice";
 import userReducer from "./users/slice";
+import testReducer from './testes/slice';
 
 
 const rootReducer = combineReducers({
@@ -27,6 +28,7 @@ const rootReducer = combineReducers({
 	paymentReducer,
 	attendanceReducer,
 	filesReducer,
+	testReducer
 });
 
 const persistConfig = {

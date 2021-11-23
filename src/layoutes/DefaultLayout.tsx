@@ -25,6 +25,7 @@ import Permissions from "../pages/Permissions";
 import Users from "../pages/Users";
 import TopHeader from "./TopHeader";
 import Files from "pages/Files";
+import { ListTestResults } from "pages/Classes/listTestResult";
 
 const { Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
@@ -114,6 +115,7 @@ function DefaultLayout(): JSX.Element {
 					<Route path="/employees" component={Employees} />
 					<Route path="/classes" component={Classes} />
 					<Route path="/classes-detail/:class_id" component={ClassDetail} />
+					<Route path="/tests/:test_id" component={ListTestResults} />
 					<Route path="/students" component={Students} />
 					<Route path="/parents" component={Parents} />
 					<Route path="/permissions" component={Permissions} />

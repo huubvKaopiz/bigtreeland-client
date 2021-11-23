@@ -1,18 +1,17 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { notification } from "antd";
-import { ClassType, ListClassesType } from "interface";
+import { ClassType, FileType, ListClassesType } from "interface";
 import request from "utils/request";
 
 export interface ClassReducerState {
     classes: ListClassesType | null;
     classInfo: ClassType | null;
+    recentTestAdded:FileType | null;
     getClassStatus: "idle" | "loading" | "success" | "error";
     getClassesStatus: "idle" | "loading" | "success" | "error";
     addClassStatus: "idle" | "loading" | "success" | "error";
     updateClassStatus: "idle" | "loading" | "success" | "error";
     addStudentsStatus: "idle" | "loading" | "success" | "error";
-    addTestStatus: "idle" | "loading" | "success" | "error";
-    getTestsStatus: "idle" | "loading" | "success" | "error";
 
 }
 
@@ -39,13 +38,12 @@ export interface AddTestParms {
 const initialState: ClassReducerState = {
     classes: null,
     classInfo:null,
+    recentTestAdded:null,
     getClassStatus: "idle",
     getClassesStatus: "idle",
     addClassStatus: "idle",
     updateClassStatus: "idle",
     addStudentsStatus: "idle",
-    addTestStatus:"idle",
-    getTestsStatus:"idle",
 };
 
 export const actionGetClass = createAsyncThunk("actionGetClass", async (class_id: number) => {
@@ -99,16 +97,6 @@ export const actionAddStudents = createAsyncThunk("actionAddStudents", async (pa
 })
 
 
-export const actionAddTest = createAsyncThunk("actionAddTest", async (data:AddTestParms) => {
-    console.log(data)
-    const response = await request({
-        url: `/api/tests`,
-        method: "post",
-        data
-    })
-    return response.data;
-})
-
 export const classSlice = createSlice({
     name: "parent",
     initialState,
@@ -122,9 +110,6 @@ export const classSlice = createSlice({
         actionUpdateClass(state) {
             state.updateClassStatus = "idle";
         },
-        actionResetAddTestStatus(state) {
-            state.addTestStatus = "idle";
-        }
 
     },
     extraReducers: (builder) => {
@@ -195,24 +180,8 @@ export const classSlice = createSlice({
                 notification.error({ message: "Có lỗi xảy ra!" })
             })
 
-             // add test
-             .addCase(actionAddTest.pending, (state) => {
-                state.addTestStatus = "loading";
-            })
-            .addCase(actionAddTest.fulfilled, (state) => {
-                state.addTestStatus = "success";
-                notification.success({ message: "Tạo bài test thành công!" })
-
-            })
-            .addCase(actionAddTest.rejected, (state) => {
-                state.addTestStatus = "error";
-                notification.error({ message: "Có lỗi xảy ra!" })
-            })
-
-
+        
     }
 })
-
-export const {actionResetAddTestStatus} = classSlice.actions;
 
 export default classSlice.reducer;

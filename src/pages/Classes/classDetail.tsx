@@ -1,7 +1,8 @@
-import { Layout, PageHeader, Tabs, Button, DatePicker, Descriptions, Table, Space } from 'antd';
+import { Layout, PageHeader, Tabs, Button, DatePicker, Descriptions, Table, Space, List, Image } from 'antd';
+import { TeamOutlined, LikeOutlined, MessageOutlined } from '@ant-design/icons';
 import React, { useEffect, useState } from 'react';
 import moment from 'moment';
-import { useParams } from "react-router-dom";
+import { useParams, useHistory } from "react-router-dom";
 import { RootState, useAppDispatch } from 'store/store';
 import { actionAddAttendance, actionGetAttendances } from 'store/attendances/slice';
 import { useSelector } from 'react-redux';
@@ -10,17 +11,21 @@ import { get } from 'lodash';
 import AddStudentsModal from './addStudentsModal';
 import Checkbox from 'antd/lib/checkbox/Checkbox';
 import AddTest from './addTestModal';
+import { TestType } from 'interface';
 // import numeral from 'numeral';
+
 
 const dateFormat = 'YYYY-MM-DD';
 export default function ClassDetail(): JSX.Element {
     const params = useParams() as { class_id: string }
+    const history = useHistory()
     const dispatch = useAppDispatch();
     const { TabPane } = Tabs;
     const [today, setToday] = useState(moment(new Date()).format(dateFormat));
     // const classInfo = location.state.classInfo as ClassType;
     const attendances = useSelector((state: RootState) => state.attendanceReducer.attendances)
     const classInfo = useSelector((state: RootState) => state.classReducer.classInfo);
+    const testList = useSelector((state: RootState) => state.testReducer.testes);
     const attendantList: number[] = [];
 
     useEffect(() => {
@@ -138,17 +143,52 @@ export default function ClassDetail(): JSX.Element {
                             <Table dataSource={get(attendances, "students", [])} columns={attendance_columns} scroll={{ x: 1200 }} bordered rowKey="id" />
                         </TabPane>
                         <TabPane tab="Học tập" key="2">
-                        <Space style={{ paddingTop: 20, marginBottom: 20 }}>
-                           <AddTest classInfo={classInfo}/>
-                        </Space>
+
                         </TabPane>
                         <TabPane tab="Bài test" key="3">
-
+                            <Space style={{ paddingTop: 20, marginBottom: 20 }}>
+                                <AddTest classInfo={classInfo} />
+                            </Space>
+                            <List
+                                itemLayout="vertical"
+                                size="large"
+                                pagination={{
+                                    onChange: page => {
+                                        console.log(page);
+                                    },
+                                    pageSize: 3,
+                                }}
+                                dataSource={get(testList, "data", [])}
+                                renderItem={(item: TestType) => (
+                                    <List.Item
+                                        style={{ backgroundColor: "white" }}
+                                        key={item.id}
+                                        actions={[
+                                            <Space key="act1"><Button type="link" icon={<TeamOutlined />} onClick={() => history.push({ pathname: `/tests/${item.id}`, })} />10</Space>,
+                                            <Space key="act2"><Button type="link" icon={<LikeOutlined />} /> 0</Space>,
+                                            <Space key="act3"><MessageOutlined /> 0</Space>,
+                                        ]}
+                                        extra={
+                                            <Image
+                                                width={100}
+                                                height={100}
+                                                alt="logo"
+                                                src="https://gw.alipayobjects.com/zos/rmsportal/mqaQswcyDLcXyDKnZfES.png"
+                                            />
+                                        }
+                                    >
+                                        <List.Item.Meta
+                                            title={item.title}
+                                            description={<>{item.date}</>}
+                                        />
+                                    </List.Item>
+                                )}
+                            />,
                         </TabPane>
                     </Tabs>
                 }
             >
-                <Descriptions size="small" column={2} style={{backgroundColor:"white", padding:20}}>
+                <Descriptions size="small" column={2} style={{ backgroundColor: "white", padding: 20 }}>
                     <Descriptions.Item label="Giáo viên"><a>{get(classInfo, "employee.name", "")}</a></Descriptions.Item>
                     <Descriptions.Item label="Ngày bắt đầu">{moment(get(classInfo, "start_date", "")).format("DD-MM-YYYY")}</Descriptions.Item>
                     <Descriptions.Item label="Số buổi">{classInfo?.sessions_num}</Descriptions.Item>

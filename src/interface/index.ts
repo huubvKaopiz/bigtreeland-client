@@ -225,16 +225,42 @@ export interface ListClassesType {
 export interface ListAttendancesType {
 	class_id: number;
 	class_name: string;
-	students: { id: number; name: string, birthday:string }[];
+	students: { id: number; name: string, birthday: string }[];
 	attendances: { [key: string]: number[] };
 }
 
 export interface TestType {
+	id:number;
 	title: "Test 11";
-    date: "2021-12-14";
-    class_id: 1;
-    updated_at: "2021-11-21 22:37:19";
-    created_at: "2021-11-21 22:37:19";
+	date: "2021-12-14";
+	class_id: 1;
+	updated_at: "2021-11-21 22:37:19";
+	created_at: "2021-11-21 22:37:19";
+}
+
+export interface ListTestType {
+	current_page: 1;
+	data: TestType[];
+	first_page_url: "http://45.32.101.219:8000/api/parents?page=1";
+	from: 1;
+	last_page: 1;
+	last_page_url: "http://45.32.101.219:8000/api/parents?page=1";
+	next_page_url: null;
+	path: "http://45.32.101.219:8000/api/parents?page=1";
+	per_page: 20;
+	prev_page_url: null;
+	to: 1;
+	total: 0
+}
+
+export interface FileType {
+	created_at: "2021-11-22 21:49:31";
+	id: 33;
+	name: "2021-10-27 22.17.39.jpg";
+	size: "171530";
+	type:string;
+	updated_at: "2021-11-22 21:49:31";
+	url: "https://bigtreeland-dev.s3.ap-southeast-1.amazonaws.com/1/bYAFsowgj1zCHCzoupoSWot0Ca8RC0Ww6r8TKFv9.jpg?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAY35R6B4DJFINQX5H%2F20211122%2Fap-southeast-1%2Fs3%2Faws4_request&X-Amz-Date=20211122T144931Z&X-Amz-SignedHeaders=host&X-Amz-Expires=10800&X-Amz-Signature=945df7794e5ac8094babbe38a91abff94fbb3bcd8fd2ca8653093000e7de1241";	user_id: 1;
 }
 
 export interface Employee {
@@ -263,12 +289,4 @@ export interface RoleCreateFormType {
 	name: string;
 	permission_ids: React.Key[];
 	user_ids: React.Key[]
-}
-
-export interface FileType {
-    "id": number;
-    "name": string;
-    "url": string;
-	"type"?: string;
-	"create_at"?: string;
 }
