@@ -1,13 +1,13 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { notification } from "antd";
 import { AxiosResponse } from "axios";
-import { FileType } from "interface";
+import { FileType, GetResponseType } from "interface";
 import request, { uploadFile } from "../../utils/request";
 
 export interface FileListType {
-	files: FileType[];
 	recentUploaded:FileType | null;
 	recentFileTestUploaded:FileType | null;
+	files: GetResponseType<FileType>;
 	statusGetFiles: "idle" | "loading" | "success" | "error";
 	statusDeleteFile: "idle" | "loading" | "success" | "error";
 	statusUploadFile: "idle" | "loading" | "success" | "error";
@@ -16,9 +16,9 @@ export interface FileListType {
 }
 
 const initialState: FileListType = {
-	files: [],
 	recentUploaded:null,
 	recentFileTestUploaded:null,
+	files: {},
 	statusGetFiles: "idle",
 	statusDeleteFile: "idle",
 	statusUploadFile: "idle",
@@ -26,13 +26,13 @@ const initialState: FileListType = {
 
 };
 
-export const actionGetListFile = createAsyncThunk("actionGetListFile", async (params?: { search?: string }) => {
-	const response: AxiosResponse<any> = await request({
+export const actionGetListFile = createAsyncThunk("actionGetListFile", async (params?: { search?: string, page?: number }) => {
+	const response = await request({
 		method: "get",
 		url: "/api/files",
 		params,
 	});
-	return response.data.data;
+	return response.data;
 });
 
 export const actionUploadFile = createAsyncThunk("actionUploadFile", async (file: File[] | File | FileList) => {
@@ -77,7 +77,7 @@ export const slice = createSlice({
 		builder
 			// Get
 			.addCase(actionGetListFile.fulfilled, (state, action) => {
-				state.files = action.payload as FileType[];
+				state.files = action.payload as GetResponseType<FileType>;
 				state.statusGetFiles = "success";
 			})
 			.addCase(actionGetListFile.pending, (state) => {

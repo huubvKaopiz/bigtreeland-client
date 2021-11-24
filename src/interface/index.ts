@@ -7,8 +7,8 @@ export interface RoleType {
 	id: number;
 	name: string;
 	updated_at: "2021-11-02T00:50:17.000000Z";
-	users: UserType[]
-	permissions: PermistionType[]
+	users: UserType[];
+	permissions: PermistionType[];
 }
 
 export interface UserType {
@@ -38,7 +38,7 @@ export interface ParentType {
 		id: 3;
 		phone: string;
 		phone_verified_at: string;
-	}
+	};
 	students: {
 		id: number;
 		name: string;
@@ -49,7 +49,7 @@ export interface ClassType {
 	id: 1;
 	name: "Lớp tiếng Anh 3";
 	schedule: string;
-	employee: { id: number, name: number };
+	employee: { id: number; name: number };
 	students_num: 0;
 	sessions_num: 24;
 	fee_per_session: 300000;
@@ -57,7 +57,7 @@ export interface ClassType {
 	end_date: string;
 	deleted_at: string;
 	created_at: "2021-11-06T16:01:41.000000Z";
-	updated_at: "2021-11-06T16:01:41.000000Z"
+	updated_at: "2021-11-06T16:01:41.000000Z";
 }
 
 export interface User {
@@ -89,13 +89,13 @@ export interface AddNewUser {
 export interface EmployeeContractType {
 	id: 1;
 	employee_id: 2;
-	basic_salary: '10000000';
+	basic_salary: "10000000";
 	sales_salary: null;
 	working_day: null;
-	position: 'Teacher';
+	position: "Teacher";
 	deleted_at: null;
-	created_at: '2021-11-03T14:52:10.000000Z';
-	updated_at: '2021-11-03T14:52:10.000000Z'
+	created_at: "2021-11-03T14:52:10.000000Z";
+	updated_at: "2021-11-03T14:52:10.000000Z";
 }
 
 export interface EmployeeType {
@@ -114,7 +114,7 @@ export interface EmployeeType {
 	user: {
 		id: number;
 		phone: string;
-	}
+	};
 	updated_at: "2021-11-02T00:50:17.000000Z";
 	employee_contract: EmployeeContractType;
 }
@@ -161,7 +161,6 @@ export interface ListUserType {
 	total: 3;
 }
 
-
 export interface ListEmployeeType {
 	current_page: 1;
 	data: EmployeeType[];
@@ -189,7 +188,7 @@ export interface ListStudentType {
 	per_page: 20;
 	prev_page_url: null;
 	to: 1;
-	total: 0
+	total: 0;
 }
 
 export interface ListParentType {
@@ -204,7 +203,7 @@ export interface ListParentType {
 	per_page: 20;
 	prev_page_url: null;
 	to: 1;
-	total: 0
+	total: 0;
 }
 
 export interface ListClassesType {
@@ -219,7 +218,7 @@ export interface ListClassesType {
 	per_page: 20;
 	prev_page_url: null;
 	to: 1;
-	total: 0
+	total: 0;
 }
 
 export interface ListAttendancesType {
@@ -273,7 +272,6 @@ export interface Employee {
 	dislikes: "";
 }
 
-
 export interface Attendance {
 	student: string;
 	birthday: string;
@@ -288,5 +286,21 @@ export interface OptionType {
 export interface RoleCreateFormType {
 	name: string;
 	permission_ids: React.Key[];
-	user_ids: React.Key[]
+	user_ids: React.Key[];
 }
+
+export interface GetResponseType<T = unknown> {
+	current_page?: number;
+	data?: T[];
+	first_page_url?: string;
+	from?: number;
+	last_page?: number;
+	last_page_url?:string;
+	next_page_url?: string;
+	path?: string;
+	per_page?: number;
+	prev_page_url?: string;
+	to?: number;
+	total?: number;
+}
+
