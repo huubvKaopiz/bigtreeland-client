@@ -6,12 +6,11 @@ import request, { uploadFile } from "../../utils/request";
 
 export interface FileListType {
 	recentUploaded:FileType | null;
-	recentFileTestUploaded:FileType | null;
+	recentFileTestUploaded:FileType[] | null;
 	files: GetResponseType<FileType>;
 	statusGetFiles: "idle" | "loading" | "success" | "error";
 	statusDeleteFile: "idle" | "loading" | "success" | "error";
 	statusUploadFile: "idle" | "loading" | "success" | "error";
-	statusUploadFileTest: "idle" | "loading" | "success" | "error";
 
 }
 
@@ -22,7 +21,6 @@ const initialState: FileListType = {
 	statusGetFiles: "idle",
 	statusDeleteFile: "idle",
 	statusUploadFile: "idle",
-	statusUploadFileTest: "idle",
 
 };
 
@@ -87,9 +85,8 @@ export const slice = createSlice({
 				state.statusGetFiles = "error";
 			})
 			// Upload
-			.addCase(actionUploadFile.fulfilled, (state, action) => {
+			.addCase(actionUploadFile.fulfilled, (state) => {
 				notification.success({ message: `Upload file thành công!` });
-				state.recentUploaded  = action.payload as FileType;
 				state.statusUploadFile = "success";
 			})
 			.addCase(actionUploadFile.pending, (state) => {
@@ -101,15 +98,16 @@ export const slice = createSlice({
 
 			// Upload File Test
 			.addCase(actionUploadFileTest.fulfilled, (state, action) => {
+				console.log(action.payload)
 				notification.success({ message: `Upload file thành công!` });
-				state.recentFileTestUploaded  = action.payload as FileType;
-				state.statusUploadFileTest = "success";
+				state.recentFileTestUploaded  = action.payload as FileType[];
+				state.statusUploadFile = "success";
 			})
 			.addCase(actionUploadFileTest.pending, (state) => {
-				state.statusUploadFileTest = "loading";
+				state.statusUploadFile = "loading";
 			})
 			.addCase(actionUploadFileTest.rejected, (state) => {
-				state.statusUploadFileTest = "error";
+				state.statusUploadFile = "error";
 			})
 
 			// delete

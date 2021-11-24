@@ -1,10 +1,10 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { notification } from "antd";
-import {ListTestType, TestType } from "interface";
+import {GetResponseType, ListTestType, TestType } from "interface";
 import request from "utils/request";
 
 export interface TestReducerState {
-    testes: ListTestType | null;
+    testes: GetResponseType<TestType> | null;
     testInfo: TestType | null;
     getTestStatus: "idle" | "loading" | "success" | "error";
     getTestesStatus: "idle" | "loading" | "success" | "error";
@@ -44,7 +44,7 @@ export const actionGetTest = createAsyncThunk("actionGetTest", async (test_id: n
 })
 
 
-export const actionGetTestes = createAsyncThunk("actionGetTestes", async (params: GetTestsPrams) => {
+export const actionGetTestes = createAsyncThunk("actionGetTestes", async (params: GetTestsPrams = {}) => {
     const response = await request({
         url: "/api/tests",
         method: "get",
@@ -99,7 +99,7 @@ export const testSlice = createSlice({
                 state.getTestesStatus = "loading";
             })
             .addCase(actionGetTestes.fulfilled, (state, action) => {
-                state.testes = action.payload as ListTestType;
+                state.testes = action.payload as GetResponseType<TestType>;
                 state.getTestesStatus = "success";
             })
             .addCase(actionGetTestes.rejected, (state) => {
