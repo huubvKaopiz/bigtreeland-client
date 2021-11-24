@@ -1,8 +1,10 @@
 import DeleteOutlined from "@ant-design/icons/lib/icons/DeleteOutlined";
+import DownloadOutlined from "@ant-design/icons/lib/icons/DownloadOutlined";
 import QuestionCircleOutlined from "@ant-design/icons/lib/icons/QuestionCircleOutlined";
 import SearchOutlined from "@ant-design/icons/lib/icons/SearchOutlined";
 import { Button, Input, Layout, Popconfirm, Spin, Table } from "antd";
 import { FileType } from "interface";
+import { get } from "lodash";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import {
@@ -16,7 +18,7 @@ import { RootState, useAppDispatch } from "store/store";
 import styled from "styled-components";
 import { fileIconList } from "utils/const";
 import { DatePattern, formatDate } from "utils/dateUltils";
-import { formatFileSize, isImageType } from "utils/ultil";
+import { downloadFile, formatFileSize, isImageType } from "utils/ultil";
 import UploadFileModal from "./UploadFileModal";
 
 const Wrapper = styled.div`
@@ -33,6 +35,7 @@ function Files(): JSX.Element {
 	const dispatch = useAppDispatch();
 	const [loading, setLoading] = useState(false);
 	const [search, setSearch] = useState("");
+	const [page, setPage] = useState(1);
 
 	const listFile = useSelector((state: RootState) => state.filesReducer.files);
 	const statusDeleteFile = useSelector((state: RootState) => state.filesReducer.statusDeleteFile);
@@ -42,8 +45,9 @@ function Files(): JSX.Element {
 	console.log("file re-render");
 
 	useEffect(() => {
-		dispatch(actionGetListFile());
-	}, [dispatch]);
+		dispatch(actionGetListFile({ page, search }));
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [dispatch, page]);
 
 	useEffect(() => {
 		if (statusDeleteFile === "success") {
@@ -145,9 +149,7 @@ function Files(): JSX.Element {
 					icon={<QuestionCircleOutlined />}
 					onConfirm={() => handleDeleteFile(file)}
 				>
-					<a
-						style={{ display: "block", margin: "0 auto", width: "fit-content" }}
-					>
+					<a style={{ display: "block", margin: "0 auto", width: "fit-content" }}>
 						<DeleteOutlined />
 					</a>
 				</Popconfirm>
@@ -157,7 +159,7 @@ function Files(): JSX.Element {
 
 	return (
 		<Wrapper>
-			<Layout.Content style={{ height: "100vh", padding: 20 }}>
+			<Layout.Content style={{ padding: 20 }}>
 				<Spin spinning={loading}>
 					<div style={{ marginBottom: 20, display: "flex", justifyContent: "space-between" }}>
 						<Input
@@ -172,10 +174,16 @@ function Files(): JSX.Element {
 					</div>
 					<Table
 						rowKey="id"
-						dataSource={listFile}
+						dataSource={get(listFile, "data", [])}
 						columns={columns}
 						bordered
-						pagination={{ pageSize: 20 }}
+						pagination={{
+							pageSize: 20,
+							total: get(listFile, "total", 0),
+							onChange: (page) => {
+								setPage(page);
+							},
+						}}
 						size="small"
 					/>
 				</Spin>

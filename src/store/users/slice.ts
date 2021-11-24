@@ -15,6 +15,7 @@ export interface UserReducerState {
 
 export interface ParamGetUsers {
 	search?: string;
+	page?: number;
 }
 
 const initialState: UserReducerState = {

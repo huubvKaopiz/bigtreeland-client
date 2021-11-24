@@ -12,7 +12,7 @@ import {
 	actionDeactiveUser,
 	actionGetUsers,
 	actionResetStatusDeactiveUser,
-	actionSetPermissionsForUser
+	actionSetPermissionsForUser,
 } from "store/users/slice";
 import AddNewUserForm from "./AddNewUserForm";
 import ChangePassword from "./ChangePassword";
@@ -22,8 +22,14 @@ export default function Users(): JSX.Element {
 	const dispatch = useAppDispatch();
 	const users = useSelector((state: RootState) => state.userReducer.users);
 	const [search, setSearch] = useState("");
+	const [page, setPage] = useState(1);
 	const status = useSelector((state: RootState) => state.userReducer.statusGetUser);
 	const statusDeactiveUser = useSelector((state: RootState) => state.userReducer.statusDeactiveUser);
+
+	useEffect(() => {
+		dispatch(actionGetUsers({ page, search }));
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [dispatch, page]);
 
 	useEffect(() => {
 		if (statusDeactiveUser === "success") {
@@ -123,8 +129,8 @@ export default function Users(): JSX.Element {
 				<div style={{ marginBottom: 20, display: "flex", justifyContent: "space-between" }}>
 					<Input
 						placeholder="Tìm kiếm thông qua email, phone hoặc role"
-						onChange={e=> setSearch(e.target.value)}
-						onKeyUp={e => e.key === "Enter"  && handleTableFilter()}
+						onChange={(e) => setSearch(e.target.value)}
+						onKeyUp={(e) => e.key === "Enter" && handleTableFilter()}
 						prefix={<SearchOutlined />}
 					/>
 					<div style={{ marginLeft: 20 }}>
@@ -136,7 +142,13 @@ export default function Users(): JSX.Element {
 					dataSource={get(users, "data", [])}
 					columns={columns}
 					bordered
-					pagination={{ pageSize: 20 }}
+					pagination={{
+						pageSize: 20,
+						total: get(users, "total", 0),
+						onChange: (page) => {
+							setPage(page);
+						},
+					}}
 					size="small"
 				/>
 			</Spin>
