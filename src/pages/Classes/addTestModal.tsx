@@ -28,7 +28,7 @@ export default function AddTest(props: { classInfo: ClassType | null }): JSX.Ele
 	console.log("uploadStatus", uploadStatus);
 
 	useEffect(() => {
-		if (uploadStatus === "success" && recentFileUploaded) {
+		if (uploadStatus === "success") {
 			setUploading(false);
 			dispatch(resetUploadFileStatus());
 		}
@@ -108,7 +108,7 @@ export default function AddTest(props: { classInfo: ClassType | null }): JSX.Ele
 							maxCount={1}
 							customRequest={dummyRequest}
 							onChange={({ file }) => setFile(file)}
-							// onRemove={handleRemoveFile}
+							onRemove={handleRemoveFile}
 						>
 							{!file ? <Button icon={<UploadOutlined />}>Chọn file đề thi</Button> : ""}
 						</Upload>
