@@ -9,7 +9,8 @@ import logo from "assets/image/mainlogo.png";
 const Wrapper = styled.div`
 	position: relative;
 	border: 1px solid rgba(64, 64, 64, 0.5);
-	padding: 10px;
+	border-radius: 10px;
+	padding: 10px 30px;
 	.text-center {
 		text-align: center;
 	}
@@ -18,8 +19,10 @@ const Wrapper = styled.div`
 	}
 	.logo {
 		position: absolute;
-		left: 20px;
-		top: 10px;
+		left: 50%;
+		top: 50%;
+		transform: translate(-50%, -50%);
+		opacity: 70%;
 	}
 `;
 
@@ -44,7 +47,7 @@ function PaymentDetails({
 				{data && (
 					<Wrapper>
 						<div className="logo">
-							<img style={{ maxWidth: "30%" }} src={logo} alt="" />
+							<img style={{ maxWidth: "100%" }} src={logo} alt="" />
 						</div>
 						<div style={{ position: "relative", zIndex: 1 }}>
 							<h1 className="text-center">PHIẾU CHI</h1>

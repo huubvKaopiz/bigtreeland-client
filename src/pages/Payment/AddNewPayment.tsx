@@ -12,7 +12,7 @@ import styled from "styled-components";
 
 const Wrapper = styled.div``;
 
-function AddNewPayment({ refreshTable }: { refreshTable: () => void }): JSX.Element {
+function AddNewPayment(): JSX.Element {
 	const dispatch = useAppDispatch();
 	const userList = useSelector((state: RootState) => state.employeeReducer.employees);
 	const creatorUser = useSelector((state: RootState) => state.auth.user);
@@ -32,9 +32,8 @@ function AddNewPayment({ refreshTable }: { refreshTable: () => void }): JSX.Elem
 			setLoading(false);
 			setShow(false);
 			paymentForm.resetFields();
-			refreshTable();
 		} else if (statusAddNewPayment === "error") setLoading(false);
-	}, [statusAddNewPayment, refreshTable, paymentForm]);
+	}, [statusAddNewPayment, paymentForm]);
 
 	function submitForm(formValue: PaymentRequestAddType): void {
 		const formData = { ...formValue };

@@ -17,19 +17,14 @@ import {
 	Spin,
 	Statistic,
 	Table,
-	Tooltip,
+	Tooltip
 } from "antd";
+import { debounce } from "lodash";
 import moment from "moment";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import {
-	actionGetPayments,
-	PaymentSearchParam,
-	PaymentTypeEnum,
-	PaymentStatusList,
-	resetGetPaymentStatus,
-	actionUpdatePaymentStatus,
-	resetUpdatePaymentStatus,
+	actionGetPayments, actionUpdatePaymentStatus, PaymentSearchParam, PaymentStatusList, PaymentTypeEnum, resetAddPaymentStatus, resetGetPaymentStatus, resetUpdatePaymentStatus
 } from "store/payments/slice";
 import { RootState, useAppDispatch } from "store/store";
 import styled from "styled-components";
@@ -54,7 +49,6 @@ function Payment(): JSX.Element {
 	const [loading, setLoading] = useState(false);
 	const [rawTableData, setRawTableData] = useState<any>([]);
 	const [spenValue, setSpenValue] = useState(0);
-	const [searchText, setSearchText] = useState("");
 	const [showDrawer, setShowDrawer] = useState(false);
 	const [currentDrawerData, setCurrentDrawerData] = useState(null);
 
@@ -64,10 +58,16 @@ function Payment(): JSX.Element {
 	const paymentTableData = useSelector((state: RootState) => state.paymentReducer.payments);
 	const statusGetPayment = useSelector((state: RootState) => state.paymentReducer.getPaymentStatus);
 	const statusUpdatePayment = useSelector((state: RootState) => state.paymentReducer.updatePaymentStatus);
+	const statusAddNewPayment = useSelector((state: RootState) => state.paymentReducer.addPaymentStatus);
 
 	const isEditting = (record: any) => record.id === editingKey;
 
 	console.log("re-render");
+
+	const debounceSearch = useRef(
+		debounce((nextValue) => dispatch(actionGetPayments({ search: nextValue })), 500)
+	).current;
+
 	useEffect(() => {
 		const startOfMonth = moment().startOf("month").format("YYYY-MM-DD");
 		const endOfMonth = moment().endOf("month").format("YYYY-MM-DD");
@@ -83,27 +83,27 @@ function Payment(): JSX.Element {
 			setRawTableData(paymentTableData);
 			dispatch(resetGetPaymentStatus());
 			setLoading(false);
-		}
-		else if(statusUpdatePayment === "success") {
+		} else if (statusUpdatePayment === "success") {
 			dispatch(resetUpdatePaymentStatus());
 			dispatch(actionGetPayments());
-		} 
-		else if (statusGetPayment === "error" || statusUpdatePayment === "error") {
+		} else if (statusAddNewPayment === "success") {
+			dispatch(resetAddPaymentStatus());
+			dispatch(actionGetPayments());
+		} else if (statusGetPayment === "error" || statusUpdatePayment === "error") {
 			setLoading(false);
 		}
-	}, [dispatch, paymentTableData, statusGetPayment, statusUpdatePayment]);
+	}, [dispatch, paymentTableData, statusAddNewPayment, statusGetPayment, statusUpdatePayment]);
 
 	useEffect(() => {
 		const spendAmount = paymentTableData?.reduce((pre, current) => pre + +current.amount, 0);
 		if (spendAmount) setSpenValue(spendAmount);
 	}, [paymentTableData]);
 
-	const refreshTable = useCallback(() => {
-		dispatch(actionGetPayments());
-	}, [dispatch]);
+	
 
-	function handleTableFilter() {
-		dispatch(actionGetPayments({ search: searchText }));
+
+	function onTableFiler(value: string) {
+		debounceSearch(value);
 	}
 
 	function searchRangeChange(_: any, dateString: string[]) {
@@ -204,7 +204,7 @@ function Payment(): JSX.Element {
 			dataIndex: "status",
 			key: "payemnt_status",
 			editable: true,
-			render: function statusCold(_: number, row: any): JSX.Element {
+			render: function statusCold(status: number, row: any): JSX.Element {
 				const editable = isEditting(row);
 				return editable ? (
 					<>
@@ -225,7 +225,7 @@ function Payment(): JSX.Element {
 						</Select>
 					</>
 				) : (
-					<>{row.status}</>
+					<>{PaymentStatusList[status]}</>
 				);
 			},
 		},
@@ -296,10 +296,12 @@ function Payment(): JSX.Element {
 			<Layout.Content style={{ height: 1000 }}>
 				<Row style={{ marginBottom: 20, marginTop: 20 }} justify="start">
 					<Col span={10}>
-						<Input.Search onSearch={handleTableFilter} onChange={({ target: input }) => setSearchText(input.value)} />
+						<Input.Search
+							onChange={({ target: input }) => onTableFiler(input.value)}
+						/>
 					</Col>
 					<Col style={{ marginLeft: 20 }}>
-						<AddNewPayment refreshTable={refreshTable} />
+						<AddNewPayment />
 					</Col>
 					<Col style={{ marginLeft: 20 }}>
 						<Row justify="start">
