@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { notification } from "antd";
 import { AxiosResponse } from "axios";
+import { GetResponseType } from "interface";
 import request from "../../utils/request";
 
 export interface PaymentType {
@@ -42,10 +43,11 @@ export interface PaymentSearchParam {
 	search?: string;
 	fromDate?: string;
 	toDate?: string;
+	page?: number;
 }
 
 export interface PaymentState {
-	payments: PaymentType[] | null;
+	payments: GetResponseType<PaymentType> | null;
 	getPaymentStatus: "idle" | "loading" | "success" | "error";
 	addPaymentStatus: "idle" | "loading" | "success" | "error";
 	updatePaymentStatus: "idle" | "loading" | "success" | "error";
@@ -59,12 +61,12 @@ const initialState: PaymentState = {
 };
 
 export const actionGetPayments = createAsyncThunk("actionGetPayments", async (params: PaymentSearchParam = {}) => {
-	const response: AxiosResponse<any> = await request({
+	const response = await request({
 		url: "/api/payment-slips",
 		method: "get",
 		params,
 	});
-	return response.data.data;
+	return response.data;
 });
 
 export const actionAddNewPayment = createAsyncThunk("actionAddNewPayment", async (data: PaymentRequestAddType) => {
@@ -106,7 +108,7 @@ export const slice = createSlice({
 	extraReducers: (builder) => {
 		builder
 			.addCase(actionGetPayments.fulfilled, (state, action: any) => {
-				state.payments = action.payload as PaymentType[];
+				state.payments = action.payload as GetResponseType<PaymentType>;
 				state.getPaymentStatus = "success";
 			})
 			.addCase(actionGetPayments.rejected, (state) => {

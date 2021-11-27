@@ -4,6 +4,7 @@ import { useState } from "react";
 import TopHeader from "./TopHeader";
 import LeftMenu from "./LeftMenu";
 import Routes from "./Routes";
+import Revenue from "pages/Revenues/Revenues";
 
 const { Content, Footer, Sider } = Layout;
 

@@ -1,4 +1,5 @@
-import { Button, Form, Input, Modal, Space, Spin } from "antd";
+import { EditOutlined } from "@ant-design/icons";
+import { Button, Form, Input, Modal, Space, Spin, Tooltip } from "antd";
 import validateMessage from "lib/validateMessage";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -27,8 +28,8 @@ function ChangePassword(props: Props): JSX.Element {
 	}, [statusChangePassword, dispatch]);
 
 	const from_layout = {
-		labelCol: { span: 8 },
-		wrapperCol: { span: 16 },
+		labelCol: { span: 6 },
+		wrapperCol: { span: 18 },
 	};
 
 	function onFinish(passwordValue: PasswordFormProps) {
@@ -49,7 +50,9 @@ function ChangePassword(props: Props): JSX.Element {
 			{selfChagnePassword ? (
 				<span onClick={() => setShowForm(true)}>Đổi mật khẩu</span>
 			) : (
-				<Button onClick={() => setShowForm(true)}>Đổi mật khẩu </Button>
+				<Tooltip placement="top" title="Đổi mật khẩu">
+				<Button type="link" icon={<EditOutlined  />} onClick={() => setShowForm(true)} />
+				</Tooltip>
 			)}
 			<Modal
 				title="Thay đổi mật khẩu"

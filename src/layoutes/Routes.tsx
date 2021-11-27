@@ -10,6 +10,7 @@ import Home from "../pages/Home";
 import Permissions from "../pages/Permissions";
 import Users from "../pages/Users";
 import Files from "pages/Files";
+import Revenue from "pages/Revenues/Revenues";
 import { ListTestResults } from "pages/Classes/listTestResult";
 
 function Routes(): JSX.Element {
@@ -27,6 +28,7 @@ function Routes(): JSX.Element {
 			<Route path="/roles" component={Roles} />
 			<Route path="/payments/payment-slips" component={Payment} />
 			<Route path="/files" component={Files} />
+			<Route path="/payments/revenue" component={Revenue} />
 		</>
 	);
 }
