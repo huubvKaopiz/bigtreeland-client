@@ -4,6 +4,7 @@ import CloseOutlined from "@ant-design/icons/lib/icons/CloseOutlined";
 import EditOutlined from "@ant-design/icons/lib/icons/EditOutlined";
 import QuestionCircleOutlined from "@ant-design/icons/lib/icons/QuestionCircleOutlined";
 import UserOutlined from "@ant-design/icons/lib/icons/UserOutlined";
+import SearchOutlined from "@ant-design/icons/lib/icons/SearchOutlined";
 import {
 	Button,
 	Col,
@@ -19,15 +20,16 @@ import {
 	Table,
 	Tooltip,
 } from "antd";
-import { debounce } from "lodash";
+import { debounce, get } from "lodash";
 import moment from "moment";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import {
 	actionGetPayments,
 	actionUpdatePaymentStatus,
 	PaymentSearchParam,
 	PaymentStatusList,
+	PaymentType,
 	PaymentTypeEnum,
 	resetAddPaymentStatus,
 	resetGetPaymentStatus,
@@ -58,6 +60,7 @@ function Payment(): JSX.Element {
 	const [spenValue, setSpenValue] = useState(0);
 	const [showDrawer, setShowDrawer] = useState(false);
 	const [currentDrawerData, setCurrentDrawerData] = useState(null);
+	const [page, setPage] = useState(1);
 
 	const [editingKey, setEditingKey] = useState("");
 	const [statusValueChange, setStatusValueChange] = useState("");
@@ -82,12 +85,29 @@ function Payment(): JSX.Element {
 		dispatch(actionGetPayments({ fromDate: startOfMonth, toDate: endOfMonth }));
 	}, [dispatch]);
 
+	const handleSearchRange = useCallback(
+		(page?: number) => {
+			const searchObj: PaymentSearchParam = {};
+			const fromDate = searchRange[0];
+			const toDate = searchRange[1];
+			if (fromDate) searchObj.fromDate = fromDate;
+			if (toDate) searchObj.toDate = toDate;
+			dispatch(actionGetPayments({ ...searchObj, page }));
+		},
+		[dispatch, searchRange]
+	);
+
+	useEffect(() => {
+		handleSearchRange(page);
+	}, [dispatch, handleSearchRange, page]);
+
 	useEffect(() => {
 		if (statusGetPayment === "loading" || statusUpdatePayment === "loading") setLoading(true);
 		else if (statusGetPayment === "success") {
-			const spendAmount = paymentTableData?.reduce((pre, current) => pre + +current.amount, 0);
+			const tableData = get(paymentTableData, "data", []) as PaymentType[];
+			const spendAmount = tableData.reduce((pre, current) => pre + +current.amount, 0);
 			(spendAmount || spendAmount === 0) && setSpenValue(spendAmount);
-			setRawTableData(paymentTableData);
+			setRawTableData(tableData);
 			dispatch(resetGetPaymentStatus());
 			setLoading(false);
 		} else if (statusUpdatePayment === "success") {
@@ -102,7 +122,8 @@ function Payment(): JSX.Element {
 	}, [dispatch, paymentTableData, statusAddNewPayment, statusGetPayment, statusUpdatePayment]);
 
 	useEffect(() => {
-		const spendAmount = paymentTableData?.reduce((pre, current) => pre + +current.amount, 0);
+		const tableData = get(paymentTableData, "data", []) as PaymentType[];
+		const spendAmount = tableData.reduce((pre, current) => pre + +current.amount, 0);
 		if (spendAmount) setSpenValue(spendAmount);
 	}, [paymentTableData]);
 
@@ -123,15 +144,6 @@ function Payment(): JSX.Element {
 	function handleCancelUpdateRowData() {
 		setStatusValueChange("");
 		setEditingKey("");
-	}
-
-	function handleSearchRange() {
-		const searchObj: PaymentSearchParam = {};
-		const fromDate = searchRange[0];
-		const toDate = searchRange[1];
-		if (fromDate) searchObj.fromDate = fromDate;
-		if (toDate) searchObj.toDate = toDate;
-		dispatch(actionGetPayments({ ...searchObj }));
 	}
 
 	function handleShowDrawer(state: boolean) {
@@ -300,11 +312,9 @@ function Payment(): JSX.Element {
 			<Layout.Content>
 				<Row style={{ marginBottom: 20, marginTop: 20 }} justify="start">
 					<Col span={10}>
-						<Input.Search onChange={({ target: input }) => onTableFiler(input.value)} />
+						<Input prefix={<SearchOutlined />} onChange={({ target: input }) => onTableFiler(input.value)} />
 					</Col>
-					<Col style={{ marginLeft: 20 }}>
-						<AddNewPayment />
-					</Col>
+
 					<Col style={{ marginLeft: 20 }}>
 						<Row justify="start">
 							<RangePicker
@@ -312,13 +322,15 @@ function Payment(): JSX.Element {
 								onChange={searchRangeChange}
 								defaultValue={[moment().startOf("month"), moment().endOf("month")]}
 							/>
-							<Button type="primary" onClick={handleSearchRange}>
-								Tìm kiếm
-							</Button>
 						</Row>
+					</Col>
+
+					<Col style={{ marginLeft: 20 }}>
+						<AddNewPayment />
 					</Col>
 				</Row>
 				<Row style={{ justifyContent: "space-between" }}>
+					{/* Todo */}
 					<Button type="primary"> Đặt ngưỡng chi tiêu </Button>
 					<Statistic title="Tổng chi" value={spenValue} suffix="VND" valueStyle={{ color: "#cf1322" }} />
 				</Row>
@@ -327,7 +339,13 @@ function Payment(): JSX.Element {
 						rowClassName={(record) => (record.id === editingKey ? "editing-row" : "")}
 						rowKey="id"
 						size="small"
-						pagination={{ pageSize: 20 }}
+						pagination={{
+							pageSize: 20,
+							total: get(paymentTableData, "total", 0),
+							onChange: (page) => {
+								setPage(page);
+							},
+						}}
 						dataSource={rawTableData}
 						columns={tableColumn}
 						bordered
