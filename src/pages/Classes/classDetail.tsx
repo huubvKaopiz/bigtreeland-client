@@ -77,7 +77,6 @@ export default function ClassDetail(): JSX.Element {
 	function handleCheckbox(sID: number) {
 		const newList = attendantList;
 		const found = attendantList.indexOf(sID);
-		console.log(found);
 		if (found === -1) {
 			newList.push(sID);
 		} else {
@@ -226,7 +225,7 @@ export default function ClassDetail(): JSX.Element {
 								size="large"
 								pagination={{
 									onChange: (page) => {
-										console.log(page);
+										// console.log(page);
 									},
 									pageSize: 3,
 								}}

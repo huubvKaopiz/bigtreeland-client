@@ -23,11 +23,6 @@ export default function AddTest(props: { classInfo: ClassType | null }): JSX.Ele
 	const addTestStatus = useSelector((state: RootState) => state.testReducer.addTestStatus);
 	const recentFileUploaded = useSelector((state: RootState) => state.filesReducer.recentFileTestUploaded);
 
-	console.log("add test re-render");
-	console.log("file", file);
-	console.log("recentFileUploaded", recentFileUploaded);
-	console.log("uploadStatus", uploadStatus);
-
 	useEffect(() => {
 		if (uploadStatus === "success") {
 			setUploading(false);
@@ -50,9 +45,6 @@ export default function AddTest(props: { classInfo: ClassType | null }): JSX.Ele
 	}
 
 	function handleSubmit(values: any) {
-		console.log("values", values);
-		console.log(recentFileUploaded);
-
 		if (!recentFileUploaded) {
 			notification.error({ message: "Chưa chọn file test" });
 			return;

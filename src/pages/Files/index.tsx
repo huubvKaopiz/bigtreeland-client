@@ -42,11 +42,9 @@ function Files(): JSX.Element {
 	const statusUploadFile = useSelector((state: RootState) => state.filesReducer.statusUploadFile);
 	const statusGetFiles = useSelector((state: RootState) => state.filesReducer.statusGetFiles);
 
-	console.log("file re-render");
-
 	useEffect(() => {
 		dispatch(actionGetListFile({ page, search }));
-	// eslint-disable-next-line react-hooks/exhaustive-deps
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [dispatch, page]);
 
 	useEffect(() => {

@@ -21,7 +21,6 @@ function DeleteEmployeeModal(props: { employee: EmployeeType }): JSX.Element {
 	}, [status, dispatch, show]);
 
 	function handleDelete() {
-		console.log("Xoá nhân viên");
 		dispatch(actionDeleteEmployee(employee.id));
 	}
 	return (

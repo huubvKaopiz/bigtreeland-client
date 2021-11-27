@@ -16,6 +16,7 @@ export default function AddClassModal(props: {
 	const [show, setShow] = useState(false);
 	const dispatch = useAppDispatch();
 	const addStatus = useSelector((state: RootState) => state.classReducer.addClassStatus);
+	const [submiting, setSumiting] = useState(false);
 
 	useEffect(() => {
 		if (addStatus === "success") {
@@ -25,10 +26,10 @@ export default function AddClassModal(props: {
 	}, [dispatch, addStatus]);
 
 	function handleSubmit(values: any) {
-		dispatch(actionAddClass(values));
+		setSumiting(true);
+		dispatch(actionAddClass(values)).finally(() => setSumiting(false));
 	}
 
-	console.log("teachers:", teachers);
 	return (
 		<div>
 			<Button type="primary" icon={<PlusOutlined />} onClick={() => setShow(true)}>
@@ -39,7 +40,7 @@ export default function AddClassModal(props: {
 				title="Thêm lớp học"
 				onCancel={() => setShow(false)}
 				footer={[
-					<Button key="btnsubmit" type="primary" htmlType="submit" form="aForm">
+					<Button loading={submiting} key="btnsubmit" type="primary" htmlType="submit" form="aForm">
 						Lưu lại
 					</Button>,
 				]}

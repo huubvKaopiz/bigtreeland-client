@@ -30,7 +30,7 @@ function TopHeader(props: TopHeaderType): JSX.Element {
 	const user = useSelector((state: RootState) => state.auth.user);
 
 	useEffect(() => {
-		userService.getMe().then(console.log).catch(console.log).finally();
+		userService.getMe();
 	}, []);
 
 	function handleLogout() {

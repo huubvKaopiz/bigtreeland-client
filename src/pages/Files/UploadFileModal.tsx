@@ -47,8 +47,6 @@ function UploadFileModal(props: UploadFileModalProps): JSX.Element {
 		}
 	}
 
-	console.log("upload file re-render");
-
 	return (
 		<Wrapper>
 			<Button
@@ -79,7 +77,7 @@ function UploadFileModal(props: UploadFileModalProps): JSX.Element {
 								multiple={true}
 								customRequest={dummyRequest}
 								onDrop={(e) => {
-									console.log(e.dataTransfer.files);
+									// console.log(e.dataTransfer.files);
 								}}
 								listType="picture-card"
 								fileList={fileList}

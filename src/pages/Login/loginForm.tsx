@@ -35,7 +35,6 @@ function LoginForm(): JSX.Element {
 	const statusUserVerify = useSelector((state: RootState) => state.auth.statusUserVerified);
 	const isMounted = useIsMounted();
 
-	console.log(statusUserVerify, userLogin);
 	useEffect(() => {
 		initializeFirebase();
 	}, []);
@@ -54,14 +53,11 @@ function LoginForm(): JSX.Element {
 						const phoneField: string = form.getFieldValue("phone");
 						const phone = phoneField.split("");
 						phone[0] = "+84";
-						console.log(phone.join(""));
 						signInWithPhoneNumber(auth(), phone.join(""), window.recaptchaVerifier)
 							.then((confirmationResult) => {
-								console.log("sending sms");
 								window.confirmationResult = confirmationResult;
 							})
 							.catch((error) => {
-								console.log(error);
 								// Error; SMS not sent
 							});
 					} else {

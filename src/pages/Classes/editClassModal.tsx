@@ -39,7 +39,6 @@ export default function EditClassModal(props: {
 	}, [dispatch, addStatus, show]);
 
 	function handleSubmit(values: any) {
-		console.log(values);
 		dispatch(actionUpdateClass({ data: values, cID: classInfo.id }));
 	}
 

@@ -19,7 +19,6 @@ function LeftMenu(): JSX.Element {
 	const [openKeys, setOpenKeys] = useState([""]);
 	const location = useLocation();
 	const pathname = location.pathname;
-	console.log("location", location);
 
 	useEffect(() => {
 		if (pathname.includes("/files")) {
