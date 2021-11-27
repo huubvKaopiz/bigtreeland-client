@@ -116,6 +116,7 @@ function Classes(): JSX.Element {
 				loading={getStatus === "loading" ? true : false}
 				rowKey="id"
 				bordered
+				size="small"
 			/>
 		</Layout.Content>
 	);
