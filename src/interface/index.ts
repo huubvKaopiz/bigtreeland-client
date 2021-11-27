@@ -28,17 +28,18 @@ export interface UserType {
 }
 
 export interface ParentType {
-	id: 1;
-	name: "parent";
-	email: "parent@gmail.com";
-	deleted_at: null;
-	created_at: null;
-	updated_at: null;
-	user: {
-		id: 3;
-		phone: string;
-		phone_verified_at: string;
+	profile: {
+		id: 1;
+		name: "parent";
+		email: "parent@gmail.com";
+		deleted_at: null;
+		created_at: null;
+		updated_at: null;
 	};
+	id: 3;
+	phone: string;
+	phone_verified_at: string;
+	name: string;
 	students: {
 		id: number;
 		name: string;
@@ -99,23 +100,24 @@ export interface EmployeeContractType {
 }
 
 export interface EmployeeType {
-	created_at: "2021-11-02T00:50:17.000000Z";
-	deleted_at: null;
-	email: "admin@gmail.com";
-	email_verified_at: null;
-	employee: null;
-	id: 1;
-	name: "admin";
-	address: "1";
-	birthday: "2021-12-14";
-	gender: 0;
-	interests: "1";
-	dislikes: "2";
-	user: {
-		id: number;
-		phone: string;
+	profile: {
+		created_at: "2021-11-02T00:50:17.000000Z";
+		deleted_at: null;
+		email: "admin@gmail.com";
+		email_verified_at: null;
+		employee: null;
+		id: 1;
+		name: "admin";
+		address: "1";
+		birthday: "2021-12-14";
+		gender: 0;
+		interests: "1";
+		dislikes: "2";
+		updated_at: "2021-11-02T00:50:17.000000Z";
 	};
-	updated_at: "2021-11-02T00:50:17.000000Z";
+	id: number;
+	phone: string;
+	name: string;
 	employee_contract: EmployeeContractType;
 }
 
@@ -224,12 +226,12 @@ export interface ListClassesType {
 export interface ListAttendancesType {
 	class_id: number;
 	class_name: string;
-	students: { id: number; name: string, birthday: string }[];
+	students: { id: number; name: string; birthday: string }[];
 	attendances: { [key: string]: number[] };
 }
 
 export interface TestType {
-	id:number;
+	id: number;
 	title: "Test 11";
 	date: "2021-12-14";
 	class_id: 1;
@@ -249,7 +251,7 @@ export interface ListTestType {
 	per_page: 20;
 	prev_page_url: null;
 	to: 1;
-	total: 0
+	total: 0;
 }
 
 export interface FileType {
@@ -257,9 +259,10 @@ export interface FileType {
 	id: 33;
 	name: "2021-10-27 22.17.39.jpg";
 	size: "171530";
-	type:string;
+	type: string;
 	updated_at: "2021-11-22 21:49:31";
-	url: "https://bigtreeland-dev.s3.ap-southeast-1.amazonaws.com/1/bYAFsowgj1zCHCzoupoSWot0Ca8RC0Ww6r8TKFv9.jpg?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAY35R6B4DJFINQX5H%2F20211122%2Fap-southeast-1%2Fs3%2Faws4_request&X-Amz-Date=20211122T144931Z&X-Amz-SignedHeaders=host&X-Amz-Expires=10800&X-Amz-Signature=945df7794e5ac8094babbe38a91abff94fbb3bcd8fd2ca8653093000e7de1241";	user_id: 1;
+	url: "https://bigtreeland-dev.s3.ap-southeast-1.amazonaws.com/1/bYAFsowgj1zCHCzoupoSWot0Ca8RC0Ww6r8TKFv9.jpg?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAY35R6B4DJFINQX5H%2F20211122%2Fap-southeast-1%2Fs3%2Faws4_request&X-Amz-Date=20211122T144931Z&X-Amz-SignedHeaders=host&X-Amz-Expires=10800&X-Amz-Signature=945df7794e5ac8094babbe38a91abff94fbb3bcd8fd2ca8653093000e7de1241";
+	user_id: 1;
 }
 
 export interface Employee {
@@ -295,7 +298,7 @@ export interface GetResponseType<T = unknown> {
 	first_page_url?: string;
 	from?: number;
 	last_page?: number;
-	last_page_url?:string;
+	last_page_url?: string;
 	next_page_url?: string;
 	path?: string;
 	per_page?: number;
@@ -303,4 +306,3 @@ export interface GetResponseType<T = unknown> {
 	to?: number;
 	total?: number;
 }
-

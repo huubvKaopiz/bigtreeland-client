@@ -8,7 +8,11 @@ import { ListParentType, ParentType } from "interface";
 import moment from "moment";
 import { get } from "lodash";
 
-export default function AddStudentModal(props: { parents: ListParentType | null, searchParent: (search: string) => void, searchStatus: string }): JSX.Element {
+export default function AddStudentModal(props: {
+	parents: ListParentType | null;
+	searchParent: (search: string) => void;
+	searchStatus: string;
+}): JSX.Element {
 	const { parents, searchParent, searchStatus } = props;
 	const [show, setShow] = useState(false);
 	const dispatch = useAppDispatch();
@@ -54,13 +58,7 @@ export default function AddStudentModal(props: { parents: ListParentType | null,
 					</Button>,
 				]}
 			>
-				<Form 
-					id="sForm" 
-					labelCol={{ span: 6 }} 
-					wrapperCol={{ span: 14 }} 
-					layout="horizontal" 
-					onFinish={handleSubmit}>
-						
+				<Form id="sForm" labelCol={{ span: 6 }} wrapperCol={{ span: 14 }} layout="horizontal" onFinish={handleSubmit}>
 					<Form.Item label="Họ và tên" name="name">
 						<Input />
 					</Form.Item>
@@ -68,12 +66,12 @@ export default function AddStudentModal(props: { parents: ListParentType | null,
 						<Select
 							showSearch
 							onSearch={(e) => searchParent(e)}
-							notFoundContent={searchStatus === 'loading' ? <Spin size="small" /> : null}
+							notFoundContent={searchStatus === "loading" ? <Spin size="small" /> : null}
 						>
 							{listParents.map((parent: ParentType) => {
 								return (
 									<Select.Option key={parent.id} value={parent.id}>
-										{parent.name} - {parent.user.phone}
+										{parent.name} - {parent.phone}
 									</Select.Option>
 								);
 							})}

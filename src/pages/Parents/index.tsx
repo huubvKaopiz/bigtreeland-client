@@ -25,25 +25,25 @@ export default function Parents(): JSX.Element {
 			title: "Họ tên",
 			dataIndex: "name",
 			key: "name",
-			render:function NameCol(name:string):JSX.Element {
-				return(
-					<strong>{name}</strong>
-				)
-			}
+			render: function NameCol(name: string): JSX.Element {
+				return <strong>{name}</strong>;
+			},
 		},
 		{
 			width: "10%",
 			title: "Email",
-			dataIndex: "email",
 			key: "email",
+			render: function col(user: { profile: { email: string } }): JSX.Element {
+				return <strong>{user.profile.email}</strong>;
+			},
 		},
 
 		{
 			width: "10%",
 			title: "Điện thoại",
-			dataIndex: "user",
 			key: "phone",
 			render: function UserCol(user: { id: number; phone: string; phone_verified_at: string }): JSX.Element {
+				console.log("user", user);
 				return (
 					<Space>
 						{user.phone} {user.phone_verified_at == null ? <Tag color="volcano">Chưa xác thực</Tag> : ""}
@@ -57,7 +57,7 @@ export default function Parents(): JSX.Element {
 			dataIndex: "students",
 			key: "students",
 			render: function StudentsCol(students: { id: number; name: string }[]): JSX.Element {
-				console.log(students)
+				console.log(students);
 				return (
 					<div>
 						{students &&
@@ -76,7 +76,7 @@ export default function Parents(): JSX.Element {
 				return (
 					<Space>
 						<DeleteParent parent={record} />
-						{record.user.phone_verified_at == null ? (
+						{record.phone_verified_at == null ? (
 							<Tooltip placement="top" title="Xác minh">
 								<Button type="link" icon={<CheckCircleOutlined />} />
 							</Tooltip>

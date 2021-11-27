@@ -12,22 +12,22 @@ import styled from "styled-components";
 const Wrapper = styled.div``;
 
 function AddNewRevenues(): JSX.Element {
-    const [show, setShow] = useState(false);
+	const [show, setShow] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [receiveType, setReceiveType] = useState(0);
 	const [paymentForm] = Form.useForm();
-    
+
 	//Redux state
-    const dispatch = useAppDispatch();
-    const creatorUser = useSelector((state: RootState) => state.auth.user);
+	const dispatch = useAppDispatch();
+	const creatorUser = useSelector((state: RootState) => state.auth.user);
 	const userList = useSelector((state: RootState) => state.employeeReducer.employees);
 
 	console.log("add receive re-render");
 
 	function submitForm(formValue: RevenuesRequestAddType) {
 		const formData = { ...formValue };
-        formData.date = moment(formValue.date).format("YYYY-MM-DD");
-        formData.creator_id = creatorUser?.id;
+		formData.date = moment(formValue.date).format("YYYY-MM-DD");
+		formData.creator_id = creatorUser?.id;
 	}
 
 	return (
@@ -63,8 +63,8 @@ function AddNewRevenues(): JSX.Element {
 							<Select>
 								{userList &&
 									get(userList, "data", []).map((emp: EmployeeType) => (
-										<Select.Option key={emp.user.id} value={emp.user.id}>
-											{`${emp.name} - ${emp.email}`}
+										<Select.Option key={emp.id} value={emp.id}>
+											{`${emp.name} - ${emp.profile.email}`}
 										</Select.Option>
 									))}
 							</Select>

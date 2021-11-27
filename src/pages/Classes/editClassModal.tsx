@@ -78,7 +78,7 @@ export default function EditClassModal(props: {
 								get(teachers, "data", []).map((tc: EmployeeType) => {
 									return (
 										<Select.Option value={tc.id} key={tc.id}>
-											{tc.name} - {tc.user.phone}
+											{/* {tc.name} - {tc.phone} */}
 										</Select.Option>
 									);
 								})}
