@@ -325,7 +325,7 @@ function Revenues(): JSX.Element {
 					<Col style={{ marginLeft: 20 }}><AddNewRevenues /></Col>
 				</Row>
 				<Row style={{ justifyContent: "flex-end" }}>
-					<Statistic title="Tổng thu" value={receivedValue} suffix="VND" valueStyle={{ color: "#cf1322" }} />
+					<Statistic title="Tổng thu" value={receivedValue} suffix="VND" valueStyle={{ color: "#3f8600" }} />
 				</Row>
 				<Spin spinning={loading}>
 					<Table
