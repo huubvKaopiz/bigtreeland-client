@@ -21,27 +21,27 @@ export default function UpdateEmplyeeForm(props: { employee: EmployeeType; roles
 		if (employee) {
 			uFrom.setFieldsValue({
 				name: employee.name,
-				email: employee.email,
-				phone: employee.user.phone,
-				birthday: moment(employee.birthday),
-				gender: employee.gender,
-				address: employee.address,
-				interests: employee.interests,
-				disklikes: employee.dislikes,
+				email: get(employee, "profile.email", ""),
+				phone: get(employee, "phone", ""),
+				birthday: moment(get(employee, "profile.birthday", "")),
+				gender: get(employee, "profile.gender", 0),
+				address: get(employee, "profile.address", ""),
+				interests: get(employee, "profile.interests", ""),
+				disklikes: get(employee, "profile.disklikes", ""),
 				basic_salary: get(employee, "employee_contract.basic_salary", ""),
 				sales_salary: get(employee, "employee_contract.sales_salary", ""),
-				role_id: get(employee, "user.roles[0].id", 0),
+				role_id: get(employee, "roles[0].id", 0),
 				working_day: moment(get(employee, "employee_contract.working_day", "")),
 			});
 		}
 	}, [employee, uFrom]);
 
-	useEffect(() => {
-		if (status === "success" && show) {
-			setShow(false);
-			dispatch(actionGetEmployees({}));
-		}
-	}, [status, dispatch, show]);
+	// useEffect(() => {
+	// 	if (status === "success" && show) {
+	// 		setShow(false);
+	// 		dispatch(actionGetEmployees({}));
+	// 	}
+	// }, [status, dispatch, show]);
 
 	const handleSubmit = (values: any) => {
 		const data = {

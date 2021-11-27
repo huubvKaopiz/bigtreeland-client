@@ -51,38 +51,40 @@ function Employees(): JSX.Element {
 		{
 			width: "10%",
 			title: "Số điện thoại",
-			dataIndex: "user",
+			dataIndex: "phone",
 			key: "phone",
-			render: function PhoneCol(user: UserType): JSX.Element {
-				return <span>{get(user, "phone", "")}</span>;
-			},
 		},
 		{
 			width: "10%",
 			title: "Ngày sinh",
-			dataIndex: "birthday",
 			key: "birthday",
+			render: function col(user: UserType): JSX.Element {
+				return <span>{get(user, "profile.birthday", "")}</span>;
+			},
 		},
 		{
 			width: "5%",
 			title: "Giới tính",
-			dataIndex: "gender",
 			key: "gender",
 			align: "center" as any,
-			render: function GenderCol(gender: number): JSX.Element {
-				return <span>{gender === 0 ? "Nữ" : "Nam"}</span>;
+			render: function col(user: UserType): JSX.Element {
+				return <span>{get(user, "profile.gender", "") === 0 ? "Nữ" : "Nam"}</span>;
 			},
+			// render: function GenderCol(gender: number): JSX.Element {
+			// 	return <span>{gender === 0 ? "Nữ" : "Nam"}</span>;
+			// },
 		},
 		{
 			width: "25%",
 			title: "Địa chỉ",
-			dataIndex: "address",
 			key: "address",
+			render: function col(user: UserType): JSX.Element {
+				return <span>{get(user, "profile.address", "")}</span>;
+			},
 		},
 		{
 			width: "10%",
 			title: "Vị trí",
-			dataIndex: "user",
 			key: "employee_contract",
 			render: function PhoneCol(user: UserType): JSX.Element {
 				return (
