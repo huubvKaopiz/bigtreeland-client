@@ -75,6 +75,10 @@ function AddNewUserForm({ onAddUser }: { onAddUser: (userInfo: AddNewUser) => vo
 							<Input />
 						</Form.Item>
 
+						<Form.Item name={"phone"} label="Phone" rules={[{ required: true, message: validateMessage.REQUIRE }]}>
+							<Input />
+						</Form.Item>
+
 						<Form.Item
 							name={"name"}
 							label="Tên người dùng"

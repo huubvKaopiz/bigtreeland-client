@@ -12,7 +12,7 @@ import {
 	actionDeactiveUser,
 	actionGetUsers,
 	actionResetStatusDeactiveUser,
-	actionSetPermissionsForUser
+	actionSetPermissionsForUser,
 } from "store/users/slice";
 import AddNewUserForm from "./AddNewUserForm";
 import ChangePassword from "./ChangePassword";
@@ -26,13 +26,11 @@ export default function Users(): JSX.Element {
 	const status = useSelector((state: RootState) => state.userReducer.statusGetUser);
 	const statusDeactiveUser = useSelector((state: RootState) => state.userReducer.statusDeactiveUser);
 
-	const debounceSearch = useRef(
-		debounce((nextValue) => dispatch(actionGetUsers({ search: nextValue })), 500)
-	).current;
-	
+	const debounceSearch = useRef(debounce((nextValue) => dispatch(actionGetUsers({ search: nextValue })), 500)).current;
+
 	useEffect(() => {
 		dispatch(actionGetUsers({ page, search }));
-	// eslint-disable-next-line react-hooks/exhaustive-deps
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [dispatch, page]);
 
 	useEffect(() => {
@@ -43,7 +41,7 @@ export default function Users(): JSX.Element {
 	}, [dispatch, search, statusDeactiveUser]);
 
 	function handleTableFilter(value: string) {
-		setSearch(value)
+		setSearch(value);
 		debounceSearch(value);
 	}
 
@@ -71,19 +69,12 @@ export default function Users(): JSX.Element {
 		dispatch(actionAddUser(userValue));
 	}
 
-	function getProfileUser(user: User) {
-		if (!user) return null;
-		if (user.employee) return user.employee;
-		if (user.parent) return user.parent;
-		return null;
-	}
-
 	const ColActions = (user: User) => {
 		return (
 			<Space size="middle">
 				<ChangePassword userId={+user.id} handleChangePass={handleChangePass} />
 				<Tooltip placement="top" title="Vô hiệu hoá tài khoản">
-				<Button type="link" icon={<DeleteOutlined />} danger onClick={() => handleDeactive(user)} />
+					<Button type="link" icon={<DeleteOutlined />} danger onClick={() => handleDeactive(user)} />
 				</Tooltip>
 				<ChangePermisstion user={user} handleChangePermission={handleSetPermission}></ChangePermisstion>
 			</Space>
@@ -99,7 +90,7 @@ export default function Users(): JSX.Element {
 			key: "email",
 			// eslint-disable-next-line react/display-name
 			render: (_: any, user: User) => {
-				return <span>{get(getProfileUser(user), "email", "")}</span>;
+				return <span>{get(user, "profile.email", "")}</span>;
 			},
 		},
 		{
