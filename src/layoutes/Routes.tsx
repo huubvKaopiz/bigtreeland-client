@@ -25,7 +25,7 @@ function Routes(): JSX.Element {
 			<Route path="/parents" component={Parents} />
 			<Route path="/permissions" component={Permissions} />
 			<Route path="/roles" component={Roles} />
-			<Route path="/payment-slip" component={Payment} />
+			<Route path="/payments/payment-slips" component={Payment} />
 			<Route path="/files" component={Files} />
 		</>
 	);

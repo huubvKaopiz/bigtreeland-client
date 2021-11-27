@@ -8,15 +8,96 @@ import {
 	FileOutlined,
 } from "@ant-design/icons";
 import { Menu } from "antd";
-import { useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useHistory, useLocation } from "react-router-dom";
 
 const { SubMenu } = Menu;
 
 function LeftMenu(): JSX.Element {
 	const history = useHistory();
-	const [selectedKeys, setSelectedKeys] = useState(["5"]);
-	const [openKeys, setOpenKeys] = useState(["sub2"]);
+	const [selectedKeys, setSelectedKeys] = useState([""]);
+	const [openKeys, setOpenKeys] = useState([""]);
+	const location = useLocation();
+	const pathname = location.pathname;
+	console.log("location", location);
+
+	useEffect(() => {
+		if (pathname.includes("/files")) {
+			setSelectedKeys(["12"]);
+			return;
+		}
+
+		if (pathname.includes("/permissions")) {
+			setOpenKeys(["permissions"]);
+			setSelectedKeys(["10"]);
+			return;
+		}
+
+		if (pathname.includes("/roles")) {
+			setOpenKeys(["permissions"]);
+			setSelectedKeys(["11"]);
+			return;
+		}
+
+		if (pathname.includes("/payments/payment-slips")) {
+			setOpenKeys(["payments"]);
+			setSelectedKeys(["8"]);
+			return;
+		}
+
+		if (pathname.includes("/payments/revenue")) {
+			setOpenKeys(["payments"]);
+			setSelectedKeys(["9"]);
+			return;
+		}
+
+		if (pathname.includes("/payments")) {
+			setOpenKeys(["payments"]);
+			return;
+		}
+
+		if (pathname.includes("/students")) {
+			setOpenKeys(["classes"]);
+			setSelectedKeys(["6"]);
+			return;
+		}
+
+		if (pathname.includes("/parents")) {
+			setOpenKeys(["classes"]);
+			setSelectedKeys(["7"]);
+			return;
+		}
+
+		if (pathname.includes("/classes")) {
+			setOpenKeys(["classes"]);
+			setSelectedKeys(["5"]);
+			return;
+		}
+
+		if (pathname.includes("/employees/payrolls")) {
+			setOpenKeys(["employees"]);
+			setSelectedKeys(["4"]);
+			return;
+		}
+
+		if (pathname.includes("/employees")) {
+			setOpenKeys(["employees"]);
+			setSelectedKeys(["3"]);
+			return;
+		}
+
+		if (pathname.includes("/users")) {
+			setOpenKeys([""]);
+			setSelectedKeys(["2"]);
+			return;
+		}
+
+		if (pathname.includes("/")) {
+			setOpenKeys([""]);
+			setSelectedKeys(["1"]);
+			return;
+		}
+	}, [pathname]);
 
 	return (
 		<Menu theme="dark" mode="inline" selectedKeys={selectedKeys} openKeys={openKeys}>
@@ -26,15 +107,20 @@ function LeftMenu(): JSX.Element {
 			<Menu.Item key="2" icon={<TeamOutlined />} onClick={() => history.push("/users")}>
 				Người dùng
 			</Menu.Item>
-			<SubMenu key="sub1" icon={<IdcardOutlined />} title="Nhân viên">
+			<SubMenu
+				onTitleClick={() => setOpenKeys(["employees"])}
+				key="employees"
+				icon={<IdcardOutlined />}
+				title="Nhân viên"
+			>
 				<Menu.Item key="3" onClick={() => history.push("/employees")}>
 					Nhân viên
 				</Menu.Item>
-				<Menu.Item key="4" onClick={() => history.push("/payrolls")}>
+				<Menu.Item key="4" onClick={() => history.push("/employees/payrolls")}>
 					Bảng lương
 				</Menu.Item>
 			</SubMenu>
-			<SubMenu key="sub2" icon={<ReadOutlined />} title="QL học tập">
+			<SubMenu onTitleClick={() => setOpenKeys(["classes"])} key="classes" icon={<ReadOutlined />} title="QL học tập">
 				<Menu.Item key="5" onClick={() => history.push("/classes")}>
 					Lớp học
 				</Menu.Item>
@@ -45,15 +131,20 @@ function LeftMenu(): JSX.Element {
 					Phụ huynh
 				</Menu.Item>
 			</SubMenu>
-			<SubMenu key="sub3" icon={<DollarOutlined />} title="Thu Chi">
-				<Menu.Item key="8" onClick={() => history.push("/payment-slip")}>
+			<SubMenu onTitleClick={() => setOpenKeys(["payments"])} key="payments" icon={<DollarOutlined />} title="Thu Chi">
+				<Menu.Item key="8" onClick={() => history.push("/payments/payment-slips")}>
 					QL Chi tiêu
 				</Menu.Item>
-				<Menu.Item key="9" onClick={() => history.push("/revenue")}>
+				<Menu.Item key="9" onClick={() => history.push("/payments/revenue")}>
 					QL doanh thu
 				</Menu.Item>
 			</SubMenu>
-			<SubMenu key="sub4" icon={<SecurityScanOutlined />} title="Phân quyền">
+			<SubMenu
+				onTitleClick={() => setOpenKeys(["permissions"])}
+				key="permissions"
+				icon={<SecurityScanOutlined />}
+				title="Phân quyền"
+			>
 				<Menu.Item key="10" onClick={() => history.push("/permissions")}>
 					DS quyền
 				</Menu.Item>
@@ -61,7 +152,7 @@ function LeftMenu(): JSX.Element {
 					Vai trò
 				</Menu.Item>
 			</SubMenu>
-			<Menu.Item key="sub5" icon={<FileOutlined />} onClick={() => history.push("/files")}>
+			<Menu.Item key="12" icon={<FileOutlined />} onClick={() => history.push("/files")}>
 				QL File
 			</Menu.Item>
 		</Menu>

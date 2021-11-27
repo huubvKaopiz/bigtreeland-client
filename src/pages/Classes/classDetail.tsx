@@ -83,11 +83,8 @@ export default function ClassDetail(): JSX.Element {
 		} else {
 			newList.splice(found, 1);
 		}
-
-		// console.log(newList)
 		setAttendantList(newList);
 	}
-	console.log(attendantList);
 
 	function handleChangeComment(e: any, sID: number) {
 		const f = listComments.findIndex((element) => element.sID === sID);
