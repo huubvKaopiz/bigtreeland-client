@@ -97,7 +97,7 @@ function DefaultLayout(): JSX.Element {
 							Vai trò
 						</Menu.Item>
 					</SubMenu>
-					<Menu.Item key="sub5" icon={<FileOutlined />} onClick={() => history.push("/files") }>
+					<Menu.Item key="sub5" icon={<FileOutlined />} onClick={() => history.push("/files")}>
 						QL File
 					</Menu.Item>
 				</Menu>
@@ -123,7 +123,7 @@ function DefaultLayout(): JSX.Element {
 					<Route path="/payment-slip" component={Payment} />
 					<Route path="/files" component={Files} />
 				</Content>
-				<Footer style={{ textAlign: "center" }}>Ant Design ©2021 Created by Ant UED</Footer>
+				<Footer style={{ textAlign: "center" }}>Bigtreeland ©2021</Footer>
 			</Layout>
 		</Layout>
 	);
