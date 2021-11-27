@@ -8,15 +8,18 @@ import {
 	FileOutlined,
 } from "@ant-design/icons";
 import { Menu } from "antd";
+import { useState } from "react";
 import { useHistory } from "react-router-dom";
 
 const { SubMenu } = Menu;
 
 function LeftMenu(): JSX.Element {
 	const history = useHistory();
+	const [selectedKeys, setSelectedKeys] = useState(["5"]);
+	const [openKeys, setOpenKeys] = useState(["sub2"]);
 
 	return (
-		<Menu theme="dark" mode="inline" defaultSelectedKeys={["5"]} openKeys={["sub2"]}>
+		<Menu theme="dark" mode="inline" selectedKeys={selectedKeys} openKeys={openKeys}>
 			<Menu.Item key="1" icon={<HomeOutlined />} onClick={() => history.push("/")}>
 				Trang chủ
 			</Menu.Item>

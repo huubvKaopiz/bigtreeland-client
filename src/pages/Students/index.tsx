@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import {Col, Input, Layout, Row, Space, Table } from "antd";
+import { Col, Input, Layout, Row, Space, Table } from "antd";
 import AddStudentModal from "./addStudentModal";
 import { StudentType } from "../../interface";
 import { useSelector } from "react-redux";
@@ -22,7 +22,6 @@ export default function Students(): JSX.Element {
 	const searchParentStatus = useSelector((state: RootState) => state.parentReducer.getParentsStatus);
 	const searchClassStatus = useSelector((state: RootState) => state.classReducer.getClassesStatus);
 
-
 	useEffect(() => {
 		if (loadListStatus === "idle") {
 			dispatch(actionGetStudents({ page: 1 }));
@@ -31,20 +30,20 @@ export default function Students(): JSX.Element {
 
 	useEffect(() => {
 		dispatch(actionGetParents({}));
-		dispatch(actionGetClasses({}))
+		dispatch(actionGetClasses({}));
 	}, [dispatch]);
 
 	const searchParent = (search: string) => {
 		if (search.length >= 3 || search.length === 0) {
 			dispatch(actionGetParents({ search }));
 		}
-	}
+	};
 
-	const searchClass = (search:string) => {
-		if(search.length === 0 || search.length >= 3){
-			dispatch(actionGetClasses({search}));
+	const searchClass = (search: string) => {
+		if (search.length === 0 || search.length >= 3) {
+			dispatch(actionGetClasses({ search }));
 		}
-	}
+	};
 
 	const columns = [
 		{
@@ -53,9 +52,8 @@ export default function Students(): JSX.Element {
 			dataIndex: "name",
 			key: "name",
 			render: function nameCol(value: string): JSX.Element {
-				return <strong>{value}</strong>
+				return <strong>{value}</strong>;
 			},
-
 		},
 		{
 			width: "10%",
@@ -70,7 +68,7 @@ export default function Students(): JSX.Element {
 			dataIndex: "parent",
 			key: "parent",
 			render: function parentCol(value?: { email: string; id: number; name: string }): JSX.Element {
-				return <a >{get(value, "name", "")}</a>;
+				return <a>{get(value, "name", "")}</a>;
 			},
 		},
 		{
@@ -105,19 +103,22 @@ export default function Students(): JSX.Element {
 			render: function ActionCol(student: StudentType): JSX.Element {
 				return (
 					<Space>
-						{student.class === null ? 
-						<ImportClass 
-							student={student} 
-							classesList={classesList} 
-							searchClass={searchClass}
-							searchStatus={searchClassStatus} /> 
-							: ""}
+						{student.class === null ? (
+							<ImportClass
+								student={student}
+								classesList={classesList}
+								searchClass={searchClass}
+								searchStatus={searchClassStatus}
+							/>
+						) : (
+							""
+						)}
 						<Profile student={student} />
-						<EditStudentModal 
-							student={student} 
-							parents={parents} 
+						<EditStudentModal
+							student={student}
+							parents={parents}
 							searchParent={searchParent}
-							searchStatus={searchParentStatus} 
+							searchStatus={searchParentStatus}
 						/>
 						<LeaveModal studen_id={student.id} />
 					</Space>
@@ -127,7 +128,7 @@ export default function Students(): JSX.Element {
 	];
 
 	return (
-		<Layout.Content style={{ height: 1000 }}>
+		<Layout.Content>
 			<Row style={{ marginBottom: 20, marginTop: 20 }} justify="start">
 				<Col span={10}>
 					<Input.Search allowClear />

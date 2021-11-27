@@ -17,14 +17,21 @@ import {
 	Spin,
 	Statistic,
 	Table,
-	Tooltip
+	Tooltip,
 } from "antd";
 import { debounce } from "lodash";
 import moment from "moment";
 import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import {
-	actionGetPayments, actionUpdatePaymentStatus, PaymentSearchParam, PaymentStatusList, PaymentTypeEnum, resetAddPaymentStatus, resetGetPaymentStatus, resetUpdatePaymentStatus
+	actionGetPayments,
+	actionUpdatePaymentStatus,
+	PaymentSearchParam,
+	PaymentStatusList,
+	PaymentTypeEnum,
+	resetAddPaymentStatus,
+	resetGetPaymentStatus,
+	resetUpdatePaymentStatus,
 } from "store/payments/slice";
 import { RootState, useAppDispatch } from "store/store";
 import styled from "styled-components";
@@ -98,9 +105,6 @@ function Payment(): JSX.Element {
 		const spendAmount = paymentTableData?.reduce((pre, current) => pre + +current.amount, 0);
 		if (spendAmount) setSpenValue(spendAmount);
 	}, [paymentTableData]);
-
-	
-
 
 	function onTableFiler(value: string) {
 		debounceSearch(value);
@@ -293,12 +297,10 @@ function Payment(): JSX.Element {
 
 	return (
 		<Wrapper>
-			<Layout.Content style={{ height: 1000 }}>
+			<Layout.Content>
 				<Row style={{ marginBottom: 20, marginTop: 20 }} justify="start">
 					<Col span={10}>
-						<Input.Search
-							onChange={({ target: input }) => onTableFiler(input.value)}
-						/>
+						<Input.Search onChange={({ target: input }) => onTableFiler(input.value)} />
 					</Col>
 					<Col style={{ marginLeft: 20 }}>
 						<AddNewPayment />

@@ -52,7 +52,7 @@ function TopHeader(props: TopHeaderType): JSX.Element {
 					<Dropdown
 						overlay={
 							<Menu>
-								<Menu.Item key="setting">Thay đổi cài đặt</Menu.Item>
+								{/* <Menu.Item key="setting">Thay đổi cài đặt</Menu.Item> */}
 								<Menu.Item key="change-password">
 									{/* <ChangePassForm handleChangePass={handleChangePass} /> */}
 								</Menu.Item>

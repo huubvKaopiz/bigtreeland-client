@@ -11,9 +11,8 @@ function DefaultLayout(): JSX.Element {
 	const [collapsed, setCollapsed] = useState(false);
 
 	return (
-		<Layout style={{ minHeight: 1500 }}>
+		<Layout>
 			<Sider
-				breakpoint="lg"
 				collapsed={collapsed}
 				style={{
 					overflow: "auto",

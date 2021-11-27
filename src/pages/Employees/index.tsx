@@ -107,7 +107,7 @@ function Employees(): JSX.Element {
 	];
 
 	return (
-		<Layout.Content style={{ height: 1000 }}>
+		<Layout.Content>
 			<Row style={{ marginBottom: 20, marginTop: 20 }} justify="start">
 				<Col span={10}>
 					<Input.Search allowClear onSearch={(e) => handleSearch(e)} />
