@@ -1,4 +1,4 @@
-import { Button, Modal, Form, DatePicker, Input, Upload } from "antd";
+import { Button, Modal, Form, DatePicker, Input, Upload, notification } from "antd";
 import { PlusOutlined, UploadOutlined } from "@ant-design/icons";
 import React, { useEffect, useState } from "react";
 import { RootState, useAppDispatch } from "store/store";
@@ -17,6 +17,7 @@ export default function AddTest(props: { classInfo: ClassType | null }): JSX.Ele
 	const [show, setShow] = useState(false);
 	const [uploading, setUploading] = useState(false);
 	const [file, setFile] = useState<UploadFile | null>(null);
+	const [submiting, setSubmiting] = useState(false);
 
 	const uploadStatus = useSelector((state: RootState) => state.filesReducer.statusUploadFile);
 	const addTestStatus = useSelector((state: RootState) => state.testReducer.addTestStatus);
@@ -35,14 +36,6 @@ export default function AddTest(props: { classInfo: ClassType | null }): JSX.Ele
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [uploadStatus, recentFileUploaded]);
 
-	useEffect(() => {
-		if (addTestStatus === "success") {
-			setShow(false);
-			dispatch(resetRecentFileTestUploaded());
-			dispatch(actionGetTestes({ class_id: get(classInfo, "id", 0) }));
-		}
-	}, [addTestStatus, dispatch, classInfo]);
-
 	function handleUpload() {
 		if (file) {
 			setUploading(true);
@@ -57,15 +50,29 @@ export default function AddTest(props: { classInfo: ClassType | null }): JSX.Ele
 	}
 
 	function handleSubmit(values: any) {
+		console.log("values", values);
 		console.log(recentFileUploaded);
+
+		if (!recentFileUploaded) {
+			notification.error({ message: "Chưa chọn file test" });
+			return;
+		}
+
 		if (recentFileUploaded && recentFileUploaded.length > 0) {
+			setSubmiting(true);
 			const data = {
 				class_id: get(classInfo, "id", 0),
 				title: values.title,
 				date: moment(values.date).format("YYYY-MM-DD"),
 				content_file: get(recentFileUploaded[0], "id", 0),
 			};
-			dispatch(actionAddTest(data));
+			dispatch(actionAddTest(data))
+				.then(() => {
+					setShow(false);
+					dispatch(resetRecentFileTestUploaded());
+					dispatch(actionGetTestes({ class_id: get(classInfo, "id", 0) }));
+				})
+				.finally(() => setSubmiting(false));
 		}
 	}
 
@@ -84,7 +91,7 @@ export default function AddTest(props: { classInfo: ClassType | null }): JSX.Ele
 					<Button key="btncancle" onClick={() => setShow(false)}>
 						Huỷ bỏ
 					</Button>,
-					<Button key="btnok" type="primary" htmlType="submit" form="aForm">
+					<Button loading={submiting} key="btnok" type="primary" htmlType="submit" form="aForm">
 						Lưu lại
 					</Button>,
 				]}
@@ -97,7 +104,11 @@ export default function AddTest(props: { classInfo: ClassType | null }): JSX.Ele
 					layout="horizontal"
 					onFinish={handleSubmit}
 				>
-					<Form.Item label="Tiêu đề" name="title" rules={[{ required: true, message: "Tiêu đề bài test không được bỏ trống" }]}>
+					<Form.Item
+						label="Tiêu đề"
+						name="title"
+						rules={[{ required: true, message: "Tiêu đề bài test không được bỏ trống" }]}
+					>
 						<Input />
 					</Form.Item>
 					<Form.Item label="Ngày" name="date">
