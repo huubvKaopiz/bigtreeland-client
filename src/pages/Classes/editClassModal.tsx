@@ -22,7 +22,7 @@ export default function EditClassModal(props: {
 		if (classInfo) {
 			uFrom.setFieldsValue({
 				name: classInfo.name,
-				employee_id: get(classInfo, "employee.id", 0),
+				employee_id: get(classInfo, "user.id", ""),
 				sessions_num: classInfo.sessions_num,
 				fee_per_session: classInfo.fee_per_session,
 				schedule: classInfo.schedule,
@@ -74,7 +74,6 @@ export default function EditClassModal(props: {
 							<Select.Option value={-1}>Chọn sau</Select.Option>
 							{teachers &&
 								get(teachers, "data", []).map((tc: EmployeeType) => {
-									console.log("teachers", teachers);
 									return (
 										<Select.Option value={tc.id} key={tc.id}>
 											{tc.name} - {tc.phone}
