@@ -175,7 +175,7 @@ export default function ClassDetail(): JSX.Element {
 		},
 	};
 	attendance_columns.push(todayCol);
-	attendance_columns.push(commentCol);
+	// attendance_columns.push(commentCol);
 
 	return (
 		<Layout.Content>
