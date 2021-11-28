@@ -14,7 +14,7 @@ import {
 	Col,
 } from "antd";
 import { TeamOutlined, LikeOutlined, MessageOutlined } from "@ant-design/icons";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import moment from "moment";
 import { useParams, useHistory } from "react-router-dom";
 import { RootState, useAppDispatch } from "store/store";
@@ -101,7 +101,7 @@ export default function ClassDetail(): JSX.Element {
 		if (attendantList.length > 0 && classInfo) {
 			const params = {
 				class_id: classInfo.id,
-				teacher_id: get(classInfo, "employee.id", 0),
+				teacher_id: get(classInfo, "user.id", 0),
 				student_ids: attendantList,
 				date: today,
 			};
@@ -267,7 +267,7 @@ export default function ClassDetail(): JSX.Element {
 			>
 				<Descriptions size="small" column={2} style={{ backgroundColor: "white", padding: 20 }}>
 					<Descriptions.Item label="Giáo viên">
-						<a>{get(classInfo, "employee.name", "")}</a>
+						<a>{get(classInfo, "name", "")}</a>
 					</Descriptions.Item>
 					<Descriptions.Item label="Ngày bắt đầu">
 						{moment(get(classInfo, "start_date", "")).format("DD-MM-YYYY")}

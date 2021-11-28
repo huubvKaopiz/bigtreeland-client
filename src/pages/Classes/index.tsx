@@ -43,7 +43,6 @@ function Classes(): JSX.Element {
 		{
 			width: "15%",
 			title: "Giáo viên",
-			dataIndex: "employee",
 			key: "employee",
 			render: function TeacherCol(value?: { name: string; id: number }): JSX.Element {
 				return <Button type="link">{value && value.name}</Button>;

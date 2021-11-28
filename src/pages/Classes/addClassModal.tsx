@@ -66,7 +66,6 @@ export default function AddClassModal(props: {
 							<Select.Option value={-1}>Chọn sau</Select.Option>
 							{teachers &&
 								get(teachers, "data", []).map((tc: EmployeeType) => {
-									console.log("tc", tc);
 									return (
 										<Select.Option value={tc.id} key={tc.id}>
 											{/* {tc.name} - {tc.phone} */}

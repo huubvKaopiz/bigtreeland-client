@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Button, Modal, Form, Select, Input, Spin } from "antd";
 import { EditOutlined } from "@ant-design/icons";
-import { RootState, useAppDispatch } from "store/store";
-import { useSelector } from "react-redux";
+import { useAppDispatch } from "store/store";
 import { actionUpdateClass, actionGetClasses } from "store/classes/slice";
 import { get } from "lodash";
 import { ClassType, EmployeeType, ListEmployeeType } from "interface";
@@ -17,7 +16,7 @@ export default function EditClassModal(props: {
 	const [uFrom] = Form.useForm();
 	const [show, setShow] = useState(false);
 	const dispatch = useAppDispatch();
-	const addStatus = useSelector((state: RootState) => state.classReducer.updateClassStatus);
+	const [submiting, setSubmiting] = useState(false);
 
 	useEffect(() => {
 		if (classInfo) {
@@ -31,15 +30,14 @@ export default function EditClassModal(props: {
 		}
 	});
 
-	useEffect(() => {
-		if (addStatus === "success" && show) {
-			setShow(false);
-			dispatch(actionGetClasses({ page: 1 }));
-		}
-	}, [dispatch, addStatus, show]);
-
 	function handleSubmit(values: any) {
-		dispatch(actionUpdateClass({ data: values, cID: classInfo.id }));
+		setSubmiting(true);
+		dispatch(actionUpdateClass({ data: values, cID: classInfo.id }))
+			.then(() => {
+				setShow(false);
+				dispatch(actionGetClasses({ page: 1 }));
+			})
+			.finally(() => setSubmiting(false));
 	}
 
 	return (
@@ -50,7 +48,7 @@ export default function EditClassModal(props: {
 				title="Thêm lớp học"
 				onCancel={() => setShow(false)}
 				footer={[
-					<Button key="btnsubmit" type="primary" htmlType="submit" form="aForm">
+					<Button loading={submiting} key="btnsubmit" type="primary" htmlType="submit" form="aForm">
 						Lưu lại
 					</Button>,
 				]}
@@ -76,9 +74,10 @@ export default function EditClassModal(props: {
 							<Select.Option value={-1}>Chọn sau</Select.Option>
 							{teachers &&
 								get(teachers, "data", []).map((tc: EmployeeType) => {
+									console.log("teachers", teachers);
 									return (
 										<Select.Option value={tc.id} key={tc.id}>
-											{/* {tc.name} - {tc.phone} */}
+											{tc.name} - {tc.phone}
 										</Select.Option>
 									);
 								})}
