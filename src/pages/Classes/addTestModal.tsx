@@ -106,14 +106,22 @@ export default function AddTest(props: { classInfo: ClassType | null }): JSX.Ele
 					<Form.Item label="Ngày" name="date">
 						<DatePicker format="YYYY-MM-DD" defaultValue={moment(new Date())} />
 					</Form.Item>
-					<Form.Item label="Đề bài">
+					<Form.Item
+						label="Link đề bài"
+						name="content_link"
+					>
+						<Input />
+					</Form.Item>
+
+					<Form.Item label="Files đề bài">
 						<Upload
-							maxCount={1}
+							maxCount={100}
+							multiple={true}
 							customRequest={dummyRequest}
 							onChange={({ file }) => setFile(file)}
 							onRemove={handleRemoveFile}
 						>
-							{!file ? <Button icon={<UploadOutlined />}>Chọn file đề thi</Button> : ""}
+							{!file ? <Button icon={<UploadOutlined />}>Chọn files đề thi</Button> : ""}
 						</Upload>
 						{file && (
 							<Button

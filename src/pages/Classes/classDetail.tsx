@@ -12,8 +12,10 @@ import {
 	Input,
 	Row,
 	Col,
+	Typography,
+	Upload
 } from "antd";
-import { TeamOutlined, LikeOutlined, MessageOutlined } from "@ant-design/icons";
+import { TeamOutlined, LikeOutlined, MessageOutlined, NotificationOutlined, UploadOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import moment from "moment";
 import { useParams, useHistory } from "react-router-dom";
@@ -27,6 +29,7 @@ import Checkbox from "antd/lib/checkbox/Checkbox";
 import AddTest from "./addTestModal";
 import { TestType } from "interface";
 // import numeral from 'numeral';
+const { Title } = Typography;
 
 const dateFormat = "YYYY-MM-DD";
 export default function ClassDetail(): JSX.Element {
@@ -97,6 +100,10 @@ export default function ClassDetail(): JSX.Element {
 		}
 	}
 
+	function handleChangeCoductPoint(e: any, sID: number) {
+		console.log(e)
+	}
+
 	function handleSubmit() {
 		if (attendantList.length > 0 && classInfo) {
 			const params = {
@@ -111,20 +118,17 @@ export default function ClassDetail(): JSX.Element {
 	const attendance_columns: any[] = [
 		{
 			title: "Họ tên",
-			// width: 80,
 			dataIndex: "name",
 			key: "name",
-			fixed: true,
 			render: function col(value: string): JSX.Element {
-				return <span>{value}</span>;
+				return <strong>{value}</strong>;
 			},
 		},
 		{
-			title: "Ngày sinh",
-			// width: 30,
+			title: "Số điện thoại",
 			dataIndex: "birthday",
 			key: "birthday",
-			fixed: true,
+			with: "20%",
 			render: function col(value: string): JSX.Element {
 				return <span>{moment(value).format("DD-MM-YYYY")}</span>;
 			},
@@ -134,7 +138,6 @@ export default function ClassDetail(): JSX.Element {
 	for (const key in get(attendances, "attendances", [])) {
 		attendance_columns.push({
 			title: `${moment(key).format("DD/MM/YYYY")}`,
-			// width: 80,
 			dataIndex: "",
 			key: `${key}`,
 			fixed: false,
@@ -153,7 +156,6 @@ export default function ClassDetail(): JSX.Element {
 		key: "operation",
 		dataIndex: "",
 		// width: 10,
-		fixed: false,
 		render: function col(st: { id: number; name: string }): JSX.Element {
 			return <Checkbox onChange={() => handleCheckbox(st.id)} checked={isAttendantToday(st.id)} />;
 		},
@@ -164,7 +166,6 @@ export default function ClassDetail(): JSX.Element {
 		key: "comment",
 		dataIndex: "",
 		// width: 80,
-		fixed: false,
 		render: function col(st: { id: number }): JSX.Element {
 			return (
 				<Space>
@@ -174,8 +175,39 @@ export default function ClassDetail(): JSX.Element {
 			);
 		},
 	};
+	const conductPointCol = {
+		title: "Điểm hạnh kiểm",
+		key: "point",
+		dataIndex: "",
+		// width: 80,
+		render: function col(st: { id: number }): JSX.Element {
+			return (
+				<Space>
+					{" "}
+					<Input placeholder="điểm hạnh kiểm" onChange={(e) => handleChangeCoductPoint(e, st.id)} />
+				</Space>
+			);
+		},
+	};
+	const actionCol = {
+		title: "Action",
+		key: "action",
+		dataIndex: "",
+		width: 80,
+		render: function col(st: { id: number }): JSX.Element {
+			return (
+				<Space>
+					{" "}
+					<Button icon={<NotificationOutlined />} type="link" onClick={(e) => handleChangeCoductPoint(e, st.id)} />
+				</Space>
+			);
+		},
+	};
+
 	attendance_columns.push(todayCol);
-	// attendance_columns.push(commentCol);
+	attendance_columns.push(commentCol);
+	attendance_columns.push(conductPointCol);
+	attendance_columns.push(actionCol)
 
 	return (
 		<Layout.Content>
@@ -190,7 +222,7 @@ export default function ClassDetail(): JSX.Element {
 				]}
 				footer={
 					<Tabs defaultActiveKey="1">
-						<TabPane tab="Điểm danh" key="1">
+						<TabPane tab="Học tập" key="1">
 							<Space style={{ paddingTop: 20, marginBottom: 20 }}>
 								Ngày:
 								<DatePicker
@@ -216,7 +248,7 @@ export default function ClassDetail(): JSX.Element {
 								</Col>
 							</Row>
 						</TabPane>
-						<TabPane tab="Bài test" key="3">
+						<TabPane tab="Bài tập" key="2">
 							<Space style={{ paddingTop: 20, marginBottom: 20 }}>
 								<AddTest classInfo={classInfo} />
 							</Space>
@@ -262,6 +294,21 @@ export default function ClassDetail(): JSX.Element {
 							/>
 							,
 						</TabPane>
+						<TabPane tab="Album ảnh" key="3">
+							<Upload >
+								<Button type="primary" icon={<UploadOutlined />}>Upload</Button>
+							</Upload>,
+							<Space style={{ marginTop: 20, backgroundColor: "white", padding: 10 }} size={[10, 10]} wrap>
+
+								{new Array(10).fill(null).map((_, index) => (
+									<Image
+										key={index}
+										width={200}
+										src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
+									/>
+								))}
+							</Space>
+						</TabPane>
 					</Tabs>
 				}
 			>
@@ -271,10 +318,6 @@ export default function ClassDetail(): JSX.Element {
 					</Descriptions.Item>
 					<Descriptions.Item label="Ngày bắt đầu">
 						{moment(get(classInfo, "start_date", "")).format("DD-MM-YYYY")}
-					</Descriptions.Item>
-					<Descriptions.Item label="Số buổi">{classInfo?.sessions_num}</Descriptions.Item>
-					<Descriptions.Item label="Ngày kết thúc">
-						{moment(get(classInfo, "end_date", "")).format("DD-MM-YYYY")}
 					</Descriptions.Item>
 					<Descriptions.Item label="Số học sinh">{classInfo?.students_num}</Descriptions.Item>
 					<Descriptions.Item label="Lịch học">{classInfo?.schedule}</Descriptions.Item>

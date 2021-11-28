@@ -1,9 +1,13 @@
-import { Image, Button, Descriptions, Input, Layout, List, PageHeader, Skeleton } from "antd";
-import { UserOutlined } from "@ant-design/icons";
+/* eslint-disable react-hooks/rules-of-hooks */
+/* eslint-disable no-mixed-spaces-and-tabs */
+import { Image, Button, Descriptions, Input, Layout, List, PageHeader, Skeleton, Space, Typography, Upload } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 import Modal from "antd/lib/modal/Modal";
+
+const { Title } = Typography;
 
 export function ListTestResults(): JSX.Element {
 	const params = useParams() as { test_id: string };
@@ -43,6 +47,9 @@ export function ListTestResults(): JSX.Element {
 				subTitle="Danh sách bài làm"
 				onBack={() => window.history.back()}
 				style={{ backgroundColor: "white", marginTop: 20 }}
+				extra={[
+					<Button type="primary" key="2">Đăng đáp án</Button>,
+				]}
 			>
 				<Descriptions size="small" column={2}>
 					<Descriptions.Item label="Giáo viên tạo">Lili Qu</Descriptions.Item>
@@ -53,6 +60,28 @@ export function ListTestResults(): JSX.Element {
 					<Descriptions.Item label="Ngày tạo">2017-01-10</Descriptions.Item>
 				</Descriptions>
 			</PageHeader>
+			<Title style={{ marginTop: 20 }} level={4}>Đề bài</Title>
+			<Space style={{ marginTop: 20, backgroundColor: "white", padding: 10 }} size={[10, 10]} wrap>
+
+				{new Array(10).fill(null).map((_, index) => (
+					<Image
+						key={index}
+						width={200}
+						src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
+					/>
+				))}
+			</Space>
+			<Title style={{ marginTop: 20 }} level={4}>Đáp án</Title>
+			<Space style={{ marginTop: 20, backgroundColor: "white", padding: 10 }} size={[10, 10]} wrap>
+
+				{new Array(10).fill(null).map((_, index) => (
+					<Image
+						key={index}
+						width={200}
+						src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
+					/>
+				))}
+			</Space>
 			<List
 				rowKey="id"
 				className="demo-loadmore-list"
@@ -62,7 +91,7 @@ export function ListTestResults(): JSX.Element {
 				loadMore={true}
 				dataSource={listRs}
 				renderItem={(item) => (
-					<List.Item actions={[<CommentModal key="cmt" />]}>
+					<List.Item actions={[<UploadResultModal key="upload" />, <CommentModal key="cmt" />]}>
 						<Skeleton avatar title={false} loading={false} active>
 							<List.Item.Meta
 								avatar={
@@ -88,6 +117,7 @@ const { TextArea } = Input;
 function CommentModal(): JSX.Element {
 	const [show, setShow] = useState(false);
 	const [comment, setComment] = useState<any>(null);
+	const [point, setPoint] = useState("");
 
 	function handleSubmit() {
 		if (comment) {
@@ -98,18 +128,47 @@ function CommentModal(): JSX.Element {
 	return (
 		<>
 			<Button type="link" onClick={() => setShow(true)}>
-				Nhận xét
+				Nhận xet
 			</Button>
 			<Modal
-				title="Nhận xét bài làm"
+				title="Chấm điểm bài làm"
 				visible={show}
 				closable
 				onCancel={() => setShow(false)}
 				onOk={handleSubmit}
 				okText="Lưu lại"
 			>
-				<TextArea onChange={(e: any) => setComment(e.value)} />
+				<Input placeholder="Điểm" onChange={(e: any) => setPoint(e.value)} style={{ marginBottom: 20 }} />
+				<TextArea placeholder="Nhận xét" onChange={(e: any) => setComment(e.value)} />
 			</Modal>
 		</>
 	);
+}
+
+
+function UploadResultModal(): JSX.Element {
+	const [show, setShow] = useState(false);
+
+	const handleSubmit = () => {
+		console.log("submit")
+	}
+	return (
+		<>
+			<Button type="link" onClick={() => setShow(true)}>
+				Đăng bài chấm
+			</Button>
+			<Modal
+				title="Tải bài chấm"
+				visible={show}
+				closable
+				onCancel={() => setShow(false)}
+				onOk={handleSubmit}
+				okText="Lưu lại"
+			>
+				<Upload>
+					<Button icon={<UploadOutlined />}>Upload</Button>
+				</Upload>,
+			</Modal>
+		</>
+	)
 }
