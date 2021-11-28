@@ -140,6 +140,7 @@ export default function Students(): JSX.Element {
 			<Table
 				columns={columns}
 				dataSource={get(students, "data", [])}
+				size="small"
 				bordered
 				loading={loadListStatus === "loading" ? true : false}
 			/>
