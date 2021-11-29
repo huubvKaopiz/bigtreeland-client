@@ -34,10 +34,10 @@ function DefaultLayout(): JSX.Element {
 			</Sider>
 			<Layout className="site-layout">
 				<TopHeader onClickMenu={() => setCollapsed(!collapsed)} />
-				<Content style={{ margin: "0 16px" }}>
+				<Content style={{ padding: "0 16px", backgroundColor: "#fff" }}>
 					<Routes />
 				</Content>
-				<Footer style={{ textAlign: "center" }}>Bigtreeland ©2021</Footer>
+				<Footer style={{ textAlign: "center", backgroundColor: "#fff" }}>Bigtreeland ©2021</Footer>
 			</Layout>
 		</Layout>
 	);
