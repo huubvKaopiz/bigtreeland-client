@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import moment from "moment";
 import { EditOutlined, UploadOutlined } from "@ant-design/icons";
 import { EmployeeType, RoleType } from "interface";
-import { actionGetEmployees, actionUpdateEmployee } from "store/employees/slice";
+import { actionGetEmployees, actionResetUpdateEmployeeSatus, actionUpdateEmployee } from "store/employees/slice";
 import { RootState, useAppDispatch } from "store/store";
 import { useSelector } from "react-redux";
 import { get } from "lodash";
@@ -36,12 +36,13 @@ export default function UpdateEmplyeeForm(props: { employee: EmployeeType; roles
 		}
 	}, [employee, uFrom]);
 
-	// useEffect(() => {
-	// 	if (status === "success" && show) {
-	// 		setShow(false);
-	// 		dispatch(actionGetEmployees({}));
-	// 	}
-	// }, [status, dispatch, show]);
+	useEffect(() => {
+		if (status === "success" && show) {
+			setShow(false);
+			dispatch(actionGetEmployees({}));
+			dispatch(actionResetUpdateEmployeeSatus());
+		}
+	}, [status, dispatch, show]);
 
 	const handleSubmit = (values: any) => {
 		const data = {
@@ -63,7 +64,8 @@ export default function UpdateEmplyeeForm(props: { employee: EmployeeType; roles
 				<Button type="link" icon={<EditOutlined />} onClick={() => setShow(true)} />
 			</Tooltip>
 			<Modal
-				width={1000}
+				width={800}
+				style={{ marginTop: "-80px" }}
 				visible={show}
 				onCancel={() => setShow(false)}
 				closable={true}
@@ -73,7 +75,7 @@ export default function UpdateEmplyeeForm(props: { employee: EmployeeType; roles
 					<Button key="cancel" onClick={() => setShow(false)}>
 						Huỷ bỏ
 					</Button>,
-					<Button type="primary" key="submit" htmlType="submit" form="ueForm">
+					<Button loading={status === "loading"} type="primary" key="submit" htmlType="submit" form="ueForm">
 						Lưu thông tin
 					</Button>,
 				]}
@@ -85,6 +87,7 @@ export default function UpdateEmplyeeForm(props: { employee: EmployeeType; roles
 					wrapperCol={{ span: 14 }}
 					layout="horizontal"
 					onFinish={handleSubmit}
+					style={{ height: "540px", overflowY: "auto" }}
 				>
 					<Divider>Thông tin cơ bản</Divider>
 					<Form.Item name="name" label="Họ tên" rules={[{ required: true, message: "Họ tên không được để trống!" }]}>
