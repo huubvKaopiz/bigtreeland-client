@@ -15,11 +15,10 @@ function Employees(): JSX.Element {
 	const dispatch = useAppDispatch();
 	const roles = useSelector((state: RootState) => state.roleReducer.roles);
 	const employees = useSelector((state: RootState) => state.employeeReducer.employees);
-	const [loading, setLoading] = useState(false);
+	const getEmployeesStatus = useSelector((state: RootState) => state.employeeReducer.getEmployeesStatus);
 
 	useEffect(() => {
-		setLoading(true);
-		dispatch(actionGetEmployees({})).finally(() => setLoading(false));
+		dispatch(actionGetEmployees({}));
 	}, [dispatch]);
 
 	useEffect(() => {
@@ -120,7 +119,7 @@ function Employees(): JSX.Element {
 				</Col>
 			</Row>
 			<Table
-				loading={loading}
+				loading={getEmployeesStatus === "loading"}
 				size="small"
 				dataSource={get(employees, "data", [])}
 				rowKey="id"
