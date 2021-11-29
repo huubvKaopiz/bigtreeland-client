@@ -3,9 +3,9 @@ import { Button, DatePicker, Divider, Form, Input, InputNumber, Modal, Select, S
 import { EmployeeType } from "interface";
 import { get } from "lodash";
 import moment from "moment";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { RevenuesRequestAddType, RevenuesTypeList } from "store/revenues/slice";
+import { actionAddNewRevenues, RevenuesRequestAddType, RevenuesTypeList } from "store/revenues/slice";
 import { RootState, useAppDispatch } from "store/store";
 import styled from "styled-components";
 
@@ -13,21 +13,29 @@ const Wrapper = styled.div``;
 
 function AddNewRevenues(): JSX.Element {
 	const [show, setShow] = useState(false);
-	const [loading, setLoading] = useState(false);
 	const [receiveType, setReceiveType] = useState(0);
-	const [paymentForm] = Form.useForm();
+	const [revenuesForm] = Form.useForm();
 
 	//Redux state
 	const dispatch = useAppDispatch();
 	const creatorUser = useSelector((state: RootState) => state.auth.user);
 	const userList = useSelector((state: RootState) => state.employeeReducer.employees);
+	const statusAddRevenues = useSelector((state: RootState) => state.revenuesReducer.addRevenuesStatus);
 
 	console.log("add receive re-render");
+
+	useEffect(() => {
+		if (statusAddRevenues === "success") {
+			revenuesForm.resetFields();
+			setShow(false);
+		}
+	}, [revenuesForm, statusAddRevenues]);
 
 	function submitForm(formValue: RevenuesRequestAddType) {
 		const formData = { ...formValue };
 		formData.date = moment(formValue.date).format("YYYY-MM-DD");
-		formData.creator_id = creatorUser?.id;
+		formData.creator_id = Number(creatorUser?.id);
+		dispatch(actionAddNewRevenues(formData));
 	}
 
 	return (
@@ -49,13 +57,13 @@ function AddNewRevenues(): JSX.Element {
 					</Button>,
 				]}
 			>
-				<Spin spinning={loading}>
+				<Spin spinning={statusAddRevenues === "loading"}>
 					<Form
 						id="eForm"
 						labelCol={{ span: 6 }}
 						wrapperCol={{ span: 14 }}
 						layout="horizontal"
-						form={paymentForm}
+						form={revenuesForm}
 						onFinish={submitForm}
 					>
 						<Divider>Thêm chi doanh thu</Divider>

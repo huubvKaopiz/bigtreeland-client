@@ -13,3 +13,20 @@ export const ArrayEquals = function (
 	}
 	return true;
 };
+
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export const removeEmpty =  function(obj: any): any {
+	return Object.fromEntries(
+		Object.entries(obj)
+			.filter(([_, v]) => v)
+			.map(([k, v]) => [k, v === Object(v) ? removeEmpty(v) : v])
+	);
+}
+
+export function pick<T, K extends keyof T>(obj: T, ...keys: K[]): Pick<T, K> {
+    const copy = {} as Pick<T, K>;
+
+    keys.forEach(key => copy[key] = obj[key]);
+
+    return copy;
+}
