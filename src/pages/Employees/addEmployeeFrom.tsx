@@ -22,7 +22,7 @@ export default function AddEmplyeeForm(props: { roles: RoleType[] }): JSX.Elemen
 			dispatch(actionGetEmployees({}));
 			dispatch(actionResetAddEmployeeStatus());
 		}
-	}, [status, dispatch, show]);
+	}, [status, dispatch]);
 
 	const submitForm = (values: any) => {
 		const data = {
@@ -67,7 +67,7 @@ export default function AddEmplyeeForm(props: { roles: RoleType[] }): JSX.Elemen
 					<Button key="btncall" onClick={() => reFresh()}>
 						Làm mới
 					</Button>,
-					<Button type="primary" form="eForm" key="submit" htmlType="submit">
+					<Button loading={status === "loading"} type="primary" form="eForm" key="submit" htmlType="submit">
 						Lưu lại
 					</Button>,
 				]}
