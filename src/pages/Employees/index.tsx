@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 // import { useSelector } from "react-redux";
 import { RootState, useAppDispatch } from "../../store/store";
 import { Button, Col, Input, Layout, Row, Space, Table, Tag } from "antd";
@@ -13,12 +13,13 @@ import { actionGetRoles } from "store/roles/slice";
 
 function Employees(): JSX.Element {
 	const dispatch = useAppDispatch();
-	const status = useSelector((state: RootState) => state.employeeReducer.getEmployeesStatus);
 	const roles = useSelector((state: RootState) => state.roleReducer.roles);
 	const employees = useSelector((state: RootState) => state.employeeReducer.employees);
+	const [loading, setLoading] = useState(false);
 
 	useEffect(() => {
-		dispatch(actionGetEmployees({}));
+		setLoading(true);
+		dispatch(actionGetEmployees({})).finally(() => setLoading(false));
 	}, [dispatch]);
 
 	useEffect(() => {
@@ -118,7 +119,14 @@ function Employees(): JSX.Element {
 					<AddEmplyeeForm roles={roles} />
 				</Col>
 			</Row>
-			<Table size="small" dataSource={get(employees, "data", [])} rowKey="id" columns={columns} bordered />
+			<Table
+				loading={loading}
+				size="small"
+				dataSource={get(employees, "data", [])}
+				rowKey="id"
+				columns={columns}
+				bordered
+			/>
 		</Layout.Content>
 	);
 }
