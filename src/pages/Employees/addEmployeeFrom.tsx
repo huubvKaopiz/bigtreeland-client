@@ -79,6 +79,7 @@ export default function AddEmplyeeForm(props: { roles: RoleType[] }): JSX.Elemen
 					wrapperCol={{ span: 14 }}
 					layout="horizontal"
 					onFinish={submitForm}
+					initialValues={{ gender: 0 }}
 				>
 					<Divider>Thông tin cơ bản</Divider>
 					<Form.Item name="name" label="Họ tên" rules={[{ required: true, message: "Họ tên không được để trống!" }]}>
@@ -99,7 +100,7 @@ export default function AddEmplyeeForm(props: { roles: RoleType[] }): JSX.Elemen
 						label="Giới tính"
 						rules={[{ required: true, message: "Giới tính không được để trống!" }]}
 					>
-						<Select defaultValue={1}>
+						<Select>
 							<Select.Option value={1}>Nam</Select.Option>
 							<Select.Option value={0}>Nữ</Select.Option>
 							<Select.Option value={2}>Khác</Select.Option>
