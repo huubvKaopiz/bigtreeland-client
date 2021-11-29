@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Form, Input, Button, Select, Spin } from "antd";
+import { Modal, Form, Input, Button, Select, Spin, InputNumber } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { RootState, useAppDispatch } from "store/store";
 import { useSelector } from "react-redux";
 import { actionAddClass, actionGetClasses } from "store/classes/slice";
 import { get } from "lodash";
 import { EmployeeType, ListEmployeeType } from "interface";
+import numeral from "numeral";
 
 export default function AddClassModal(props: {
 	teachers: ListEmployeeType | null;
@@ -78,7 +79,7 @@ export default function AddClassModal(props: {
 						<Input />
 					</Form.Item>
 					<Form.Item label="Học phí" name="fee_per_session">
-						<Input />
+						<InputNumber formatter={(value) => numeral(value).format()} style={{ width: "200px" }} />
 					</Form.Item>
 					<Form.Item label="Lịch học" name="schedule">
 						<Input />
