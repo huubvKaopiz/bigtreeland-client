@@ -21,9 +21,22 @@ import {
 	Table,
 	Tooltip,
 } from "antd";
-import { get } from "lodash";
-import React, { useEffect, useState } from "react";
-import { RevenuesStatusList, RevenuesTypeList, RevenueType } from "store/revenues/slice";
+import { debounce, get, pick } from "lodash";
+import moment from "moment";
+import React, { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+	actionGetRevenues,
+	actionUpdateRevenues,
+	resetAddRevenuesStatus,
+	resetGetRevenuesStatus,
+	resetUpdateRevenuesStatus,
+	RevenuesRequestUpdateType,
+	RevenuesStatusList,
+	RevenuesTypeList,
+	RevenueType,
+} from "store/revenues/slice";
+import { RootState } from "store/store";
 import styled from "styled-components";
 import { DatePattern, formatDate } from "utils/dateUltils";
 import { formatCurrency } from "utils/ultil";
@@ -40,91 +53,38 @@ const Wrapper = styled.div`
 	}
 `;
 
-const mockData = {
-	current_page: 1,
-	data: [
-		{
-			id: 1,
-			creator_employee_id: 1,
-			pay_employee_id: 11,
-			type: 1,
-			amount: "1000000",
-			reason: "Thu phụ phí",
-			date: "2021-11-25",
-			note: null,
-			status: 0,
-			created_at: "2021-11-25 01:20:04",
-			updated_at: "2021-11-27 01:16:02",
-			creator: {
-				id: 1,
-				user_id: 1,
-				name: "Bùi Văn Hữu",
-				email: "buivanhuu2017@gmail.com",
-				address: null,
-				birthday: null,
-				gender: 1,
-				interests: null,
-				dislikes: null,
-				created_at: "2021-11-24 17:41:42",
-				updated_at: "2021-11-24 17:41:42",
-			},
-			payer: {
-				id: 11,
-				user_id: 11,
-				name: "Kali Haag",
-				email: "qkilback@example.net",
-				address: "2193 Emery Valley Suite 734\nWest Celestinechester, CO 20459",
-				birthday: "1989-06-01",
-				gender: 1,
-				interests: null,
-				dislikes: null,
-				created_at: "2021-11-24 17:41:42",
-				updated_at: "2021-11-24 17:41:42",
-			},
-		},
-	],
-	first_page_url: "http://45.32.101.219:8000/api/payment-slips?page=1",
-	from: 1,
-	last_page: 1,
-	last_page_url: "http://45.32.101.219:8000/api/payment-slips?page=1",
-	links: [
-		{
-			url: null,
-			label: "&laquo; Previous",
-			active: false,
-		},
-		{
-			url: "http://45.32.101.219:8000/api/payment-slips?page=1",
-			label: "1",
-			active: true,
-		},
-		{
-			url: null,
-			label: "Next &raquo;",
-			active: false,
-		},
-	],
-	next_page_url: null,
-	path: "http://45.32.101.219:8000/api/payment-slips",
-	per_page: 20,
-	prev_page_url: null,
-	to: 1,
-	total: 1,
-};
-
 function Revenues(): JSX.Element {
-	const [loading, setLoading] = useState(false);
+	const dispatch = useDispatch();
 	const [receivedValue, setReceivedValue] = useState(123);
 	const [editingKey, setEditingKey] = useState(-1);
-	const [statusValueChange, setStatusValueChange] = useState("");
+	const [rowValueChange, setRowValueChange] = useState<RevenueType | null>(null);
 	const [currentDrawerData, setCurrentDrawerData] = useState<RevenueType | null>(null);
 	const [showDrawer, setShowDrawer] = useState(false);
+	const [searchObj, setSearchObj] = useState(() => {
+		console.log("init");
+		const startOfMonth = moment().startOf("month").format("YYYY-MM-DD");
+		const endOfMonth = moment().endOf("month").format("YYYY-MM-DD");
+		return { search: "", searchRange: [startOfMonth, endOfMonth] };
+	});
 
 	const [rawTableData, setRawTableData] = useState<RevenueType[]>([]);
 
-	const revenuesData = mockData;
+	const statusGetRevenues = useSelector((state: RootState) => state.revenuesReducer.getRevenuesStatus);
+	const statusAddRevenues = useSelector((state: RootState) => state.revenuesReducer.addRevenuesStatus);
+	const statusUpdateRevenues = useSelector((state: RootState) => state.revenuesReducer.updateRevenuesStatus);
+	const revenuesData = useSelector((state: RootState) => state.revenuesReducer.revenues);
+
+	const debounceSearch = useRef(
+		debounce((nextValue, fromDate, toDate) => setSearchObj({ searchRange: [fromDate, toDate], search: nextValue }), 500)
+	).current;
 
 	console.log("revenues re-render");
+
+	useEffect(() => {
+		const [fromDate, toDate] = searchObj.searchRange;
+		const search = searchObj.search;
+		dispatch(actionGetRevenues({ fromDate, toDate, search }));
+	}, [dispatch, searchObj]);
 
 	useEffect(() => {
 		const tableData = get(revenuesData, "data", []) as RevenueType[];
@@ -133,10 +93,52 @@ function Revenues(): JSX.Element {
 		setRawTableData(tableData);
 	}, [revenuesData]);
 
+	useEffect(() => {
+		if (statusGetRevenues === "success" || statusGetRevenues === "error") {
+			dispatch(resetGetRevenuesStatus());
+		} else if (statusAddRevenues === "success" || statusAddRevenues === "error") {
+			if (statusAddRevenues === "success") {
+				dispatch(actionGetRevenues());
+			}
+			dispatch(resetAddRevenuesStatus());
+		} else if (statusUpdateRevenues === "success" || statusUpdateRevenues === "error") {
+			if (statusUpdateRevenues === "success") {
+				dispatch(actionGetRevenues());
+			}
+			dispatch(resetUpdateRevenuesStatus());
+		}
+	}, [dispatch, statusAddRevenues, statusGetRevenues, statusUpdateRevenues]);
+
 	const isEditting = (record: any) => record.id === editingKey;
 
+	function onTableFiler(value: string) {
+		const [fromDate, toDate] = searchObj.searchRange;
+		debounceSearch(value, fromDate, toDate);
+	}
+
+	function searchRangeChange(_: any, dateString: string[]) {
+		const [fromDate, toDate] = dateString;
+		setSearchObj({ ...searchObj, searchRange: [fromDate, toDate] });
+	}
+
+	function handleUpdateRowData() {
+		dispatch(
+			actionUpdateRevenues(
+				pick(rowValueChange, [
+					"id",
+					"creator_id",
+					"amount",
+					"date",
+					"status",
+					"reason",
+					"note",
+				]) as RevenuesRequestUpdateType
+			)
+		);
+	}
+
 	function handleCancelUpdateRowData() {
-		setStatusValueChange("");
+		setRowValueChange(null);
 		setEditingKey(-1);
 	}
 
@@ -202,12 +204,40 @@ function Revenues(): JSX.Element {
 			title: "Lý do",
 			dataIndex: "reason",
 			key: "payemnt_reason",
+			render: function reasonCol(reason: string, row: RevenueType): JSX.Element {
+				const editable = isEditting(row);
+				return editable ? (
+					<Input
+						placeholder={reason}
+						onClick={(e) => {
+							e.stopPropagation();
+						}}
+						onChange={({ target }) => setRowValueChange({ ...row, reason: target.value })}
+					/>
+				) : (
+					<>{reason}</>
+				);
+			},
 		},
 		{
 			width: "12%",
 			title: "Ghi chú",
 			dataIndex: "note",
 			key: "payemnt_note",
+			render: function noteCol(note: string, row: RevenueType): JSX.Element {
+				const editable = isEditting(row);
+				return editable ? (
+					<Input
+						placeholder={note}
+						onClick={(e) => {
+							e.stopPropagation();
+						}}
+						onChange={({ target }) => setRowValueChange({ ...row, note: target.value })}
+					/>
+				) : (
+					<>{note}</>
+				);
+			},
 		},
 		{
 			width: "8%",
@@ -215,14 +245,15 @@ function Revenues(): JSX.Element {
 			dataIndex: "status",
 			key: "payemnt_status",
 			editable: true,
-			render: function statusCold(status: number, row: RevenueType): JSX.Element {
+			render: function statusCol(status: number, row: RevenueType): JSX.Element {
 				const editable = isEditting(row);
 				return editable ? (
 					<>
 						<Select
 							defaultValue={row.status}
 							onChange={(value) => {
-								// setStatusValueChange(value);
+								console.log(value);
+								setRowValueChange({ ...row, status: value });
 							}}
 							onClick={(e) => {
 								e.stopPropagation();
@@ -263,7 +294,7 @@ function Revenues(): JSX.Element {
 							icon={<QuestionCircleOutlined />}
 							onConfirm={(e) => {
 								e?.stopPropagation();
-								// handleUpdateRowData();
+								handleUpdateRowData();
 								handleCancelUpdateRowData();
 							}}
 							onCancel={(e) => e?.stopPropagation()}
@@ -306,28 +337,27 @@ function Revenues(): JSX.Element {
 			<Layout.Content style={{ height: 1000 }}>
 				<Row style={{ marginBottom: 20, marginTop: 20 }} justify="start">
 					<Col span={10}>
-						<Input
-							prefix={<SearchOutlined />}
-							// onChange={({ target: input }) => onTableFiler(input.value)}
-						/>
+						<Input prefix={<SearchOutlined />} onChange={({ target: input }) => onTableFiler(input.value)} />
 					</Col>
-					
+
 					<Col style={{ marginLeft: 20 }}>
 						<Row justify="start">
 							<RangePicker
 								allowEmpty={[true, true]}
-								// onChange={searchRangeChange}
-								// defaultValue={[moment().startOf("month"), moment().endOf("month")]}
+								onChange={searchRangeChange}
+								defaultValue={[moment().startOf("month"), moment().endOf("month")]}
 							/>
 						</Row>
 					</Col>
 
-					<Col style={{ marginLeft: 20 }}><AddNewRevenues /></Col>
+					<Col style={{ marginLeft: 20 }}>
+						<AddNewRevenues />
+					</Col>
 				</Row>
 				<Row style={{ justifyContent: "flex-end" }}>
 					<Statistic title="Tổng thu" value={receivedValue} suffix="VND" valueStyle={{ color: "#3f8600" }} />
 				</Row>
-				<Spin spinning={loading}>
+				<Spin spinning={statusGetRevenues === "loading" || statusUpdateRevenues === "loading"}>
 					<Table
 						rowClassName={(record) => (record.id === editingKey ? "editing-row" : "")}
 						rowKey="id"
