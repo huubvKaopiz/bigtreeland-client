@@ -198,7 +198,7 @@ function Payment(): JSX.Element {
 			title: "Số tiền",
 			dataIndex: "amount",
 			key: "payemnt_amount",
-			render: function amountCol(amount: number, row: any): JSX.Element {
+			render: function amountCol(amount: number): JSX.Element {
 				return <span style={{ color: "#cf1322" }}>{formatCurrency(amount)}</span>;
 			},
 		},
@@ -351,7 +351,7 @@ function Payment(): JSX.Element {
 						bordered
 						onRow={(record) => {
 							return {
-								onClick: (e) => {
+								onClick: () => {
 									handleShowDrawer(true);
 									setCurrentDrawerData(record);
 								},

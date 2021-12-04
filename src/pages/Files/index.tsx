@@ -1,8 +1,8 @@
 import DeleteOutlined from "@ant-design/icons/lib/icons/DeleteOutlined";
-import DownloadOutlined from "@ant-design/icons/lib/icons/DownloadOutlined";
 import QuestionCircleOutlined from "@ant-design/icons/lib/icons/QuestionCircleOutlined";
 import SearchOutlined from "@ant-design/icons/lib/icons/SearchOutlined";
-import { Button, Input, Layout, Popconfirm, Spin, Table } from "antd";
+import { Input, Layout, Popconfirm, Spin, Table } from "antd";
+import FileSelectModal from "components/FileSelectModal";
 import { FileType } from "interface";
 import { get } from "lodash";
 import React, { useEffect, useState } from "react";
@@ -12,13 +12,13 @@ import {
 	actionGetListFile,
 	resetDeleteFileStatus,
 	resetGetFileStatus,
-	resetUploadFileStatus,
+	resetUploadFileStatus
 } from "store/files/slice";
 import { RootState, useAppDispatch } from "store/store";
 import styled from "styled-components";
 import { fileIconList } from "utils/const";
 import { DatePattern, formatDate } from "utils/dateUltils";
-import { downloadFile, formatFileSize, isImageType } from "utils/ultil";
+import { formatFileSize, isImageType } from "utils/ultil";
 import UploadFileModal from "./UploadFileModal";
 
 const Wrapper = styled.div`
@@ -113,11 +113,11 @@ function Files(): JSX.Element {
 				if (isImageType(file.type || ""))
 					return (
 						<>
-							<img className="img-center" src={file.url} style={{ maxHeight: 50 }} />
+							<img className="img-center" src={file.url} style={{ maxHeight: 50, maxWidth: 200 }} />
 						</>
 					);
 				const iconUrl = Object.keys(fileIconList).find((k) => k === file.type) as keyof typeof fileIconList;
-				return <img className="img-center" src={fileIconList[iconUrl]} style={{ maxHeight: 50 }} />;
+				return <img className="img-center" src={fileIconList[iconUrl]} style={{ maxHeight: 50, maxWidth: 200 }} />;
 			},
 		},
 		{
@@ -155,6 +155,12 @@ function Files(): JSX.Element {
 		},
 	];
 
+	//
+	const [showSelect, setShowSelect] = useState(false);
+	const okFunction = (filesSelect: Array<number>) => {
+		console.log(filesSelect)
+	};
+	//
 	return (
 		<Wrapper>
 			<Layout.Content style={{ padding: 20 }}>
@@ -168,6 +174,11 @@ function Files(): JSX.Element {
 						/>
 						<div style={{ marginLeft: 20 }}>
 							<UploadFileModal onRefreshFileList={onRefreshFileList} />
+						</div>
+						<div>
+							<FileSelectModal isShow={showSelect} okFunction={okFunction} closeFunction={() => setShowSelect(false)}>
+								<button onClick={() => setShowSelect(true)}>File Select</button>
+							</FileSelectModal>
 						</div>
 					</div>
 					<Table

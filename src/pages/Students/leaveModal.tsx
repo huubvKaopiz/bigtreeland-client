@@ -1,7 +1,7 @@
-import { Button, Tooltip, Space, Select } from 'antd';
 import { MinusCircleOutlined } from '@ant-design/icons';
-import React, { useState } from 'react';
+import { Button, Tooltip } from 'antd';
 import Modal from 'antd/lib/modal/Modal';
+import React, { useState } from 'react';
 
 export default function LeaveModal(props: { studen_id: number }): JSX.Element {
     const { studen_id } = props;

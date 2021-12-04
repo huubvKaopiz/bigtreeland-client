@@ -2,7 +2,7 @@ import { DownOutlined, MenuOutlined } from "@ant-design/icons";
 import { Button, Dropdown, Layout, Menu } from "antd";
 import userService from "api/user.service";
 import { PasswordFormProps } from "interface/interfaces";
-import ChangePassForm from "pages/Users/ChangePassword";
+// import ChangePassForm from "pages/Users/ChangePassword";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { actionLogout } from "store/auth/slice";
@@ -37,12 +37,12 @@ function TopHeader(props: TopHeaderType): JSX.Element {
 		dispatch(actionLogout());
 	}
 
-	function handleChangePass(passwordForm: PasswordFormProps) {
-		return userService.changePasswordSelf({
-			current_password: passwordForm.old_password,
-			new_password: passwordForm.new_password,
-		});
-	}
+	// function handleChangePass(passwordForm: PasswordFormProps) {
+	// 	return userService.changePasswordSelf({
+	// 		current_password: passwordForm.old_password,
+	// 		new_password: passwordForm.new_password,
+	// 	});
+	// }
 
 	return (
 		<Header style={{ padding: 0, background: "white" }}>

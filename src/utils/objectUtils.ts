@@ -18,6 +18,7 @@ export const ArrayEquals = function (
 export const removeEmpty =  function(obj: any): any {
 	return Object.fromEntries(
 		Object.entries(obj)
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			.filter(([_, v]) => v)
 			.map(([k, v]) => [k, v === Object(v) ? removeEmpty(v) : v])
 	);
