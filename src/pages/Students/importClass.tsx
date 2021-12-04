@@ -1,11 +1,10 @@
-import { Button, Tooltip, Space, Select, Spin } from 'antd';
 import { ImportOutlined } from '@ant-design/icons';
-import React, { useState } from 'react';
+import { Button, Select, Space, Spin, Tooltip } from 'antd';
 import Modal from 'antd/lib/modal/Modal';
-import { ListClassesType, ClassType, StudentType } from 'interface';
+import { ClassType, ListClassesType, StudentType } from 'interface';
 import { get } from 'lodash';
+import React, { useState } from 'react';
 import { useAppDispatch } from 'store/store';
-import { actionUpdateStudent } from 'store/students/slice';
 
 export default function ImportClass(props: { student: StudentType, classesList: ListClassesType | null, searchClass: (search: string) => void, searchStatus: string }): JSX.Element {
     const { student, classesList, searchClass, searchStatus } = props;

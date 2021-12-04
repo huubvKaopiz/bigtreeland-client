@@ -59,7 +59,9 @@ export default function AddEmplyeeForm(props: { roles: RoleType[] }): JSX.Elemen
 				Thêm nhân viên
 			</Button>
 			<Modal
+				centered
 				width={800}
+				bodyStyle={{height: '80vh'}}
 				style={{ marginTop: "-80px" }}
 				visible={show}
 				closable={true}
@@ -81,7 +83,7 @@ export default function AddEmplyeeForm(props: { roles: RoleType[] }): JSX.Elemen
 					layout="horizontal"
 					onFinish={submitForm}
 					initialValues={{ gender: 0 }}
-					style={{ height: "540px", overflowY: "auto" }}
+					style={{ height: "100%", overflowY: "auto", marginTop: '20px' }}
 				>
 					<Divider>Thông tin cơ bản</Divider>
 					<Form.Item name="name" label="Họ tên" rules={[{ required: true, message: "Họ tên không được để trống!" }]}>

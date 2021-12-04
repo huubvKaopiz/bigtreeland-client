@@ -1,5 +1,4 @@
 import { AxiosResponse } from "axios";
-import { FileType } from "interface";
 import numeral from "numeral";
 import { imageExtensionsList } from "./const";
 import request from "./request";

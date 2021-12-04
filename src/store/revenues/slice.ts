@@ -14,6 +14,7 @@ export interface RevenueType {
 	status: number;
 	created_at: string;
 	reason: string;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	creator: any;
 	saler?: null | number | string;
 }

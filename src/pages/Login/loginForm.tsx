@@ -1,30 +1,19 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { RootState, useAppDispatch } from "../../store/store";
-import { Layout, Form, Input, Button, Checkbox, notification } from "antd";
-import { actionLogin, PayloadLogin, actionResetStatusUserVerified, actionVerifyAccount } from "../../store/auth/slice";
-import { get } from "lodash";
-import { Redirect } from "react-router-dom";
-import useIsMounted from "../../hooks/useIsMounted";
-import validateMessage from "../../lib/validateMessage";
-import logo from "../../assets/image/mainlogo.png";
-import { auth, firebaseVerifyPhone, initializeFirebase } from "lib/fire-base";
+import { Button, Checkbox, Form, Input, Layout, notification } from "antd";
 import { useForm } from "antd/lib/form/Form";
 import { AxiosError } from "axios";
-import { initializeApp } from "@firebase/app";
-import { getAuth, RecaptchaVerifier } from "@firebase/auth";
 import { signInWithPhoneNumber } from "firebase/auth";
+import { auth, initializeFirebase } from "lib/fire-base";
+import { get } from "lodash";
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { Redirect } from "react-router-dom";
+import logo from "../../assets/image/mainlogo.png";
+import useIsMounted from "../../hooks/useIsMounted";
+import validateMessage from "../../lib/validateMessage";
+import { actionLogin, actionResetStatusUserVerified, actionVerifyAccount, PayloadLogin } from "../../store/auth/slice";
+import { RootState, useAppDispatch } from "../../store/store";
 
 const { Content } = Layout;
-const firebaseConfig = {
-	apiKey: "AIzaSyCora6Am-_ZgG5eZujPsxjgBn8SzTf0zzA",
-	authDomain: "bigtreeland-780da.firebaseapp.com",
-	projectId: "bigtreeland-780da",
-	storageBucket: "bigtreeland-780da.appspot.com",
-	messagingSenderId: "113408851209",
-	appId: "1:113408851209:web:666940246bc162986f27d8",
-	measurementId: "G-KG1VB3CFSS",
-};
 
 function LoginForm(): JSX.Element {
 	// const counter = useSelector((state: RootState) => state.counter);
@@ -57,7 +46,7 @@ function LoginForm(): JSX.Element {
 							.then((confirmationResult) => {
 								window.confirmationResult = confirmationResult;
 							})
-							.catch((error) => {
+							.catch(() => {
 								// Error; SMS not sent
 							});
 					} else {
@@ -90,7 +79,7 @@ function LoginForm(): JSX.Element {
 				dispatch(actionResetStatusUserVerified());
 				// ...
 			})
-			.catch((error: any) => {
+			.catch(() => {
 				notification.error({ message: "Xác nhận thất bại" });
 				// User couldn't sign in (bad verification code?)
 				// ...

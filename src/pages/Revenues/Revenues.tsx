@@ -3,7 +3,7 @@ import {
 	CloseOutlined,
 	EditOutlined,
 	QuestionCircleOutlined,
-	UserOutlined,
+	UserOutlined
 } from "@ant-design/icons/lib/icons";
 import SearchOutlined from "@ant-design/icons/lib/icons/SearchOutlined";
 import {
@@ -19,7 +19,7 @@ import {
 	Spin,
 	Statistic,
 	Table,
-	Tooltip,
+	Tooltip
 } from "antd";
 import { debounce, get, pick } from "lodash";
 import moment from "moment";
@@ -34,7 +34,7 @@ import {
 	RevenuesRequestUpdateType,
 	RevenuesStatusList,
 	RevenuesTypeList,
-	RevenueType,
+	RevenueType
 } from "store/revenues/slice";
 import { RootState } from "store/store";
 import styled from "styled-components";
@@ -374,7 +374,7 @@ function Revenues(): JSX.Element {
 						bordered
 						onRow={(record) => {
 							return {
-								onClick: (e) => {
+								onClick: () => {
 									handleShowDrawer(true);
 									setCurrentDrawerData(record);
 								},
