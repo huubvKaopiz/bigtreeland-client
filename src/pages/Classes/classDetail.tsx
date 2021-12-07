@@ -12,8 +12,7 @@ import {
 	Input,
 	Row,
 	Col,
-	Typography,
-	Upload
+	Upload,
 } from "antd";
 import { TeamOutlined, LikeOutlined, MessageOutlined, NotificationOutlined, UploadOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
@@ -28,8 +27,6 @@ import AddStudentsModal from "./addStudentsModal";
 import Checkbox from "antd/lib/checkbox/Checkbox";
 import AddTest from "./addTestModal";
 import { TestType } from "interface";
-// import numeral from 'numeral';
-const { Title } = Typography;
 
 const dateFormat = "YYYY-MM-DD";
 export default function ClassDetail(): JSX.Element {
@@ -101,7 +98,7 @@ export default function ClassDetail(): JSX.Element {
 	}
 
 	function handleChangeCoductPoint(e: any, sID: number) {
-		console.log(e)
+		console.log(e);
 	}
 
 	function handleSubmit() {
@@ -207,7 +204,7 @@ export default function ClassDetail(): JSX.Element {
 	attendance_columns.push(todayCol);
 	attendance_columns.push(commentCol);
 	attendance_columns.push(conductPointCol);
-	attendance_columns.push(actionCol)
+	attendance_columns.push(actionCol);
 
 	return (
 		<Layout.Content>
@@ -295,11 +292,15 @@ export default function ClassDetail(): JSX.Element {
 							,
 						</TabPane>
 						<TabPane tab="Album ảnh" key="3">
-							<Upload >
-								<Button type="primary" icon={<UploadOutlined />}>Upload</Button>
-							</Upload>,
-							<Space style={{ marginTop: 20, backgroundColor: "white", padding: 10 }} size={[10, 10]} wrap>
+							<Space style={{ paddingTop: 20, marginBottom: 20 }}>
+								<Upload>
+									<Button type="primary" icon={<UploadOutlined />}>
+										Upload
+									</Button>
+								</Upload>
+							</Space>
 
+							<Space style={{ backgroundColor: "white", padding: 10 }} size={[10, 10]} wrap>
 								{new Array(10).fill(null).map((_, index) => (
 									<Image
 										key={index}

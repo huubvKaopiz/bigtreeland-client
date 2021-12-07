@@ -1,15 +1,21 @@
 import { Button, Modal, Form, DatePicker, Input, Upload, notification } from "antd";
 import { PlusOutlined, UploadOutlined } from "@ant-design/icons";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { RootState, useAppDispatch } from "store/store";
 import moment from "moment";
-import { actionUploadFileTest, resetRecentFileTestUploaded, resetUploadFileStatus } from "store/files/slice";
+import {
+	actionGetListFile,
+	actionUploadFileTest,
+	resetRecentFileTestUploaded,
+	resetUploadFileStatus,
+} from "store/files/slice";
 import { useSelector } from "react-redux";
-import { ClassType } from "interface";
+import { ClassType, FileType } from "interface";
 import { get } from "lodash";
 import { UploadFile } from "antd/lib/upload/interface";
 import { actionAddTest, actionGetTestes } from "store/testes/slice";
 import { dummyRequest } from "utils/ultil";
+import FileSelectModal from "components/FileSelectModal";
 
 export default function AddTest(props: { classInfo: ClassType | null }): JSX.Element {
 	const { classInfo } = props;
@@ -17,16 +23,23 @@ export default function AddTest(props: { classInfo: ClassType | null }): JSX.Ele
 	const [show, setShow] = useState(false);
 	const [uploading, setUploading] = useState(false);
 	const [file, setFile] = useState<UploadFile | null>(null);
+	const [fileUploadList, setFileUploadList] = useState<UploadFile[] | null>(null);
 	const [submiting, setSubmiting] = useState(false);
+	const [showSelect, setShowSelect] = useState(false);
+	const [fileSelected, setFileSelected] = useState<Array<FileType>>([]);
 
 	const uploadStatus = useSelector((state: RootState) => state.filesReducer.statusUploadFile);
-	const addTestStatus = useSelector((state: RootState) => state.testReducer.addTestStatus);
 	const recentFileUploaded = useSelector((state: RootState) => state.filesReducer.recentFileTestUploaded);
+
+	const uploadRef = useRef()
+	console.log(uploadRef.current)
 
 	useEffect(() => {
 		if (uploadStatus === "success") {
+			setFileUploadList(null);
 			setUploading(false);
 			dispatch(resetUploadFileStatus());
+			if (recentFileUploaded) setFileSelected([...recentFileUploaded, ...fileSelected]);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [uploadStatus, recentFileUploaded]);
@@ -37,6 +50,10 @@ export default function AddTest(props: { classInfo: ClassType | null }): JSX.Ele
 			const fileToUpload = file.originFileObj as File;
 			dispatch(actionUploadFileTest(fileToUpload));
 		}
+	}
+
+	function handleFileSelected(filesSelected: Array<FileType>) {
+		setFileSelected(filesSelected);
 	}
 
 	function handleRemoveFile() {
@@ -90,8 +107,8 @@ export default function AddTest(props: { classInfo: ClassType | null }): JSX.Ele
 			>
 				<Form
 					id="aForm"
-					initialValues={{ date: moment(new Date()) }}
-					labelCol={{ span: 4 }}
+					initialValues={{ date: moment() }}
+					labelCol={{ span: 5 }}
 					wrapperCol={{ span: 14 }}
 					layout="horizontal"
 					onFinish={handleSubmit}
@@ -106,24 +123,25 @@ export default function AddTest(props: { classInfo: ClassType | null }): JSX.Ele
 					<Form.Item label="Ngày" name="date">
 						<DatePicker format="YYYY-MM-DD" defaultValue={moment(new Date())} />
 					</Form.Item>
-					<Form.Item
-						label="Link đề bài"
-						name="content_link"
-					>
+					<Form.Item label="Link đề bài" name="content_link">
 						<Input />
 					</Form.Item>
 
 					<Form.Item label="Files đề bài">
 						<Upload
+							ref={uploadRef}
 							maxCount={100}
 							multiple={true}
 							customRequest={dummyRequest}
-							onChange={({ file }) => setFile(file)}
+							onChange={({ file, fileList }) => {
+								setFileUploadList(fileList);
+								if (fileList.length > 0) setFile(file);
+							}}
 							onRemove={handleRemoveFile}
 						>
-							{!file ? <Button icon={<UploadOutlined />}>Chọn files đề thi</Button> : ""}
+							{!fileUploadList || fileUploadList.length === 0 ? <Button icon={<UploadOutlined />}>Chọn files đề thi</Button> : ""}
 						</Upload>
-						{file && (
+						{fileUploadList && fileUploadList.length > 0 && (
 							<Button
 								loading={uploading}
 								onClick={handleUpload}
@@ -136,6 +154,20 @@ export default function AddTest(props: { classInfo: ClassType | null }): JSX.Ele
 								Tải lên
 							</Button>
 						)}
+					</Form.Item>
+
+					<Form.Item label="Chọn files đã upload">
+						<FileSelectModal
+							defaultSelected={fileSelected}
+							isShow={showSelect}
+							okFunction={handleFileSelected}
+							closeFunction={() => setShowSelect(false)}
+							showSelectedList
+						>
+							<Button onClick={() => setShowSelect(true)} type="default" size="middle" icon={<UploadOutlined />}>
+								Chọn files
+							</Button>
+						</FileSelectModal>
 					</Form.Item>
 				</Form>
 			</Modal>

@@ -2,7 +2,6 @@ import DeleteOutlined from "@ant-design/icons/lib/icons/DeleteOutlined";
 import QuestionCircleOutlined from "@ant-design/icons/lib/icons/QuestionCircleOutlined";
 import SearchOutlined from "@ant-design/icons/lib/icons/SearchOutlined";
 import { Input, Layout, Popconfirm, Spin, Table } from "antd";
-import FileSelectModal from "components/FileSelectModal";
 import { FileType } from "interface";
 import { get } from "lodash";
 import React, { useEffect, useState } from "react";
@@ -12,7 +11,7 @@ import {
 	actionGetListFile,
 	resetDeleteFileStatus,
 	resetGetFileStatus,
-	resetUploadFileStatus
+	resetUploadFileStatus,
 } from "store/files/slice";
 import { RootState, useAppDispatch } from "store/store";
 import styled from "styled-components";
@@ -158,7 +157,7 @@ function Files(): JSX.Element {
 	//
 	const [showSelect, setShowSelect] = useState(false);
 	const okFunction = (filesSelect: Array<number>) => {
-		console.log(filesSelect)
+		console.log(filesSelect);
 	};
 	//
 	return (
@@ -174,11 +173,6 @@ function Files(): JSX.Element {
 						/>
 						<div style={{ marginLeft: 20 }}>
 							<UploadFileModal onRefreshFileList={onRefreshFileList} />
-						</div>
-						<div>
-							<FileSelectModal isShow={showSelect} okFunction={okFunction} closeFunction={() => setShowSelect(false)}>
-								<button onClick={() => setShowSelect(true)}>File Select</button>
-							</FileSelectModal>
 						</div>
 					</div>
 					<Table
