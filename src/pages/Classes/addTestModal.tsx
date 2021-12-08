@@ -1,53 +1,48 @@
-import { Button, Modal, Form, DatePicker, Input, Upload, notification } from "antd";
 import { PlusOutlined, UploadOutlined } from "@ant-design/icons";
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { RootState, useAppDispatch } from "store/store";
-import moment from "moment";
-import {
-	actionGetListFile,
-	actionUploadFileTest,
-	resetRecentFileTestUploaded,
-	resetUploadFileStatus,
-} from "store/files/slice";
-import { useSelector } from "react-redux";
+import { Button, DatePicker, Form, Input, Modal, notification, Upload } from "antd";
+import { UploadFile } from "antd/lib/upload/interface";
+import FileSelectModal from "components/FileSelectModal";
 import { ClassType, FileType } from "interface";
 import { get } from "lodash";
-import { UploadFile } from "antd/lib/upload/interface";
+import moment from "moment";
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import {
+	actionUploadFileTest,
+	resetRecentFileTestUploaded,
+	resetUploadFileStatus
+} from "store/files/slice";
+import { RootState, useAppDispatch } from "store/store";
 import { actionAddTest, actionGetTestes } from "store/testes/slice";
 import { dummyRequest } from "utils/ultil";
-import FileSelectModal from "components/FileSelectModal";
 
 export default function AddTest(props: { classInfo: ClassType | null }): JSX.Element {
 	const { classInfo } = props;
 	const dispatch = useAppDispatch();
 	const [show, setShow] = useState(false);
 	const [uploading, setUploading] = useState(false);
-	const [file, setFile] = useState<UploadFile | null>(null);
-	const [fileUploadList, setFileUploadList] = useState<UploadFile[] | null>(null);
+	const [fileUploadList, setFileUploadList] = useState<UploadFile[] | undefined>(undefined);
 	const [submiting, setSubmiting] = useState(false);
 	const [showSelect, setShowSelect] = useState(false);
 	const [fileSelected, setFileSelected] = useState<Array<FileType>>([]);
 
 	const uploadStatus = useSelector((state: RootState) => state.filesReducer.statusUploadFile);
-	const recentFileUploaded = useSelector((state: RootState) => state.filesReducer.recentFileTestUploaded);
-
-	const uploadRef = useRef()
-	console.log(uploadRef.current)
 
 	useEffect(() => {
 		if (uploadStatus === "success") {
-			setFileUploadList(null);
+			setFileUploadList([]);
 			setUploading(false);
 			dispatch(resetUploadFileStatus());
-			if (recentFileUploaded) setFileSelected([...recentFileUploaded, ...fileSelected]);
+		
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [uploadStatus, recentFileUploaded]);
+	}, [uploadStatus]);
 
 	function handleUpload() {
-		if (file) {
+		if (fileUploadList && fileUploadList.length > 0) {
 			setUploading(true);
-			const fileToUpload = file.originFileObj as File;
+			const fileToUpload: File[] = []
+			fileUploadList.forEach(file => fileToUpload.push(file.originFileObj as File));
 			dispatch(actionUploadFileTest(fileToUpload));
 		}
 	}
@@ -56,24 +51,25 @@ export default function AddTest(props: { classInfo: ClassType | null }): JSX.Ele
 		setFileSelected(filesSelected);
 	}
 
-	function handleRemoveFile() {
-		dispatch(resetRecentFileTestUploaded());
-		setUploading(false);
-	}
+	// function handleRemoveFile() {
+	// 	dispatch(resetRecentFileTestUploaded());
+	// 	setUploading(false);
+	// }
 
 	function handleSubmit(values: any) {
-		if (!recentFileUploaded) {
+		if (fileSelected.length === 0) {
 			notification.error({ message: "Chưa chọn file test" });
 			return;
 		}
 
-		if (recentFileUploaded && recentFileUploaded.length > 0) {
+		if (fileSelected.length > 0 ) {
 			setSubmiting(true);
+			const listIdFile = fileSelected.map(file => file.id)
 			const data = {
 				class_id: get(classInfo, "id", 0),
 				title: values.title,
 				date: moment(values.date).format("YYYY-MM-DD"),
-				content_file: get(recentFileUploaded[0], "id", 0),
+				'content_file[]': listIdFile,
 			};
 			dispatch(actionAddTest(data))
 				.then(() => {
@@ -129,15 +125,14 @@ export default function AddTest(props: { classInfo: ClassType | null }): JSX.Ele
 
 					<Form.Item label="Files đề bài">
 						<Upload
-							ref={uploadRef}
 							maxCount={100}
 							multiple={true}
 							customRequest={dummyRequest}
-							onChange={({ file, fileList }) => {
+							onChange={({ fileList }) => {
 								setFileUploadList(fileList);
-								if (fileList.length > 0) setFile(file);
 							}}
-							onRemove={handleRemoveFile}
+							fileList={fileUploadList}
+							// onRemove={handleRemoveFile}
 						>
 							{!fileUploadList || fileUploadList.length === 0 ? <Button icon={<UploadOutlined />}>Chọn files đề thi</Button> : ""}
 						</Upload>

@@ -22,7 +22,7 @@ export interface AddTestParms {
     class_id:number;
     title:string;
     date:string;
-    content_file:number;
+    'content_file[]': Array<number>;
 }
 
 

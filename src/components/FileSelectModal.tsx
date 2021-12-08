@@ -53,10 +53,10 @@ export function FileSelectedListRender(props: FileSelectRenderProps): JSX.Elemen
 			itemLayout="horizontal"
 			dataSource={data}
 			renderItem={(item) => (
-				<div>
+				<a style={{display: 'block'}}>
 					{item.name}
 					<Button type={"text"} icon={<DeleteOutlined />} onClick={() => handleRemoveFileSelected(item.id)} />
-				</div>
+				</a>
 			)}
 		/>
 	) : (
