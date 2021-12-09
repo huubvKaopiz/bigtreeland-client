@@ -123,7 +123,7 @@ export default function AddTest(props: { classInfo: ClassType | null }): JSX.Ele
 						<Input />
 					</Form.Item>
 
-					<Form.Item label="Files đề bài">
+					{/* <Form.Item label="Files đề bài">
 						<Upload
 							maxCount={100}
 							multiple={true}
@@ -149,9 +149,9 @@ export default function AddTest(props: { classInfo: ClassType | null }): JSX.Ele
 								Tải lên
 							</Button>
 						)}
-					</Form.Item>
+					</Form.Item> */}
 
-					<Form.Item label="Chọn files đã upload">
+					<Form.Item label="Chọn files đề thi">
 						<FileSelectModal
 							defaultSelected={fileSelected}
 							isShow={showSelect}

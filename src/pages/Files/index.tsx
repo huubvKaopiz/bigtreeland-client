@@ -74,10 +74,6 @@ function Files(): JSX.Element {
 		dispatch(actionDeleteUploadFile(+file.id));
 	}
 
-	function onRefreshFileList() {
-		setLoading(true);
-		dispatch(actionGetListFile({ search }));
-	}
 
 	const columns = [
 		{
@@ -154,12 +150,6 @@ function Files(): JSX.Element {
 		},
 	];
 
-	//
-	const [showSelect, setShowSelect] = useState(false);
-	const okFunction = (filesSelect: Array<number>) => {
-		console.log(filesSelect);
-	};
-	//
 	return (
 		<Wrapper>
 			<Layout.Content style={{ padding: 20 }}>
@@ -172,7 +162,7 @@ function Files(): JSX.Element {
 							prefix={<SearchOutlined />}
 						/>
 						<div style={{ marginLeft: 20 }}>
-							<UploadFileModal onRefreshFileList={onRefreshFileList} />
+							<UploadFileModal />
 						</div>
 					</div>
 					<Table
