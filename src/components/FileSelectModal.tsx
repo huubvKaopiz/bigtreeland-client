@@ -1,5 +1,5 @@
 import DeleteOutlined from "@ant-design/icons/lib/icons/DeleteOutlined";
-import { Button, Card, Checkbox, List, Modal, Pagination, Spin } from "antd";
+import { Button, Card, Checkbox, List, Modal, Pagination, Spin, Tabs } from "antd";
 import Meta from "antd/lib/card/Meta";
 import { FileType } from "interface";
 import { get } from "lodash";
@@ -10,13 +10,14 @@ import { actionGetListFile, resetGetFileStatus } from "store/files/slice";
 import { RootState, useAppDispatch } from "store/store";
 import { fileIconList } from "utils/const";
 import { isImageType } from "utils/ultil";
+import FileUpload from "./FileUpload";
 
 interface FileSelectModalProps {
 	isShow: boolean;
 	okFunction: (selected: Array<FileType>) => void;
 	closeFunction: () => void;
 	showSelectedList?: boolean;
-    defaultSelected: Array<FileType>;
+	defaultSelected: Array<FileType>;
 }
 
 interface FileSelectRenderProps {
@@ -53,7 +54,7 @@ export function FileSelectedListRender(props: FileSelectRenderProps): JSX.Elemen
 			itemLayout="horizontal"
 			dataSource={data}
 			renderItem={(item) => (
-				<a style={{display: 'block'}}>
+				<a style={{ display: "block" }}>
 					{item.name}
 					<Button type={"text"} icon={<DeleteOutlined />} onClick={() => handleRemoveFileSelected(item.id)} />
 				</a>
@@ -77,14 +78,13 @@ function FileSelectModal(props: PropsWithChildren<FileSelectModalProps>): JSX.El
 		if (statusGetFiles === "success" || statusGetFiles === "error") dispatch(resetGetFileStatus());
 	}, [dispatch, statusGetFiles]);
 
-    useEffect(()=> {
-        if (statusUploadStatus === "success")
-            dispatch(actionGetListFile());
-    }, [dispatch, statusUploadStatus])
+	useEffect(() => {
+		if (statusUploadStatus === "success") dispatch(actionGetListFile());
+	}, [dispatch, statusUploadStatus]);
 
-    useEffect(() => {
-        setFileSelected([...defaultSelected])
-    }, [defaultSelected])
+	useEffect(() => {
+		setFileSelected([...defaultSelected]);
+	}, [defaultSelected]);
 	function pageChange(page: number) {
 		dispatch(actionGetListFile({ page }));
 	}
@@ -116,7 +116,7 @@ function FileSelectModal(props: PropsWithChildren<FileSelectModalProps>): JSX.El
 			{props.children}
 			<Modal
 				bodyStyle={{ minHeight: 200 }}
-				title="Chọn File"
+				// title="Chọn File"
 				centered
 				visible={isShow}
 				onCancel={handleCloseModal}
@@ -125,56 +125,63 @@ function FileSelectModal(props: PropsWithChildren<FileSelectModalProps>): JSX.El
 				style={{ paddingTop: 0 }}
 				maskClosable={false}
 			>
-				<Spin spinning={statusGetFiles === "loading"}>
-					<Card>
-						{listFile.data?.map((file) => (
-							<Card.Grid key={file.id} style={gridStyle as React.CSSProperties}>
-								<Checkbox
-									onClick={() => {
-										checkboxChangeValue(file.id);
-									}}
-									checked={fileSelected.find((o) => o.id === file.id) !== undefined}
-									style={{ position: "absolute", zIndex: 2, left: "6px", top: "5px" }}
-								/>
-								<Card
-									onClick={() => {
-										checkboxChangeValue(file.id);
-									}}
-									style={{ width: "100%", border: "unset", position: "relative", cursor: "pointer" }}
-									cover={
-										(isImageType(file.type || "") && (
-											<img className="img-center" src={file.url} style={imageStyle as React.CSSProperties} />
-										)) || (
-											<img
-												className="img-center"
-												src={
-													fileIconList[
-														Object.keys(fileIconList).find((k) => k === file.type) as keyof typeof fileIconList
-													]
-												}
-												style={imageStyle as React.CSSProperties}
+				<Tabs defaultActiveKey="1">
+					<Tabs.TabPane tab="Chọn file đề thi" key="1">
+						<Spin spinning={statusGetFiles === "loading"}>
+							<Card>
+								{listFile.data?.map((file) => (
+									<Card.Grid key={file.id} style={gridStyle as React.CSSProperties}>
+										<Checkbox
+											onClick={() => {
+												checkboxChangeValue(file.id);
+											}}
+											checked={fileSelected.find((o) => o.id === file.id) !== undefined}
+											style={{ position: "absolute", zIndex: 2, left: "6px", top: "5px" }}
+										/>
+										<Card
+											onClick={() => {
+												checkboxChangeValue(file.id);
+											}}
+											style={{ width: "100%", border: "unset", position: "relative", cursor: "pointer" }}
+											cover={
+												(isImageType(file.type || "") && (
+													<img className="img-center" src={file.url} style={imageStyle as React.CSSProperties} />
+												)) || (
+													<img
+														className="img-center"
+														src={
+															fileIconList[
+																Object.keys(fileIconList).find((k) => k === file.type) as keyof typeof fileIconList
+															]
+														}
+														style={imageStyle as React.CSSProperties}
+													/>
+												)
+											}
+										>
+											<Meta
+												style={{ cursor: "pointer" }}
+												title={file.name}
+												description={`Upload: ${moment(file.created_at).format("DD/MM/YYYY HH:mm")}`}
 											/>
-										)
-									}
-								>
-									<Meta
-										style={{ cursor: "pointer" }}
-										title={file.name}
-										description={`Upload: ${moment(file.created_at).format("DD/MM/YYYY HH:mm")}`}
-									/>
-								</Card>
-							</Card.Grid>
-						))}
-					</Card>
-					{get(listFile, "total", 0) && (
-						<Pagination
-							style={{ marginTop: "10px", textAlign: "right" }}
-							pageSize={20}
-							total={get(listFile, "total", 0)}
-							onChange={(page) => pageChange(page)}
-						/>
-					)}
-				</Spin>
+										</Card>
+									</Card.Grid>
+								))}
+							</Card>
+							{!!get(listFile, "total", 0) && (
+								<Pagination
+									style={{ marginTop: "10px", textAlign: "right" }}
+									pageSize={20}
+									total={get(listFile, "total", 0)}
+									onChange={(page) => pageChange(page)}
+								/>
+							)}
+						</Spin>
+					</Tabs.TabPane>
+					<Tabs.TabPane tab="Upload file đề thi" key="2">
+						<FileUpload />
+					</Tabs.TabPane>
+				</Tabs>
 			</Modal>
 			{showSelectedList && (
 				<FileSelectedListRender handleRemoveFileSelected={checkboxChangeValue} listFileSelected={fileSelected} />
