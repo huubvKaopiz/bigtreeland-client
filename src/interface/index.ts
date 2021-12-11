@@ -49,16 +49,18 @@ export interface ParentType {
 export interface ClassType {
 	id: 1;
 	name: "Lớp tiếng Anh 3";
-	schedule: string;
 	employee: { id: number; name: number };
 	students_num: 0;
 	sessions_num: 24;
 	fee_per_session: 300000;
+	schedule:number[];
 	start_date: string;
 	end_date: string;
 	deleted_at: string;
 	created_at: "2021-11-06T16:01:41.000000Z";
 	updated_at: "2021-11-06T16:01:41.000000Z";
+	act_session_num:1;
+	period_tuitions:PeriodTuition[];
 }
 
 export interface User {
@@ -305,4 +307,13 @@ export interface GetResponseType<T = unknown> {
 	prev_page_url?: string;
 	to?: number;
 	total?: number;
+}
+
+export interface PeriodTuition {
+	id:1;
+	clasa_id:1;
+	est_session_num:1,
+	active:1,
+	from_date:"",
+	to_date:""
 }

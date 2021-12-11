@@ -12,6 +12,9 @@ import Users from "../pages/Users";
 import Files from "pages/Files";
 import Revenue from "pages/Revenues/Revenues";
 import { ListTestResults } from "pages/Classes/listTestResult";
+import Tuition from "pages/Tuition";
+import AddTuition from "pages/Tuition/addTuition";
+import TuitionDetail from "pages/Tuition/tuitionDetail";
 
 function Routes(): JSX.Element {
 	return (
@@ -23,12 +26,16 @@ function Routes(): JSX.Element {
 			<Route path="/classes-detail/:class_id" component={ClassDetail} />
 			<Route path="/tests/:test_id" component={ListTestResults} />
 			<Route path="/students" component={Students} />
+			<Route path="/payments/tuition" component={Tuition} />
+			<Route path="/payments/tuition-detail/:tuition_id" component={TuitionDetail} />
+			<Route path="/payments/tuition-create" component={AddTuition} />
 			<Route path="/parents" component={Parents} />
 			<Route path="/permissions" component={Permissions} />
 			<Route path="/roles" component={Roles} />
 			<Route path="/payments/payment-slips" component={Payment} />
 			<Route path="/files" component={Files} />
 			<Route path="/payments/revenue" component={Revenue} />
+
 		</>
 	);
 }

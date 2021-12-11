@@ -22,19 +22,19 @@ function LeftMenu(): JSX.Element {
 
 	useEffect(() => {
 		if (pathname.includes("/files")) {
-			setSelectedKeys(["12"]);
+			setSelectedKeys(["13"]);
 			return;
 		}
 
 		if (pathname.includes("/permissions")) {
 			setOpenKeys(["permissions"]);
-			setSelectedKeys(["10"]);
+			setSelectedKeys(["11"]);
 			return;
 		}
 
 		if (pathname.includes("/roles")) {
 			setOpenKeys(["permissions"]);
-			setSelectedKeys(["11"]);
+			setSelectedKeys(["12"]);
 			return;
 		}
 
@@ -47,6 +47,12 @@ function LeftMenu(): JSX.Element {
 		if (pathname.includes("/payments/revenue")) {
 			setOpenKeys(["payments"]);
 			setSelectedKeys(["9"]);
+			return;
+		}
+
+		if (pathname.includes("payments/tuition")) {
+			setOpenKeys(["payments"]);
+			setSelectedKeys(["10"]);
 			return;
 		}
 
@@ -96,6 +102,8 @@ function LeftMenu(): JSX.Element {
 			setSelectedKeys(["1"]);
 			return;
 		}
+
+	
 	}, [pathname]);
 
 	return (
@@ -137,6 +145,9 @@ function LeftMenu(): JSX.Element {
 				<Menu.Item key="9" onClick={() => history.push("/payments/revenue")}>
 					QL doanh thu
 				</Menu.Item>
+				<Menu.Item key="10" onClick={() => history.push("/payments/tuition")}>
+					QL học phí
+				</Menu.Item>
 			</SubMenu>
 			<SubMenu
 				onTitleClick={() => setOpenKeys(["permissions"])}
@@ -144,14 +155,14 @@ function LeftMenu(): JSX.Element {
 				icon={<SecurityScanOutlined />}
 				title="Phân quyền"
 			>
-				<Menu.Item key="10" onClick={() => history.push("/permissions")}>
+				<Menu.Item key="11" onClick={() => history.push("/permissions")}>
 					DS quyền
 				</Menu.Item>
-				<Menu.Item key="11" onClick={() => history.push("/roles")}>
+				<Menu.Item key="12" onClick={() => history.push("/roles")}>
 					Vai trò
 				</Menu.Item>
 			</SubMenu>
-			<Menu.Item key="12" icon={<FileOutlined />} onClick={() => history.push("/files")}>
+			<Menu.Item key="13" icon={<FileOutlined />} onClick={() => history.push("/files")}>
 				QL File
 			</Menu.Item>
 		</Menu>

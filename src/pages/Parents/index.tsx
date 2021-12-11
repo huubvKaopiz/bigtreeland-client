@@ -34,7 +34,7 @@ export default function Parents(): JSX.Element {
 			title: "Email",
 			key: "email",
 			render: function col(user: { profile: { email: string } }): JSX.Element {
-				return <strong>{user.profile.email}</strong>;
+				return <strong>{get(user,"profile.email","")}</strong>;
 			},
 		},
 
