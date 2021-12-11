@@ -15,10 +15,15 @@ export interface GetAttendancesPrams {
     date?: string
 }
 
+export interface AttendanceStudentComment {
+    id: string,
+    comment: string,
+    conduct_point: string
+}
 export interface AddAttendenceParams {
     class_id: number;
     teacher_id: number;
-    student_ids: number[];
+    students: AttendanceStudentComment[];
     date: string;
 }
 
