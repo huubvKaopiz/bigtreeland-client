@@ -1,32 +1,32 @@
+import { LikeOutlined, MessageOutlined, NotificationOutlined, TeamOutlined, UploadOutlined } from "@ant-design/icons";
 import {
-	Layout,
-	PageHeader,
-	Tabs,
 	Button,
+	Col,
 	DatePicker,
 	Descriptions,
-	Table,
-	Space,
-	List,
 	Image,
 	Input,
+	Layout,
+	List,
+	PageHeader,
 	Row,
-	Col,
+	Space,
+	Table,
+	Tabs,
 	Upload,
 } from "antd";
-import { TeamOutlined, LikeOutlined, MessageOutlined, NotificationOutlined, UploadOutlined } from "@ant-design/icons";
-import { useEffect, useState } from "react";
-import moment from "moment";
-import { useParams, useHistory } from "react-router-dom";
-import { RootState, useAppDispatch } from "store/store";
-import { actionAddAttendance, actionGetAttendances } from "store/attendances/slice";
-import { useSelector } from "react-redux";
-import { actionGetClass } from "store/classes/slice";
-import { get } from "lodash";
-import AddStudentsModal from "./addStudentsModal";
-import Checkbox from "antd/lib/checkbox/Checkbox";
-import AddTest from "./addTestModal";
+import Checkbox, { CheckboxChangeEvent } from "antd/lib/checkbox/Checkbox";
 import { TestType } from "interface";
+import { get } from "lodash";
+import moment from "moment";
+import { useEffect, useMemo, useState } from "react";
+import { useSelector } from "react-redux";
+import { useHistory, useParams } from "react-router-dom";
+import { actionAddAttendance, actionGetAttendances, AttendanceStudentComment } from "store/attendances/slice";
+import { actionGetClass } from "store/classes/slice";
+import { RootState, useAppDispatch } from "store/store";
+import AddStudentsModal from "./addStudentsModal";
+import AddTest from "./addTestModal";
 
 const dateFormat = "YYYY-MM-DD";
 export default function ClassDetail(): JSX.Element {
@@ -36,12 +36,14 @@ export default function ClassDetail(): JSX.Element {
 	const { TabPane } = Tabs;
 	const [today, setToday] = useState(moment(new Date()).format(dateFormat));
 	const [attendantList, setAttendantList] = useState([0]);
+	const [checkAll, setCheckAll] = useState(false);
+	const [listComments, setListComments] = useState<AttendanceStudentComment[]>([])
 	// const classInfo = location.state.classInfo as ClassType;
 	const attendances = useSelector((state: RootState) => state.attendanceReducer.attendances);
 	const classInfo = useSelector((state: RootState) => state.classReducer.classInfo);
 	const testList = useSelector((state: RootState) => state.testReducer.testes);
 
-	const listComments: { sID: number; comment: string }[] = [];
+	// const listComments: { id: string; comment: string; conduct_point: string }[] = [];
 
 	useEffect(() => {
 		if (params.class_id) {
@@ -49,6 +51,8 @@ export default function ClassDetail(): JSX.Element {
 			dispatch(actionGetClass(parseInt(params.class_id)));
 		}
 	}, [dispatch, params]);
+
+	const studentList = useMemo(() => get(attendances, "students", []), [attendances]);
 
 	function isAttendant(sID: number, atKey: string) {
 		const atList = attendances?.attendances[atKey];
@@ -63,52 +67,66 @@ export default function ClassDetail(): JSX.Element {
 		else return false;
 	}
 
-	function handleCheckAll(e: any) {
+	function handleCheckAll(e: CheckboxChangeEvent) {
 		setAttendantList([0]);
 		const newList: number[] = [];
 		if (e.target.checked) {
-			get(attendances, "students", []).map((el) => {
+			studentList.map((el) => {
 				newList.push(el.id);
 			});
 		}
+		setCheckAll(e.target.checked);
 		setAttendantList(newList);
 	}
 
 	function handleCheckbox(sID: number) {
-		const newList = attendantList;
 		const found = attendantList.indexOf(sID);
 		if (found === -1) {
-			newList.push(sID);
+			attendantList.push(sID);
 		} else {
-			newList.splice(found, 1);
+			attendantList.splice(found, 1);
 		}
-		setAttendantList(newList);
+		setCheckAll(studentList.length === attendantList.length);
+		setAttendantList([...attendantList]);
 	}
 
-	function handleChangeComment(e: any, sID: number) {
-		const f = listComments.findIndex((element) => element.sID === sID);
+	function handleChangeComment(e: React.ChangeEvent<HTMLInputElement>, id: number) {
+		const f = listComments.findIndex((element) => element.id === `${id}`);
 		if (f >= 0) {
 			listComments[f].comment = e.target.value;
 		} else {
 			listComments.push({
-				sID: sID,
+				id: `${id}`,
 				comment: e.target.value,
+				conduct_point: "",
 			});
 		}
 	}
 
-	function handleChangeCoductPoint(e: any, sID: number) {
-		console.log(e);
+	function handleChangeCoductPoint(e: React.ChangeEvent<HTMLInputElement>, id: number) {
+		const finder = listComments.find((p) => p.id === `${id}`);
+		if (finder) finder.conduct_point = e.target.value;
+		else listComments.push({ id: `${id}`, comment: "", conduct_point: e.target.value });
+	}
+
+	function handleNotityToParent() {
+		//Todo
 	}
 
 	function handleSubmit() {
 		if (attendantList.length > 0 && classInfo) {
+			const studentAttendanceList: AttendanceStudentComment[] = []
+			attendantList.forEach(at => {
+				const student = listComments.find(p => +p.id === at)
+				if(student) studentAttendanceList.push(student)
+			})
 			const params = {
 				class_id: classInfo.id,
 				teacher_id: get(classInfo, "user.id", 0),
-				student_ids: attendantList,
+				students: studentAttendanceList,
 				date: today,
 			};
+			console.log(params)
 			dispatch(actionAddAttendance(params));
 		}
 	}
@@ -122,7 +140,7 @@ export default function ClassDetail(): JSX.Element {
 			},
 		},
 		{
-			title: "Số điện thoại",
+			title: "Ngày sinh",
 			dataIndex: "birthday",
 			key: "birthday",
 			with: "20%",
@@ -146,15 +164,19 @@ export default function ClassDetail(): JSX.Element {
 
 	const todayCol = {
 		title: (
-			<>
-				<Checkbox onChange={handleCheckAll} />
-			</>
+			<div style={{ textAlign: "center" }}>
+				<Checkbox onChange={handleCheckAll} checked={checkAll} />
+			</div>
 		),
 		key: "operation",
 		dataIndex: "",
 		// width: 10,
 		render: function col(st: { id: number; name: string }): JSX.Element {
-			return <Checkbox onChange={() => handleCheckbox(st.id)} checked={isAttendantToday(st.id)} />;
+			return (
+				<div style={{ textAlign: "center" }}>
+					<Checkbox onChange={() => handleCheckbox(st.id)} checked={isAttendantToday(st.id)} />
+				</div>
+			);
 		},
 	};
 
@@ -164,12 +186,7 @@ export default function ClassDetail(): JSX.Element {
 		dataIndex: "",
 		// width: 80,
 		render: function col(st: { id: number }): JSX.Element {
-			return (
-				<Space>
-					{" "}
-					<Input placeholder="Nhận xét" onChange={(e) => handleChangeComment(e, st.id)} />
-				</Space>
-			);
+			return <Input style={{ width: "100%" }} placeholder="Nhận xét" onChange={(e) => handleChangeComment(e, st.id)} />;
 		},
 	};
 	const conductPointCol = {
@@ -187,7 +204,7 @@ export default function ClassDetail(): JSX.Element {
 		},
 	};
 	const actionCol = {
-		title: "Action",
+		title: "",
 		key: "action",
 		dataIndex: "",
 		width: 80,
@@ -195,7 +212,7 @@ export default function ClassDetail(): JSX.Element {
 			return (
 				<Space>
 					{" "}
-					<Button icon={<NotificationOutlined />} type="link" onClick={(e) => handleChangeCoductPoint(e, st.id)} />
+					<Button icon={<NotificationOutlined />} type="link" onClick={(e) => handleNotityToParent()} />
 				</Space>
 			);
 		},
@@ -233,9 +250,9 @@ export default function ClassDetail(): JSX.Element {
 							</Space>
 
 							<Row>
-								<Col span={16}>
+								<Col span={24}>
 									<Table
-										dataSource={get(attendances, "students", [])}
+										dataSource={studentList}
 										columns={attendance_columns}
 										bordered
 										rowKey="id"
