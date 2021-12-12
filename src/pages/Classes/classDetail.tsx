@@ -28,7 +28,7 @@ import { RootState, useAppDispatch } from "store/store";
 import AddStudentsModal from "./addStudentsModal";
 import AddTest from "./addTestModal";
 
-const dateFormat = "YYYY-MM-DD";
+const dateFormat = "DD-MM-YYYY";
 export default function ClassDetail(): JSX.Element {
 	const params = useParams() as { class_id: string };
 	const history = useHistory();

@@ -80,7 +80,7 @@ function AddNewPayment(): JSX.Element {
 								{userList &&
 									get(userList, "data", []).map((emp: EmployeeType) => (
 										<Select.Option key={emp.id} value={emp.id}>
-											{`${emp.name} - ${emp.profile.email}`}
+											{`${emp.name} - ${emp.profile?.email ?? ''}`}
 										</Select.Option>
 									))}
 							</Select>

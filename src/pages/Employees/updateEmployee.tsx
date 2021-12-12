@@ -39,7 +39,6 @@ export default function UpdateEmplyeeForm(props: { employee: EmployeeType; roles
 	useEffect(() => {
 		if (status === "success" && show) {
 			setShow(false);
-			dispatch(actionGetEmployees({}));
 			dispatch(actionResetUpdateEmployeeSatus());
 		}
 	}, [status, dispatch, show]);
@@ -84,10 +83,10 @@ export default function UpdateEmplyeeForm(props: { employee: EmployeeType; roles
 					id="ueForm"
 					form={uFrom}
 					labelCol={{ span: 4 }}
-					wrapperCol={{ span: 14 }}
+					wrapperCol={{ span: 19 }}
 					layout="horizontal"
 					onFinish={handleSubmit}
-					style={{ height: "540px", overflowY: "auto" }}
+					style={{ height: "80vh", overflowY: "auto" }}
 				>
 					<Divider>Thông tin cơ bản</Divider>
 					<Form.Item name="name" label="Họ tên" rules={[{ required: true, message: "Họ tên không được để trống!" }]}>
