@@ -15,6 +15,7 @@ export interface StudentReducerState {
 export interface GetStudentPrams {
     search?:string;
     page?:number;
+    per_page?:number;
     class_id?:number;
 }
 
@@ -101,6 +102,9 @@ export const studentSlice = createSlice({
         },
         actionUpdateStudentStatus(state){
             state.updateStudentStatusStatus="idle";
+        },
+        actionSetStudentsStateNull(state){
+            state.students = null;
         }
     },
     extraReducers:(builder) =>{
@@ -158,5 +162,7 @@ export const studentSlice = createSlice({
         
     }
 })
+
+export const {actionSetStudentsStateNull} = studentSlice.actions;
 
 export default studentSlice.reducer;

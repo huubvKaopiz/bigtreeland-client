@@ -60,7 +60,7 @@ export interface ClassType {
 	created_at: "2021-11-06T16:01:41.000000Z";
 	updated_at: "2021-11-06T16:01:41.000000Z";
 	act_session_num:1;
-	period_tuitions:PeriodTuition[];
+	period_tuitions:PeriodTuitionType[];
 }
 
 export interface User {
@@ -309,11 +309,28 @@ export interface GetResponseType<T = unknown> {
 	total?: number;
 }
 
-export interface PeriodTuition {
+export interface PeriodTuitionType {
 	id:1;
-	clasa_id:1;
+	class_id:1;
 	est_session_num:1,
 	active:1,
 	from_date:"",
 	to_date:""
+}
+
+export interface TuitionFeeType {
+	id:1;
+	period_id:1;
+	student_id:1;
+	fixed_deduction:"";
+	flexible_deduction:"";
+	debt:"";
+	residual:"";
+	note:"";
+}
+
+export interface LessonType {
+	id:1;
+	tuition_period_id:1;
+	date:"";
 }

@@ -15,7 +15,7 @@ import studentReducer from "./students/slice";
 import userReducer from "./users/slice";
 import testReducer from './testes/slice';
 import revenuesReducer from './revenues/slice';
-
+import periodTuitionReducer from './tuition/periodslice';
 
 const rootReducer = combineReducers({
 	auth,
@@ -30,7 +30,8 @@ const rootReducer = combineReducers({
 	attendanceReducer,
 	filesReducer,
 	testReducer,
-	revenuesReducer
+	revenuesReducer,
+	periodTuitionReducer,
 });
 
 const persistConfig = {

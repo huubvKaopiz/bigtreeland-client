@@ -21,7 +21,7 @@ export default function AddStudentModal(props: {
 	useEffect(() => {
 		if (status === "success") {
 			setShow(false);
-			dispatch(actionGetStudents({ page: 1 }));
+			dispatch(actionGetStudents({}));
 		}
 	}, [status, dispatch]);
 
