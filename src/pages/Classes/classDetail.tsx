@@ -43,7 +43,6 @@ export default function ClassDetail(): JSX.Element {
 	const classInfo = useSelector((state: RootState) => state.classReducer.classInfo);
 	const testList = useSelector((state: RootState) => state.testReducer.testes);
 
-	// const listComments: { id: string; comment: string; conduct_point: string }[] = [];
 
 	useEffect(() => {
 		if (params.class_id) {
@@ -119,14 +118,15 @@ export default function ClassDetail(): JSX.Element {
 			attendantList.forEach(at => {
 				const student = listComments.find(p => +p.id === at)
 				if(student) studentAttendanceList.push(student)
+				else studentAttendanceList.push({id: `${at}`, comment: '', conduct_point: ''})
 			})
 			const params = {
 				class_id: classInfo.id,
+				// Todo teacher_id is null becaues user is null
 				teacher_id: get(classInfo, "user.id", 0),
 				students: studentAttendanceList,
-				date: today,
+				date: moment(today, 'DD-MM-YYYY').format('YYYY-MM-DD'),
 			};
-			console.log(params)
 			dispatch(actionAddAttendance(params));
 		}
 	}
