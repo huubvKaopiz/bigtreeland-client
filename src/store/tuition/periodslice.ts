@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { notification } from "antd";
-import { GetResponseType, PeriodTuitionType, TuitionFeeType } from "interface";
+import { GetResponseType, PeriodTuitionType } from "interface";
 import request from "utils/request";
 
 export interface PeriodTuitionReducerState {

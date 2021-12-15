@@ -329,6 +329,12 @@ export interface TuitionFeeType {
 	note:"";
 }
 
+export interface DayoffType{
+	id:number;
+	from_date:string;
+	to_date:string;
+}
+
 export interface LessonType {
 	id:1;
 	tuition_period_id:1;

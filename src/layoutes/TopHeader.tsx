@@ -1,7 +1,7 @@
-import { DownOutlined, MenuOutlined } from "@ant-design/icons";
-import { Button, Dropdown, Layout, Menu } from "antd";
+import { DownOutlined, MenuOutlined, UserOutlined } from "@ant-design/icons";
+import { Avatar, Button, Dropdown, Layout, Menu } from "antd";
 import userService from "api/user.service";
-import { PasswordFormProps } from "interface/interfaces";
+// import { PasswordFormProps } from "interface/interfaces";
 // import ChangePassForm from "pages/Users/ChangePassword";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -63,7 +63,7 @@ function TopHeader(props: TopHeaderType): JSX.Element {
 						}
 						className="mr-2"
 					>
-						<Button>
+						<Button type="link">
 							<span>{user?.name}</span>
 							<DownOutlined />
 						</Button>

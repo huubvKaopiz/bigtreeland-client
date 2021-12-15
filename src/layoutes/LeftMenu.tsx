@@ -6,6 +6,7 @@ import {
 	TeamOutlined,
 	SecurityScanOutlined,
 	FileOutlined,
+	SettingOutlined
 } from "@ant-design/icons";
 import { Menu } from "antd";
 import { useEffect, useState } from "react";
@@ -21,6 +22,11 @@ function LeftMenu(): JSX.Element {
 	const pathname = location.pathname;
 
 	useEffect(() => {
+		if (pathname.includes("/settings")) {
+			setSelectedKeys(["14"]);
+			return;
+		}
+
 		if (pathname.includes("/files")) {
 			setSelectedKeys(["13"]);
 			return;
@@ -164,6 +170,9 @@ function LeftMenu(): JSX.Element {
 			</SubMenu>
 			<Menu.Item key="13" icon={<FileOutlined />} onClick={() => history.push("/files")}>
 				QL File
+			</Menu.Item>
+			<Menu.Item key="14" icon={<SettingOutlined />} onClick={() => history.push("/settings")}>
+				Cài đặt
 			</Menu.Item>
 		</Menu>
 	);

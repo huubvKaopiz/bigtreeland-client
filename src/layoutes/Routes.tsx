@@ -15,6 +15,7 @@ import { ListTestResults } from "pages/Classes/listTestResult";
 import Tuition from "pages/Tuition";
 import AddTuition from "pages/Tuition/addTuition";
 import TuitionDetail from "pages/Tuition/tuitionDetail";
+import Settings from "pages/settings";
 
 function Routes(): JSX.Element {
 	return (
@@ -35,7 +36,7 @@ function Routes(): JSX.Element {
 			<Route path="/payments/payment-slips" component={Payment} />
 			<Route path="/files" component={Files} />
 			<Route path="/payments/revenue" component={Revenue} />
-
+			<Route path="/settings" component={Settings} />
 		</>
 	);
 }
