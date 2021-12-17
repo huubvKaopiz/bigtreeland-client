@@ -15,7 +15,7 @@ import { QuestionCircleOutlined, CheckCircleOutlined, FileOutlined } from "@ant-
 import { get } from "lodash";
 import moment from "moment";
 import numeral from "numeral";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { actionGetClass, actionGetClasses, actionSetClassStateNull } from "store/classes/slice";
@@ -54,7 +54,13 @@ export default function AddTuition(): JSX.Element {
 	const students = useSelector((state: RootState) => state.studentReducer.students);
 	const getClassInfoStatus = useSelector((state: RootState) => state.classReducer.getClassStatus);
 
-	console.log("rerender");
+	const fixed_deductions_ref = useRef<any>([]);
+	const flexible_deductions_ref = useRef<any>([]);
+	const notes_ref = useRef<any>([]);
+
+	// useEffect(() => {
+	// 	itemsRef.current = itemsRef.current.slice(0, get(students, "data.length", 0));
+	// }, [students]);
 
 	useEffect(() => {
 		dispatch(actionGetClasses({}));
@@ -110,7 +116,10 @@ export default function AddTuition(): JSX.Element {
 	}, [students, classInfo]);
 
 	function handleCreateTuition() {
-		console.log(tuitionFees);
+		console.log(fixed_deductions_ref.current[0].state.value);
+		console.log(flexible_deductions_ref.current[0].state.value);
+		console.log(notes_ref.current[0].state.value);
+		// console.log(tuitionFees);
 	}
 
 	/**
@@ -225,7 +234,7 @@ export default function AddTuition(): JSX.Element {
 				return (
 					<>
 						<Input
-							value={tuitionFees[index]?.fixed_deduction}
+							defaultValue={tuitionFees[index]?.fixed_deduction}
 							addonBefore={
 								<Select defaultValue={0} style={{ width: 65 }}>
 									<Option key={0} value={0}>
@@ -236,7 +245,8 @@ export default function AddTuition(): JSX.Element {
 									</Option>
 								</Select>
 							}
-							onChange={(e) => handleChangeTuitionValue(index, 1, e.target.value)}
+							ref={(e) => (fixed_deductions_ref.current[index] = e)}
+							// onChange={(e) => handleChangeTuitionValue(index, 1, e.target.value)}
 						/>
 					</>
 				);
@@ -289,8 +299,9 @@ export default function AddTuition(): JSX.Element {
 				return (
 					<>
 						<Input
-							value={tuitionFees[index]?.flexible_deduction}
-							onChange={(e) => handleChangeTuitionValue(index, 2, e.target.value)}
+							defaultValue={tuitionFees[index]?.flexible_deduction}
+							ref={(e) => (flexible_deductions_ref.current[index] = e)}
+							// onChange={(e) => handleChangeTuitionValue(index, 2, e.target.value)}
 							addonBefore={
 								<Select defaultValue={0} style={{ width: 65 }}>
 									<Option key={0} value={0}>
@@ -325,8 +336,9 @@ export default function AddTuition(): JSX.Element {
 				return (
 					<>
 						<Input.TextArea
-							value={tuitionFees[index]?.note}
-							onChange={(e) => handleChangeTuitionValue(index, 4, e.target.value)}
+							defaultValue={tuitionFees[index]?.note}
+							ref={(e) => (notes_ref.current[index] = e)}
+							// onChange={(e) => handleChangeTuitionValue(index, 4, e.target.value)}
 						/>
 					</>
 				);
