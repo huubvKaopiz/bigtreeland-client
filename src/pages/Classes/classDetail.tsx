@@ -11,6 +11,7 @@ import {
 	PageHeader,
 	Row,
 	Space,
+	Spin,
 	Table,
 	Tabs,
 	Upload,
@@ -22,7 +23,13 @@ import moment from "moment";
 import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
-import { actionAddAttendance, actionGetAttendances, AttendanceStudentComment } from "store/attendances/slice";
+import {
+	actionAddAttendance,
+	actionGetAttendances,
+	actionResetAddAttendanceStatus,
+	actionResetGetAttendancesStatus,
+	AttendanceStudentComment,
+} from "store/attendances/slice";
 import { actionGetClass } from "store/classes/slice";
 import { RootState, useAppDispatch } from "store/store";
 import AddStudentsModal from "./addStudentsModal";
@@ -37,12 +44,27 @@ export default function ClassDetail(): JSX.Element {
 	const [today, setToday] = useState(moment(new Date()).format(dateFormat));
 	const [attendantList, setAttendantList] = useState([0]);
 	const [checkAll, setCheckAll] = useState(false);
-	const [listComments, setListComments] = useState<AttendanceStudentComment[]>([])
+	const [listComments, setListComments] = useState<AttendanceStudentComment[]>([]);
 	// const classInfo = location.state.classInfo as ClassType;
 	const attendances = useSelector((state: RootState) => state.attendanceReducer.attendances);
 	const classInfo = useSelector((state: RootState) => state.classReducer.classInfo);
 	const testList = useSelector((state: RootState) => state.testReducer.testes);
+	const addStudentsStatus = useSelector((state: RootState) => state.classReducer.addStudentsStatus);
+	const getAttendancesStatus = useSelector((state: RootState) => state.attendanceReducer.getAttendancesStatus);
 
+
+	useEffect(() => {
+		if (addStudentsStatus === "success") {
+			dispatch(actionGetAttendances({ class_id: parseInt(params.class_id) }));
+			dispatch(actionResetAddAttendanceStatus());
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [addStudentsStatus, dispatch]);
+
+	useEffect(() => {
+		if (getAttendancesStatus === "success" || getAttendancesStatus === "error")
+			dispatch(actionResetGetAttendancesStatus());
+	}, [getAttendancesStatus, dispatch]);
 
 	useEffect(() => {
 		if (params.class_id) {
@@ -114,18 +136,18 @@ export default function ClassDetail(): JSX.Element {
 
 	function handleSubmit() {
 		if (attendantList.length > 0 && classInfo) {
-			const studentAttendanceList: AttendanceStudentComment[] = []
-			attendantList.forEach(at => {
-				const student = listComments.find(p => +p.id === at)
-				if(student) studentAttendanceList.push(student)
-				else studentAttendanceList.push({id: `${at}`, comment: '', conduct_point: ''})
-			})
+			const studentAttendanceList: AttendanceStudentComment[] = [];
+			attendantList.forEach((at) => {
+				const student = listComments.find((p) => +p.id === at);
+				if (student) studentAttendanceList.push(student);
+				else studentAttendanceList.push({ id: `${at}`, comment: "", conduct_point: "" });
+			});
 			const params = {
 				class_id: classInfo.id,
 				// Todo teacher_id is null becaues user is null
 				teacher_id: get(classInfo, "user.id", 0),
 				students: studentAttendanceList,
-				date: moment(today, 'DD-MM-YYYY').format('YYYY-MM-DD'),
+				date: moment(today, "DD-MM-YYYY").format("YYYY-MM-DD"),
 			};
 			dispatch(actionAddAttendance(params));
 		}
@@ -251,14 +273,16 @@ export default function ClassDetail(): JSX.Element {
 
 							<Row>
 								<Col span={24}>
-									<Table
-										dataSource={studentList}
-										columns={attendance_columns}
-										bordered
-										rowKey="id"
-										size="small"
-										pagination={false}
-									/>
+									<Spin spinning={getAttendancesStatus === "loading"}>
+										<Table
+											dataSource={studentList}
+											columns={attendance_columns}
+											bordered
+											rowKey="id"
+											size="small"
+											pagination={false}
+										/>
+									</Spin>
 								</Col>
 							</Row>
 						</TabPane>
@@ -335,7 +359,7 @@ export default function ClassDetail(): JSX.Element {
 						<a>{get(classInfo, "name", "")}</a>
 					</Descriptions.Item>
 					<Descriptions.Item label="Ngày bắt đầu">
-						{moment(get(classInfo, "start_date", "")).format("DD-MM-YYYY")}
+						{moment(get(classInfo, "start_date", "") ?? void(0)).format("DD-MM-YYYY")}
 					</Descriptions.Item>
 					<Descriptions.Item label="Số học sinh">{classInfo?.students_num}</Descriptions.Item>
 					<Descriptions.Item label="Lịch học">{classInfo?.schedule}</Descriptions.Item>

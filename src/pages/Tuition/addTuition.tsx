@@ -48,6 +48,9 @@ export default function AddTuition(): JSX.Element {
 	const [showFixedDeductionAllModal, setShowFixedDeductionAllModal] = useState(false);
 	const [fixedDeductionAlState, setFixedDeductionAlState] = useState(false);
 	const [fixedDeductionAlAmount, setFixedDeductionAlAmount] = useState("");
+	const [fixedDeductionAllType, setFixedDeductionAllType] = useState(0);
+	const [fixedDeductionTypeList, setFixedDeductionTypeList] = useState<number[]>([]);
+	const [flexibleDeductionTypeList, setFlexibleDeductionTypeList] = useState<number[]>([]);
 
 	const classesList = useSelector((state: RootState) => state.classReducer.classes);
 	const classInfo = useSelector((state: RootState) => state.classReducer.classInfo);
@@ -98,56 +101,25 @@ export default function AddTuition(): JSX.Element {
 
 	useEffect(() => {
 		if (students && classInfo) {
-			const resetTuitionFee: TuitionFeeType[] = [];
-			get(students, "data", []).forEach((student: { id: number; name: string }) => {
-				resetTuitionFee.push({
-					student_id: student.id,
-					name: student.name,
-					fixed_deduction: "",
-					flexible_deduction: "",
-					debt: "",
-					note: "",
-				});
-			});
-			console.log("new tuition fee", resetTuitionFee);
-			console.log("student", students.data);
-			setTuitionFees(resetTuitionFee);
+			fixed_deductions_ref.current = [];
+			flexible_deductions_ref.current = [];
+			notes_ref.current = [];
+			setFixedDeductionTypeList(Array(students.data.length).fill(0));
+			setFlexibleDeductionTypeList(Array(students.data.length).fill(0));
 		}
 	}, [students, classInfo]);
 
 	function handleCreateTuition() {
-		console.log(fixed_deductions_ref.current[0].state.value);
-		console.log(flexible_deductions_ref.current[0].state.value);
-		console.log(notes_ref.current[0].state.value);
-		// console.log(tuitionFees);
-	}
-
-	/**
-    * handleChangeTuitionValue
-    * @param valueTye 
-                   1: fixed_deduction: "",
-                   2: flexible_deduction: "",
-                   3: debt: "",
-                   4: note: "",
-    */
-	function handleChangeTuitionValue(index: number, valueType: number, value: string) {
-		switch (valueType) {
-			case 1:
-				tuitionFees[index].fixed_deduction = value;
-				break;
-			case 2:
-				tuitionFees[index].flexible_deduction = value;
-				break;
-			case 3:
-				tuitionFees[index].debt = value;
-				break;
-			case 4:
-				tuitionFees[index].note = value;
-				break;
-			default:
-				break;
-		}
-		setTuitionFees([...tuitionFees]);
+		const params =
+			students?.data.map((st, idx) => ({
+				// Duyệt qua mảng student để điền thông tin tuition_fees[0] cho từng student.
+				// Thông tin lấy như dưới đây nhé
+				// console.log(fixed_deductions_ref.current[idx].input.value);
+				// console.log(fixedDeductionTypeList[idx])
+				// console.log(flexible_deductions_ref.current[idx].input.value);
+				// console.log(flexibleDeductionTypeList[idx])
+				// console.log(notes_ref.current[idx].resizableTextArea.textArea.value);
+			})) ?? {};
 	}
 
 	function handleChangePeriod(dates: any, dateString: [string, string]) {
@@ -174,14 +146,13 @@ export default function AddTuition(): JSX.Element {
 	}
 
 	function handleSetAllFixedDeduction() {
-		const feeesList = tuitionFees.map((fee) => ({
-			...fee,
-			flexible_deduction: fixedDeductionAlAmount,
-		}));
+		flexible_deductions_ref.current.forEach((el: any) => (el.state.value = fixedDeductionAlAmount));
+		fixedDeductionTypeList.forEach((v, idx) => (fixedDeductionTypeList[idx] = fixedDeductionAllType));
+		console.log(fixedDeductionTypeList);
 		handleChangeSetAllFixedDeductionSate(false);
-		setTuitionFees(feeesList);
 		setFixedDeductionAlState(true);
 		setFixedDeductionAlAmount("");
+		setFixedDeductionTypeList([...fixedDeductionTypeList]);
 	}
 
 	const columns = [
@@ -236,7 +207,14 @@ export default function AddTuition(): JSX.Element {
 						<Input
 							defaultValue={tuitionFees[index]?.fixed_deduction}
 							addonBefore={
-								<Select defaultValue={0} style={{ width: 65 }}>
+								<Select
+									value={flexibleDeductionTypeList[index] ?? 0}
+									style={{ width: 65 }}
+									onChange={(e) => {
+										flexibleDeductionTypeList[index] = e;
+										setFlexibleDeductionTypeList([...flexibleDeductionTypeList]);
+									}}
+								>
 									<Option key={0} value={0}>
 										%
 									</Option>
@@ -246,7 +224,6 @@ export default function AddTuition(): JSX.Element {
 								</Select>
 							}
 							ref={(e) => (fixed_deductions_ref.current[index] = e)}
-							// onChange={(e) => handleChangeTuitionValue(index, 1, e.target.value)}
 						/>
 					</>
 				);
@@ -255,7 +232,7 @@ export default function AddTuition(): JSX.Element {
 		{
 			title: (
 				<>
-					Giảm trừ theo đợt
+					Giảm trừ theo đợt{" "}
 					<Tooltip title="Giảm trừ học phí tuỳ chỉnh theo đợt">
 						<QuestionCircleOutlined style={{ color: "#f39c12" }} />
 					</Tooltip>
@@ -279,7 +256,11 @@ export default function AddTuition(): JSX.Element {
 							value={fixedDeductionAlAmount}
 							onChange={(e) => setFixedDeductionAlAmount(e.target.value)}
 							addonBefore={
-								<Select defaultValue={0} style={{ width: 65 }}>
+								<Select
+									value={fixedDeductionAllType}
+									style={{ width: 65 }}
+									onChange={(v) => setFixedDeductionAllType(v)}
+								>
 									<Option key={0} value={0}>
 										%
 									</Option>
@@ -301,9 +282,15 @@ export default function AddTuition(): JSX.Element {
 						<Input
 							defaultValue={tuitionFees[index]?.flexible_deduction}
 							ref={(e) => (flexible_deductions_ref.current[index] = e)}
-							// onChange={(e) => handleChangeTuitionValue(index, 2, e.target.value)}
 							addonBefore={
-								<Select defaultValue={0} style={{ width: 65 }}>
+								<Select
+									value={fixedDeductionTypeList[index] ?? 0}
+									style={{ width: 65 }}
+									onChange={(e) => {
+										fixedDeductionTypeList[index] = e;
+										setFixedDeductionTypeList([...fixedDeductionTypeList]);
+									}}
+								>
 									<Option key={0} value={0}>
 										%
 									</Option>
@@ -335,11 +322,7 @@ export default function AddTuition(): JSX.Element {
 			render: function fixedDeductionCol(_: string, st: StudentType, index: number): JSX.Element {
 				return (
 					<>
-						<Input.TextArea
-							defaultValue={tuitionFees[index]?.note}
-							ref={(e) => (notes_ref.current[index] = e)}
-							// onChange={(e) => handleChangeTuitionValue(index, 4, e.target.value)}
-						/>
+						<Input.TextArea defaultValue={tuitionFees[index]?.note} ref={(e) => (notes_ref.current[index] = e)} />
 					</>
 				);
 			},

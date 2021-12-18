@@ -112,6 +112,9 @@ export const classSlice = createSlice({
 		actionSetClassStateNull(state) {
 			state.classInfo = null;
 		},
+		actionResetAddStudent(state) {
+			state.addStudentsStatus = "idle"
+		}
 	},
 	extraReducers: (builder) => {
 		//get parents
@@ -180,5 +183,5 @@ export const classSlice = createSlice({
 			});
 	},
 });
-export const { actionSetClassStateNull } = classSlice.actions;
+export const { actionSetClassStateNull, actionResetAddStudent } = classSlice.actions;
 export default classSlice.reducer;

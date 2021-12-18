@@ -2,13 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { PlusOutlined } from "@ant-design/icons";
 import { Button, Select } from 'antd';
 import { RootState, useAppDispatch } from 'store/store';
-import { actionAddStudents } from 'store/classes/slice';
+import { actionAddStudents, actionResetAddStudent } from 'store/classes/slice';
 import Modal from 'antd/lib/modal/Modal';
 import { useSelector } from 'react-redux';
-import { actionGetStudents } from 'store/students/slice';
 import { get } from 'lodash';
 import { StudentType } from 'interface';
 import moment from 'moment';
+import { actionGetStudents } from 'store/students/slice';
 
 export default function AddStudentsModal(props: { class_id: string | null }): JSX.Element {
     const { class_id } = props;
@@ -19,12 +19,18 @@ export default function AddStudentsModal(props: { class_id: string | null }): JS
     const [selectedStudents, setSelectedStudents] = useState([])
 
     useEffect(() => {
-        dispatch(actionGetStudents({ class_id: 0 }))
+        // dispatch(actionGetStudents({ class_id: 0 }))
         if(status === "success"){
             setShow(false);
+            dispatch(actionResetAddStudent())
         }
     }, [dispatch, status])
 
+    useEffect(() => {
+        if(show)
+            dispatch(actionGetStudents({ class_id: 0 }))
+    },[dispatch, show]);
+    
     const handleSubmit = () => {
         if (class_id) {
             dispatch(actionAddStudents({ data: { students: selectedStudents }, cID: parseInt(class_id) }))

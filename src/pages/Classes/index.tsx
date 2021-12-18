@@ -26,7 +26,7 @@ function Classes(): JSX.Element {
 	}, [dispatch]);
 
 	useEffect(() => {
-		dispatch(actionGetEmployees({ class_id: 0 }));
+		dispatch(actionGetEmployees({}));
 	}, [dispatch]);
 
 	const searchTeacher = (search: string) => {

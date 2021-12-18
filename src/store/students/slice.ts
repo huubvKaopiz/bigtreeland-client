@@ -49,7 +49,7 @@ const initialState: StudentReducerState = {
 	updateStudentStatusStatus:"idle",
 };
 
-export const actionGetStudents = createAsyncThunk("actionGetStudents", async (params:GetStudentPrams) => {
+export const actionGetStudents = createAsyncThunk("actionGetStudents", async (params:GetStudentPrams = {}) => {
     const response = await request({
         url:'/api/students',
         method:'get',
