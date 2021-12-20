@@ -121,7 +121,7 @@ export const employeeSlice = createSlice({
 			.addCase(actionAddEmployee.pending, (state) => {
 				state.addEmployeeStatus = "loading";
 			})
-			.addCase(actionAddEmployee.fulfilled, (state, action) => {
+			.addCase(actionAddEmployee.fulfilled, (state) => {
 				state.addEmployeeStatus = "success";
 				notification.success({ message: "Thêm nhân viên thành công" });
 			})
@@ -134,7 +134,7 @@ export const employeeSlice = createSlice({
 			.addCase(actionUpdateEmployee.pending, (state) => {
 				state.updateEmployeeStatus = "loading";
 			})
-			.addCase(actionUpdateEmployee.fulfilled, (state, action) => {
+			.addCase(actionUpdateEmployee.fulfilled, (state) => {
 				state.updateEmployeeStatus = "success";
 				notification.success({ message: "Cập nhật thông tin nhân viên thành công" });
 			})
@@ -147,7 +147,7 @@ export const employeeSlice = createSlice({
 			.addCase(actionDeleteEmployee.pending, (state) => {
 				state.deleteEmployeeStatus = "loading";
 			})
-			.addCase(actionDeleteEmployee.fulfilled, (state, action) => {
+			.addCase(actionDeleteEmployee.fulfilled, (state) => {
 				state.deleteEmployeeStatus = "success";
 				notification.success({ message: "Xoá nhân viên thành công" });
 			})

@@ -32,6 +32,7 @@ import {
 } from "store/attendances/slice";
 import { actionGetClass } from "store/classes/slice";
 import { RootState, useAppDispatch } from "store/store";
+import { dayOptions } from "utils/const";
 import AddStudentsModal from "./addStudentsModal";
 import AddTest from "./addTestModal";
 
@@ -51,7 +52,6 @@ export default function ClassDetail(): JSX.Element {
 	const testList = useSelector((state: RootState) => state.testReducer.testes);
 	const addStudentsStatus = useSelector((state: RootState) => state.classReducer.addStudentsStatus);
 	const getAttendancesStatus = useSelector((state: RootState) => state.attendanceReducer.getAttendancesStatus);
-
 
 	useEffect(() => {
 		if (addStudentsStatus === "success") {
@@ -359,10 +359,12 @@ export default function ClassDetail(): JSX.Element {
 						<a>{get(classInfo, "name", "")}</a>
 					</Descriptions.Item>
 					<Descriptions.Item label="Ngày bắt đầu">
-						{moment(get(classInfo, "start_date", "") ?? void(0)).format("DD-MM-YYYY")}
+						{moment(get(classInfo, "start_date", "") ?? void 0).format("DD-MM-YYYY")}
 					</Descriptions.Item>
 					<Descriptions.Item label="Số học sinh">{classInfo?.students_num}</Descriptions.Item>
-					<Descriptions.Item label="Lịch học">{classInfo?.schedule}</Descriptions.Item>
+					<Descriptions.Item label="Lịch học">
+						{classInfo?.schedule.map((day) => dayOptions[day] + " ")}
+					</Descriptions.Item>
 				</Descriptions>
 			</PageHeader>
 		</Layout.Content>

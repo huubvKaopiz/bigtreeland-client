@@ -1,6 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { notification } from "antd";
-import { AxiosResponse } from "axios";
 import { FileType, GetResponseType } from "interface";
 import request, { uploadFile } from "../../utils/request";
 

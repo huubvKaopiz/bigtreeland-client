@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { notification } from "antd";
-import {GetResponseType, ListTestType, TestType } from "interface";
+import { GetResponseType, TestType } from "interface";
 import request from "utils/request";
 
 export interface TestReducerState {

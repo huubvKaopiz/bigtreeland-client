@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { message, notification } from "antd";
+import { notification } from "antd";
 import { GetResponseType, TuitionFeeType } from "interface";
 import request from "utils/request";
 

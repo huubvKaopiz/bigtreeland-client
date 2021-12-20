@@ -72,6 +72,7 @@ function LoginForm(): JSX.Element {
 		console.log("into verify");
 		window.confirmationResult
 			.confirm(code)
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			.then((result: any) => {
 				// User signed in successfully.
 				const user = result.user;

@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
-import { Button, Modal, Form, Select, Input, Spin } from "antd";
+import { Button, Modal, Form, Select, Input, Spin, InputNumber } from "antd";
 import { EditOutlined } from "@ant-design/icons";
 import { useAppDispatch } from "store/store";
 import { actionUpdateClass, actionGetClasses } from "store/classes/slice";
 import { get } from "lodash";
 import { ClassType, EmployeeType, ListEmployeeType } from "interface";
+import { dayOptions } from "utils/const";
+import numeral from "numeral";
 
 export default function EditClassModal(props: {
 	classInfo: ClassType;
@@ -45,7 +47,7 @@ export default function EditClassModal(props: {
 			<Button type="link" icon={<EditOutlined />} onClick={() => setShow(true)} />
 			<Modal
 				visible={show}
-				title="Thêm lớp học"
+				title="Thay đổi thông tin lớp học"
 				onCancel={() => setShow(false)}
 				footer={[
 					<Button loading={submiting} key="btnsubmit" type="primary" htmlType="submit" form="aForm">
@@ -87,10 +89,17 @@ export default function EditClassModal(props: {
 						<Input />
 					</Form.Item>
 					<Form.Item label="Học phí" name="fee_per_session">
-						<Input />
+						{/* <Input /> */}
+						<InputNumber formatter={(value) => numeral(value).format()} style={{ width: "100%" }} />
 					</Form.Item>
 					<Form.Item label="Lịch học" name="schedule">
-						<Input />
+						<Select mode="multiple" placeholder="Chọn lịch học">
+							{dayOptions.map((day, value) => (
+								<Select.Option value={value} key={value}>
+									{day}
+								</Select.Option>
+							))}
+						</Select>
 					</Form.Item>
 				</Form>
 			</Modal>

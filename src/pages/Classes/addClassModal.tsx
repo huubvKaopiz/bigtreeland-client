@@ -7,6 +7,7 @@ import { actionAddClass, actionGetClasses } from "store/classes/slice";
 import { get } from "lodash";
 import { EmployeeType, ListEmployeeType } from "interface";
 import numeral from "numeral";
+import { dayOptions } from "utils/const";
 
 export default function AddClassModal(props: {
 	teachers: ListEmployeeType | null;
@@ -28,7 +29,10 @@ export default function AddClassModal(props: {
 
 	function handleSubmit(values: any) {
 		setSumiting(true);
-		dispatch(actionAddClass(values)).finally(() => setSumiting(false));
+		dispatch(actionAddClass(values)).finally(() => {
+			setSumiting(false);
+			setShow(false);
+		});
 	}
 
 	return (
@@ -79,10 +83,16 @@ export default function AddClassModal(props: {
 						<Input />
 					</Form.Item>
 					<Form.Item label="Học phí" name="fee_per_session">
-						<InputNumber formatter={(value) => numeral(value).format()} style={{ width: "200px" }} />
+						<InputNumber formatter={(value) => numeral(value).format()} style={{ width: "100%" }} />
 					</Form.Item>
 					<Form.Item label="Lịch học" name="schedule">
-						<Input />
+						<Select mode="multiple" placeholder="Chọn lịch học">
+							{dayOptions.map((day, value) => (
+								<Select.Option value={value} key={value}>
+									{day}
+								</Select.Option>
+							))}
+						</Select>
 					</Form.Item>
 				</Form>
 			</Modal>

@@ -12,6 +12,7 @@ import { actionGetClasses } from "store/classes/slice";
 import { get } from "lodash";
 import { actionGetEmployees } from "store/employees/slice";
 import numeral from "numeral";
+import { dayOptions } from "utils/const";
 
 function Classes(): JSX.Element {
 	const dispatch = useAppDispatch();
@@ -74,6 +75,9 @@ function Classes(): JSX.Element {
 			title: "Lịch học",
 			dataIndex: "schedule",
 			key: "schedule",
+			render: function scheduleCol(schedule: number[]): JSX.Element {
+				return <>{schedule.map((day) => dayOptions[day]+ " ")}</>;
+			},
 		},
 		{
 			width: "15%",

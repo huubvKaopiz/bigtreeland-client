@@ -100,21 +100,21 @@ export const classSlice = createSlice({
 	name: "parent",
 	initialState,
 	reducers: {
-		actionGetParents(state) {
+		actionResetGetParents(state) {
 			state.getClassesStatus = "idle";
 		},
-		actionAddClass(state) {
+		actionResetAddClass(state) {
 			state.addClassStatus = "idle";
 		},
-		actionUpdateClass(state) {
+		actionResetUpdateClass(state) {
 			state.updateClassStatus = "idle";
 		},
 		actionSetClassStateNull(state) {
 			state.classInfo = null;
 		},
 		actionResetAddStudent(state) {
-			state.addStudentsStatus = "idle"
-		}
+			state.addStudentsStatus = "idle";
+		},
 	},
 	extraReducers: (builder) => {
 		//get parents
