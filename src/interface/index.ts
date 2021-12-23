@@ -50,6 +50,7 @@ export interface ClassType {
 	id: 1;
 	name: "Lớp tiếng Anh 3";
 	employee: { id: number; name: number };
+	employee_id?: number;
 	students_num: 0;
 	sessions_num: 24;
 	fee_per_session: 300000;

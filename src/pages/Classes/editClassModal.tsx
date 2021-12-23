@@ -30,7 +30,8 @@ export default function EditClassModal(props: {
 				schedule: classInfo.schedule,
 			});
 		}
-	});
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [classInfo]);
 
 	function handleSubmit(values: any) {
 		setSubmiting(true);
@@ -69,9 +70,9 @@ export default function EditClassModal(props: {
 					</Form.Item>
 					<Form.Item label="Giáo viên" name="employee_id">
 						<Select
-							showSearch
-							onSearch={(e) => searchTeacher(e)}
-							notFoundContent={searchStatus === "loading" ? <Spin size="small" /> : null}
+							// showSearch
+							// onSearch={(e) => searchTeacher(e)}
+							// notFoundContent={searchStatus === "loading" ? <Spin size="small" /> : null}
 						>
 							<Select.Option value={-1}>Chọn sau</Select.Option>
 							{teachers &&
@@ -89,7 +90,6 @@ export default function EditClassModal(props: {
 						<Input />
 					</Form.Item>
 					<Form.Item label="Học phí" name="fee_per_session">
-						{/* <Input /> */}
 						<InputNumber formatter={(value) => numeral(value).format()} style={{ width: "100%" }} />
 					</Form.Item>
 					<Form.Item label="Lịch học" name="schedule">

@@ -356,7 +356,7 @@ export default function ClassDetail(): JSX.Element {
 			>
 				<Descriptions size="small" column={2} style={{ backgroundColor: "white", padding: 20 }}>
 					<Descriptions.Item label="Giáo viên">
-						<a>{get(classInfo, "name", "")}</a>
+						<a>{get(classInfo, "user.name", "")}</a>
 					</Descriptions.Item>
 					<Descriptions.Item label="Ngày bắt đầu">
 						{moment(get(classInfo, "start_date", "") ?? void 0).format("DD-MM-YYYY")}
