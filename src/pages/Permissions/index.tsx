@@ -3,6 +3,9 @@ import { Button, Layout, notification, Space, Table } from "antd";
 import RoleService from "api/role.service";
 import { Permission } from "interface/interfaces";
 import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { actionGetPermissions, PermistionType } from "store/permissions/slice";
+import { RootState, useAppDispatch } from "store/store";
 import styled from "styled-components";
 import { PERMISSION_LIST } from "../../assets/mock-data/PermissionList";
 import { DatePattern, dateSort, formatDate } from "../../utils/dateUltils";
@@ -22,7 +25,7 @@ const Wrapper = styled.div`
 `;
 
 // Todo use fetch to get PERMISSION_LIST
-const tableItem: Permission[] = PERMISSION_LIST;
+// const tableItem: Permission[] = PERMISSION_LIST;
 const tableColumn = [
 	{
 		title: "Id",
@@ -32,7 +35,7 @@ const tableColumn = [
 		defaultSortOrder: "ascend" as "ascend",
 		showSorterTooltip: false,
 		sorter: {
-			compare: (a: Permission, b: Permission) => a.id - b.id,
+			compare: (a: PermistionType, b: PermistionType) => a.id - b.id,
 			multiple: 3,
 		},
 	},
@@ -60,7 +63,7 @@ const tableColumn = [
 		},
 		showSorterTooltip: false,
 		sorter: {
-			compare: (a: Permission, b: Permission) => dateSort(a.created_at, b.created_at),
+			compare: (a: PermistionType, b: PermistionType) => dateSort(a.created_at, b.created_at),
 			multiple: 2,
 		},
 	},
@@ -73,14 +76,14 @@ const tableColumn = [
 		},
 		showSorterTooltip: false,
 		sorter: {
-			compare: (a: Permission, b: Permission) => dateSort(a.updated_at, b.updated_at),
+			compare: (a: PermistionType, b: PermistionType) => dateSort(a.updated_at, b.updated_at),
 			multiple: 1,
 		},
 	},
 	{
 		title: "Action",
 		key: "action",
-		render: function ActionRow(_: string, record: Permission): JSX.Element {
+		render: function ActionRow(_: string, record: PermistionType): JSX.Element {
 			return (
 				<Space size="large" style={{ display: "flex", justifyContent: "center" }}>
 					<a>
@@ -110,15 +113,23 @@ const tableColumn = [
 ];
 
 function Permissions(): JSX.Element {
+	const dispatch = useAppDispatch()
 	const [isLoading, setIsLoading] = useState(false);
-
+	const listPermission = useSelector((state: RootState) => state.permissionReducer.permissions);
+	const [tableItem, setTableItem] = useState<PermistionType[]>(listPermission)
+	
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	useEffect(() => {
-		setIsLoading(true);
-		setTimeout(() => {
-			setIsLoading(false);
-		}, 2000);
-	}, []);
+		if(listPermission.length === 0) {
+			setIsLoading(true)
+			dispatch(actionGetPermissions()).then(()=> {
+				setTableItem(listPermission)
+			}).finally(() => {
+				setIsLoading(false)
+			})
+		}
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [dispatch]);
 
 	return (
 		<Wrapper>

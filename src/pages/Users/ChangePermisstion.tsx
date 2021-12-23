@@ -30,7 +30,7 @@ function ChangePermisstion({ user, handleChangePermission }: Props): JSX.Element
 	const isMounted = useIsMounted();
 	const [userPermissionList, setUserPermissionList] = useState<number[]>([]);
 	const [userPermissionSelected, setUserPermissionSelected] = useState<number[]>([]);
-
+	console.log(user)
 	useEffect(() => {
 		if (showForm)
 			PermissionService.getListPermissionOfUser(user.id).then(({ data }: { data: any }) => {
@@ -83,7 +83,7 @@ function ChangePermisstion({ user, handleChangePermission }: Props): JSX.Element
 								listHeight={600}
 								style={{ width: "100%" }}
 								options={permissionList}
-								placeholder={`Phân quyền cho user ${user.email}`}
+								placeholder={`Phân quyền cho user ${user.email ?? ''}`}
 								value={userPermissionSelected}
 								onChange={(value: number[]) => handlePermissionChange(value)}
 								tagRender={(selectProps) => (

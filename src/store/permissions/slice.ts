@@ -8,9 +8,11 @@ export interface PermistionType {
 	name: string;
 	id: number;
 	key?: React.Key;
+	created_at: string;
+	updated_at: string;
 }
 export interface PermissionsState {
-	permissions: PermistionType[] | [];
+	permissions: PermistionType[];
 }
 
 const initialState: PermissionsState = {
