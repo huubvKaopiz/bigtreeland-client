@@ -41,9 +41,9 @@ const initialState: PeriodTuitionReducerState = {
     updatePeriodTuitionStatus: "idle",
 };
 
-export const actionGetPeriodTuion = createAsyncThunk("actionGetPeriodTuion", async (period_tuion_id: number) => {
+export const actionGetPeriodTuion = createAsyncThunk("actionGetPeriodTuion", async (period_tuition_id: number) => {
     const response = await request({
-        url: `/api/period-tuions/${period_tuion_id}`,
+        url: `/api/period-tuitions/${period_tuition_id}`,
         method: "get",
     })
     return response.data;
@@ -51,7 +51,7 @@ export const actionGetPeriodTuion = createAsyncThunk("actionGetPeriodTuion", asy
 
 export const actionGetPeriodTuions = createAsyncThunk("actionGetPeriodTuions", async (params: GetPeriodTuionsPrams) => {
     const response = await request({
-        url: `/api/period-tuions`,
+        url: `/api/period-tuitions`,
         method: "get",
         params
     })
@@ -60,7 +60,7 @@ export const actionGetPeriodTuions = createAsyncThunk("actionGetPeriodTuions", a
 
 export const actionAddPeriodTuion = createAsyncThunk("actionAddPeriodTuion", async (data: AddPeriodTuionParms) => {
     const response = await request({
-        url: `/api/period-tuions`,
+        url: `/api/period-tuitions`,
         method: "post",
         data
     })
@@ -69,7 +69,7 @@ export const actionAddPeriodTuion = createAsyncThunk("actionAddPeriodTuion", asy
 
 export const actionUpdatePeriodTuion = createAsyncThunk("actionUpdatePeriodTuion", async (params: { data: AddPeriodTuionParms, pID: number }) => {
     const response = await request({
-        url: `/api/period-tuions/${params.pID}`,
+        url: `/api/period-tuitions/${params.pID}`,
         method: "put",
         data: params.data
     })

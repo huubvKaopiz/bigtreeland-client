@@ -1,7 +1,8 @@
 import React from 'react';
 import { Button, DatePicker, Layout, Select, Space, Table, Tag, Tooltip } from 'antd';
-import { UnorderedListOutlined, PlusOutlined } from '@ant-design/icons';
+import { UnorderedListOutlined, PlusOutlined, EditOutlined } from '@ant-design/icons';
 import { useHistory } from "react-router-dom";
+import EditTuition from './editTuition';
 
 const { Option } = Select;
 const { Column, ColumnGroup } = Table;
@@ -73,7 +74,10 @@ export default function Tuition(): JSX.Element {
                     render={(text: string) => (
                         <Space size="middle">
                             <Tooltip title="Chi tiết">
-                                <Button type="link"  onClick={() => history.push({ pathname: `/payments/tuition-detail/${1}`})} icon={<UnorderedListOutlined />} />
+                                <Button type="link" onClick={() => history.push({ pathname: `/payments/tuition-detail/${1}`})} icon={<UnorderedListOutlined />} />
+                            </Tooltip>
+                            <Tooltip title="Chỉnh sửa">
+                                <Button type="link" onClick={() => history.push({ pathname: `/payments/tuition-edit/${1}`})} icon={<EditOutlined />} />
                             </Tooltip>
                         </Space>
                     )}

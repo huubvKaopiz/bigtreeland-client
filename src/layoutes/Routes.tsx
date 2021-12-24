@@ -15,6 +15,7 @@ import { ListTestResults } from "pages/Classes/listTestResult";
 import Tuition from "pages/Tuition";
 import AddTuition from "pages/Tuition/addTuition";
 import TuitionDetail from "pages/Tuition/tuitionDetail";
+import EditTuition from "pages/Tuition/editTuition";
 import Settings from "pages/settings";
 
 function Routes(): JSX.Element {
@@ -30,6 +31,7 @@ function Routes(): JSX.Element {
 			<Route path="/payments/tuition" component={Tuition} />
 			<Route path="/payments/tuition-detail/:tuition_id" component={TuitionDetail} />
 			<Route path="/payments/tuition-create" component={AddTuition} />
+			<Route path="/payments/tuition-edit/:tuition_id" component={EditTuition} />
 			<Route path="/parents" component={Parents} />
 			<Route path="/permissions" component={Permissions} />
 			<Route path="/roles" component={Roles} />
