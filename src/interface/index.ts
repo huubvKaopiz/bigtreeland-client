@@ -49,19 +49,20 @@ export interface ParentType {
 export interface ClassType {
 	id: 1;
 	name: "Lớp tiếng Anh 3";
-	employee: { id: number; name: number };
+	user: { id: number; name: number; phone:string };
 	employee_id?: number;
 	students_num: 0;
 	sessions_num: 24;
 	fee_per_session: 300000;
-	schedule:number[];
+	schedule: number[];
 	start_date: string;
 	end_date: string;
 	deleted_at: string;
 	created_at: "2021-11-06T16:01:41.000000Z";
 	updated_at: "2021-11-06T16:01:41.000000Z";
-	act_session_num:1;
-	period_tuitions:PeriodTuitionType[];
+	act_session_num: 1;
+	active_period_tuition?: PeriodTuitionType;
+	students?:StudentType[];
 }
 
 export interface User {
@@ -211,21 +212,6 @@ export interface ListParentType {
 	total: 0;
 }
 
-export interface ListClassesType {
-	current_page: 1;
-	data: ClassType[];
-	first_page_url: "http://45.32.101.219:8000/api/parents?page=1";
-	from: 1;
-	last_page: 1;
-	last_page_url: "http://45.32.101.219:8000/api/parents?page=1";
-	next_page_url: null;
-	path: "http://45.32.101.219:8000/api/parents?page=1";
-	per_page: 20;
-	prev_page_url: null;
-	to: 1;
-	total: 0;
-}
-
 export interface ListAttendancesType {
 	class_id: number;
 	class_name: string;
@@ -311,33 +297,52 @@ export interface GetResponseType<T = unknown> {
 }
 
 export interface PeriodTuitionType {
-	id:1;
-	class_id:1;
-	est_session_num:1,
-	active:1,
-	from_date:"",
-	to_date:""
+	id: 1;
+	class_id: 1;
+	est_session_num: 1,
+	active: 1,
+	from_date: "",
+	to_date: "",
+	lessons?:LessonType[];
+	class?:ClassType;
+	tuition_fees:TuitionFeeType[];
 }
 
 export interface TuitionFeeType {
-	id:1;
-	period_id:1;
-	student_id:1;
-	fixed_deduction:"";
-	flexible_deduction:"";
-	debt:"";
-	residual:"";
-	note:"";
+	id: 1,
+	period_tuition_id: 1,
+	student_id: 1,
+	fixed_deduction: "null",
+	flexible_deduction: "null",
+	debt: "null",
+	note: "null",
+	residual: "null",
+	status: 0,
+	from_date: "null",
+	to_date: "null",
 }
 
-export interface DayoffType{
-	id:number;
-	from_date:string;
-	to_date:string;
+export interface DayoffType {
+	id: number;
+	from_date: string;
+	to_date: string;
 }
 
 export interface LessonType {
+	id: 1;
+	tuition_period_id: 1;
+	date: "";
+}
+
+export interface SalaryType {
 	id:1;
-	tuition_period_id:1;
-	date:"";
+	employee_id: 1;
+	basic_salary: "";
+	revenue_salary: "";
+	debt: "";
+	bonus: "";
+	fines: "";
+	period_id: 1;
+	note: "";
+	status: 0;
 }

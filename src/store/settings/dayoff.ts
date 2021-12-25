@@ -58,7 +58,7 @@ export const dayoffSlice = createSlice({
         actionAddDayoff(state) {
             state.addDayoffState = "idle";
         },
-        actionde(state) {
+        actionDeleteDayoff(state) {
             state.deleteDayoffState = "idle";
         },
         actionSetAddDayoffStateIdle(state){

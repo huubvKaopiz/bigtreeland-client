@@ -69,7 +69,7 @@ export default function ClassDetail(): JSX.Element {
 	useEffect(() => {
 		if (params.class_id) {
 			dispatch(actionGetAttendances({ class_id: parseInt(params.class_id) }));
-			dispatch(actionGetClass(parseInt(params.class_id)));
+			dispatch(actionGetClass({class_id:parseInt(params.class_id)}));
 		}
 	}, [dispatch, params]);
 

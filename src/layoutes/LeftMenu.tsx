@@ -85,7 +85,7 @@ function LeftMenu(): JSX.Element {
 			return;
 		}
 
-		if (pathname.includes("/employees/payrolls")) {
+		if (pathname.includes("/salaries")) {
 			setOpenKeys(["employees"]);
 			setSelectedKeys(["4"]);
 			return;
@@ -129,7 +129,7 @@ function LeftMenu(): JSX.Element {
 				<Menu.Item key="3" onClick={() => history.push("/employees")}>
 					Nhân viên
 				</Menu.Item>
-				<Menu.Item key="4" onClick={() => history.push("/employees/payrolls")}>
+				<Menu.Item key="4" onClick={() => history.push("/salaries")}>
 					Bảng lương
 				</Menu.Item>
 			</SubMenu>

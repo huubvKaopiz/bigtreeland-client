@@ -21,17 +21,32 @@ export function isBefore(strDateA: string, strDateB: string): boolean {
 	return moment(strDateA).isBefore(moment(strDateB));
 }
 
-// day param,  0:sun, 1:mon, 2:tue, 3:wed, 4:thu, 5:fri, 6:sat 
-export function countDaysInDateRange(from: string, to: string, day: number): number {
-	const start = moment(from);
-	const end = moment(to); 
-	let result = 0;
-	const current = start.clone();
-
-	while (current.day(7 + day).isSameOrBefore(end)) {
-		// console.log(current.clone());
-		result++;
+// func get list of dates in range 
+// input: range of date, day in week
+export function getDatesInRange(startDate: string, endDate: string, day: number): string[] {
+	// day start 0: sun - 6: sat 
+	const start = new Date(startDate);
+	const end = new Date(endDate);
+	const dateList: string[] = [];
+	const copyStartDate = new Date(start.getTime())
+	const dayInRange = new Date(copyStartDate.setDate(copyStartDate.getDate() + (7 + day - copyStartDate.getDay()) % 7))
+	while (dayInRange.getTime() <= end.getTime()) {
+		dateList.push(dayInRange.toLocaleDateString())
+		dayInRange.setDate(dayInRange.getDate() + 7)
 	}
+	return dateList
+}
 
-	return result;
+export function countSameDates(dateList1: string[], dateList2: string[]): number {
+	let res = 0;
+	// console.log(dateList1);
+	// console.log(dateList2);
+	if(dateList1.length == 0 || dateList2.length == 0) return res;
+	dateList1.forEach(date1 => {
+		dateList2.forEach(date2 => {
+			if (moment(date1).isSame(moment(date2))) res++;
+		});
+	});
+	// console.log(res)
+	return res;
 }

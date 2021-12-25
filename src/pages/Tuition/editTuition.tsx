@@ -21,7 +21,7 @@ import { useHistory, useParams } from "react-router-dom";
 import { actionGetClass, actionGetClasses, actionSetClassStateNull } from "store/classes/slice";
 import { RootState, useAppDispatch } from "store/store";
 import { actionGetStudents, actionSetStudentsStateNull } from "store/students/slice";
-import { countDaysInDateRange } from "utils/dateUltils";
+// import { countDaysInDateRange } from "utils/dateUltils";
 import { StudentType } from "interface";
 import { actionGetPeriodTuion } from "store/tuition/periodslice";
 
@@ -89,7 +89,8 @@ export default function EditTuition(): JSX.Element {
 				let count = 0;
 				for (let index = 0; index < classInfo.schedule.length; index++) {
 					const day = classInfo.schedule[index];
-					count += countDaysInDateRange(fromDate, toDate, day);
+					count += 1;
+					// count += countDaysInDateRange(fromDate, toDate, day);
 				}
 				setEstSessionNum(count);
 			}
@@ -120,7 +121,7 @@ export default function EditTuition(): JSX.Element {
 	function handleChangeClass(classID: number) {
 		dispatch(actionSetStudentsStateNull());
 		if (classID > 0) {
-			dispatch(actionGetClass(classID));
+			dispatch(actionGetClass({class_id:classID}));
 		} else dispatch(actionSetClassStateNull());
 	}
 

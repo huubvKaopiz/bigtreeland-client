@@ -17,6 +17,7 @@ import AddTuition from "pages/Tuition/addTuition";
 import TuitionDetail from "pages/Tuition/tuitionDetail";
 import EditTuition from "pages/Tuition/editTuition";
 import Settings from "pages/settings";
+import Salaries from "pages/Salaries";
 
 function Routes(): JSX.Element {
 	return (
@@ -39,6 +40,7 @@ function Routes(): JSX.Element {
 			<Route path="/files" component={Files} />
 			<Route path="/payments/revenue" component={Revenue} />
 			<Route path="/settings" component={Settings} />
+			<Route path="/salaries" component={Salaries} />
 		</>
 	);
 }

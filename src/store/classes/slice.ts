@@ -1,10 +1,10 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { notification } from "antd";
-import { ClassType, FileType, ListClassesType } from "interface";
+import { ClassType, FileType, GetResponseType } from "interface";
 import request from "utils/request";
 
 export interface ClassReducerState {
-	classes: ListClassesType | null;
+	classes: GetResponseType<ClassType> | null;
 	classInfo: ClassType | null;
 	recentTestAdded: FileType | null;
 	getClassStatus: "idle" | "loading" | "success" | "error";
@@ -44,10 +44,12 @@ const initialState: ClassReducerState = {
 	addStudentsStatus: "idle",
 };
 
-export const actionGetClass = createAsyncThunk("actionGetClass", async (class_id: number) => {
+export const actionGetClass = createAsyncThunk("actionGetClass", async (payload:{class_id: number, params?:{active_periodinfo:boolean,students:boolean } }) => {
+	const {class_id, params} = payload;
 	const response = await request({
 		url: `/api/classes/${class_id}`,
 		method: "get",
+		params
 	});
 	return response.data;
 });
@@ -123,7 +125,7 @@ export const classSlice = createSlice({
 				state.getClassesStatus = "loading";
 			})
 			.addCase(actionGetClasses.fulfilled, (state, action) => {
-				state.classes = action.payload as ListClassesType;
+				state.classes = action.payload as GetResponseType<ClassType>;
 				state.getClassesStatus = "success";
 			})
 			.addCase(actionGetClasses.rejected, (state) => {

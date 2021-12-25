@@ -23,13 +23,16 @@ export interface AddPeriodTuionParms {
     to_date: string;
     est_session_num: number;
     tuition_fees:{
-        student_id:1;
-        fixed_deduction:"";
-        flexible_deduction:"";
-        debt:"";
-        residual:"";
-        note:""
+        student_id: number;
+        residual: string;
+        fixed_deduction: string;
+        flexible_deduction: string;
+        debt: string;
+        note: string;
+        from_date: string;
+        to_date: string;
     }[];
+    draft:boolean;
 }
 
 const initialState: PeriodTuitionReducerState = {
@@ -91,6 +94,9 @@ export const periodTuitionSlice = createSlice({
         },
         actionUpdatePeriodTuion(state){
             state.updatePeriodTuitionStatus = "idle";
+        },
+        actionSetAddPeriodtuitionStateIdle(state){
+            state.addPeriodTuitionStatus = "idle";
         }
     },
     extraReducers:(builder) =>{
@@ -141,5 +147,7 @@ export const periodTuitionSlice = createSlice({
         })
     }
 })
+
+export const {actionSetAddPeriodtuitionStateIdle} = periodTuitionSlice.actions;
 
 export default periodTuitionSlice.reducer;

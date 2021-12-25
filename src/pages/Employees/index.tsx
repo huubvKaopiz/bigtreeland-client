@@ -1,4 +1,4 @@
-import { Button, Col, Input, Layout, Row, Space, Table, Tag } from "antd";
+import { Button, Col, Input, Layout, Radio, Row, Space, Table, Tag } from "antd";
 import { EmployeeType, UserType } from "interface";
 import { debounce, get } from "lodash";
 import React, { useEffect, useRef, useState } from "react";
@@ -15,24 +15,26 @@ function Employees(): JSX.Element {
 
 	const [page, setPage] = useState(0)
 	const [search, setSearch] = useState('')
+	const [role, setRole] = useState('teacher')
+
 
 	const roles = useSelector((state: RootState) => state.roleReducer.roles);
 	const employees = useSelector((state: RootState) => state.employeeReducer.employees);
 	const getEmployeesStatus = useSelector((state: RootState) => state.employeeReducer.getEmployeesStatus);
-	const statusUpdateEmployee = useSelector((state:RootState) => state.employeeReducer.updateEmployeeStatus)
+	const statusUpdateEmployee = useSelector((state: RootState) => state.employeeReducer.updateEmployeeStatus)
 	const debounceSearch = useRef(debounce((nextValue) => dispatch(actionGetEmployees({ search: nextValue })), 500)).current;
 
 	useEffect(() => {
-		dispatch(actionGetEmployees({ page, search }));
-	// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [dispatch, page]);
+		dispatch(actionGetEmployees({ per_page: 100, search, role_name: role }));
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [dispatch, role]);
 
-	useEffect(()=> {
-		if(statusUpdateEmployee === 'success') {
-			dispatch(actionGetEmployees({ page, search }));
+	useEffect(() => {
+		if (statusUpdateEmployee === 'success') {
+			dispatch(actionGetEmployees({ per_page: 100, search, role_name: role }));
 		}
-	// eslint-disable-next-line react-hooks/exhaustive-deps
-	},[dispatch, statusUpdateEmployee])
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [dispatch, statusUpdateEmployee, role])
 
 	useEffect(() => {
 		dispatch(actionGetRoles());
@@ -42,6 +44,12 @@ function Employees(): JSX.Element {
 		setSearch(search)
 		debounceSearch(search);
 	};
+
+
+	function handleChangeRole(e: any) {
+		setRole(e.target.value);
+		console.log(e.target.value)
+	}
 
 	const ColActions = (text: string, record: EmployeeType) => {
 		return (
@@ -132,6 +140,13 @@ function Employees(): JSX.Element {
 					<AddEmplyeeForm roles={roles} />
 				</Col>
 			</Row>
+			<Space style={{marginBottom:20}}>
+				<Radio.Group onChange={handleChangeRole} value={role}>
+					<Radio value={'teacher'}>Giáo viên</Radio>
+					<Radio value={'sale'}>Sale</Radio>
+					<Radio value={'employee'}>Nhân viên</Radio>
+				</Radio.Group>
+			</Space>
 			<Table
 				loading={getEmployeesStatus === "loading"}
 				size="small"
@@ -139,9 +154,11 @@ function Employees(): JSX.Element {
 				rowKey="id"
 				columns={columns}
 				bordered
-				pagination={{pageSize: 20, total: get(employees, "total", 0),onChange: (page) => {
-					setPage(page);
-				},}}
+				pagination={{
+					pageSize: 20, total: get(employees, "total", 0), onChange: (page) => {
+						setPage(page);
+					},
+				}}
 			/>
 		</Layout.Content>
 	);

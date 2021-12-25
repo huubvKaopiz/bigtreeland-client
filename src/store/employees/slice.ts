@@ -13,8 +13,9 @@ export interface UserReducerState {
 
 export interface ParamGetUsers {
 	search?: string;
-	page?: number;
+	per_page?: number;
 	class_id?: number;
+	role_name?:string;
 }
 
 export interface EmployeeParams {
@@ -41,9 +42,9 @@ const initialState: UserReducerState = {
 	deleteEmployeeStatus: "idle",
 };
 
-export const actionGetEmployees = createAsyncThunk("actionGetEmployees", async (params: ParamGetUsers) => {
+export const actionGetEmployees = createAsyncThunk("actionGetEmployees", async (params?: ParamGetUsers) => {
 	const response = await request({
-		url: "/api/users?role_id=2",
+		url: "/api/users",
 		method: "get",
 		params,
 	});
