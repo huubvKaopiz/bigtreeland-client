@@ -15,6 +15,8 @@ export interface PeriodTuitionReducerState {
 export interface GetPeriodTuionsPrams {
     class_id?: number;
     page?: number;
+    from_date?: string;
+    to_date?: string;
 }
 
 export interface AddPeriodTuionParms {
@@ -52,7 +54,7 @@ export const actionGetPeriodTuion = createAsyncThunk("actionGetPeriodTuion", asy
     return response.data;
 })
 
-export const actionGetPeriodTuions = createAsyncThunk("actionGetPeriodTuions", async (params: GetPeriodTuionsPrams) => {
+export const actionGetPeriodTuions = createAsyncThunk("actionGetPeriodTuions", async (params: GetPeriodTuionsPrams ={}) => {
     const response = await request({
         url: `/api/period-tuitions`,
         method: "get",
