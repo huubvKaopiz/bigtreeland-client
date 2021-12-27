@@ -23,7 +23,7 @@ export default function UpdateEmplyeeForm(props: { employee: EmployeeType; roles
 				name: employee.name,
 				email: get(employee, "profile.email", ""),
 				phone: get(employee, "phone", ""),
-				birthday: moment(get(employee, "profile.birthday", "")),
+				birthday: moment(get(employee, "profile.birthday", moment())),
 				gender: get(employee, "profile.gender", 0),
 				address: get(employee, "profile.address", ""),
 				interests: get(employee, "profile.interests", ""),
@@ -110,7 +110,7 @@ export default function UpdateEmplyeeForm(props: { employee: EmployeeType; roles
 						</Select>
 					</Form.Item>
 					<Form.Item name="birthday" label="Ngày sinh">
-						<DatePicker format={dateFormat} />
+						<DatePicker />
 					</Form.Item>
 					<Form.Item name="address" label="Địa chỉ">
 						<Input />
