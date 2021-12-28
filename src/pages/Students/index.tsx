@@ -1,11 +1,11 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Col, Input, Layout, Row, Space, Table } from "antd";
 import AddStudentModal from "./addStudentModal";
 import { StudentType } from "../../interface";
 import { useSelector } from "react-redux";
 import { RootState, useAppDispatch } from "store/store";
-import { actionGetStudents } from "store/students/slice";
-import { get } from "lodash";
+import { actionGetStudents, actionResetGetStudents, actionResetUpdateStudent } from "store/students/slice";
+import { debounce, get } from "lodash";
 import ImportClass from "./importClass";
 import LeaveModal from "./leaveModal";
 import EditStudentModal from "./editStudentModal";
@@ -21,29 +21,49 @@ export default function Students(): JSX.Element {
 	const classesList = useSelector((state: RootState) => state.classReducer.classes);
 	const searchParentStatus = useSelector((state: RootState) => state.parentReducer.getParentsStatus);
 	const searchClassStatus = useSelector((state: RootState) => state.classReducer.getClassesStatus);
+	const updateStudentStatus = useSelector((state: RootState) => state.studentReducer.updateStudentStatus);
+
+	const [page, setPage] = useState(1);
+	const [searchInput, setSearchInput] = useState("");
+
 
 	useEffect(() => {
-		if (loadListStatus === "idle") {
-			dispatch(actionGetStudents({ page: 1 }));
+		dispatch(actionGetStudents({ page: 1 }));
+	}, [dispatch]);
+
+	useEffect(() => {
+		if (loadListStatus === "error" || loadListStatus === "success") {
+			dispatch(actionResetGetStudents());
 		}
-	}, [dispatch, loadListStatus]);
+	}, [dispatch, loadListStatus])
 
 	useEffect(() => {
 		dispatch(actionGetParents({}));
 		dispatch(actionGetClasses({}));
 	}, [dispatch]);
 
-	const searchParent = (search: string) => {
-		if (search.length >= 3 || search.length === 0) {
-			dispatch(actionGetParents({ search }));
-		}
-	};
+	useEffect(() => {
+		dispatch(actionGetStudents({ page, search: searchInput }));
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [dispatch, page])
 
-	const searchClass = (search: string) => {
-		if (search.length === 0 || search.length >= 3) {
-			dispatch(actionGetClasses({ search }));
+	useEffect(() => {
+		if (updateStudentStatus === "success") {
+			dispatch(actionGetStudents({ page: 1 }));
+			dispatch(actionResetUpdateStudent());
 		}
-	};
+	}, [dispatch, updateStudentStatus]);
+
+	const debounceSearchStudent = useRef(
+		debounce((search) => {
+			setSearchInput(search);
+			dispatch(actionGetStudents({ search }));
+		}, 500)
+	).current;
+
+	const debounceSearchParent = useRef(debounce((search) => dispatch(actionGetParents({ search })), 500)).current;
+
+	const debounceSearchClass = useRef(debounce((search) => dispatch(actionGetClasses({ search })), 500)).current;
 
 	const columns = [
 		{
@@ -74,7 +94,7 @@ export default function Students(): JSX.Element {
 		{
 			width: "15%",
 			title: "Lớp",
-			dataIndex: "class.name",
+			dataIndex: "class",
 			key: "class",
 			render: function parentCol(value?: { id: number; name: string }): JSX.Element {
 				return <a>{get(value, "name", "")}</a>;
@@ -107,7 +127,7 @@ export default function Students(): JSX.Element {
 							<ImportClass
 								student={student}
 								classesList={classesList}
-								searchClass={searchClass}
+								searchClass={debounceSearchClass}
 								searchStatus={searchClassStatus}
 							/>
 						) : (
@@ -117,7 +137,7 @@ export default function Students(): JSX.Element {
 						<EditStudentModal
 							student={student}
 							parents={parents}
-							searchParent={searchParent}
+							searchParent={debounceSearchParent}
 							searchStatus={searchParentStatus}
 						/>
 						<LeaveModal studen_id={student.id} />
@@ -131,10 +151,10 @@ export default function Students(): JSX.Element {
 		<Layout.Content>
 			<Row style={{ marginBottom: 20, marginTop: 20 }} justify="start">
 				<Col span={10}>
-					<Input.Search allowClear />
+					<Input.Search allowClear onChange={({target: {value}}) => debounceSearchStudent(value)}/>
 				</Col>
 				<Col span={6} style={{ marginLeft: 20 }}>
-					<AddStudentModal parents={parents} searchParent={searchParent} searchStatus={searchParentStatus} />
+					<AddStudentModal parents={parents} searchParent={debounceSearchParent} searchStatus={searchParentStatus} />
 				</Col>
 			</Row>
 			<Table
@@ -143,6 +163,14 @@ export default function Students(): JSX.Element {
 				size="small"
 				bordered
 				loading={loadListStatus === "loading" ? true : false}
+				pagination={{
+					showSizeChanger: false,
+					pageSize: 20,
+					total: get(students, "total", 0),
+					onChange: (page) => {
+						setPage(page);
+					},
+				}}
 			/>
 		</Layout.Content>
 	);

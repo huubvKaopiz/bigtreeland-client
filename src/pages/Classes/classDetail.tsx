@@ -43,7 +43,7 @@ export default function ClassDetail(): JSX.Element {
 	const dispatch = useAppDispatch();
 	const { TabPane } = Tabs;
 	const [today, setToday] = useState(moment(new Date()).format(dateFormat));
-	const [attendantList, setAttendantList] = useState([0]);
+	const [attendantList, setAttendantList] = useState<number[]>([]);
 	const [checkAll, setCheckAll] = useState(false);
 	const [listComments, setListComments] = useState<AttendanceStudentComment[]>([]);
 	// const classInfo = location.state.classInfo as ClassType;
@@ -69,7 +69,7 @@ export default function ClassDetail(): JSX.Element {
 	useEffect(() => {
 		if (params.class_id) {
 			dispatch(actionGetAttendances({ class_id: parseInt(params.class_id) }));
-			dispatch(actionGetClass({class_id:parseInt(params.class_id)}));
+			dispatch(actionGetClass({ class_id: parseInt(params.class_id) }));
 		}
 	}, [dispatch, params]);
 
@@ -172,6 +172,7 @@ export default function ClassDetail(): JSX.Element {
 		},
 	];
 
+	/* Todo cái này làm gì nhỉ? */
 	for (const key in get(attendances, "attendances", [])) {
 		attendance_columns.push({
 			title: `${moment(key).format("DD/MM/YYYY")}`,
@@ -184,7 +185,7 @@ export default function ClassDetail(): JSX.Element {
 		});
 	}
 
-	const todayCol = {
+	const attendanceCheckCol = {
 		title: (
 			<div style={{ textAlign: "center" }}>
 				<Checkbox onChange={handleCheckAll} checked={checkAll} />
@@ -193,7 +194,7 @@ export default function ClassDetail(): JSX.Element {
 		key: "operation",
 		dataIndex: "",
 		// width: 10,
-		render: function col(st: { id: number; name: string }): JSX.Element {
+		render: function col(st: { id: number }): JSX.Element {
 			return (
 				<div style={{ textAlign: "center" }}>
 					<Checkbox onChange={() => handleCheckbox(st.id)} checked={isAttendantToday(st.id)} />
@@ -240,7 +241,7 @@ export default function ClassDetail(): JSX.Element {
 		},
 	};
 
-	attendance_columns.push(todayCol);
+	attendance_columns.push(attendanceCheckCol);
 	attendance_columns.push(commentCol);
 	attendance_columns.push(conductPointCol);
 	attendance_columns.push(actionCol);
@@ -363,7 +364,13 @@ export default function ClassDetail(): JSX.Element {
 					</Descriptions.Item>
 					<Descriptions.Item label="Số học sinh">{classInfo?.students_num}</Descriptions.Item>
 					<Descriptions.Item label="Lịch học">
-						{classInfo?.schedule.map((day) => dayOptions[day] + " ")}
+						{(() => {
+							const sortedSchedule = classInfo?.schedule ? [...classInfo.schedule] : [];
+							return sortedSchedule
+								.sort()
+								.map((day) => dayOptions[day])
+								.join(", ");
+						})()}
 					</Descriptions.Item>
 				</Descriptions>
 			</PageHeader>

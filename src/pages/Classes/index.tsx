@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 import { ClassType } from "../../interface";
 import { Button, Col, Input, Layout, Row, Space, Table } from "antd";
@@ -7,7 +7,6 @@ import { UnorderedListOutlined } from "@ant-design/icons";
 import EditClassModal from "./editClassModal";
 import AddClassModal from "./addClassModal";
 import { useHistory } from "react-router-dom";
-import { useAppDispatch } from "store/store";
 import { actionGetClasses } from "store/classes/slice";
 import { get } from "lodash";
 import { actionGetEmployees } from "store/employees/slice";
@@ -15,7 +14,7 @@ import numeral from "numeral";
 import { dayOptions } from "utils/const";
 
 function Classes(): JSX.Element {
-	const dispatch = useAppDispatch();
+	const dispatch = useDispatch();
 	const history = useHistory();
 	const getStatus = useSelector((state: RootState) => state.classReducer.getClassesStatus);
 	const classes = useSelector((state: RootState) => state.classReducer.classes);
@@ -76,7 +75,8 @@ function Classes(): JSX.Element {
 			dataIndex: "schedule",
 			key: "schedule",
 			render: function scheduleCol(schedule: number[]): JSX.Element {
-				return <>{schedule.map((day) => dayOptions[day]+ " ")}</>;
+				const sortedSchedule = [...schedule]
+				return <>{sortedSchedule.sort().map((day) => dayOptions[day]).join(', ')}</>;
 			},
 		},
 		{

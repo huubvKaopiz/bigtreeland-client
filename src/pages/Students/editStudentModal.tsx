@@ -25,7 +25,6 @@ export default function EditStudentModal(props: {
 
 	useEffect(() => {
 		if (student) {
-			console.log(student);
 			uForm.setFieldsValue({
 				name: student.name,
 				parent_id: get(student, "parent.id", null),
@@ -47,7 +46,6 @@ export default function EditStudentModal(props: {
 	useEffect(() => {
 		if (status === "success") {
 			setShow(false);
-			dispatch(actionGetClasses({}));
 		}
 	}, [status, dispatch]);
 
@@ -55,6 +53,7 @@ export default function EditStudentModal(props: {
 		dispatch(
 			actionUpdateStudent({
 				data: {
+					...student,
 					...values,
 					birthday: moment(values.birthday).format("YYYY-MM-DD"),
 					admission_date: moment(values.admission_date).format("YYYY-MM-DD"),

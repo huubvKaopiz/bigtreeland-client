@@ -33,14 +33,16 @@ export default function EditClassModal(props: {
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [classInfo]);
 
-	function handleSubmit(values: any) {
+	function handleSubmit() {
 		setSubmiting(true);
-		dispatch(actionUpdateClass({ data: values, cID: classInfo.id }))
+		dispatch(actionUpdateClass({ data: uFrom.getFieldsValue(), cID: classInfo.id }))
 			.then(() => {
-				setShow(false);
 				dispatch(actionGetClasses({ page: 1 }));
+				setShow(false);
 			})
-			.finally(() => setSubmiting(false));
+			.finally(() => {
+				setSubmiting(false);
+			});
 	}
 
 	return (
@@ -51,7 +53,7 @@ export default function EditClassModal(props: {
 				title="Thay đổi thông tin lớp học"
 				onCancel={() => setShow(false)}
 				footer={[
-					<Button loading={submiting} key="btnsubmit" type="primary" htmlType="submit" form="aForm">
+					<Button loading={submiting} key="btnsubmit" type="primary" htmlType="submit" onClick={handleSubmit}>
 						Lưu lại
 					</Button>,
 				]}

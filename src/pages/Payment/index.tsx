@@ -61,6 +61,7 @@ function Payment(): JSX.Element {
 	const [showDrawer, setShowDrawer] = useState(false);
 	const [currentDrawerData, setCurrentDrawerData] = useState(null);
 	const [page, setPage] = useState(1);
+	const [searchInput, setSearchInput] = useState('')
 
 	const [editingKey, setEditingKey] = useState("");
 	const [statusValueChange, setStatusValueChange] = useState("");
@@ -92,9 +93,10 @@ function Payment(): JSX.Element {
 			const toDate = searchRange[1];
 			if (fromDate) searchObj.fromDate = fromDate;
 			if (toDate) searchObj.toDate = toDate;
+			if(searchInput) searchObj.search = searchInput
 			dispatch(actionGetPayments({ ...searchObj, page }));
 		},
-		[dispatch, searchRange]
+		[dispatch, searchRange, searchInput]
 	);
 
 	useEffect(() => {
@@ -128,6 +130,7 @@ function Payment(): JSX.Element {
 	}, [paymentTableData]);
 
 	function onTableFiler(value: string) {
+		setSearchInput(value)
 		debounceSearch(value);
 	}
 

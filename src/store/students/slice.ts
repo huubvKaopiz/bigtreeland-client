@@ -26,18 +26,19 @@ export interface UpdateStudentStatusParams {
 
 export interface StudentParams {
     name: string;
-	parent_id:number;
+	parent_id?:number;
 	birthday: string;
 	gender: number;
-	school: string;
+	school?: string | null;
 	admission_date: string;
-	address: string;
-	interests: string;
-	dislikes: string;
-	personality: string;
-	hope: string;
-	knowledge_status: number;
-	is_special: number;
+	address?: string | null;
+	interests?: string | null;
+	dislikes?: string | null;
+	personality?: string | null;
+	hope?: string | null;
+	knowledge_status?: number | null;
+	is_special?: number | boolean |null;
+    class_id?: number;
 }
 
 const initialState: StudentReducerState = {
@@ -91,13 +92,13 @@ export const studentSlice = createSlice({
     name:"student",
     initialState,
     reducers:{
-        actionGetStudents(state){
+        actionResetGetStudents(state){
             state.getStudentsStatus="idle";
         },
         actionAddStudent(state){
             state.addStudentStatus="idle";
         },
-        actionUpdateStudent(state){
+        actionResetUpdateStudent(state){
             state.updateStudentStatus="idle";
         },
         actionUpdateStudentStatus(state){
@@ -163,6 +164,6 @@ export const studentSlice = createSlice({
     }
 })
 
-export const {actionSetStudentsStateNull} = studentSlice.actions;
+export const { actionSetStudentsStateNull, actionResetUpdateStudent, actionResetGetStudents } = studentSlice.actions;
 
 export default studentSlice.reducer;
