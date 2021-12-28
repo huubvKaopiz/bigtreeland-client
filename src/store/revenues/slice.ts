@@ -140,7 +140,7 @@ export const slice = createSlice({
 			// update
 			.addCase(actionUpdateRevenues.fulfilled, (state) => {
 				state.updateRevenuesStatus = "success";
-				notification.success({ message: "Thêm doanh thu mới thành công!" });
+				notification.success({ message: "Cập nhật doanh thu thành công!" });
 			})
 			.addCase(actionUpdateRevenues.pending, (state) => {
 				state.updateRevenuesStatus = "loading";
