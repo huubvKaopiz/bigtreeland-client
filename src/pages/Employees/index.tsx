@@ -22,7 +22,7 @@ function Employees(): JSX.Element {
 	const employees = useSelector((state: RootState) => state.employeeReducer.employees);
 	const getEmployeesStatus = useSelector((state: RootState) => state.employeeReducer.getEmployeesStatus);
 	const statusUpdateEmployee = useSelector((state: RootState) => state.employeeReducer.updateEmployeeStatus)
-	const debounceSearch = useRef(debounce((nextValue) => dispatch(actionGetEmployees({ search: nextValue })), 500)).current;
+	const debounceSearch = useRef(debounce((nextValue) => dispatch(actionGetEmployees({ search: nextValue, role_name: role })), 500)).current;
 
 	useEffect(() => {
 		dispatch(actionGetEmployees({ per_page: 100, search, role_name: role }));
