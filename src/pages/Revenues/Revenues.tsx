@@ -122,16 +122,18 @@ function Revenues(): JSX.Element {
 	}
 
 	function handleUpdateRowData() {
+		console.log(rowValueChange)
 		dispatch(
 			actionUpdateRevenues(
 				pick(rowValueChange, [
 					"id",
 					"creator_id",
+					"type",
 					"amount",
+					"note",
+					"reason",
 					"date",
 					"status",
-					"reason",
-					"note",
 				]) as RevenuesRequestUpdateType
 			)
 		);
@@ -252,7 +254,6 @@ function Revenues(): JSX.Element {
 						<Select
 							defaultValue={row.status}
 							onChange={(value) => {
-								console.log(value);
 								setRowValueChange({ ...row, status: value });
 							}}
 							onClick={(e) => {
