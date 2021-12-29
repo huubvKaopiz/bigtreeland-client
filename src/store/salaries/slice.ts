@@ -8,19 +8,21 @@ interface SalariesReducerState {
     salaries: GetResponseType<SalaryType> | null;
     getSalary: "idle" | "loading" | "success" | "error";
     getSalaries: "idle" | "loading" | "success" | "error";
-    addSalary: "idle" | "loading" | "success" | "error";
-    updateSalary: "idle" | "loading" | "success" | "error";
-    deleteSalary: "idle" | "loading" | "success" | "error";
+    addSalaryStatus: "idle" | "loading" | "success" | "error";
+    updateSalaryStatus: "idle" | "loading" | "success" | "error";
+    deleteSalaryStatus: "idle" | "loading" | "success" | "error";
 }
 
-interface AddSalaryData {
+export interface AddSalaryData {
     employee_id: 1;
     basic_salary: "";
     revenue_salary: "";
     debt: "";
     bonus: "";
     fines: "";
-    period_id: 1;
+    period_id: number;
+    from_date:string;
+    to_date:string;
     note: "";
     status: 0;
 }
@@ -75,9 +77,9 @@ const initialState: SalariesReducerState = {
     salaries: null,
     getSalary: "idle",
     getSalaries: "idle",
-    addSalary: "idle",
-    updateSalary: "idle",
-    deleteSalary: "idle",
+    addSalaryStatus: "idle",
+    updateSalaryStatus: "idle",
+    deleteSalaryStatus: "idle",
 };
 
 export const salariesSlice = createSlice({
@@ -91,13 +93,13 @@ export const salariesSlice = createSlice({
             state.getSalaries = "idle";
         },
         actionAddSalary(state) {
-            state.addSalary = "idle";
+            state.addSalaryStatus = "idle";
         },
         actionupdateSalary(state) {
-            state.updateSalary = "idle";
+            state.updateSalaryStatus = "idle";
         },
         actionDeleteSalary(state) {
-            state.deleteSalary = "idle";
+            state.deleteSalaryStatus = "idle";
         }
     },
     extraReducers: (builder) => {
@@ -122,12 +124,22 @@ export const salariesSlice = createSlice({
             })
 
             .addCase(actionAddSalary.pending, state => {
-                state.addSalary = "loading";
+                state.addSalaryStatus = "loading";
             }).addCase(actionAddSalary.fulfilled, (state) => {
-                state.addSalary = "success";
+                state.addSalaryStatus = "success";
                 notification.success({ message: "Thêm bảng lương thành công" });
             }).addCase(actionAddSalary.rejected, state => {
-                state.addSalary = "error";
+                state.addSalaryStatus = "error";
+                notification.error({ message: "Thêm bảng lương bị lỗi!" });
+            })
+
+            .addCase(actionUpdateSalary.pending, state => {
+                state.updateSalaryStatus = "loading";
+            }).addCase(actionUpdateSalary.fulfilled, (state) => {
+                state.updateSalaryStatus = "success";
+                notification.success({ message: "Thêm bảng lương thành công" });
+            }).addCase(actionUpdateSalary.rejected, state => {
+                state.updateSalaryStatus = "error";
                 notification.error({ message: "Thêm bảng lương bị lỗi!" });
             })
     }

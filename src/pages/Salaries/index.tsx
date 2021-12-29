@@ -1,19 +1,21 @@
-import { Input, Layout, Space, Table } from 'antd';
+import { Button, Input, Layout, Space, Table } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
 import { get } from 'lodash';
 import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { actionGetSalaries } from 'store/salaries/slice';
 import { RootState, useAppDispatch } from 'store/store';
-import AddSalary from './addSalary';
+import { useHistory } from 'react-router-dom';
 
 export default function Salaries(): JSX.Element {
     const dispatch = useAppDispatch();
-    const salaries = useSelector((state: RootState) => state.salariesSlice.salaries);
-    const getSalariesState = useSelector((state: RootState) => state.salariesSlice.getSalaries);
+    const history = useHistory();
+    const salaries = useSelector((state: RootState) => state.salariesReducer.salaries);
+    const getSalariesState = useSelector((state: RootState) => state.salariesReducer.getSalaries);
 
     useEffect(() => {
         dispatch(actionGetSalaries())
-    },[dispatch])
+    }, [dispatch])
 
     const columns = [
         {
@@ -47,9 +49,9 @@ export default function Salaries(): JSX.Element {
         <Layout.Content>
             <Space style={{ marginBottom: 30 }}>
                 <Input.Search />
-                <AddSalary />
+                <Button type="primary" icon={<PlusOutlined />} onClick={() => history.push("/salaries-create")}>Lập bảng lương</Button>
             </Space>
-            <Table dataSource={get(salaries, "data", [])} columns={columns} loading={getSalariesState == "loading" ? true : false }/>;
+            <Table dataSource={get(salaries, "data", [])} columns={columns} loading={getSalariesState == "loading" ? true : false} />;
         </Layout.Content>
     )
 }

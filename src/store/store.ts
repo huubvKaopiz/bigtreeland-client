@@ -18,8 +18,8 @@ import revenuesReducer from './revenues/slice';
 import periodTuitionReducer from './tuition/periodslice';
 import tuitionFeeReducer from './tuition/tuition';
 import dayoffReducer from './settings/dayoff';
-import lessionSlice from './lession/slice';
-import salariesSlice from './salaries/slice';
+import lessionReducer from './lession/slice';
+import salariesReducer from './salaries/slice';
 
 const rootReducer = combineReducers({
 	auth,
@@ -38,8 +38,8 @@ const rootReducer = combineReducers({
 	periodTuitionReducer,
 	dayoffReducer,
 	tuitionFeeReducer,
-	lessionSlice,
-	salariesSlice
+	lessionReducer,
+	salariesReducer
 });
 
 const persistConfig = {

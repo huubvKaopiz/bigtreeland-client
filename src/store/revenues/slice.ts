@@ -45,6 +45,7 @@ export interface RevenuesSearchParam {
 	fromDate?: string;
 	toDate?: string;
 	page?: number;
+	employee_id?:number;
 }
 
 export const RevenuesStatusList = ["Chưa xử lý", "Đã xử lý"];
@@ -109,6 +110,10 @@ export const slice = createSlice({
 		resetUpdateRevenuesStatus(state) {
 			state.updateRevenuesStatus = "idle";
 		},
+		actionSetListRevenuesNull(state){
+			state.getRevenuesStatus = "idle";
+			state.revenues = null;
+		}
 	},
 
 	extraReducers: (builder) => {
@@ -152,5 +157,5 @@ export const slice = createSlice({
 	},
 });
 
-export const { resetGetRevenuesStatus, resetAddRevenuesStatus, resetUpdateRevenuesStatus } = slice.actions;
+export const { resetGetRevenuesStatus, resetAddRevenuesStatus, resetUpdateRevenuesStatus, actionSetListRevenuesNull } = slice.actions;
 export default slice.reducer;

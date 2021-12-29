@@ -155,7 +155,9 @@ export default function AddTuition(): JSX.Element {
 	useEffect(()=>{
 		if(addPeriodTuitionState === "success"){
 			setShowConfirmSubmit(false);
-			history.push("/payments/tuition");
+			dispatch(actionSetAddPeriodtuitionStateIdle());
+			
+			//history.push("/payments/tuition");
 
 		}
 	},[dispatch, addPeriodTuitionState, history])
@@ -164,7 +166,7 @@ export default function AddTuition(): JSX.Element {
 		const est_fee = estSessionNum * get(classInfo, "fee_per_session", 0);
 		return est_fee - parseFloat(get(tuitionFees[index], "residual", '0'))
 			- parseFloat(get(tuitionFees[index], "flexible_deduction", '0'))
-			- parseFloat(get(tuitionFees[index], "flexible_deduction", '0'))
+			- parseFloat(get(tuitionFees[index], "fixed_deduction", '0'))
 			+ parseFloat(get(tuitionFees[index], "debt", '0'))
 	}
 
@@ -215,7 +217,7 @@ export default function AddTuition(): JSX.Element {
 		let val = 0;
 		if (e.target.value === '') val = 0;
 		else val = parseInt(e.target.value);
-		const rd = fixedDeductionTypeList[index] == 0 ? estSessionNum * fee_per_session * val / 100 : val
+		const rd = fixedDeductionTypeList[index] === 0 ? estSessionNum * fee_per_session * val / 100 : val
 		tuitionFees[index].flexible_deduction = String(rd);
 		setTuitionFees([...tuitionFees]);
 	}
@@ -292,7 +294,7 @@ export default function AddTuition(): JSX.Element {
 				);
 			},
 		},
-		/*
+		/** 
 		{
 			title: "Giảm trừ cố định",
 			key: "fixed_deduction",

@@ -1,10 +1,12 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { notification } from "antd";
-import { ListEmployeeType } from "interface";
+import { EmployeeType, ListEmployeeType } from "interface";
 import request from "../../utils/request";
 
 export interface UserReducerState {
+	employeeInfo: EmployeeType | null;
 	employees: ListEmployeeType | null;
+	getEmployeeInfoStatus: "idle" | "loading" | "success" | "error";
 	getEmployeesStatus: "idle" | "loading" | "success" | "error";
 	addEmployeeStatus: "idle" | "loading" | "success" | "error";
 	updateEmployeeStatus: "idle" | "loading" | "success" | "error";
@@ -15,7 +17,7 @@ export interface ParamGetUsers {
 	search?: string;
 	per_page?: number;
 	class_id?: number;
-	role_name?:string;
+	role_name?: string;
 }
 
 export interface EmployeeParams {
@@ -35,12 +37,22 @@ export interface EmployeeParams {
 }
 
 const initialState: UserReducerState = {
+	employeeInfo: null,
 	employees: null,
+	getEmployeeInfoStatus:'idle',
 	getEmployeesStatus: "idle",
 	addEmployeeStatus: "idle",
 	updateEmployeeStatus: "idle",
 	deleteEmployeeStatus: "idle",
 };
+
+export const actionGetEmployeeInfo = createAsyncThunk("actionGetEmployeeInfo", async (eID: number) => {
+	const response = await request({
+		url: `/api/users/${eID}`,
+		method: "get",
+	});
+	return response.data;
+});
 
 export const actionGetEmployees = createAsyncThunk("actionGetEmployees", async (params?: ParamGetUsers) => {
 	const response = await request({
@@ -103,10 +115,26 @@ export const employeeSlice = createSlice({
 		actionResetDeeleteEmployeeSatus(state) {
 			state.deleteEmployeeStatus = "idle";
 		},
+		actionSetListEmployeesNull(state){
+			state.getEmployeesStatus = "idle";
+			state.employees = null;
+		}
 	},
 
 	extraReducers: (builder) => {
 		builder
+			.addCase(actionGetEmployeeInfo.pending, (state) => {
+				state.getEmployeeInfoStatus = "loading";
+			})
+			.addCase(actionGetEmployeeInfo.fulfilled, (state, action) => {
+				state.employeeInfo = action.payload as EmployeeType;
+				state.getEmployeeInfoStatus = "success";
+			})
+			.addCase(actionGetEmployeeInfo.rejected, (state) => {
+				state.getEmployeeInfoStatus = "error";
+				state.employeeInfo = null;
+			})
+			//get employees
 			.addCase(actionGetEmployees.pending, (state) => {
 				state.getEmployeesStatus = "loading";
 			})
@@ -158,7 +186,7 @@ export const employeeSlice = createSlice({
 			});
 	},
 });
-export const { actionResetAddEmployeeStatus, actionResetDeeleteEmployeeSatus, actionResetUpdateEmployeeSatus } =
+export const { actionResetAddEmployeeStatus, actionResetDeeleteEmployeeSatus, actionResetUpdateEmployeeSatus, actionSetListEmployeesNull } =
 	employeeSlice.actions;
 
 export default employeeSlice.reducer;
