@@ -9,9 +9,10 @@ import moment from 'moment';
 import { actionGetRevenues, actionSetListRevenuesNull } from 'store/revenues/slice';
 import numeral from 'numeral';
 import { actionAddSalary, AddSalaryData } from 'store/salaries/slice';
+import { actionGetLessons } from 'store/lesson/slice';
 
 const { Option } = Select;
-const { Title, Paragraph, Text } = Typography;
+const { Title, Paragraph } = Typography;
 const { RangePicker } = DatePicker;
 
 export default function AddSalary(): JSX.Element {
@@ -21,11 +22,14 @@ export default function AddSalary(): JSX.Element {
     const [disableSelectEmployee, setDisableSelectEmployee] = useState(true);
     const [amountRevenue, setAmountRevenue] = useState(0);
     const [amountSalary, setAmountSalary] = useState(0);
+    const [role, setRole] = useState('none');
+
     const emloyees = useSelector((state: RootState) => state.employeeReducer.employees);
     const employeeInfo = useSelector((state: RootState) => state.employeeReducer.employeeInfo);
     const receipts = useSelector((state: RootState) => state.revenuesReducer.revenues);
     const getReceiptStatus = useSelector((state: RootState) => state.revenuesReducer.getRevenuesStatus);
     const addSalaryStatus = useSelector((state: RootState) => state.salariesReducer.addSalaryStatus);
+    const lessons = useSelector((state: RootState) => state.lessonReducer.lessons);
 
     useEffect(() => {
         form.setFieldsValue({
@@ -51,7 +55,7 @@ export default function AddSalary(): JSX.Element {
     }, [employeeInfo, form])
 
     useEffect(() => {
-        if (receipts) {
+        if (receipts && role === 'sale') {
             let amount = 0;
             get(receipts, "data", []).forEach((rc => {
                 amount += Number(rc.amount);
@@ -66,15 +70,36 @@ export default function AddSalary(): JSX.Element {
                 + parseFloat(form.getFieldValue("bonus"))
                 - parseFloat(form.getFieldValue("fines")))
         }
-    }, [receipts, form])
+    }, [receipts, form, role])
+
+    useEffect(()=>{
+        if(lessons && role === 'teacher2'){
+            const count = get(lessons,"data",[]).length;
+            console.log('lessons:',count)
+        }
+    },[lessons, role])
 
     function handleChangeDateRange(date: any, dateString: [string, string]) {
         setDateRange([dateString[0], dateString[1]])
     }
 
     function handleGetRevenue() {
-        if (form.getFieldValue('employee_id') > 0) {
-            dispatch(actionGetRevenues({ employee_id: form.getFieldValue('employee_id'), fromDate: dateRange[0], toDate: dateRange[1] }))
+        if (form.getFieldValue('employee_id') > 0 || role != 'none') {
+            switch (role) {
+                case 'sale':
+                    dispatch(actionGetRevenues({ employee_id: form.getFieldValue('employee_id'), fromDate: dateRange[0], toDate: dateRange[1] }))
+                    break;
+                case 'teacher':
+                    break;
+                case 'teacher2':
+                    dispatch(actionGetLessons({ employee_id: form.getFieldValue('employee_id'), from_date: dateRange[0], to_date: dateRange[1] }));
+                    break;
+                case 'other':
+                    break;
+                default:
+                    break;
+            }
+
         }
     }
 
@@ -84,10 +109,12 @@ export default function AddSalary(): JSX.Element {
             const basic = parseFloat(allValues.basic_salary);
             const bonus = parseFloat(allValues.bonus);
             const fines = parseFloat(allValues.fines);
+            console.log(revenue, basic, bonus, fines);
             setAmountSalary(basic + revenue + bonus - fines);
         }
         if (changeValues.role) {
             console.log(allValues.employee_id)
+            setRole(changeValues.role);
             if (changeValues.role == 'none') {
                 dispatch(actionSetListRevenuesNull());
                 setDisableSelectEmployee(true)
@@ -137,7 +164,7 @@ export default function AddSalary(): JSX.Element {
     function handleSubmit(values: any) {
         console.log(values)
         if (values.employee_id <= 0) return;
-        const payload:AddSalaryData = {
+        const payload: AddSalaryData = {
             employee_id: values.employee_id,
             basic_salary: values.basic_salary,
             revenue_salary: values.revenue_salary,
@@ -148,7 +175,7 @@ export default function AddSalary(): JSX.Element {
             note: values.note,
             from_date: dateRange[0],
             to_date: dateRange[1],
-            status:0,
+            status: 0,
         }
         dispatch(actionAddSalary(payload));
     }
@@ -265,7 +292,7 @@ export default function AddSalary(): JSX.Element {
                         <Form.Item>
                             <Space >
                                 <strong style={{ marginRight: 20 }}>Tổng lương: <span style={{ color: "#d35400" }}>{numeral(amountSalary).format("0,0")}</span></strong>
-                                <Button type="primary"  htmlType="submit" loading={addSalaryStatus == "loading" ? true : false}>Submit</Button>
+                                <Button type="primary" htmlType="submit" loading={addSalaryStatus == "loading" ? true : false}>Submit</Button>
                             </Space>
                         </Form.Item>
 
@@ -283,20 +310,25 @@ export default function AddSalary(): JSX.Element {
                 </Col>
             </Row>
             <Divider />
-            <List
-                rowKey="id"
-                itemLayout="horizontal"
-                loading={getReceiptStatus === "loading" ? true : false}
-                dataSource={get(receipts, "data", [])}
-                renderItem={item => (
-                    <List.Item>
-                        <List.Item.Meta
-                            title={<a href="https://ant.design">{numeral(item.amount).format("0,0")}</a>}
-                            description={item.created_at}
-                        />
-                    </List.Item>
-                )}
-            />
+            {
+                role === "sale" ?
+                    <List
+                        rowKey="id"
+                        itemLayout="horizontal"
+                        loading={getReceiptStatus === "loading" ? true : false}
+                        dataSource={get(receipts, "data", [])}
+                        renderItem={item => (
+                            <List.Item>
+                                <List.Item.Meta
+                                    title={<a href="#">{numeral(item.amount).format("0,0")}</a>}
+                                    description={item.note}
+                                />
+                                {item.created_at}
+                            </List.Item>
+                        )}
+                    /> :
+                    <List />
+            }
         </Layout.Content>
     )
 }
