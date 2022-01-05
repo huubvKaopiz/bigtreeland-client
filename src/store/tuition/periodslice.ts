@@ -97,7 +97,7 @@ export const periodTuitionSlice = createSlice({
 		actionAddPeriodTuion(state) {
 			state.addPeriodTuitionStatus = "idle";
 		},
-		actionUpdatePeriodTuion(state) {
+		actionResetUpdatePeriodTuion(state) {
 			state.updatePeriodTuitionStatus = "idle";
 		},
 		actionSetAddPeriodtuitionStateIdle(state) {
@@ -146,6 +146,7 @@ export const periodTuitionSlice = createSlice({
 			})
 			.addCase(actionUpdatePeriodTuion.fulfilled, (state) => {
 				state.updatePeriodTuitionStatus = "success";
+				notification.success({ message: "Cập nhật chu kỳ học phí thành công!" });
 			})
 			.addCase(actionUpdatePeriodTuion.rejected, (state) => {
 				state.updatePeriodTuitionStatus = "error";
@@ -154,6 +155,6 @@ export const periodTuitionSlice = createSlice({
 	},
 });
 
-export const { actionSetAddPeriodtuitionStateIdle } = periodTuitionSlice.actions;
+export const { actionSetAddPeriodtuitionStateIdle, actionResetUpdatePeriodTuion } = periodTuitionSlice.actions;
 
 export default periodTuitionSlice.reducer;

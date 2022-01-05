@@ -52,6 +52,9 @@ export const dayoffSlice = createSlice({
     name: "tuitionFeeSlice",
     initialState,
     reducers: {
+        actionResetDayOffs(state) {
+            state.dayoffs = null
+        },
         actionGetDayoffs(state) {
             state.getDayoffsState = "idle";
         },
@@ -101,6 +104,6 @@ export const dayoffSlice = createSlice({
     }
 })
 
-export const {actionSetAddDayoffStateIdle, actionSetDeleteDayoffStateIdle} = dayoffSlice.actions;
+export const {actionSetAddDayoffStateIdle, actionSetDeleteDayoffStateIdle, actionResetDayOffs} = dayoffSlice.actions;
 
 export default dayoffSlice.reducer;

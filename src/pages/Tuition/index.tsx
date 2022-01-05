@@ -22,6 +22,7 @@ type TableDataType = {
 	estact_session_num: string | number;
 	amout: number;
 	status: string;
+	id: number;
 };
 
 export default function Tuition(): JSX.Element {
@@ -64,6 +65,7 @@ export default function Tuition(): JSX.Element {
 				}, 0),
 				/*Todo Status nà cái gì thế? */
 				status: "20/20",
+				id: period.id
 			};
 		});
 		setClassInfoList([...classData]);
@@ -123,19 +125,19 @@ export default function Tuition(): JSX.Element {
 				<Column
 					title="Action"
 					key="action"
-					render={() => (
+					render={(_: number, rowData: TableDataType) => (
 						<Space size="middle">
 							<Tooltip title="Chi tiết">
 								<Button
 									type="link"
-									onClick={() => history.push({ pathname: `/payments/tuition-detail/${1}` })}
+									onClick={() => history.push({ pathname: `/payments/tuition-detail/${rowData.id}` })}
 									icon={<UnorderedListOutlined />}
 								/>
 							</Tooltip>
 							<Tooltip title="Chỉnh sửa">
 								<Button
 									type="link"
-									onClick={() => history.push({ pathname: `/payments/tuition-edit/${1}` })}
+									onClick={() => history.push({ pathname: `/payments/tuition-edit/${rowData.id}` })}
 									icon={<EditOutlined />}
 								/>
 							</Tooltip>
