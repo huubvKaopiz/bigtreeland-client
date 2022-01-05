@@ -76,13 +76,13 @@ export default function EditStudentModal(props: {
 					<Button key="btnCancel" onClick={() => setShow(false)}>
 						Huỷ bỏ
 					</Button>,
-					<Button type="primary" key="btnSubmit" htmlType="submit" form="uForm">
+					<Button type="primary" key="btnSubmit" htmlType="submit" form={`uForm${student.id}`}>
 						Lưu thông tin
 					</Button>,
 				]}
 			>
 				<Form
-					id="uForm"
+					id={`uForm${student.id}`}
 					form={uForm}
 					labelCol={{ span: 6 }}
 					wrapperCol={{ span: 14 }}
