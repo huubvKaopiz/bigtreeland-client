@@ -12,7 +12,7 @@ import AddStudent from "./addStudents";
 
 export default function Parents(): JSX.Element {
 	const dispatch = useAppDispatch();
-	// const status = useSelector((state: RootState) => state.parentReducer.getParentsStatus);
+	const getParentsStatus = useSelector((state: RootState) => state.parentReducer.getParentsStatus);
 	const parents = useSelector((state: RootState) => state.parentReducer.parents);
 
 	useEffect(() => {
@@ -34,7 +34,7 @@ export default function Parents(): JSX.Element {
 			title: "Email",
 			key: "email",
 			render: function col(user: { profile: { email: string } }): JSX.Element {
-				return <strong>{get(user,"profile.email","")}</strong>;
+				return <strong>{get(user, "profile.email", "")}</strong>;
 			},
 		},
 
@@ -43,7 +43,6 @@ export default function Parents(): JSX.Element {
 			title: "Điện thoại",
 			key: "phone",
 			render: function UserCol(user: { id: number; phone: string; phone_verified_at: string }): JSX.Element {
-				console.log("user", user);
 				return (
 					<Space>
 						{user.phone} {user.phone_verified_at == null ? <Tag color="volcano">Chưa xác thực</Tag> : ""}
@@ -57,7 +56,6 @@ export default function Parents(): JSX.Element {
 			dataIndex: "students",
 			key: "students",
 			render: function StudentsCol(students: { id: number; name: string }[]): JSX.Element {
-				console.log(students);
 				return (
 					<div>
 						{students &&
@@ -100,7 +98,7 @@ export default function Parents(): JSX.Element {
 					<AddParent />
 				</Col>
 			</Row>
-			<Table columns={columns} dataSource={get(parents, "data", [])} />
+			<Table loading={getParentsStatus === "loading"} columns={columns} dataSource={get(parents, "data", [])} />
 		</Layout.Content>
 	);
 }

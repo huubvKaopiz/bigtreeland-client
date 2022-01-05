@@ -26,7 +26,6 @@ export default function Students(): JSX.Element {
 	const [page, setPage] = useState(1);
 	const [searchInput, setSearchInput] = useState("");
 
-
 	useEffect(() => {
 		dispatch(actionGetStudents({ page: 1 }));
 	}, [dispatch]);
@@ -35,7 +34,7 @@ export default function Students(): JSX.Element {
 		if (loadListStatus === "error" || loadListStatus === "success") {
 			dispatch(actionResetGetStudents());
 		}
-	}, [dispatch, loadListStatus])
+	}, [dispatch, loadListStatus]);
 
 	useEffect(() => {
 		dispatch(actionGetParents({}));
@@ -44,8 +43,8 @@ export default function Students(): JSX.Element {
 
 	useEffect(() => {
 		dispatch(actionGetStudents({ page, search: searchInput }));
-	// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [dispatch, page])
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [dispatch, page]);
 
 	useEffect(() => {
 		if (updateStudentStatus === "success") {
@@ -119,10 +118,9 @@ export default function Students(): JSX.Element {
 		{
 			width: "15%",
 			title: "Action",
-			key: "action",
 			render: function ActionCol(student: StudentType): JSX.Element {
 				return (
-					<Space>
+					<Space key={student.id}>
 						{student.class === null ? (
 							<ImportClass
 								student={student}
@@ -151,7 +149,7 @@ export default function Students(): JSX.Element {
 		<Layout.Content>
 			<Row style={{ marginBottom: 20, marginTop: 20 }} justify="start">
 				<Col span={10}>
-					<Input.Search allowClear onChange={({target: {value}}) => debounceSearchStudent(value)}/>
+					<Input.Search allowClear onChange={({ target: { value } }) => debounceSearchStudent(value)} />
 				</Col>
 				<Col span={6} style={{ marginLeft: 20 }}>
 					<AddStudentModal parents={parents} searchParent={debounceSearchParent} searchStatus={searchParentStatus} />
