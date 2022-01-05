@@ -4,7 +4,7 @@ import { EditOutlined } from "@ant-design/icons";
 import { ListParentType, ParentType, StudentType } from "interface";
 import { get } from "lodash";
 import { RootState, useAppDispatch } from "store/store";
-import { actionUpdateStudent } from "store/students/slice";
+import { actionResetUpdateStudent, actionUpdateStudent } from "store/students/slice";
 import moment from "moment";
 import { useSelector } from "react-redux";
 import { actionGetClasses } from "store/classes/slice";
@@ -47,6 +47,9 @@ export default function EditStudentModal(props: {
 		if (status === "success") {
 			setShow(false);
 		}
+		if (status === "success" || status === "error") {
+			dispatch(actionResetUpdateStudent());
+		}
 	}, [status, dispatch]);
 
 	const handleSubmit = (values: any) => {
@@ -76,7 +79,13 @@ export default function EditStudentModal(props: {
 					<Button key="btnCancel" onClick={() => setShow(false)}>
 						Huỷ bỏ
 					</Button>,
-					<Button type="primary" key="btnSubmit" htmlType="submit" form={`uForm${student.id}`}>
+					<Button
+						type="primary"
+						key="btnSubmit"
+						loading={status === "loading"}
+						htmlType="submit"
+						form={`uForm${student.id}`}
+					>
 						Lưu thông tin
 					</Button>,
 				]}

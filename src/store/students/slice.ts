@@ -69,7 +69,7 @@ export const actionAddStudent = createAsyncThunk("actionAddStudent", async (data
 });
 
 export const actionUpdateStudent = createAsyncThunk(
-	"actionUpdaeStudent",
+	"actionUpdateStudent",
 	async (params: { data: StudentParams; sID: number }) => {
 		const { data, sID } = params;
 		const response = await request({
