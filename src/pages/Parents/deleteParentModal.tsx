@@ -1,26 +1,15 @@
 import { Button, Tooltip } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 import { ParentType } from "interface";
-import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { RootState, useAppDispatch } from "store/store";
-import Modal from "antd/lib/modal/Modal";
+import { useState } from "react";
+import { useAppDispatch } from "store/store";
 import confirm from "antd/lib/modal/confirm";
-import { actionResetStatusDeleteParent, actionDeleteParent, actionGetParents } from "../../store/parents/slice";
+import { actionDeleteParent, actionGetParents } from "../../store/parents/slice";
 
 export default function DeleteParent(props: { parent: ParentType }): JSX.Element {
 	const { parent } = props;
 	const dispatch = useAppDispatch();
-	const deleteParentStatus = useSelector((state: RootState) => state.parentReducer.deleteParentStatus);
-
-	useEffect(() => {
-		if (deleteParentStatus === "success" || deleteParentStatus === "error") {
-			dispatch(actionResetStatusDeleteParent());
-		}
-		if (deleteParentStatus === "success") {
-			dispatch(actionGetParents({ page: 1 }));
-		}
-	}, [deleteParentStatus, dispatch]);
+	const [loading, setLoading] = useState(false);
 
 	return (
 		<div>
@@ -29,12 +18,19 @@ export default function DeleteParent(props: { parent: ParentType }): JSX.Element
 					danger
 					type="text"
 					icon={<DeleteOutlined />}
-					disabled={deleteParentStatus === "loading"}
+					loading={loading}
 					onClick={() => {
 						confirm({
 							title: "Bạn có chắc chắn?",
 							onOk: function () {
-								dispatch(actionDeleteParent(parent.id));
+								setLoading(true);
+								dispatch(actionDeleteParent(parent.id))
+									.then(() => {
+										dispatch(actionGetParents({ page: 1 }));
+									})
+									.finally(() => {
+										setLoading(false);
+									});
 							},
 						});
 					}}

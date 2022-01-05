@@ -61,13 +61,20 @@ export const actionUpdateParent = createAsyncThunk(
 	}
 );
 
-export const actionDeleteParent = createAsyncThunk("actionDeleteParent", async (parentId: number) => {
-	const response = await request({
-		url: `/api/users/${parentId}`,
-		method: "delete",
-	});
-	return response.data;
-});
+export const actionDeleteParent = createAsyncThunk(
+	"actionDeleteParent",
+	async (parentId: number, { rejectWithValue }) => {
+		try {
+			const response = await request({
+				url: `/api/users/${parentId}`,
+				method: "delete",
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
+	}
+);
 
 export const parentSlice = createSlice({
 	name: "parent",
