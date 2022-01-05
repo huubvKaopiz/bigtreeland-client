@@ -8,7 +8,7 @@ export interface ParentReducerState {
 	getParentsStatus: "idle" | "loading" | "success" | "error";
 	addParentStatus: "idle" | "loading" | "success" | "error";
 	updateParentStatus: "idle" | "loading" | "success" | "error";
-	updateParentStatusStatus: "idle" | "loading" | "success" | "error";
+	deleteParentStatus: "idle" | "loading" | "success" | "error";
 }
 
 export interface GetParentsPrams {
@@ -27,7 +27,7 @@ const initialState: ParentReducerState = {
 	getParentsStatus: "idle",
 	addParentStatus: "idle",
 	updateParentStatus: "idle",
-	updateParentStatusStatus: "idle",
+	deleteParentStatus: "idle",
 };
 
 export const actionGetParents = createAsyncThunk("actionGetParents", async (params: GetParentsPrams) => {
@@ -61,18 +61,20 @@ export const actionUpdateParent = createAsyncThunk(
 	}
 );
 
+export const actionDeleteParent = createAsyncThunk("actionDeleteParent", async (parentId: number) => {
+	const response = await request({
+		url: `/api/users/${parentId}`,
+		method: "delete",
+	});
+	return response.data;
+});
+
 export const parentSlice = createSlice({
 	name: "parent",
 	initialState,
 	reducers: {
-		actionGetParents(state) {
-			state.getParentsStatus = "idle";
-		},
-		actionAddParent(state) {
-			state.addParentStatus = "idle";
-		},
-		actionUpdateParent(state) {
-			state.updateParentStatus = "idle";
+		actionResetStatusDeleteParent(state) {
+			state.deleteParentStatus = "idle";
 		},
 	},
 	extraReducers: (builder) => {
@@ -114,7 +116,22 @@ export const parentSlice = createSlice({
 			.addCase(actionUpdateParent.rejected, (state) => {
 				state.updateParentStatus = "error";
 				notification.error({ message: "Có lỗi xảy ra!" });
+			})
+
+			.addCase(actionDeleteParent.pending, (state) => {
+				state.deleteParentStatus = "loading";
+			})
+			.addCase(actionDeleteParent.fulfilled, (state) => {
+				state.deleteParentStatus = "success";
+				notification.success({ message: "Xoá phụ huynh thành công!" });
+			})
+			.addCase(actionDeleteParent.rejected, (state) => {
+				state.deleteParentStatus = "error";
+				notification.error({ message: "Có lỗi xảy ra!" });
 			});
 	},
 });
+
+export const { actionResetStatusDeleteParent } = parentSlice.actions;
+
 export default parentSlice.reducer;
