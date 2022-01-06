@@ -25,6 +25,7 @@ export default function EditStudentModal(props: {
 
 	useEffect(() => {
 		if (student) {
+			console.log(student)
 			uForm.setFieldsValue({
 				name: student.name,
 				parent_id: get(student, "parent.id", null),

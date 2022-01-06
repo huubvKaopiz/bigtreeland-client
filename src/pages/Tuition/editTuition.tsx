@@ -143,7 +143,7 @@ export default function EditTuition(): JSX.Element {
 				student_id: fee.student_id,
 				fixed_deduction: fee.fixed_deduction,
 				flexible_deduction: fee.flexible_deduction,
-				debt: fee.debt,
+				// debt: fee.debt,
 				note: "",
 			})
 		})
@@ -294,26 +294,26 @@ export default function EditTuition(): JSX.Element {
 				return <span>{numeral(feePerStudent).format("0,0")}</span>;
 			},
 		},
+		// {
+		// 	title: (
+		// 		<>
+		// 			Nợ kỳ trước{" "}
+		// 			<Tooltip title="Có thể là nợ học phí do nhập học sau kỳ thu học phí">
+		// 				<QuestionCircleOutlined style={{ color: "#f39c12" }} />
+		// 			</Tooltip>
+		// 		</>
+		// 	),
+		// 	key: "debt",
+		// 	render: function amountCol(tuitiom: TuitionFeeType): JSX.Element {
+		// 		return (
+		// 			<>
+		// 				<span style={{ color: "#e74c3c" }}>{numeral(tuitiom.debt).format("0,0")}</span>
+		// 			</>
+		// 		);
+		// 	},
+		// },
 		{
-			title: (
-				<>
-					Nợ kỳ trước{" "}
-					<Tooltip title="Có thể là nợ học phí do nhập học sau kỳ thu học phí">
-						<QuestionCircleOutlined style={{ color: "#f39c12" }} />
-					</Tooltip>
-				</>
-			),
-			key: "debt",
-			render: function amountCol(tuitiom: TuitionFeeType): JSX.Element {
-				return (
-					<>
-						<span style={{ color: "#e74c3c" }}>{numeral(tuitiom.debt).format("0,0")}</span>
-					</>
-				);
-			},
-		},
-		{
-			title: "Giảm trừ cố định",
+			title: "Giảm trừ đặc biệt",
 			key: "fixed_deduction",
 			dataIndex: 'fixed_deduction',
 			width: 180,

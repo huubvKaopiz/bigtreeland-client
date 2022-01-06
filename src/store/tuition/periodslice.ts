@@ -10,13 +10,15 @@ export interface PeriodTuitionReducerState {
 	getPeriodTuitionsStatus: "idle" | "loading" | "success" | "error";
 	addPeriodTuitionStatus: "idle" | "loading" | "success" | "error";
 	updatePeriodTuitionStatus: "idle" | "loading" | "success" | "error";
+	deletePeriodTuitionStatus: "idle" | "loading" | "success" | "error";
+
 }
 
 export interface GetPeriodTuionsPrams {
-    class_id?: number;
-    page?: number;
-    from_date?: string;
-    to_date?: string;
+	class_id?: number;
+	page?: number;
+	from_date?: string;
+	to_date?: string;
 }
 
 export interface AddPeriodTuionParms {
@@ -24,6 +26,7 @@ export interface AddPeriodTuionParms {
 	from_date: string;
 	to_date: string;
 	est_session_num: number;
+	fee_per_session: number;
 	tuition_fees: {
 		student_id: number;
 		residual: string;
@@ -37,6 +40,15 @@ export interface AddPeriodTuionParms {
 	draft: boolean;
 }
 
+export interface UpdatePeriodTuitionParams {
+	class_id?: number;
+	from_date?: string;
+	to_date?: string;
+	est_session_num?: number;
+	fee_per_session?: number;
+	active?: number;
+}
+
 const initialState: PeriodTuitionReducerState = {
 	periodTuitions: null,
 	periodTuition: null,
@@ -44,6 +56,7 @@ const initialState: PeriodTuitionReducerState = {
 	getPeriodTuitionsStatus: "idle",
 	addPeriodTuitionStatus: "idle",
 	updatePeriodTuitionStatus: "idle",
+	deletePeriodTuitionStatus: "idle",
 };
 
 export const actionGetPeriodTuion = createAsyncThunk("actionGetPeriodTuion", async (period_tuition_id: number) => {
@@ -54,13 +67,13 @@ export const actionGetPeriodTuion = createAsyncThunk("actionGetPeriodTuion", asy
 	return response.data;
 });
 
-export const actionGetPeriodTuions = createAsyncThunk("actionGetPeriodTuions", async (params: GetPeriodTuionsPrams ={}) => {
-    const response = await request({
-        url: `/api/period-tuitions`,
-        method: "get",
-        params
-    })
-    return response.data;
+export const actionGetPeriodTuions = createAsyncThunk("actionGetPeriodTuions", async (params: GetPeriodTuionsPrams = {}) => {
+	const response = await request({
+		url: `/api/period-tuitions`,
+		method: "get",
+		params
+	})
+	return response.data;
 })
 
 export const actionAddPeriodTuion = createAsyncThunk("actionAddPeriodTuion", async (data: AddPeriodTuionParms) => {
@@ -74,11 +87,22 @@ export const actionAddPeriodTuion = createAsyncThunk("actionAddPeriodTuion", asy
 
 export const actionUpdatePeriodTuion = createAsyncThunk(
 	"actionUpdatePeriodTuion",
-	async (params: { data: AddPeriodTuionParms; pID: number }) => {
+	async (params: { data: UpdatePeriodTuitionParams; pID: number }) => {
 		const response = await request({
 			url: `/api/period-tuitions/${params.pID}`,
 			method: "put",
 			data: params.data,
+		});
+		return response.data;
+	}
+);
+
+export const actionDeletePeriodTuion = createAsyncThunk(
+	"actionDeletePeriodTuion",
+	async (pID: number) => {
+		const response = await request({
+			url: `/api/period-tuitions/${pID}`,
+			method: "delete",
 		});
 		return response.data;
 	}
@@ -103,6 +127,10 @@ export const periodTuitionSlice = createSlice({
 		actionSetAddPeriodtuitionStateIdle(state) {
 			state.addPeriodTuitionStatus = "idle";
 		},
+		actionDeletePeriodTuion(state){
+			state.deletePeriodTuitionStatus = "idle";
+		}
+
 	},
 	extraReducers: (builder) => {
 		builder
@@ -135,6 +163,7 @@ export const periodTuitionSlice = createSlice({
 			})
 			.addCase(actionAddPeriodTuion.fulfilled, (state) => {
 				state.addPeriodTuitionStatus = "success";
+				notification.success({ message: "Thêm chu kỳ học phí thành công!" });
 			})
 			.addCase(actionAddPeriodTuion.rejected, (state) => {
 				state.addPeriodTuitionStatus = "error";
@@ -151,6 +180,18 @@ export const periodTuitionSlice = createSlice({
 			.addCase(actionUpdatePeriodTuion.rejected, (state) => {
 				state.updatePeriodTuitionStatus = "error";
 				notification.error({ message: "Cập nhật chu kỳ học phí thất bại!" });
+			})
+
+			.addCase(actionDeletePeriodTuion.pending, (state) => {
+				state.deletePeriodTuitionStatus = "loading";
+			})
+			.addCase(actionDeletePeriodTuion.fulfilled, (state) => {
+				state.deletePeriodTuitionStatus = "success";
+				notification.success({ message: "Đã xoá chu kỳ học phí" });
+			})
+			.addCase(actionDeletePeriodTuion.rejected, (state) => {
+				state.deletePeriodTuitionStatus = "error";
+				notification.error({ message: "Xoá chu kỳ học phí thất bại!" });
 			});
 	},
 });

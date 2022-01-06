@@ -10,6 +10,7 @@ import {
 	Checkbox,
 	Button,
 	Modal,
+	InputNumber,
 } from "antd";
 import { QuestionCircleOutlined, CheckCircleOutlined, FileOutlined } from "@ant-design/icons";
 import { get } from "lodash";
@@ -39,7 +40,7 @@ export interface TuitionFeeType {
 	residual?: string;
 	fixed_deduction: string;
 	flexible_deduction: string;
-	debt: string;
+	// debt: string;
 	note: string;
 	from_date?: string;
 	to_date?: string;
@@ -147,7 +148,7 @@ export default function AddTuition(): JSX.Element {
 							? residualSessionNum * fee_per_session
 							: special_residual_session_num * fee_per_session
 					}`,
-					debt: "0",
+					// debt: "0",
 					note: "",
 					from_date: "",
 					to_date: "",
@@ -159,7 +160,7 @@ export default function AddTuition(): JSX.Element {
 		}
 	}, [classInfo, residualSessionNum, estSessionNum]);
 
-	//handle add period tuition state
+	//handle add_period_tuition state change
 	useEffect(() => {
 		if (addPeriodTuitionState === "success") {
 			setShowConfirmSubmit(false);
@@ -180,7 +181,7 @@ export default function AddTuition(): JSX.Element {
 		);
 	}
 
-	// handle change daterange
+	// handle daterange change
 	function handleChangePeriod(dates: any, dateString: [string, string]) {
 		setFromDate(dateString[0]);
 		setToDate(dateString[1]);
@@ -188,6 +189,7 @@ export default function AddTuition(): JSX.Element {
 		// dispatch(actionGetDayoffs({}))
 	}
 
+	//handle class change
 	function handleChangeClass(classID: number) {
 		// dispatch(actionSetStudentsStateNull());
 		setEstSessionNum(0);
@@ -231,23 +233,21 @@ export default function AddTuition(): JSX.Element {
 		setTuitionFees([...tuitionFees]);
 	}
 
+	function handleOnChangeFixedDeduction(e: any, index: number) {
+		// let val = 0;
+		// if (e.target.value === "") val = 0;
+		// else val = parseInt(e.target.value);
+		tuitionFees[index].fixed_deduction = String(e);
+		setTuitionFees([...tuitionFees]);
+	}
+
 	//Submit
 	function handleCreateTuition(draft: boolean) {
-		// if (classInfo?.students) {
-		// 	classInfo.students?.map((st, idx) => ({
-		// 		// Duyệt qua mảng student để điền thông tin tuition_fees[0] cho từng student.
-		// 		// Thông tin lấy như dưới đây nhéconsole.log(fixed_deductions_ref.current[idx].input.value);
-		// 		// console.log(fixedDeductionTypeList[idx])
-		// 		// console.log(flexible_deductions_ref.current[idx].input.value);
-		// 		// console.log(flexibleDeductionTypeList[idx])
-		// 		// console.log(notes_ref.current[idx].resizableTextArea.textArea.value);
-
-		// 	}))
-		// }
 		if (classInfo) {
 			const payload = {
 				class_id: classInfo.id,
 				est_session_num: estSessionNum,
+				fee_per_session:classInfo.fee_per_session,
 				from_date: fromDate,
 				to_date: toDate,
 				tuition_fees: tuitionFees,
@@ -303,32 +303,19 @@ export default function AddTuition(): JSX.Element {
 		},
 
 		{
-			title: "Giảm trừ cố định",
+			title: "Giảm trừ đặc biệt",
 			key: "fixed_deduction",
 			width: 180,
 			render: function fixedDeductionCol(_: string, st: StudentType, index: number): JSX.Element {
 				return (
 					<>
-						<Input
+						<InputNumber
 							defaultValue={tuitionFees[index]?.fixed_deduction}
-							addonBefore={
-								<Select
-									value={flexibleDeductionTypeList[index] ?? 0}
-									style={{ width: 65 }}
-									onChange={(e) => {
-										flexibleDeductionTypeList[index] = e;
-										setFlexibleDeductionTypeList([...flexibleDeductionTypeList]);
-									}}
-								>
-									<Option key={0} value={0}>
-										%
-									</Option>
-									<Option key={1} value={1}>
-										0.0
-									</Option>
-								</Select>
-							}
+							formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+							parser={(value: any) => value.replace(/(,*)/g, "")}
 							ref={(e) => (fixed_deductions_ref.current[index] = e)}
+							style={{ width: "90%", color: "#c0392b" }}
+							onChange={(e) => handleOnChangeFixedDeduction(e, index)}
 						/>
 					</>
 				);

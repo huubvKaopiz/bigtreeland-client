@@ -49,7 +49,7 @@ export interface ParentType {
 export interface ClassType {
 	id: 1;
 	name: "Lớp tiếng Anh 3";
-	user: { id: number; name: number; phone:string };
+	user: { id: number; name: number; phone: string };
 	employee_id?: number;
 	students_num: 0;
 	sessions_num: 24;
@@ -62,7 +62,7 @@ export interface ClassType {
 	updated_at: "2021-11-06T16:01:41.000000Z";
 	act_session_num: 1;
 	active_period_tuition?: PeriodTuitionType;
-	students?:StudentType[];
+	students?: StudentType[];
 }
 
 export interface User {
@@ -303,9 +303,9 @@ export interface PeriodTuitionType {
 	active: 1,
 	from_date: "",
 	to_date: "",
-	lessons?:LessonType[];
-	class?:ClassType;
-	tuition_fees:TuitionFeeType[];
+	lessons?: LessonType[];
+	class?: ClassType;
+	tuition_fees: TuitionFeeType[];
 }
 
 export interface TuitionFeeType {
@@ -317,9 +317,23 @@ export interface TuitionFeeType {
 	debt: "null",
 	note: "null",
 	residual: "null",
-	status: 0,
+	status: number,
 	from_date: "null",
 	to_date: "null",
+	student: {
+		id: number,
+		name: string,
+		birthday: string,
+		class_id: number
+	},
+	period_tuition: {
+		id: 3,
+		class_id: 4,
+		from_date: "2022-01 - 01",
+		to_date: "2022 - 01 - 31",
+		est_session_num: 13,
+	}
+
 }
 
 export interface DayoffType {
@@ -335,7 +349,7 @@ export interface LessonType {
 }
 
 export interface SalaryType {
-	id:1;
+	id: 1;
 	employee_id: 1;
 	basic_salary: "";
 	revenue_salary: "";
@@ -345,4 +359,13 @@ export interface SalaryType {
 	period_id: 1;
 	note: "";
 	status: 0;
+	from_date: '',
+	to_date: '',
+	created_at: '';
+	type: number;
+	user: {
+		id: number;
+		name: string;
+		phone: string;
+	}
 }

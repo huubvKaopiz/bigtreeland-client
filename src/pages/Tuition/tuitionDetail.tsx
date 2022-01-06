@@ -1,5 +1,5 @@
-import { QuestionCircleOutlined } from "@ant-design/icons";
-import { Descriptions, Layout, PageHeader, Statistic, Table, Tabs, Tooltip } from "antd";
+import { QuestionCircleOutlined, NotificationOutlined } from "@ant-design/icons";
+import { Button, Descriptions, Input, Layout, Modal, PageHeader, Space, Statistic, Table, Tabs, Tag, Tooltip } from "antd";
 import { StudentType, TuitionFeeType } from "interface";
 import { get } from "lodash";
 import moment from "moment";
@@ -28,9 +28,9 @@ const lesson_columns = [
 		key: "",
 	},
 	{
-		title: "Thời gian tạo",
-		dataIndex: "created_at",
-		key: "created_at",
+		title: "Số học sinh tham gia",
+		dataIndex: "attendances",
+		key: "attendances",
 	},
 ];
 
@@ -81,7 +81,7 @@ export default function TuitionDetail(): JSX.Element {
 		<Descriptions size="middle" column={column}>
 			<Descriptions.Item label="Lớp học">{get(tuitionPeriodInfo, "class.name", "")}</Descriptions.Item>
 			<Descriptions.Item label="Chu kỳ">
-				{moment(get(tuitionPeriodInfo, "from_date", "")).format(dateFormat)} -{" "}
+				{moment(get(tuitionPeriodInfo, "from_date", "")).format(dateFormat)} - {" "}
 				{moment(get(tuitionPeriodInfo, "to_date", "")).format(dateFormat)}
 			</Descriptions.Item>
 			<Descriptions.Item
@@ -161,23 +161,7 @@ export default function TuitionDetail(): JSX.Element {
 			// align: 'right',
 		},
 		{
-			title: (
-				<>
-					Nợ kỳ trước{" "}
-					<Tooltip title="Có thể là nợ học phí do nhập học sau kỳ thu học phí">
-						<QuestionCircleOutlined style={{ color: "#f39c12" }} />
-					</Tooltip>
-				</>
-			),
-			dataIndex: "debt",
-			key: "debt",
-			render: function amountCol(amount: number): JSX.Element {
-				return <span style={{ color: "#ff0000" }}>{numeral(amount).format("0,0")}</span>;
-			},
-			// align: 'right',
-		},
-		{
-			title: "Giảm trừ cố định",
+			title: "Giảm trừ đặc biệt",
 			dataIndex: "fixed_deduction",
 			key: "fixed_deduction",
 			render: function amountCol(amount: number): JSX.Element {
@@ -208,8 +192,8 @@ export default function TuitionDetail(): JSX.Element {
 			key: "residual",
 			render: function amountCol(_: number, feeItem: TuitionFeeType): JSX.Element {
 				return (
-					<span style={{ color: "#ffae00" }}>
-						{numeral(feePerStudent + +feeItem.debt - +feeItem.fixed_deduction - +feeItem.flexible_deduction).format(
+					<span style={{ color: "#2980b9" }}>
+						{numeral(feePerStudent - +feeItem.fixed_deduction - +feeItem.flexible_deduction).format(
 							"0,0"
 						)}
 					</span>
@@ -221,6 +205,13 @@ export default function TuitionDetail(): JSX.Element {
 			title: "Trạng thái",
 			dataIndex: "status",
 			key: "status",
+			render: function statusCol(status: number): JSX.Element {
+				return (
+					<>
+						{status === 0 ? <Tag color="red">Chư nộp</Tag> : <Tag color="green">Đã nộp</Tag>}
+					</>
+				)
+			}
 		},
 		{
 			title: "Ghi chú",
@@ -233,9 +224,14 @@ export default function TuitionDetail(): JSX.Element {
 			key: "action",
 			render: function ActionCol(record: TuitionFeeType): JSX.Element {
 				return (
-					<Tooltip title="Chỉnh sửa">
-						<EditStdTuition stdTuitionFee={record} />
-					</Tooltip>
+					<Space>
+						<Tooltip title="Chỉnh sửa">
+							<EditStdTuition stdTuitionFee={record} />
+						</Tooltip>
+						{
+							record.status === 0 ? <SendNotiModal tuition={record} /> : ""
+						}
+					</Space>
 				);
 			},
 		},
@@ -287,4 +283,44 @@ export default function TuitionDetail(): JSX.Element {
 			</PageHeader>
 		</Layout.Content>
 	);
+}
+
+
+function SendNotiModal(prop: { tuition: TuitionFeeType }): JSX.Element {
+	const { tuition } = prop;
+
+	const dispatch = useAppDispatch();
+	const [show, setShow] = useState(false);
+	const deleteStatus = useSelector((state: RootState) => state.periodTuitionReducer.deletePeriodTuitionStatus);
+
+	useEffect(() => {
+		if (deleteStatus === 'success') {
+			setShow(false);
+		}
+	}, [deleteStatus, dispatch])
+
+	function handleSendNotification() {
+		console.log("Send notification", tuition.id)
+		setShow(false);
+	}
+
+	return (
+		<>
+			<Tooltip title="Gửi thông báo cho phụ huynh">
+				<Button
+					type="link"
+					onClick={() => setShow(true)}
+					icon={<NotificationOutlined />}
+				/>
+				<Modal title="Gửi thông báo nhắc nhở cho phụ huynh!"
+					visible={show}
+					onCancel={() => setShow(false)}
+					onOk={handleSendNotification}
+				>
+					<Input.TextArea placeholder="Write something here!" />
+
+				</Modal>
+			</Tooltip>
+		</>
+	)
 }

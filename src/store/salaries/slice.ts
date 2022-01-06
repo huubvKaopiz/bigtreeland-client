@@ -25,6 +25,7 @@ export interface AddSalaryData {
     to_date:string;
     note: "";
     status: 0;
+    type:number;
 }
 
 export const actionGetSalary = createAsyncThunk("actionGetSalary", async (sID: number) => {
@@ -100,6 +101,12 @@ export const salariesSlice = createSlice({
         },
         actionDeleteSalary(state) {
             state.deleteSalaryStatus = "idle";
+        },
+        actionSetUpdateSalaryStateIdle(state){
+            state.updateSalaryStatus = "idle";
+        },
+        actionSetDeleteSalaryStateIdle(state){
+            state.deleteSalaryStatus = "idle";
         }
     },
     extraReducers: (builder) => {
@@ -137,14 +144,24 @@ export const salariesSlice = createSlice({
                 state.updateSalaryStatus = "loading";
             }).addCase(actionUpdateSalary.fulfilled, (state) => {
                 state.updateSalaryStatus = "success";
-                notification.success({ message: "Thêm bảng lương thành công" });
+                notification.success({ message: "Cập nhật bảng lương thành công" });
             }).addCase(actionUpdateSalary.rejected, state => {
                 state.updateSalaryStatus = "error";
-                notification.error({ message: "Thêm bảng lương bị lỗi!" });
+                notification.error({ message: "Cập nhật bảng lương bị lỗi!" });
+            })
+
+            .addCase(actionDeleteSalary.pending, state => {
+                state.deleteSalaryStatus = "loading";
+            }).addCase(actionDeleteSalary.fulfilled, (state) => {
+                state.deleteSalaryStatus = "success";
+                notification.success({ message: "Xoá bảng lương thành công" });
+            }).addCase(actionDeleteSalary.rejected, state => {
+                state.deleteSalaryStatus = "error";
+                notification.error({ message: "Xoá bảng lương bị lỗi!" });
             })
     }
 })
 
-// export const { actionSetAddDayoffStateIdle, actionSetDeleteDayoffStateIdle } = dayoffSlice.actions;
+export const { actionSetDeleteSalaryStateIdle, actionSetUpdateSalaryStateIdle } = salariesSlice.actions;
 
 export default salariesSlice.reducer;

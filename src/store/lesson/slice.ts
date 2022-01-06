@@ -29,6 +29,9 @@ export const lessonSlice = createSlice({
         actionGetLessions(state) {
             state.getLessonsState = "idle";
         },
+        actionSetLessionsStateNull(state){
+            state.lessons = null;
+        }
     },
     extraReducers: (builder) => {
         builder.addCase(actionGetLessons.pending, state => {
@@ -43,5 +46,6 @@ export const lessonSlice = createSlice({
     }
 })
 
+export const {actionSetLessionsStateNull} = lessonSlice.actions;
 
 export default lessonSlice.reducer;

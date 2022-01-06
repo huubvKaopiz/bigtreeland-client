@@ -29,7 +29,6 @@ export default function AddEmplyeeForm(props: { roles: RoleType[] }): JSX.Elemen
 			...values,
 			birthday: moment(values.birthday).format("YYYY-MM-DD"),
 			working_day: moment(values.working_day).format("YYYY-MM-DD"),
-			role_id: 2,
 		};
 
 		dispatch(actionAddEmployee(data));

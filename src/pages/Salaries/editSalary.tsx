@@ -1,68 +1,58 @@
-import { Col, Form, Input, Layout, Row, Select, Divider, Typography, Button, List, DatePicker, Space, InputNumber, Alert, Table } from 'antd';
+import { Col, Form, Input, Layout, Row, Select, Divider, Typography, Button, List, DatePicker, Space, InputNumber, Alert } from 'antd';
 // import { InfoCircleOutlined } from '@ant-design/icons';
 import React, { useEffect, useState } from 'react';
 import { RootState, useAppDispatch } from 'store/store';
 import { useSelector } from 'react-redux';
 import { actionGetEmployeeInfo, actionGetEmployees, actionSetListEmployeesNull } from 'store/employees/slice';
-import { findIndex, get } from 'lodash';
+import { get } from 'lodash';
 import moment from 'moment';
 import { actionGetRevenues, actionSetListRevenuesNull } from 'store/revenues/slice';
 import numeral from 'numeral';
-import { actionAddSalary, AddSalaryData } from 'store/salaries/slice';
+import { actionAddSalary, actionGetSalary, AddSalaryData } from 'store/salaries/slice';
 import { actionGetLessons, actionSetLessionsStateNull } from 'store/lesson/slice';
-import { LessonType, TuitionFeeType } from 'interface';
-import { actionGetTuitionFees } from 'store/tuition/tuition';
+import { useParams } from 'react-router-dom';
 
-const { Option } = Select;
 const { Title, Paragraph } = Typography;
-const { RangePicker } = DatePicker;
 
-export default function AddSalary(): JSX.Element {
+export default function EditSalary(): JSX.Element {
+    const params = useParams() as { salary_id: string };
     const dispatch = useAppDispatch();
     const [form] = Form.useForm();
-    const [dateRange, setDateRange] = useState<[string, string]>([moment(new Date).startOf("month").format("YYYY-MM-DD"), moment(new Date).endOf("month").format("YYYY-MM-DD")])
-    const [disableSelectEmployee, setDisableSelectEmployee] = useState(true);
     const [amountRevenue, setAmountRevenue] = useState(0);
     const [amountSalary, setAmountSalary] = useState(0);
-    const [role, setRole] = useState('none');
-    const [periodTuitions, setPeriodTuitions] = useState<{ id: number, length: number }[]>([]);
-    const emloyees = useSelector((state: RootState) => state.employeeReducer.employees);
-    const employeeInfo = useSelector((state: RootState) => state.employeeReducer.employeeInfo);
+
+    const salaryInfo = useSelector((state: RootState) => state.salariesReducer.salary);
+    const updateSalaryStatus = useSelector((state: RootState) => state.salariesReducer.updateSalaryStatus);
     const receipts = useSelector((state: RootState) => state.revenuesReducer.revenues);
     const getReceiptStatus = useSelector((state: RootState) => state.revenuesReducer.getRevenuesStatus);
-    const addSalaryStatus = useSelector((state: RootState) => state.salariesReducer.addSalaryStatus);
     const lessons = useSelector((state: RootState) => state.lessonReducer.lessons);
     const getLessonsStatus = useSelector((state: RootState) => state.lessonReducer.getLessonsState);
-    const tuitionFees = useSelector((state: RootState) => state.tuitionFeeReducer.tuitionFees);
+
 
     useEffect(() => {
-        form.setFieldsValue({
-            role: "none",
-            employee_id: 0,
-            basic_salary: "0",
-            revenue_salary: "0",
-            revenue_salary_percent: "10",
-            fines: "0",
-            bonus: "0",
-            note: "",
-        });
-        dispatch(actionSetListRevenuesNull());
-        dispatch(actionSetListEmployeesNull());
-        dispatch(actionSetLessionsStateNull());
-        setAmountSalary(0);
-        setAmountRevenue(0)
-    }, [form, dispatch])
-
-    useEffect(() => {
-        if (employeeInfo) {
-            form.setFieldsValue({
-                basic_salary: get(employeeInfo.employee_contract, "basic_salary", "0"),
-            })
+        if (params.salary_id) {
+            dispatch(actionGetSalary(Number(params.salary_id)))
         }
-    }, [employeeInfo, form])
+    }, [dispatch, params])
 
     useEffect(() => {
-        if (receipts && role === 'sale') {
+        if (salaryInfo) {
+            form.setFieldsValue({
+                role: salaryInfo.type === 0 ? 'sale' : salaryInfo.type === 1 ? 'teacher2' : 'teacher',
+                basic_salary: salaryInfo.basic_salary,
+                revenue_salary: salaryInfo.revenue_salary,
+                revenue_salary_percent: "0",
+                bonus: salaryInfo.bonus,
+                fines: salaryInfo.fines,
+                note: salaryInfo.note
+            })
+            dispatch(actionGetRevenues({ employee_id: salaryInfo.employee_id, fromDate: salaryInfo.from_date, toDate: salaryInfo.to_date }))
+        }
+    }, [form, dispatch, salaryInfo])
+
+
+    useEffect(() => {
+        if (receipts) {
             let amount = 0;
             get(receipts, "data", []).forEach((rc => {
                 amount += Number(rc.amount);
@@ -77,67 +67,23 @@ export default function AddSalary(): JSX.Element {
                 + parseFloat(form.getFieldValue("bonus"))
                 - parseFloat(form.getFieldValue("fines")))
         }
-    }, [receipts, form, role])
+    }, [receipts, form, salaryInfo])
 
     useEffect(() => {
         if (lessons) {
-            if (role === 'teacher2') {
-                const count = get(lessons, "data", []).length;
-                // console.log('lessons:', count)
-                setAmountRevenue(count)
-                form.setFieldsValue({
-                    revenue_salary_percent: '100',
-                    revenue_salary: parseFloat(form.getFieldValue("basic_salary")) * count
-                })
-                setAmountSalary(parseFloat(form.getFieldValue("basic_salary")) * count
-                    + parseFloat(form.getFieldValue("bonus"))
-                    - parseFloat(form.getFieldValue("fines")))
-            } else if (role === 'teacher') {
-
-                get(lessons, "data", []).forEach((ls) => {
-                    const index = findIndex(periodTuitions, (p) => p.id === ls.tuition_period_id);
-                    if (index == -1) {
-                        periodTuitions.push({ id: ls.tuition_period_id, length: 1 })
-                    } else {
-                        periodTuitions[index].length++;
-                    }
-                })
-                setPeriodTuitions(periodTuitions);
-                let period_id_str = '';
-                periodTuitions.forEach((p) => {
-                    if (period_id_str === '') period_id_str = `${p.id}`
-                    else period_id_str += `,${p.id}`
-                })
-                dispatch(actionGetTuitionFees({ period_tuition_fee_id: period_id_str, per_page: 1000 }));
-            }
+            const count = get(lessons, "data", []).length;
+            // console.log('lessons:', count)
+            setAmountRevenue(count)
+            form.setFieldsValue({
+                revenue_salary_percent: '100',
+                revenue_salary: parseFloat(form.getFieldValue("basic_salary")) * count
+            })
+            setAmountSalary(parseFloat(form.getFieldValue("basic_salary")) * count
+                + parseFloat(form.getFieldValue("bonus"))
+                - parseFloat(form.getFieldValue("fines")))
         }
-    }, [lessons, role, form, periodTuitions, dispatch])
-    // console.log(periodTuitions);
 
-    function handleChangeDateRange(date: any, dateString: [string, string]) {
-        setDateRange([dateString[0], dateString[1]])
-    }
-
-    function handleGetRevenue() {
-        if (form.getFieldValue('employee_id') > 0 && role != 'none') {
-            switch (role) {
-                case 'sale':
-                    dispatch(actionGetRevenues({ employee_id: form.getFieldValue('employee_id'), fromDate: dateRange[0], toDate: dateRange[1] }))
-                    break;
-                case 'teacher':
-                    dispatch(actionGetLessons({ employee_id: form.getFieldValue('employee_id'), from_date: dateRange[0], to_date: dateRange[1] }));
-                    break;
-                case 'teacher2':
-                    dispatch(actionGetLessons({ employee_id: form.getFieldValue('employee_id'), from_date: dateRange[0], to_date: dateRange[1] }));
-                    break;
-                case 'other':
-                    break;
-                default:
-                    break;
-            }
-
-        }
-    }
+    }, [lessons, form])
 
     function handleChanegValues(changeValues: any, allValues: any) {
         if (allValues.employee_id > 0) {
@@ -146,21 +92,19 @@ export default function AddSalary(): JSX.Element {
             const bonus = parseFloat(allValues.bonus);
             const fines = parseFloat(allValues.fines);
             // console.log(revenue, basic, bonus, fines);
-            if (role === 'sale') {
+            if (salaryInfo?.type === 0) {
                 setAmountSalary(basic + revenue + bonus - fines);
-            } else if (role === 'teacher2') {
+            } else if (salaryInfo?.type === 1) {
                 setAmountSalary(basic * amountRevenue + bonus - fines);
             }
         }
         if (changeValues.role) {
             // console.log(allValues.employee_id)
-            setRole(changeValues.role);
             dispatch(actionSetListRevenuesNull());
             dispatch(actionSetLessionsStateNull());
             setAmountRevenue(0)
             setAmountSalary(0)
             if (changeValues.role === 'none') {
-                setDisableSelectEmployee(true)
                 form.setFieldsValue({
                     role: "none",
                     employee_id: 0,
@@ -173,7 +117,6 @@ export default function AddSalary(): JSX.Element {
                 })
             } else {
                 dispatch(actionGetEmployees({ role_name: changeValues.role }))
-                setDisableSelectEmployee(false)
             }
             return;
         }
@@ -188,7 +131,7 @@ export default function AddSalary(): JSX.Element {
             return;
         }
         if (changeValues.basic_salary) {
-            if (role === 'teacher2') {
+            if (salaryInfo?.type === 0) {
                 form.setFieldsValue({
                     revenue_salary_percent: '100',
                     revenue_salary: parseFloat(changeValues.basic_salary) * get(lessons, "data", []).length
@@ -222,10 +165,10 @@ export default function AddSalary(): JSX.Element {
             fines: values.fines,
             period_id: 0,
             note: values.note,
-            from_date: dateRange[0],
-            to_date: dateRange[1],
+            from_date: get(salaryInfo, "from_date", ""),
+            to_date: get(salaryInfo, "to_date", ""),
             status: 0,
-            type: role === 'sale' ? 0 : role === 'teacher2' ? 1 : 2
+            type: get(salaryInfo, "type", 0)
         }
         dispatch(actionAddSalary(payload));
     }
@@ -243,52 +186,16 @@ export default function AddSalary(): JSX.Element {
 
             </div>
             <Divider />
+            <Space style={{padding:20}}>
+                <div>Nhân viên: <strong>{get(salaryInfo, "user.name", "")}</strong></div>
+    <div>Chu kỳ lương: <strong>{get(salaryInfo,"from_date","")} - {get(salaryInfo,"to_date","")}</strong></div>
+            </Space>
             <Form form={form} name="salary"
                 style={{ padding: 20, marginBottom: 20 }}
                 layout='vertical'
                 onValuesChange={handleChanegValues}
                 onFinish={handleSubmit}
             >
-                <Form.Item label="Nhân viên">
-                    <Input.Group compact>
-                        <Form.Item
-                            name={'role'}
-                            noStyle
-                        >
-                            <Select placeholder="Vị trí" style={{ width: 150 }}>
-                                <Option value="none">Chọn vị trí</Option>
-                                <Option value="teacher">Giáo viên</Option>
-                                <Option value="teacher2">Giáo viên(2)</Option>
-                                <Option value="sale">Nhân viên sale</Option>
-                                <Option value="other">Khác</Option>
-                            </Select>
-                        </Form.Item>
-                        <Form.Item
-                            name='employee_id'
-                            noStyle
-                            rules={[{ required: true, message: 'Street is required' }]}
-                        >
-                            <Select
-                                allowClear
-                                showSearch
-                                disabled={disableSelectEmployee}
-                                style={{ width: 350 }}
-                                placeholder="Search to Select"
-                                optionFilterProp="children"
-                                filterSort={(optionA, optionB) =>
-                                    optionA.children.toLowerCase().localeCompare(optionB.children.toLowerCase())
-                                }
-                            >
-                                {
-                                    form.getFieldValue('role') === 'none' ? <Option value={0} key={0}>--</Option > : ""
-                                }
-                                {
-                                    get(emloyees, "data", []).map((e) => <Option value={e.id} key={e.id}><a>{e.name}</a> - {e.phone}</Option >)
-                                }
-                            </Select>
-                        </Form.Item>
-                    </Input.Group>
-                </Form.Item>
                 <Form.Item label="Lương doanh thu" >
                     <Input.Group compact>
                         <Form.Item name="revenue_salary_percent" style={{ width: '8%' }}>
@@ -342,7 +249,7 @@ export default function AddSalary(): JSX.Element {
                         <Form.Item>
                             <Space >
                                 <strong style={{ marginRight: 20 }}>Tổng lương: <span style={{ color: "#d35400" }}>{numeral(amountSalary).format("0,0")}</span></strong>
-                                <Button type="primary" htmlType="submit" loading={addSalaryStatus == "loading" ? true : false}>Submit</Button>
+                                <Button type="primary" htmlType="submit" loading={updateSalaryStatus == "loading" ? true : false}>Submit</Button>
                             </Space>
                         </Form.Item>
 
@@ -354,14 +261,10 @@ export default function AddSalary(): JSX.Element {
                 <Col>
                     <Title level={4}> Bảng doanh thu </Title>
                 </Col>
-                <Col>
-                    <RangePicker style={{ marginRight: 10 }} defaultValue={[moment(new Date).startOf("month"), moment(new Date).endOf("month")]} onChange={handleChangeDateRange} />
-                    <Button type="primary" onClick={handleGetRevenue}>Lấy bảng doanh thu</Button>
-                </Col>
             </Row>
 
             {
-                role === "sale" ?
+                salaryInfo?.type === 0 ?
                     <List
                         rowKey="id"
                         itemLayout="horizontal"
@@ -377,76 +280,23 @@ export default function AddSalary(): JSX.Element {
                                 <div style={{ color: "#2980b9" }}>{numeral(item.amount).format("0,0")}</div>
                             </List.Item>
                         )}
-                    /> : role === "teacher2" ?
-                        <List rowKey="id"
-                            itemLayout="horizontal"
-                            header={<div style={{ justifyContent: "end", display: "flex", fontWeight: 600 }}>{numeral(amountRevenue).format("0,0")}</div>}
-                            loading={getLessonsStatus === "loading" ? true : false}
-                            dataSource={get(lessons, "data", [])}
-                            renderItem={item => (
-                                <List.Item>
-                                    <List.Item.Meta
-                                        title={<a href="#">{item.tuition_period_id}</a>}
-                                        description={item.tuition_period_id}
-                                    />
-                                    <div style={{ color: "#2980b9" }}>{item.date}</div>
+                    /> :
+                    <List rowKey="id"
+                        itemLayout="horizontal"
+                        header={<div style={{ justifyContent: "end", display: "flex", fontWeight: 600 }}>{numeral(amountRevenue).format("0,0")}</div>}
+                        loading={getLessonsStatus === "loading" ? true : false}
+                        dataSource={get(lessons, "data", [])}
+                        renderItem={item => (
+                            <List.Item>
+                                <List.Item.Meta
+                                    title={<a href="#">{item.tuition_period_id}</a>}
+                                    description={item.tuition_period_id}
+                                />
+                                <div style={{ color: "#2980b9" }}>{item.date}</div>
 
-                                </List.Item>
-                            )} /> :
-                        <TeacherRevenueTable tuitionFeeList={get(tuitionFees,"data",[])} periodTuitionFeeList={periodTuitions}/>
-
+                            </List.Item>
+                        )} />
             }
         </Layout.Content>
-    )
-}
-
-
-function TeacherRevenueTable(prop:{tuitionFeeList:TuitionFeeType[], periodTuitionFeeList:{id:number, length:number}[]}):JSX.Element{
-    const {tuitionFeeList, periodTuitionFeeList} = prop;
-
-    function getLessonNum(tuitionFee:TuitionFeeType):number{
-        let res = 0;
-        if(tuitionFee.from_date == null){
-            const found = periodTuitionFeeList.find((p) => p.id === tuitionFee.period_tuition_id);
-            if(found) res = found.length;
-        }else {
-            res = 1;
-        }
-        return res;
-    }
-
-    const cols = [
-        {
-            title: "Học sinh",
-            dataIndex: "student",
-            key: "student",
-            render: function studentCol(st:{id:number, name:string}):JSX.Element{
-                return(
-                    <>{st.name}</>
-                )
-            }
-        },
-        {
-            title: "Số buổi học",
-            dataIndex: "lesson_num",
-            key: "lesson_num",
-            render: function studentCol(val:string, record:TuitionFeeType):JSX.Element{
-                return(
-                    <>{getLessonNum(record)}</>
-                )
-            }
-
-        }
-    ]
-
-    return(
-        <>
-            <Table
-                rowKey="id"
-                columns={cols}
-                dataSource={get(tuitionFeeList,"data",[])}
-            >
-            </Table>
-        </>
     )
 }

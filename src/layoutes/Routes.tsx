@@ -19,6 +19,7 @@ import EditTuition from "pages/Tuition/editTuition";
 import Settings from "pages/settings";
 import Salaries from "pages/Salaries";
 import AddSalary from "pages/Salaries/addSalary";
+import EditSalary from "pages/Salaries/editSalary";
 
 function Routes(): JSX.Element {
 	return (
@@ -43,6 +44,7 @@ function Routes(): JSX.Element {
 			<Route path="/settings" component={Settings} />
 			<Route path="/salaries" component={Salaries} />
 			<Route path="/salaries-create" component={AddSalary} />
+			<Route path="/salaries-edit/:salary_id" component={EditSalary} />
 
 		</>
 	);

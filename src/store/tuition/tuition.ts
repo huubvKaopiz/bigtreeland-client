@@ -30,7 +30,7 @@ export const actionGetTuitionFee = createAsyncThunk("actionGetTuitionFee", async
     return response.data;
 })
 
-export const actionGetTuitionFees = createAsyncThunk("actionGetTuitionFees", async (params: { period_id?: number }) => {
+export const actionGetTuitionFees = createAsyncThunk("actionGetTuitionFees", async (params: { period_tuition_fee_id?:string, per_page:1000 }) => {
     const response = await request({
         url: `/api/tuition-fees/`,
         method: "get",
