@@ -13,13 +13,12 @@ import Files from "pages/Files";
 import Revenue from "pages/Revenues/Revenues";
 import { ListTestResults } from "pages/Classes/listTestResult";
 import Tuition from "pages/Tuition";
-import AddTuition from "pages/Tuition/addTuition";
 import TuitionDetail from "pages/Tuition/tuitionDetail";
-import EditTuition from "pages/Tuition/editTuition";
 import Settings from "pages/settings";
 import Salaries from "pages/Salaries";
 import AddSalary from "pages/Salaries/addSalary";
 import EditSalary from "pages/Salaries/editSalary";
+import CreateTuitionPeriod from "pages/Tuition/createTuitionPeriod";
 
 function Routes(): JSX.Element {
 	return (
@@ -33,8 +32,7 @@ function Routes(): JSX.Element {
 			<Route path="/students" component={Students} />
 			<Route path="/payments/tuition" component={Tuition} />
 			<Route path="/payments/tuition-detail/:tuition_id" component={TuitionDetail} />
-			<Route path="/payments/tuition-create" component={AddTuition} />
-			<Route path="/payments/tuition-edit/:tuition_id" component={EditTuition} />
+			<Route path="/payments/tuition-create" component={CreateTuitionPeriod} />
 			<Route path="/parents" component={Parents} />
 			<Route path="/permissions" component={Permissions} />
 			<Route path="/roles" component={Roles} />

@@ -13,14 +13,25 @@ interface TuitionFeeReducerState {
 }
 
 interface addTuitionFeeParams {
-    priod_id: 1;
-    student_id: 1;
-    fixed_deduction: "";
-    flexible_deduction: "";
-    debt: "";
-    residual: "";
-    note: ""
+    period_tuition_id: number;
+    student_id: number;
+    fixed_deduction: string;
+    flexible_deduction: string;
+    residual: string;
+    note: string;
+    from_date?:string;
+    to_date?:string;
+    est_sesson_num:number;
 }
+
+interface UpdateTuitionFeeParams {
+    fixed_deduction?: string;
+    flexible_deduction?: string;
+    note?: string;
+    status?:number;
+ 
+}
+
 
 export const actionGetTuitionFee = createAsyncThunk("actionGetTuitionFee", async (tuition_id: number) => {
     const response = await request({
@@ -48,7 +59,7 @@ export const actionAddTuitionFee = createAsyncThunk("actionAddTuitionFee", async
     return response.data;
 })
 
-export const actionUpdateTuitionFee = createAsyncThunk("actionUpdateTuitionFee", async (params: { data: addTuitionFeeParams, tuition_id: number }) => {
+export const actionUpdateTuitionFee = createAsyncThunk("actionUpdateTuitionFee", async (params: { data: UpdateTuitionFeeParams, tuition_id: number }) => {
     const { data, tuition_id } = params;
     const response = await request({
         url: `/api/tuition-fees/${tuition_id}`,

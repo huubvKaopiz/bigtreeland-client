@@ -1,4 +1,4 @@
-import { EditOutlined, PlusOutlined, UnorderedListOutlined, MinusCircleOutlined, CheckCircleOutlined, DeleteOutlined } from "@ant-design/icons";
+import { PlusOutlined, UnorderedListOutlined, MinusCircleOutlined, CheckCircleOutlined, DeleteOutlined } from "@ant-design/icons";
 import { Button, DatePicker, Layout, Select, Space, Table, Tag, Tooltip } from "antd";
 import Modal from "antd/lib/modal/Modal";
 import { ClassType, TuitionFeeType } from "interface";
@@ -38,12 +38,8 @@ export default function Tuition(): JSX.Element {
 	const [periodDeleteAble, setPeriodDeleteAble] = useState(true);
 
 	useEffect(() => {
-		dispatch(actionGetPeriodTuions());
-		dispatch(actionGetClasses({}));
-	}, [dispatch]);
-
-	useEffect(() => {
 		dispatch(actionGetPeriodTuions(searchParam));
+		dispatch(actionGetClasses({}));
 	}, [dispatch, searchParam]);
 
 	useEffect(() => {
@@ -136,7 +132,6 @@ export default function Tuition(): JSX.Element {
 					key="action"
 					render={(_: number, rowData: TableDataType) => (
 						<Space size="middle">
-							<ActivePeriodModal data={rowData} />
 							<Tooltip title="Chi tiết">
 								<Button
 									type="link"
@@ -144,13 +139,7 @@ export default function Tuition(): JSX.Element {
 									icon={<UnorderedListOutlined />}
 								/>
 							</Tooltip>
-							<Tooltip title="Chỉnh sửa">
-								<Button
-									type="link"
-									onClick={() => history.push({ pathname: `/payments/tuition-edit/${rowData.id}` })}
-									icon={<EditOutlined />}
-								/>
-							</Tooltip>
+							<ActivePeriodModal data={rowData} />
 							{
 								periodDeleteAble == true ? <DeletePeriodModal periodID={rowData.id} /> : ""
 							}

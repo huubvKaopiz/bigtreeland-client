@@ -1,5 +1,6 @@
-import { QuestionCircleOutlined, NotificationOutlined } from "@ant-design/icons";
-import { Button, Descriptions, Input, Layout, Modal, PageHeader, Space, Statistic, Table, Tabs, Tag, Tooltip } from "antd";
+import { QuestionCircleOutlined, NotificationOutlined, DollarOutlined } from "@ant-design/icons";
+import { Alert, Button, Descriptions, Input, Layout, Modal, PageHeader, Space, Statistic, Table, Tabs, Tag, Tooltip } from "antd";
+import Column from "antd/lib/table/Column";
 import { StudentType, TuitionFeeType } from "interface";
 import { get } from "lodash";
 import moment from "moment";
@@ -10,8 +11,10 @@ import { useParams } from "react-router-dom";
 import { RootState, useAppDispatch } from "store/store";
 import { actionGetStudents } from "store/students/slice";
 import { actionGetPeriodTuion } from "store/tuition/periodslice";
+import { actionUpdateTuitionFee } from "store/tuition/tuition";
 import { formatCurrency } from "utils/ultil";
-import EditStdTuition from "./editStdTuition";
+import { CreateTuitionFeeModal } from "./createTuitionFreeModal";
+import { EditTuitionFeeModal } from "./editTuitionFeeModal";
 
 const { TabPane } = Tabs;
 const dateFormat = "DD-MM-YYYY";
@@ -40,46 +43,65 @@ export default function TuitionDetail(): JSX.Element {
 	const tuitionPeriodInfo = useSelector((state: RootState) => state.periodTuitionReducer.periodTuition);
 	const students = useSelector((state: RootState) => state.studentReducer.students);
 	const [studentList, setStudetnList] = useState<StudentType[]>([]);
+	const [newStudentList, setNewStudentList] = useState<StudentType[]>([]);
 	const [estTuitionFee, setEstTuitionFee] = useState<number>(0);
 	const [feePerStudent, setFeePerStudent] = useState<number>(0);
+	const [paymentCount, setPaymentCount] = useState<number>(0);
 
-	useEffect(() => {
-		dispatch(
-			actionGetStudents({
-				class_id: tuitionPeriodInfo?.class_id ?? void 0,
-				per_page: tuitionPeriodInfo?.tuition_fees.length,
-			})
-		);
-		setEstTuitionFee(
-			(get(tuitionPeriodInfo, "tuition_fees", []) as TuitionFeeType[]).reduce((amount, student) => {
-				const est_fee =
-					get(tuitionPeriodInfo, "class.fee_per_session", 0) * get(tuitionPeriodInfo, "est_session_num", 0);
-				const deduce_amount =
-					+get(student, "residual", 0) +
-					+get(student, "fixed_deduction", 0) +
-					+get(student, "flexible_deduction", 0) -
-					+get(student, "debt", 0);
-				const cal_fee = est_fee - deduce_amount;
-				return cal_fee > 0 ? amount + cal_fee : amount;
-			}, 0)
-		);
-		setFeePerStudent(get(tuitionPeriodInfo, "est_session_num", 0) * get(tuitionPeriodInfo, "class.fee_per_session", 0));
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [dispatch, tuitionPeriodInfo]);
-
-	useEffect(() => {
-		setStudetnList([...(get(students, "data", []) as StudentType[])]);
-	}, [students]);
-
+	//get period information 
 	useEffect(() => {
 		if (params.tuition_id) {
 			dispatch(actionGetPeriodTuion(parseInt(params.tuition_id)));
 		}
 	}, [dispatch, params.tuition_id]);
 
+	//handle period information change
+	useEffect(() => {
+		dispatch(
+			actionGetStudents({
+				class_id: tuitionPeriodInfo?.class_id ?? void 0,
+				per_page: 100,
+			})
+		);
+		setEstTuitionFee(
+			(get(tuitionPeriodInfo, "tuition_fees", []) as TuitionFeeType[]).reduce((amount, tuition) => {
+				const est_fee =
+					get(tuitionPeriodInfo, "class.fee_per_session", 0) * get(tuitionPeriodInfo, "est_session_num", 0);
+				const deduce_amount =
+					+get(tuition, "residual", 0) +
+					+get(tuition, "fixed_deduction", 0) +
+					+get(tuition, "flexible_deduction", 0)
+				const cal_fee = est_fee - deduce_amount;
+				return cal_fee > 0 ? amount + cal_fee : amount;
+			}, 0)
+		);
+		setPaymentCount(
+			(get(tuitionPeriodInfo, "tuition_fees", []) as TuitionFeeType[]).reduce((count, tuition) => {
+				return tuition.status === 1 ? count + 1 : count;
+			}, 0)
+		)
+		setFeePerStudent(get(tuitionPeriodInfo, "est_session_num", 0) * get(tuitionPeriodInfo, "class.fee_per_session", 0));
+
+	}, [dispatch, tuitionPeriodInfo]);
+
+	// handle students change
+	useEffect(() => {
+		setStudetnList([...(get(students, "data", []) as StudentType[])]);
+		const newList: StudentType[] = [];
+		if (get(students, "data", []).length > get(tuitionPeriodInfo, "tuition_fees", []).length) {
+			get(students, "data", []).forEach((st) => {
+				const index = get(tuitionPeriodInfo, "tuition_fees", []).findIndex((tuition) => tuition.student_id === st.id);
+				if (index === -1) newList.push(st);
+			})
+		}
+		setNewStudentList(newList);
+	}, [students, tuitionPeriodInfo]);
+
+
+	//render ui
 	const renderContent = (column = 2) => (
 		<Descriptions size="middle" column={column}>
-			<Descriptions.Item label="Lớp học">{get(tuitionPeriodInfo, "class.name", "")}</Descriptions.Item>
+			<Descriptions.Item label="Lớp học"><a>{get(tuitionPeriodInfo, "class.name", "")}</a></Descriptions.Item>
 			<Descriptions.Item label="Chu kỳ">
 				{moment(get(tuitionPeriodInfo, "from_date", "")).format(dateFormat)} - {" "}
 				{moment(get(tuitionPeriodInfo, "to_date", "")).format(dateFormat)}
@@ -98,7 +120,7 @@ export default function TuitionDetail(): JSX.Element {
 				<span>{get(tuitionPeriodInfo, "est_session_num", 0)}</span>
 			</Descriptions.Item>
 			<Descriptions.Item label="Học phí/buổi">
-				<span style={{ float: "right" }}>{formatCurrency(get(tuitionPeriodInfo, "class.fee_per_session", ""))}</span>
+				<strong style={{ float: "right" }}>{formatCurrency(get(tuitionPeriodInfo, "class.fee_per_session", ""))}</strong>
 			</Descriptions.Item>
 			<Descriptions.Item label="Số buổi đã học">
 				<span style={{ color: "#e74c3c" }}>{get(tuitionPeriodInfo, "class.act_session_num", "")}</span>
@@ -119,15 +141,12 @@ export default function TuitionDetail(): JSX.Element {
 				style={{
 					marginRight: 32,
 					fontWeight: 600,
+					color: "#2980b9"
 				}}
 			/>
 			<Statistic
-				title="Hoàn Thành"
-				value={`${get(tuitionPeriodInfo, "class.act_session_num", 0)} / ${get(
-					tuitionPeriodInfo,
-					"est_session_num",
-					0
-				)}`}
+				title="Đã nộp"
+				value={`${paymentCount} / ${get(tuitionPeriodInfo, "tuition_fees", []).length}`}
 				style={{
 					fontWeight: 600,
 				}}
@@ -224,14 +243,16 @@ export default function TuitionDetail(): JSX.Element {
 			key: "action",
 			render: function ActionCol(record: TuitionFeeType): JSX.Element {
 				return (
-					<Space>
-						<Tooltip title="Chỉnh sửa">
-							<EditStdTuition stdTuitionFee={record} />
-						</Tooltip>
-						{
-							record.status === 0 ? <SendNotiModal tuition={record} /> : ""
-						}
-					</Space>
+					<>
+						<Space>
+							<Tooltip title="Chỉnh sửa">
+								<EditTuitionFeeModal tuitionFeeInfo={record} periodInfo={tuitionPeriodInfo} stName={studentList.find((st) => st.id === record.student_id)?.name} />
+							</Tooltip>
+							<PaymentConfirmModal tuition={record} period_id={get(tuitionPeriodInfo, "id", 0)} />
+							<SendNotiModal tuition={record} />
+						</Space>
+					</>
+
 				);
 			},
 		},
@@ -255,7 +276,7 @@ export default function TuitionDetail(): JSX.Element {
 				title="Chi tiết học phí"
 				style={{ backgroundColor: "white" }}
 				footer={
-					<Tabs defaultActiveKey="1">
+					<Tabs defaultActiveKey="1" >
 						<TabPane tab="Học phí mỗi học sinh" key="stdTuition">
 							<Table
 								rowKey="student_id"
@@ -263,9 +284,33 @@ export default function TuitionDetail(): JSX.Element {
 								style={{ paddingTop: 20 }}
 								dataSource={get(tuitionPeriodInfo, "tuition_fees", [])}
 								columns={std_fee_columns}
-								pagination={{ pageSize: 20 }}
+								pagination={{ pageSize: 50 }}
 							/>
 						</TabPane>
+						{
+							newStudentList.length > 0 ?
+
+								<TabPane tab={<span>Học sinh mới (<span style={{ color: "#e74c3c" }}>{newStudentList.length}</span>)</span>} key="newSt" >
+									<Alert
+										style={{ marginBottom: 20, marginTop: 20 }}
+										message=""
+										description="DS học sinh mới là những học sinh vào sau chu kỳ thu học phí và chưa lập bảng thu học phí cho chu kỳ này!"
+										type="warning"
+										closable
+									/>
+									<Table dataSource={newStudentList} rowKey="id">
+										<Column title="Họ tên" dataIndex="name" key="name" render={(val) => <a>{val}</a>} />
+										<Column title="Ngày sinh" dataIndex="birthday" key="birthday" />
+										<Column title="Ngày nhập học" dataIndex="admission_date" key="admission_date" />
+										<Column title="Aaction" dataIndex="action" key="action" render={(_: number, record: StudentType) => (
+											<Space>
+												<CreateTuitionFeeModal periodInfo={tuitionPeriodInfo} studentInfo={record} />
+											</Space>
+										)} />
+									</Table>
+								</TabPane>
+								: ""
+						}
 						<TabPane tab="Danh sách buổi học" key="lessionInfo">
 							<Table
 								rowKey="lesson_id"
@@ -286,6 +331,7 @@ export default function TuitionDetail(): JSX.Element {
 }
 
 
+// SendNotiModal component
 function SendNotiModal(prop: { tuition: TuitionFeeType }): JSX.Element {
 	const { tuition } = prop;
 
@@ -311,16 +357,57 @@ function SendNotiModal(prop: { tuition: TuitionFeeType }): JSX.Element {
 					type="link"
 					onClick={() => setShow(true)}
 					icon={<NotificationOutlined />}
+					disabled={tuition.status === 1 ? true : false}
 				/>
-				<Modal title="Gửi thông báo nhắc nhở cho phụ huynh!"
-					visible={show}
-					onCancel={() => setShow(false)}
-					onOk={handleSendNotification}
-				>
-					<Input.TextArea placeholder="Write something here!" />
-
-				</Modal>
 			</Tooltip>
+			<Modal title="Gửi thông báo nhắc nhở cho phụ huynh!"
+				visible={show}
+				onCancel={() => setShow(false)}
+				onOk={handleSendNotification}
+			>
+				<Input.TextArea placeholder="Write something here!" />
+
+			</Modal>
+
+		</>
+	)
+}
+
+function PaymentConfirmModal(prop: { tuition: TuitionFeeType, period_id: number }): JSX.Element {
+	const { tuition, period_id } = prop;
+	const dispatch = useAppDispatch();
+	const [show, setShow] = useState(false);
+
+	function handleSubmit() {
+		if (tuition) {
+			dispatch(actionUpdateTuitionFee({ data: { status: 1 }, tuition_id: get(tuition, "id", 0) }))
+				.then(() => {
+					setShow(false);
+					dispatch(actionGetPeriodTuion(period_id));
+				})
+
+		}
+	}
+
+	return (
+		<>
+			<Tooltip title="Xác nhận đã thanh toán">
+				<Button
+					type="link"
+					onClick={() => setShow(true)}
+					icon={<DollarOutlined style={{ color: tuition.status === 0 ? "#27ae60" : "" }} />}
+					disabled={tuition.status === 1 ? true : false}
+				/>
+			</Tooltip>
+			<Modal title="Xác nhận đã thanh toán!"
+				visible={show}
+				onCancel={() => setShow(false)}
+				onOk={handleSubmit}
+			>
+				Lưu ý sau khi xác nhận đã thanh toán sẽ không thể sửa được bảng học phí!
+
+			</Modal>
+
 		</>
 	)
 }

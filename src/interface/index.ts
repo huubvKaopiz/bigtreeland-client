@@ -300,6 +300,7 @@ export interface PeriodTuitionType {
 	id: 1;
 	class_id: 1;
 	est_session_num: 1,
+	fee_per_session:number,
 	active: 1,
 	from_date: "",
 	to_date: "",

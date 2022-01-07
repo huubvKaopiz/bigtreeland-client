@@ -40,14 +40,13 @@ export interface TuitionFeeType {
 	residual?: string;
 	fixed_deduction: string;
 	flexible_deduction: string;
-	// debt: string;
 	note: string;
 	from_date?: string;
 	to_date?: string;
-	// amount:string;
+	status:number;
 }
 
-export default function AddTuition(): JSX.Element {
+export default function CreateTuitionPeriod(): JSX.Element {
 	const history = useHistory();
 	const dispatch = useAppDispatch();
 	const [fromDate, setFromDate] = useState("");
@@ -60,7 +59,6 @@ export default function AddTuition(): JSX.Element {
 	const [fixedDeductionAlAmount, setFixedDeductionAlAmount] = useState("");
 	const [fixedDeductionAllType, setFixedDeductionAllType] = useState(0);
 	const [fixedDeductionTypeList, setFixedDeductionTypeList] = useState<number[]>([]);
-	const [flexibleDeductionTypeList, setFlexibleDeductionTypeList] = useState<number[]>([]);
 	const [showConfirmSubmit, setShowConfirmSubmit] = useState(false);
 
 	const classesList = useSelector((state: RootState) => state.classReducer.classes);
@@ -74,7 +72,7 @@ export default function AddTuition(): JSX.Element {
 	const flexible_deductions_ref = useRef<any>([]);
 	const notes_ref = useRef<any>([]);
 
-	// UI Logic
+	//UI Logic	
 	// initialize
 	useEffect(() => {
 		dispatch(actionGetClasses({}));
@@ -95,6 +93,7 @@ export default function AddTuition(): JSX.Element {
 			dayoffs.data?.forEach((day) => {
 				dayoffList.push(day.from_date);
 			});
+			console.log(get(dayoffs,"data",[]))
 			if (classInfo.schedule.length > 0) {
 				let count = 0;
 				for (let index = 0; index < classInfo.schedule.length; index++) {
@@ -116,7 +115,7 @@ export default function AddTuition(): JSX.Element {
 		}
 	}, [classInfo, dayoffs, fromDate, toDate]);
 
-	// update tuition fee list
+	// update list of tuition_fees
 	useEffect(() => {
 		if (classInfo && classInfo.students) {
 			const fee_per_session = get(classInfo, "fee_per_session", 0);
@@ -138,7 +137,7 @@ export default function AddTuition(): JSX.Element {
 						});
 					}
 				}
-				// push tuition fee
+				// push tuition_fee
 				tuitionFeeList.push({
 					student_id: st.id,
 					fixed_deduction: "0",
@@ -152,11 +151,11 @@ export default function AddTuition(): JSX.Element {
 					note: "",
 					from_date: "",
 					to_date: "",
+					status:0
 				});
 			});
 			setTuitionFees(tuitionFeeList);
 			setFixedDeductionTypeList(Array(classInfo.students.length).fill(0));
-			setFlexibleDeductionTypeList(Array(classInfo.students.length).fill(0));
 		}
 	}, [classInfo, residualSessionNum, estSessionNum]);
 
@@ -165,8 +164,6 @@ export default function AddTuition(): JSX.Element {
 		if (addPeriodTuitionState === "success") {
 			setShowConfirmSubmit(false);
 			dispatch(actionSetAddPeriodtuitionStateIdle());
-
-			//history.push("/payments/tuition");
 		}
 	}, [dispatch, addPeriodTuitionState, history]);
 
@@ -234,15 +231,12 @@ export default function AddTuition(): JSX.Element {
 	}
 
 	function handleOnChangeFixedDeduction(e: any, index: number) {
-		// let val = 0;
-		// if (e.target.value === "") val = 0;
-		// else val = parseInt(e.target.value);
 		tuitionFees[index].fixed_deduction = String(e);
 		setTuitionFees([...tuitionFees]);
 	}
 
 	//Submit
-	function handleCreateTuition(draft: boolean) {
+	function handleCreatePeriodTuition(draft: boolean) {
 		if (classInfo) {
 			const payload = {
 				class_id: classInfo.id,
@@ -431,7 +425,7 @@ export default function AddTuition(): JSX.Element {
 				subTitle={get(classInfo, "name")}
 				style={{ backgroundColor: "white" }}
 				extra={[
-					<Button key="2" icon={<FileOutlined />}>
+					<Button key="2" icon={<FileOutlined />} onClick={() => handleCreatePeriodTuition(true)}>
 						Lưu nháp
 					</Button>,
 					<>
@@ -449,7 +443,7 @@ export default function AddTuition(): JSX.Element {
 									key="submit"
 									type="primary"
 									loading={addPeriodTuitionState === "loading" ? true : false}
-									onClick={() => handleCreateTuition(false)}
+									onClick={() => handleCreatePeriodTuition(false)}
 								>
 									Ok
 								</Button>,

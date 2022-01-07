@@ -36,6 +36,7 @@ export interface AddPeriodTuionParms {
 		note: string;
 		from_date: string;
 		to_date: string;
+		status:0;
 	}[];
 	draft: boolean;
 }
