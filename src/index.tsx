@@ -12,6 +12,7 @@ import reportWebVitals from "./reportWebVitals";
 import { persistor, RootState, store } from "./store/store";
 import { get } from "lodash";
 import { actionLogout } from "store/auth/slice";
+import "./i18n";
 
 initLib();
 
