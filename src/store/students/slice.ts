@@ -25,12 +25,12 @@ export interface UpdateStudentStatusParams {
 }
 
 export interface StudentParams {
-	name: string;
+	name?: string;
 	parent_id?: number;
-	birthday: string;
-	gender: number;
+	birthday?: string;
+	gender?: number;
 	school?: string | null;
-	admission_date: string;
+	admission_date?: string;
 	address?: string | null;
 	interests?: string | null;
 	dislikes?: string | null;
@@ -70,26 +70,51 @@ export const actionAddStudent = createAsyncThunk("actionAddStudent", async (data
 
 export const actionUpdateStudent = createAsyncThunk(
 	"actionUpdateStudent",
-	async (params: { data: StudentParams; sID: number }) => {
-		const { data, sID } = params;
-		const response = await request({
-			url: `/api/students/${sID}`,
-			method: "put",
-			data,
-		});
-		return response.data;
+	async (params: { data: StudentParams; sID: number }, { rejectWithValue }) => {
+		try {
+			const { data, sID } = params;
+			const response = await request({
+				url: `/api/students/${sID}`,
+				method: "put",
+				data,
+			});
+			return response.data;
+		} catch (error) {
+			rejectWithValue(error);
+		}
+	}
+);
+
+export const actionLeaveClass = createAsyncThunk(
+	"actionLeaveClass",
+	async (params: { data: StudentParams; sID: number }, { rejectWithValue }) => {
+		try {
+			const { data, sID } = params;
+			const response = await request({
+				url: `/api/students/${sID}`,
+				method: "put",
+				data,
+			});
+			return response.data;
+		} catch (error) {
+			rejectWithValue(error);
+		}
 	}
 );
 
 export const updateStudentStatus = createAsyncThunk(
 	"actionUpdateStudentStatus",
-	async (data: UpdateStudentStatusParams) => {
-		const response = await request({
-			url: `/api/students/update-status`,
-			method: "put",
-			data,
-		});
-		return response.data;
+	async (data: UpdateStudentStatusParams, { rejectWithValue }) => {
+		try {
+			const response = await request({
+				url: `/api/students/update-status`,
+				method: "put",
+				data,
+			});
+			return response.data;
+		} catch (error) {
+			rejectWithValue(error);
+		}
 	}
 );
 
