@@ -83,7 +83,7 @@ export function CreateTuitionFeeModal(prop: { periodInfo: PeriodTuitionType | nu
 			note: values.note,
 			from_date: get(studentInfo, "admission_date", ""),
 			to_date: get(periodInfo, "to_date", ""),
-			est_sesson_num: estSessionNum
+			est_session_num: estSessionNum
 		})).then(() => {
 			setShow(false);
 			dispatch(actionGetPeriodTuion(get(periodInfo, "id", 0)));

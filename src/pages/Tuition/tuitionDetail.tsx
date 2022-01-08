@@ -45,7 +45,7 @@ export default function TuitionDetail(): JSX.Element {
 	const [studentList, setStudetnList] = useState<StudentType[]>([]);
 	const [newStudentList, setNewStudentList] = useState<StudentType[]>([]);
 	const [estTuitionFee, setEstTuitionFee] = useState<number>(0);
-	const [feePerStudent, setFeePerStudent] = useState<number>(0);
+	const [feesPerStudent, setFeesPerStudent] = useState<number[]>([]);
 	const [paymentCount, setPaymentCount] = useState<number>(0);
 
 	//get period information 
@@ -63,8 +63,13 @@ export default function TuitionDetail(): JSX.Element {
 				per_page: 100,
 			})
 		);
-		setEstTuitionFee(
-			(get(tuitionPeriodInfo, "tuition_fees", []) as TuitionFeeType[]).reduce((amount, tuition) => {
+
+		//update tuition fees data
+		if (tuitionPeriodInfo) {
+			let totalTuitionFee = 0;
+			let totalPayment = 0;
+			const estTuiionFeeMap:number[] = [];
+			get(tuitionPeriodInfo, "tuition_fees", []).forEach((tuition: TuitionFeeType) => {
 				const est_fee =
 					get(tuitionPeriodInfo, "class.fee_per_session", 0) * get(tuitionPeriodInfo, "est_session_num", 0);
 				const deduce_amount =
@@ -72,15 +77,20 @@ export default function TuitionDetail(): JSX.Element {
 					+get(tuition, "fixed_deduction", 0) +
 					+get(tuition, "flexible_deduction", 0)
 				const cal_fee = est_fee - deduce_amount;
-				return cal_fee > 0 ? amount + cal_fee : amount;
-			}, 0)
-		);
-		setPaymentCount(
-			(get(tuitionPeriodInfo, "tuition_fees", []) as TuitionFeeType[]).reduce((count, tuition) => {
-				return tuition.status === 1 ? count + 1 : count;
-			}, 0)
-		)
-		setFeePerStudent(get(tuitionPeriodInfo, "est_session_num", 0) * get(tuitionPeriodInfo, "class.fee_per_session", 0));
+				if (cal_fee > 0) totalTuitionFee += cal_fee;
+				if (tuition.status === 1) totalPayment++;
+				if (tuition.est_session_num === 0) {
+					const est_fee = get(tuitionPeriodInfo, "est_session_num", 0) * get(tuitionPeriodInfo, "fee_per_session", 0)
+					estTuiionFeeMap[tuition.id] = est_fee;
+				} else {
+					const est_fee = get(tuition, "est_session_num", 0) * get(tuitionPeriodInfo, "fee_per_session", 0)
+					estTuiionFeeMap[tuition.id] = est_fee;
+				}
+			})
+			setEstTuitionFee(totalTuitionFee);
+			setPaymentCount(totalPayment);
+			setFeesPerStudent(estTuiionFeeMap);
+		}
 
 	}, [dispatch, tuitionPeriodInfo]);
 
@@ -97,7 +107,7 @@ export default function TuitionDetail(): JSX.Element {
 		setNewStudentList(newList);
 	}, [students, tuitionPeriodInfo]);
 
-
+	console.log(feesPerStudent);
 	//render ui
 	const renderContent = (column = 2) => (
 		<Descriptions size="middle" column={column}>
@@ -172,10 +182,10 @@ export default function TuitionDetail(): JSX.Element {
 					</Tooltip>
 				</>
 			),
-			dataIndex: "tuition",
+			dataIndex: "",
 			key: "tuition",
-			render: function amountCol(): JSX.Element {
-				return <span>{numeral(feePerStudent).format("0,0")}</span>;
+			render: function amountCol(record: TuitionFeeType): JSX.Element {
+				return <span style={{ fontWeight:700 }}>{numeral(feesPerStudent[record.id]).format("0,0")}</span>;
 			},
 			// align: 'right',
 		},
@@ -211,10 +221,8 @@ export default function TuitionDetail(): JSX.Element {
 			key: "residual",
 			render: function amountCol(_: number, feeItem: TuitionFeeType): JSX.Element {
 				return (
-					<span style={{ color: "#2980b9" }}>
-						{numeral(feePerStudent - +feeItem.fixed_deduction - +feeItem.flexible_deduction).format(
-							"0,0"
-						)}
+					<span style={{ color: "#2980b9", fontWeight:700 }}>
+						{numeral(feesPerStudent[feeItem.id]! - +feeItem.fixed_deduction - +feeItem.flexible_deduction).format("0,0")}
 					</span>
 				);
 			},

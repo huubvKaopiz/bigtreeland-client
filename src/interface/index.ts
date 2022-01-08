@@ -321,6 +321,7 @@ export interface TuitionFeeType {
 	status: number,
 	from_date: "null",
 	to_date: "null",
+	est_session_num:number,
 	student: {
 		id: number,
 		name: string,

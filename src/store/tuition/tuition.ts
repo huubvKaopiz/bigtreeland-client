@@ -21,7 +21,7 @@ interface addTuitionFeeParams {
     note: string;
     from_date?:string;
     to_date?:string;
-    est_sesson_num:number;
+    est_session_num:number;
 }
 
 interface UpdateTuitionFeeParams {
@@ -93,6 +93,9 @@ export const tuitionFeeSlice = createSlice({
         },
         actionUpdateTuitionFee(state) {
             state.updateTuitionFeeState = "idle";
+        },
+        actionSetTuitionFeesStateNull(state){
+            state.tuitionFees  = null;
         }
     },
     extraReducers: (builder) => {
@@ -135,5 +138,7 @@ export const tuitionFeeSlice = createSlice({
             })
     }
 })
+
+export const {actionSetTuitionFeesStateNull} = tuitionFeeSlice.actions;
 
 export default tuitionFeeSlice.reducer;
