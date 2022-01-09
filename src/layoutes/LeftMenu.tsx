@@ -22,6 +22,12 @@ function LeftMenu(): JSX.Element {
 	const pathname = location.pathname;
 
 	useEffect(() => {
+		if (pathname.includes("/tests")) {
+			setOpenKeys(["classes"]);
+			setSelectedKeys(["5"]);
+			return;
+		}
+
 		if (pathname.includes("/settings")) {
 			setSelectedKeys(["14"]);
 			return;

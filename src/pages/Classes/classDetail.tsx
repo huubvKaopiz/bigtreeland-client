@@ -32,6 +32,7 @@ import {
 } from "store/attendances/slice";
 import { actionGetClass } from "store/classes/slice";
 import { RootState, useAppDispatch } from "store/store";
+import { actionGetTestes } from "store/testes/slice";
 import { dayOptions } from "utils/const";
 import AddStudentsModal from "./addStudentsModal";
 import AddTest from "./addTestModal";
@@ -53,6 +54,7 @@ export default function ClassDetail(): JSX.Element {
 	const addStudentsStatus = useSelector((state: RootState) => state.classReducer.addStudentsStatus);
 	const getAttendancesStatus = useSelector((state: RootState) => state.attendanceReducer.getAttendancesStatus);
 
+
 	useEffect(() => {
 		if (addStudentsStatus === "success") {
 			dispatch(actionGetAttendances({ class_id: parseInt(params.class_id) }));
@@ -70,6 +72,7 @@ export default function ClassDetail(): JSX.Element {
 		if (params.class_id) {
 			dispatch(actionGetAttendances({ class_id: parseInt(params.class_id) }));
 			dispatch(actionGetClass({ class_id: parseInt(params.class_id) }));
+			dispatch(actionGetTestes({class_id: +params.class_id}))
 		}
 	}, [dispatch, params]);
 
@@ -246,6 +249,11 @@ export default function ClassDetail(): JSX.Element {
 	attendance_columns.push(conductPointCol);
 	attendance_columns.push(actionCol);
 
+	/* For Test */
+	function handleChangePageOfTest(page: number) {
+		dispatch(actionGetTestes({class_id: +params.class_id, page}))
+	}
+
 	return (
 		<Layout.Content>
 			<PageHeader
@@ -295,26 +303,27 @@ export default function ClassDetail(): JSX.Element {
 								itemLayout="vertical"
 								size="large"
 								pagination={{
-									onChange: (page) => {
-										// console.log(page);
-									},
-									pageSize: 3,
+									onChange: handleChangePageOfTest,
+									pageSize: 20,
+									total: get(testList, "total", 0)
 								}}
 								dataSource={get(testList, "data", [])}
 								renderItem={(item: TestType) => (
 									<List.Item
-										onClick={() => history.push({ pathname: `/tests/${item.id}` })}
+										onClick={() => history.push({ pathname: `/tests/${item.id}/${params.class_id}` })}
 										style={{ backgroundColor: "white", cursor: "pointer" }}
 										key={item.id}
 										actions={[
-											<Space key="act1">
+											<Space key="act1" onClick={e => {e.stopPropagation()}}>
 												<Button type="link" icon={<TeamOutlined />} />
-												10
+												{studentList.length}
 											</Space>,
-											<Space key="act2">
+											<Space key="act2" onClick={e => {e.stopPropagation();}}>
+												{/* Todo refer liked */}
 												<Button type="link" icon={<LikeOutlined />} /> 0
 											</Space>,
-											<Space key="act3">
+											<Space key="act3" onClick={e => {e.stopPropagation()}}>
+												{/* Todo refer commented */}
 												<MessageOutlined /> 0
 											</Space>,
 										]}
@@ -323,7 +332,8 @@ export default function ClassDetail(): JSX.Element {
 												width={100}
 												height={100}
 												alt="logo"
-												src="https://gw.alipayobjects.com/zos/rmsportal/mqaQswcyDLcXyDKnZfES.png"
+												src="https://images.unsplash.com/photo-1641231366774-0260d3ee85d0?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80"
+												onClick={e => {e.stopPropagation()}}
 											/>
 										}
 									>
