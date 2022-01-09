@@ -82,6 +82,10 @@ function FileSelectModal(props: PropsWithChildren<FileSelectModalProps>): JSX.El
 		if (statusUploadStatus === "success") dispatch(actionGetListFile());
 	}, [dispatch, statusUploadStatus]);
 
+	useEffect(()=> {
+		dispatch(actionGetListFile());		
+	}, [dispatch])
+
 	useEffect(() => {
 		setFileSelected([...defaultSelected]);
 	}, [defaultSelected]);
@@ -89,16 +93,19 @@ function FileSelectModal(props: PropsWithChildren<FileSelectModalProps>): JSX.El
 		dispatch(actionGetListFile({ page }));
 	}
 
-	function checkboxChangeValue(id: number) {
+	function checkboxChangeValue(id: number, removeInList = false) {
 		// const fileIndexRemoved = fileSelected.indexOf(id);
 		const fileIndexRemoved = fileSelected.findIndex((f) => f.id === id);
 		if (fileIndexRemoved > -1) {
 			const newFileSelectedList = [...fileSelected];
 			newFileSelectedList.splice(fileIndexRemoved, 1);
 			setFileSelected(newFileSelectedList);
+			if(removeInList)
+				okFunction(newFileSelectedList);
 		} else {
 			setFileSelected([...fileSelected, listFile.data?.find((f) => f.id === id) as FileType]);
 		}
+		
 	}
 
 	function handleCloseModal() {
@@ -126,7 +133,7 @@ function FileSelectModal(props: PropsWithChildren<FileSelectModalProps>): JSX.El
 				maskClosable={false}
 			>
 				<Tabs defaultActiveKey="1">
-					<Tabs.TabPane tab="Chọn file đề thi" key="1">
+					<Tabs.TabPane tab="Chọn file đã upload" key="1">
 						<Spin spinning={statusGetFiles === "loading"}>
 							<Card>
 								{listFile.data?.map((file) => (
@@ -178,13 +185,13 @@ function FileSelectModal(props: PropsWithChildren<FileSelectModalProps>): JSX.El
 							)}
 						</Spin>
 					</Tabs.TabPane>
-					<Tabs.TabPane tab="Upload file đề thi" key="2">
+					<Tabs.TabPane tab="Upload file mới" key="2">
 						<FileUpload />
 					</Tabs.TabPane>
 				</Tabs>
 			</Modal>
 			{showSelectedList && (
-				<FileSelectedListRender handleRemoveFileSelected={checkboxChangeValue} listFileSelected={fileSelected} />
+				<FileSelectedListRender handleRemoveFileSelected={(id) => checkboxChangeValue(id, true)} listFileSelected={fileSelected} />
 			)}
 		</>
 	);

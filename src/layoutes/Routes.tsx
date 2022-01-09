@@ -28,7 +28,7 @@ function Routes(): JSX.Element {
 			<Route path="/employees" component={Employees} />
 			<Route path="/classes" component={Classes} />
 			<Route path="/classes-detail/:class_id" component={ClassDetail} />
-			<Route path="/tests/:test_id" component={ListTestResults} />
+			<Route path="/tests/:test_id/:class_id" component={ListTestResults} />
 			<Route path="/students" component={Students} />
 			<Route path="/payments/tuition" component={Tuition} />
 			<Route path="/payments/tuition-detail/:tuition_id" component={TuitionDetail} />

@@ -14,7 +14,7 @@ import {
 } from "store/files/slice";
 import { RootState, useAppDispatch } from "store/store";
 import { actionAddTest, actionGetTestes } from "store/testes/slice";
-import { dummyRequest } from "utils/ultil";
+// import { dummyRequest } from "utils/ultil";
 
 export default function AddTest(props: { classInfo: ClassType | null }): JSX.Element {
 	const { classInfo } = props;
@@ -24,7 +24,9 @@ export default function AddTest(props: { classInfo: ClassType | null }): JSX.Ele
 	const [fileUploadList, setFileUploadList] = useState<UploadFile[] | undefined>(undefined);
 	const [submiting, setSubmiting] = useState(false);
 	const [showSelect, setShowSelect] = useState(false);
+	const [resultFilesModal, setResultFilesModal] = useState(false);
 	const [fileSelected, setFileSelected] = useState<Array<FileType>>([]);
+	const [resultFiles, setResultFiles] = useState<Array<FileType>>([]);
 
 	const uploadStatus = useSelector((state: RootState) => state.filesReducer.statusUploadFile);
 
@@ -38,47 +40,34 @@ export default function AddTest(props: { classInfo: ClassType | null }): JSX.Ele
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [uploadStatus]);
 
-	function handleUpload() {
-		if (fileUploadList && fileUploadList.length > 0) {
-			setUploading(true);
-			const fileToUpload: File[] = []
-			fileUploadList.forEach(file => fileToUpload.push(file.originFileObj as File));
-			dispatch(actionUploadFileTest(fileToUpload));
-		}
-	}
-
 	function handleFileSelected(filesSelected: Array<FileType>) {
 		setFileSelected(filesSelected);
 	}
 
-	// function handleRemoveFile() {
-	// 	dispatch(resetRecentFileTestUploaded());
-	// 	setUploading(false);
-	// }
+	function handleResultFileSelected(filesSelected: Array<FileType>) {
+		setResultFiles(filesSelected)
+	}
 
 	function handleSubmit(values: any) {
-		if (fileSelected.length === 0) {
-			notification.error({ message: "Chưa chọn file test" });
-			return;
-		}
-
-		if (fileSelected.length > 0 ) {
-			setSubmiting(true);
-			const listIdFile = fileSelected.map(file => file.id)
-			const data = {
-				class_id: get(classInfo, "id", 0),
-				title: values.title,
-				date: moment(values.date).format("YYYY-MM-DD"),
-				'content_file[]': listIdFile,
-			};
-			dispatch(actionAddTest(data))
-				.then(() => {
-					setShow(false);
-					dispatch(resetRecentFileTestUploaded());
-					dispatch(actionGetTestes({ class_id: get(classInfo, "id", 0) }));
-				})
-				.finally(() => setSubmiting(false));
-		}
+		setSubmiting(true);
+		const listIdFile = fileSelected.map(file => file.id) as number[]
+		const listResultsFileId = resultFiles.map(file => file.id) as number[]
+		const data = {
+			class_id: get(classInfo, "id", 0),
+			title: values.title,
+			date: moment(values.date).format("YYYY-MM-DD"),
+			content_files: listIdFile,
+			content_link: values.content_link,
+			result_files: listResultsFileId,
+			result_link: values.result_link
+		};
+		dispatch(actionAddTest(data))
+			.then(() => {
+				setShow(false);
+				dispatch(resetRecentFileTestUploaded());
+				dispatch(actionGetTestes({ class_id: get(classInfo, "id", 0) }));
+			})
+			.finally(() => setSubmiting(false));
 	}
 
 	return (
@@ -116,41 +105,12 @@ export default function AddTest(props: { classInfo: ClassType | null }): JSX.Ele
 					>
 						<Input />
 					</Form.Item>
-					<Form.Item label="Ngày" name="date">
-						<DatePicker format="YYYY-MM-DD" defaultValue={moment(new Date())} />
+					<Form.Item label="Ngày" name="date" >
+						<DatePicker format="YYYY-MM-DD" />
 					</Form.Item>
 					<Form.Item label="Link đề bài" name="content_link">
 						<Input />
 					</Form.Item>
-
-					{/* <Form.Item label="Files đề bài">
-						<Upload
-							maxCount={100}
-							multiple={true}
-							customRequest={dummyRequest}
-							onChange={({ fileList }) => {
-								setFileUploadList(fileList);
-							}}
-							fileList={fileUploadList}
-							// onRemove={handleRemoveFile}
-						>
-							{!fileUploadList || fileUploadList.length === 0 ? <Button icon={<UploadOutlined />}>Chọn files đề thi</Button> : ""}
-						</Upload>
-						{fileUploadList && fileUploadList.length > 0 && (
-							<Button
-								loading={uploading}
-								onClick={handleUpload}
-								style={{ marginTop: 10 }}
-								type="primary"
-								size="small"
-								ghost
-								icon={<UploadOutlined />}
-							>
-								Tải lên
-							</Button>
-						)}
-					</Form.Item> */}
-
 					<Form.Item label="Chọn files đề thi">
 						<FileSelectModal
 							defaultSelected={fileSelected}
@@ -160,6 +120,22 @@ export default function AddTest(props: { classInfo: ClassType | null }): JSX.Ele
 							showSelectedList
 						>
 							<Button onClick={() => setShowSelect(true)} type="default" size="middle" icon={<UploadOutlined />}>
+								Chọn files
+							</Button>
+						</FileSelectModal>
+					</Form.Item>
+					<Form.Item label="Link đáp án" name="result_link">
+						<Input />
+					</Form.Item>
+					<Form.Item label="Chọn files đáp án">
+						<FileSelectModal
+							defaultSelected={resultFiles}
+							isShow={resultFilesModal}
+							okFunction={handleResultFileSelected}
+							closeFunction={() => setResultFilesModal(false)}
+							showSelectedList
+						>
+							<Button onClick={() => setResultFilesModal(true)} type="default" size="middle" icon={<UploadOutlined />}>
 								Chọn files
 							</Button>
 						</FileSelectModal>

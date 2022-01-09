@@ -220,12 +220,16 @@ export interface ListAttendancesType {
 }
 
 export interface TestType {
+	class_id: number;
+	content_files: any[];
+	content_link: string;
+	created_at: string;
+	date: string;
 	id: number;
-	title: "Test 11";
-	date: "2021-12-14";
-	class_id: 1;
-	updated_at: "2021-11-21 22:37:19";
-	created_at: "2021-11-21 22:37:19";
+	result_files: any[];
+	result_link: string;
+	title: string;
+	updated_at: string;
 }
 
 export interface ListTestType {

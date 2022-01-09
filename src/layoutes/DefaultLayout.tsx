@@ -36,7 +36,7 @@ function DefaultLayout(): JSX.Element {
 				<Content style={{ padding: "0 16px", backgroundColor: "#fff" }}>
 					<Routes />
 				</Content>
-				<Footer style={{ textAlign: "center", backgroundColor: "#fff" }}>Bigtreeland ©{new Date().getFullYear()} Develop buy FreeTeam</Footer>
+				<Footer style={{ textAlign: "center", backgroundColor: "#fff" }}>Bigtreeland ©{new Date().getFullYear()} Developed by FreeTeam</Footer>
 			</Layout>
 		</Layout>
 	);
