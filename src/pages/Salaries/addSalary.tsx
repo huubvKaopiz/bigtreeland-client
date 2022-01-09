@@ -1,5 +1,5 @@
-import { Col, Form, Input, Layout, Row, Select, Divider, Typography, Button, List, DatePicker, Space, InputNumber, Alert, Table } from 'antd';
-// import { InfoCircleOutlined } from '@ant-design/icons';
+import { Col, Form, Input, Layout, Row, Select, Divider, Typography, Button, List, DatePicker, Space, InputNumber, Alert, Table, Tabs, Modal } from 'antd';
+import { CheckCircleOutlined } from '@ant-design/icons';
 import React, { useEffect, useState } from 'react';
 import { RootState, useAppDispatch } from 'store/store';
 import { useSelector } from 'react-redux';
@@ -10,31 +10,36 @@ import { actionGetRevenues, actionSetListRevenuesNull } from 'store/revenues/sli
 import numeral from 'numeral';
 import { actionAddSalary, AddSalaryData } from 'store/salaries/slice';
 import { actionGetLessons, actionSetLessionsStateNull } from 'store/lesson/slice';
-import { LessonType, TuitionFeeType } from 'interface';
-import { actionGetTuitionFees } from 'store/tuition/tuition';
+import { LessonType, PeriodTuitionType, TuitionFeeType } from 'interface';
+import { actionGetTuitionFees, actionSetTuitionFeesStateNull } from 'store/tuition/tuition';
+import { useHistory } from 'react-router-dom';
 
 const { Option } = Select;
-const { Title, Paragraph } = Typography;
+const { Title } = Typography;
 const { RangePicker } = DatePicker;
+const { TabPane } = Tabs;
+const { confirm } = Modal;
 
 export default function AddSalary(): JSX.Element {
     const dispatch = useAppDispatch();
+    const history = useHistory();
     const [form] = Form.useForm();
     const [dateRange, setDateRange] = useState<[string, string]>([moment(new Date).startOf("month").format("YYYY-MM-DD"), moment(new Date).endOf("month").format("YYYY-MM-DD")])
     const [disableSelectEmployee, setDisableSelectEmployee] = useState(true);
     const [amountRevenue, setAmountRevenue] = useState(0);
     const [amountSalary, setAmountSalary] = useState(0);
     const [role, setRole] = useState('none');
-    const [periodTuitions, setPeriodTuitions] = useState<{ id: number, length: number }[]>([]);
+    const [periodTuitions, setPeriodTuitions] = useState<{ id: number, count: number }[]>([]); // the list of periods that the teacher has teached
+    const [revenueLoading, setRevenueLoading] = useState(false);
+    //application state 
     const emloyees = useSelector((state: RootState) => state.employeeReducer.employees);
     const employeeInfo = useSelector((state: RootState) => state.employeeReducer.employeeInfo);
     const receipts = useSelector((state: RootState) => state.revenuesReducer.revenues);
-    const getReceiptStatus = useSelector((state: RootState) => state.revenuesReducer.getRevenuesStatus);
     const addSalaryStatus = useSelector((state: RootState) => state.salariesReducer.addSalaryStatus);
     const lessons = useSelector((state: RootState) => state.lessonReducer.lessons);
-    const getLessonsStatus = useSelector((state: RootState) => state.lessonReducer.getLessonsState);
     const tuitionFees = useSelector((state: RootState) => state.tuitionFeeReducer.tuitionFees);
 
+    //initialize
     useEffect(() => {
         form.setFieldsValue({
             role: "none",
@@ -49,10 +54,12 @@ export default function AddSalary(): JSX.Element {
         dispatch(actionSetListRevenuesNull());
         dispatch(actionSetListEmployeesNull());
         dispatch(actionSetLessionsStateNull());
+        dispatch(actionSetTuitionFeesStateNull());
         setAmountSalary(0);
         setAmountRevenue(0)
     }, [form, dispatch])
 
+    //handle employeInfo state change
     useEffect(() => {
         if (employeeInfo) {
             form.setFieldsValue({
@@ -61,6 +68,7 @@ export default function AddSalary(): JSX.Element {
         }
     }, [employeeInfo, form])
 
+    //handle receipts state change
     useEffect(() => {
         if (receipts && role === 'sale') {
             let amount = 0;
@@ -79,56 +87,65 @@ export default function AddSalary(): JSX.Element {
         }
     }, [receipts, form, role])
 
+    // handle lessons state change, the list of lessons will be changed when the user clicks on the 'Get Revenue' button.
     useEffect(() => {
-        if (lessons) {
+        if (get(lessons, "data", []).length > 0) {
+            //if the role is teacher2, cal Employee's revenue base on lessons and fee per session.
             if (role === 'teacher2') {
                 const count = get(lessons, "data", []).length;
                 // console.log('lessons:', count)
                 setAmountRevenue(count)
                 form.setFieldsValue({
-                    revenue_salary_percent: '100',
                     revenue_salary: parseFloat(form.getFieldValue("basic_salary")) * count
                 })
                 setAmountSalary(parseFloat(form.getFieldValue("basic_salary")) * count
                     + parseFloat(form.getFieldValue("bonus"))
                     - parseFloat(form.getFieldValue("fines")))
-            } else if (role === 'teacher') {
-
+            }
+            // if the role is 'teacher' 
+            else if (role === 'teacher') {
+                //1. get list of periods with count of lessons that this teacher has teached 
+                const peridoList: { id: number, count: number }[] = [];
                 get(lessons, "data", []).forEach((ls) => {
-                    const index = findIndex(periodTuitions, (p) => p.id === ls.tuition_period_id);
+                    const index = findIndex(peridoList, (p) => p.id === ls.tuition_period_id);
                     if (index == -1) {
-                        periodTuitions.push({ id: ls.tuition_period_id, length: 1 })
+                        peridoList.push({ id: ls.tuition_period_id, count: 1 })
                     } else {
-                        periodTuitions[index].length++;
+                        peridoList[index].count++;
                     }
                 })
-                setPeriodTuitions(periodTuitions);
                 let period_id_str = '';
-                periodTuitions.forEach((p) => {
+                peridoList.forEach((p) => {
                     if (period_id_str === '') period_id_str = `${p.id}`
                     else period_id_str += `,${p.id}`
                 })
-                dispatch(actionGetTuitionFees({ period_tuition_fee_id: period_id_str, per_page: 1000 }));
+                //get all of tuitonFees of periods 
+                if (period_id_str != '') {
+                    setRevenueLoading(true)
+                    dispatch(actionGetTuitionFees({ period_tuition_fee_id: period_id_str, per_page: 1000 })).then(() => setRevenueLoading(false));
+                }
+                setPeriodTuitions(peridoList);
             }
         }
-    }, [lessons, role, form, periodTuitions, dispatch])
-    // console.log(periodTuitions);
+    }, [lessons, role, form, dispatch])
 
     function handleChangeDateRange(date: any, dateString: [string, string]) {
         setDateRange([dateString[0], dateString[1]])
     }
 
+    // handle 'Get Revenue' button onclick!
     function handleGetRevenue() {
         if (form.getFieldValue('employee_id') > 0 && role != 'none') {
+            setRevenueLoading(true);
             switch (role) {
                 case 'sale':
-                    dispatch(actionGetRevenues({ employee_id: form.getFieldValue('employee_id'), fromDate: dateRange[0], toDate: dateRange[1] }))
+                    dispatch(actionGetRevenues({ employee_id: form.getFieldValue('employee_id'), fromDate: dateRange[0], toDate: dateRange[1] })).then(() => setRevenueLoading(false))
                     break;
                 case 'teacher':
-                    dispatch(actionGetLessons({ employee_id: form.getFieldValue('employee_id'), from_date: dateRange[0], to_date: dateRange[1] }));
+                    dispatch(actionGetLessons({ employee_id: form.getFieldValue('employee_id'), from_date: dateRange[0], to_date: dateRange[1] })).then(() => setRevenueLoading(false));
                     break;
                 case 'teacher2':
-                    dispatch(actionGetLessons({ employee_id: form.getFieldValue('employee_id'), from_date: dateRange[0], to_date: dateRange[1] }));
+                    dispatch(actionGetLessons({ employee_id: form.getFieldValue('employee_id'), from_date: dateRange[0], to_date: dateRange[1] })).then(() => setRevenueLoading(false));
                     break;
                 case 'other':
                     break;
@@ -139,24 +156,38 @@ export default function AddSalary(): JSX.Element {
         }
     }
 
+    function handleChangeTeacherRevenue(revenue: number) {
+        setAmountRevenue(revenue);
+        const percent = form.getFieldValue('revenue_salary_percent');
+        const basic = form.getFieldValue('basic_salary');
+        const bonus = form.getFieldValue('bonus');
+        const fines = form.getFieldValue('fines');
+
+        const rev = +percent * revenue / 100;
+        form.setFieldsValue({
+            revenue_salary: rev
+        })
+        setAmountSalary(+basic + +bonus + rev - +fines)
+    }
+
+    // handle form values change
     function handleChanegValues(changeValues: any, allValues: any) {
         if (allValues.employee_id > 0) {
             const revenue = parseFloat(allValues.revenue_salary);
             const basic = parseFloat(allValues.basic_salary);
             const bonus = parseFloat(allValues.bonus);
             const fines = parseFloat(allValues.fines);
-            // console.log(revenue, basic, bonus, fines);
-            if (role === 'sale') {
+            if (role === 'sale' || role === 'teacher') {
                 setAmountSalary(basic + revenue + bonus - fines);
             } else if (role === 'teacher2') {
                 setAmountSalary(basic * amountRevenue + bonus - fines);
             }
         }
         if (changeValues.role) {
-            // console.log(allValues.employee_id)
             setRole(changeValues.role);
             dispatch(actionSetListRevenuesNull());
             dispatch(actionSetLessionsStateNull());
+            dispatch(actionSetTuitionFeesStateNull());
             setAmountRevenue(0)
             setAmountSalary(0)
             if (changeValues.role === 'none') {
@@ -172,6 +203,25 @@ export default function AddSalary(): JSX.Element {
                     note: ""
                 })
             } else {
+                switch (changeValues.role) {
+                    case 'teacher':
+                        form.setFieldsValue({
+                            revenue_salary_percent: '50',
+                        })
+                        break;
+                    case 'teacher2':
+                        form.setFieldsValue({
+                            revenue_salary_percent: '100',
+                        })
+                        break;
+                    case 'sale':
+                        form.setFieldsValue({
+                            revenue_salary_percent: '20',
+                        })
+                        break;
+                    default:
+                        break;
+                }
                 dispatch(actionGetEmployees({ role_name: changeValues.role }))
                 setDisableSelectEmployee(false)
             }
@@ -180,6 +230,7 @@ export default function AddSalary(): JSX.Element {
         if (changeValues.employee_id) {
             dispatch(actionSetListRevenuesNull())
             dispatch(actionSetLessionsStateNull());
+            dispatch(actionSetTuitionFeesStateNull());
             setAmountRevenue(0)
             setAmountSalary(0)
             if (changeValues.employee_id > 0) {
@@ -190,7 +241,6 @@ export default function AddSalary(): JSX.Element {
         if (changeValues.basic_salary) {
             if (role === 'teacher2') {
                 form.setFieldsValue({
-                    revenue_salary_percent: '100',
                     revenue_salary: parseFloat(changeValues.basic_salary) * get(lessons, "data", []).length
                 })
             }
@@ -210,6 +260,7 @@ export default function AddSalary(): JSX.Element {
         }
     }
 
+    // handle submit to server
     function handleSubmit(values: any) {
         console.log(values)
         if (values.employee_id <= 0) return;
@@ -227,20 +278,29 @@ export default function AddSalary(): JSX.Element {
             status: 0,
             type: role === 'sale' ? 0 : role === 'teacher2' ? 1 : 2
         }
-        dispatch(actionAddSalary(payload));
+        dispatch(actionAddSalary(payload)).finally(()=>{
+           if(addSalaryStatus === 'success'){
+            confirm({
+                title: 'Lưu bảng lương thành công!',
+                icon: <CheckCircleOutlined />,
+                content: 'Bạn muốn chuyển đến danh sách bảng lương',
+                onOk() {
+                    history.push("/salaries")
+                },
+                onCancel() {
+                  console.log('Cancel');
+                },
+              });
+           }
+        })
     }
 
-    // console.log(sForm.getFieldValue('role'))
+    //UI render 
     const IsNumeric = { pattern: /^-{0,1}\d*\.{0,1}\d+$/, message: "Value must be numeric" };
     return (
         <Layout.Content style={{ padding: 20 }}>
             <div style={{ marginBottom: 20 }}>
                 <Title level={3}> Lập bảng lương </Title>
-                <Paragraph ellipsis={false}>
-                    <Alert closable style={{ marginBottom: 20 }} message="Với nhân viên sale, bảng doanh thu là bảng doanh thu bán khoá học trong khoảng thời gian tính lương, tổng lương = lương doanh thu + lương cơ bản + thưởng  - phạt" type="info" showIcon />
-                    <Alert closable message="Với nhân viên là giáo viên lương theo buổi, bảng doanh thu là danh sách các buổi dạy trong khoảng thời gian tính lương, tổng lương = lương doanh thu(lương cơ bản * số buổi dạy) + thưởng  - phạt" type="info" showIcon />
-                </Paragraph>
-
             </div>
             <Divider />
             <Form form={form} name="salary"
@@ -280,7 +340,7 @@ export default function AddSalary(): JSX.Element {
                                 }
                             >
                                 {
-                                    form.getFieldValue('role') === 'none' ? <Option value={0} key={0}>--</Option > : ""
+                                    role === 'none' ? <Option value={0} key={0}>--</Option > : ""
                                 }
                                 {
                                     get(emloyees, "data", []).map((e) => <Option value={e.id} key={e.id}><a>{e.name}</a> - {e.phone}</Option >)
@@ -352,21 +412,24 @@ export default function AddSalary(): JSX.Element {
             <Divider />
             <Row justify="space-between" style={{ marginBottom: 20 }}>
                 <Col>
-                    <Title level={4}> Bảng doanh thu </Title>
+                    <Title level={4}> Bảng doanh thu (<span style={{ color: "#27ae60" }}>{numeral(amountRevenue).format("0,0")}</span>) </Title>
+
                 </Col>
                 <Col>
                     <RangePicker style={{ marginRight: 10 }} defaultValue={[moment(new Date).startOf("month"), moment(new Date).endOf("month")]} onChange={handleChangeDateRange} />
                     <Button type="primary" onClick={handleGetRevenue}>Lấy bảng doanh thu</Button>
                 </Col>
             </Row>
-
+            {role === 'sale' ? <Alert closable style={{ marginBottom: 20 }} message="Với nhân viên sale, bảng doanh thu là bảng doanh thu bán khoá học trong khoảng thời gian tính lương" type="warning" /> : ""}
+            {role === 'teacher2' ? <Alert closable style={{ marginBottom: 20 }} message="Với nhân viên là giáo viên lương theo buổi, bảng doanh thu là danh sách các buổi dạy trong khoảng thời gian tính lương" type="warning" /> : ""}
+            {role === 'teacher' ? <Alert closable style={{ marginBottom: 20 }} message="Với nhân viên là giáo viên lương theo doanh thu học phí, bảng doanh thu là danh số buổi dạy của từng học sinh trong khoảng thời gian tính lương" type="warning" /> : ""}
             {
                 role === "sale" ?
                     <List
                         rowKey="id"
                         itemLayout="horizontal"
-                        header={<div style={{ justifyContent: "end", display: "flex" }}>{numeral(amountRevenue).format("0,0")}</div>}
-                        loading={getReceiptStatus === "loading" ? true : false}
+                        // header={<div style={{ justifyContent: "end", display: "flex" }}>{numeral(amountRevenue).format("0,0")}</div>}
+                        loading={revenueLoading}
                         dataSource={get(receipts, "data", [])}
                         renderItem={item => (
                             <List.Item>
@@ -380,8 +443,8 @@ export default function AddSalary(): JSX.Element {
                     /> : role === "teacher2" ?
                         <List rowKey="id"
                             itemLayout="horizontal"
-                            header={<div style={{ justifyContent: "end", display: "flex", fontWeight: 600 }}>{numeral(amountRevenue).format("0,0")}</div>}
-                            loading={getLessonsStatus === "loading" ? true : false}
+                            // header={<div style={{ justifyContent: "end", display: "flex", fontWeight: 600 }}>{numeral(amountRevenue).format("0,0")}</div>}
+                            loading={revenueLoading}
                             dataSource={get(lessons, "data", [])}
                             renderItem={item => (
                                 <List.Item>
@@ -393,60 +456,151 @@ export default function AddSalary(): JSX.Element {
 
                                 </List.Item>
                             )} /> :
-                        <TeacherRevenueTable tuitionFeeList={get(tuitionFees,"data",[])} periodTuitionFeeList={periodTuitions}/>
+
+                        <TeacherRevenueTable
+                            tuitionFeeList={get(tuitionFees, "data", [])}
+                            periodTuitionFeeList={periodTuitions}
+                            lessons={get(lessons, "data", [])}
+                            revenueLoading={revenueLoading}
+                            handleChangeTeacherRevenue={handleChangeTeacherRevenue}
+                        />
 
             }
         </Layout.Content>
     )
 }
 
+// the revenue detail table of 'Teacher'
+function TeacherRevenueTable(prop: {
+    tuitionFeeList: TuitionFeeType[],
+    periodTuitionFeeList: { id: number, count: number }[],
+    revenueLoading: boolean,
+    lessons: LessonType[],
+    handleChangeTeacherRevenue: (r: number) => void,
+}): JSX.Element {
+    const { tuitionFeeList, periodTuitionFeeList, lessons, revenueLoading, handleChangeTeacherRevenue } = prop;
+    const [tuitionLessionNumList, setTuitionLessionNumList] = useState<number[]>([]);
+    const [reductionList, setReductionList] = useState<number[]>([]);
 
-function TeacherRevenueTable(prop:{tuitionFeeList:TuitionFeeType[], periodTuitionFeeList:{id:number, length:number}[]}):JSX.Element{
-    const {tuitionFeeList, periodTuitionFeeList} = prop;
+    useEffect(() => {
+        if (tuitionFeeList) {
+            const lessonNumList: number[] = [];
+            const reductions: number[] = [];
+            let amountRev = 0;
+            tuitionFeeList.forEach((tuition: TuitionFeeType) => {
+                if (tuition.from_date == null) {
+                    const found = periodTuitionFeeList.find((p) => p.id === tuition.period_tuition_id);
+                    console.log(found)
+                    if (found) lessonNumList[tuition.id] = found.count;
+                    else lessonNumList[tuition.id] = 0
+                } else {
+                    let count = 0;
+                    lessons.forEach((ls) => {
+                        if (moment(ls.date).isSameOrAfter(tuition.from_date) && ls.tuition_period_id === tuition.period_tuition_id) count++;
+                    })
+                    lessonNumList[tuition.id] = count;
+                }
+                const fee_per_session = get(tuition, "period_tuition.fee_per_session", 0);
+                const reduction = get(tuition, "flexible_deduction", "0");
+                let est_fee = 0;
+                if (tuition.est_session_num === 0) {
+                    est_fee = fee_per_session * +get(tuition, "period_tuition.est_session_num", 0);
+                } else est_fee = fee_per_session * +get(tuition, "est_session_num", 0);
+                reductions[tuition.id] = +reduction / est_fee * (fee_per_session * lessonNumList[tuition.id]);
+                amountRev += (fee_per_session * lessonNumList[tuition.id] - reductions[tuition.id])
+            })
+            setTuitionLessionNumList(lessonNumList);
+            setReductionList(reductions);
+            handleChangeTeacherRevenue(amountRev);
 
-    function getLessonNum(tuitionFee:TuitionFeeType):number{
-        let res = 0;
-        if(tuitionFee.from_date == null){
-            const found = periodTuitionFeeList.find((p) => p.id === tuitionFee.period_tuition_id);
-            if(found) res = found.length;
-        }else {
-            res = 1;
         }
-        return res;
-    }
+    }, [tuitionFeeList, periodTuitionFeeList, lessons, handleChangeTeacherRevenue])
 
     const cols = [
         {
             title: "Học sinh",
             dataIndex: "student",
             key: "student",
-            render: function studentCol(st:{id:number, name:string}):JSX.Element{
-                return(
-                    <>{st.name}</>
+            render: function studentCol(st: { id: number, name: string }): JSX.Element {
+                return (
+                    <a>{st.name}</a>
                 )
             }
         },
         {
             title: "Số buổi học",
-            dataIndex: "lesson_num",
+            // dataIndex: "",
             key: "lesson_num",
-            render: function studentCol(val:string, record:TuitionFeeType):JSX.Element{
-                return(
-                    <>{getLessonNum(record)}</>
+            render: function studentCol(text: string, record: TuitionFeeType): JSX.Element {
+                return (
+                    <>{tuitionLessionNumList[record.id]}</>
                 )
             }
-
-        }
+        },
+        {
+            title: "Học phí/buổi",
+            dataIndex: "period_tuition",
+            key: "fee_per_session",
+            render: function studentCol(period: PeriodTuitionType): JSX.Element {
+                return (
+                    <>{numeral(get(period, "fee_per_session", 0)).format("0,0")}</>
+                )
+            }
+        },
+        {
+            title: "Giảm trừ",
+            // dataIndex: "",
+            key: "reduction",
+            render: function studentCol(text: string, record: TuitionFeeType): JSX.Element {
+                return (
+                    <span style={{ color: "#d35400" }}>{numeral(reductionList[record.id]).format("0,0")}</span>
+                )
+            }
+        },
+        {
+            title: "Thu ước tính",
+            // dataIndex: "",
+            key: "amount",
+            render: function studentCol(text: string, record: TuitionFeeType): JSX.Element {
+                return (
+                    <strong style={{ color: "#2980b9" }}>{numeral(get(record, "period_tuition.fee_per_session", 0) * tuitionLessionNumList[record.id] - reductionList[record.id]).format("0,0")}</strong>
+                )
+            }
+        },
     ]
 
-    return(
-        <>
-            <Table
-                rowKey="id"
-                columns={cols}
-                dataSource={get(tuitionFeeList,"data",[])}
-            >
-            </Table>
-        </>
+    return (
+        <React.StrictMode>
+            <Tabs defaultActiveKey="1">
+                <TabPane tab="Bảng học phí" key="1">
+                    <Table
+                        rowKey="id"
+                        loading={revenueLoading}
+                        columns={cols}
+                        dataSource={tuitionFeeList}
+                        pagination={{ defaultPageSize: 100 }}
+                    >
+                    </Table>
+                </TabPane>
+                <TabPane tab="DS buổi dạy" key="2">
+                    <List rowKey="id"
+                        itemLayout="horizontal"
+                        loading={revenueLoading}
+                        dataSource={lessons}
+                        renderItem={item => (
+                            <List.Item>
+                                <List.Item.Meta
+                                    title={<a href="#">Lớp: {get(item, "tuition_period.class.name", "")}</a>}
+                                    description={item.date}
+                                />
+                                {/* <div style={{ color: "#2980b9" }}>{item.date}</div> */}
+
+                            </List.Item>
+                        )} />
+                </TabPane>
+
+            </Tabs>
+
+        </React.StrictMode>
     )
 }

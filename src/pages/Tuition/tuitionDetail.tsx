@@ -107,7 +107,7 @@ export default function TuitionDetail(): JSX.Element {
 		setNewStudentList(newList);
 	}, [students, tuitionPeriodInfo]);
 
-	console.log(feesPerStudent);
+	// console.log(feesPerStudent);
 	//render ui
 	const renderContent = (column = 2) => (
 		<Descriptions size="middle" column={column}>

@@ -134,7 +134,7 @@ export const salariesSlice = createSlice({
                 state.addSalaryStatus = "loading";
             }).addCase(actionAddSalary.fulfilled, (state) => {
                 state.addSalaryStatus = "success";
-                notification.success({ message: "Thêm bảng lương thành công" });
+                // notification.success({ message: "Thêm bảng lương thành công" });
             }).addCase(actionAddSalary.rejected, state => {
                 state.addSalaryStatus = "error";
                 notification.error({ message: "Thêm bảng lương bị lỗi!" });

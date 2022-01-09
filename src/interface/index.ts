@@ -338,6 +338,7 @@ export interface TuitionFeeType {
 		from_date: "2022-01 - 01",
 		to_date: "2022 - 01 - 31",
 		est_session_num: 13,
+		fee_per_session:number,
 	}
 
 }
@@ -352,6 +353,13 @@ export interface LessonType {
 	id: 1;
 	tuition_period_id: 1;
 	date: "";
+	tuition_period:{
+		id:number;
+		class:{
+			id:number;
+			name:string;
+		}
+	}
 }
 
 export interface SalaryType {

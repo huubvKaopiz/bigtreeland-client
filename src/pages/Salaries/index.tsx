@@ -1,5 +1,5 @@
-import { Button, Descriptions, Input, Layout, List, Space, Table, Tag, Tooltip } from 'antd';
-import { PlusOutlined, ProfileOutlined, EditOutlined, FileDoneOutlined, InfoCircleOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Button, Descriptions, Input, Layout, List, Space, Table, Tag, Tooltip, Modal } from 'antd';
+import { PlusOutlined, ProfileOutlined, EditOutlined, FileDoneOutlined, InfoCircleOutlined, DeleteOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { get } from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -8,11 +8,10 @@ import { RootState, useAppDispatch } from 'store/store';
 import { useHistory } from 'react-router-dom';
 import numeral from 'numeral';
 import { SalaryType } from 'interface';
-import Modal from 'antd/lib/modal/Modal';
 import moment from 'moment';
 import { actionGetRevenues } from 'store/revenues/slice';
 import { actionGetLessons } from 'store/lesson/slice';
-
+const { confirm } = Modal;
 export default function Salaries(): JSX.Element {
     const dispatch = useAppDispatch();
     const history = useHistory();
@@ -22,6 +21,18 @@ export default function Salaries(): JSX.Element {
     useEffect(() => {
         dispatch(actionGetSalaries())
     }, [dispatch])
+
+    function handleDeleteSalary(salary: SalaryType) {
+        confirm({
+            title: "Bạn muốn xoá bảng lương này!",
+            icon: <ExclamationCircleOutlined />,
+            onOk() {
+                dispatch(actionDeleteSalary(salary.id)).finally(() => {
+                    dispatch(actionGetSalaries())
+                })
+            }
+        })
+    }
 
     const columns = [
         {
@@ -45,7 +56,7 @@ export default function Salaries(): JSX.Element {
             key: "type",
             render: function fineCol(val: number): JSX.Element {
                 return (
-                    <span style={{ color: "#c0392b" }}>{val}</span>
+                    <span style={{ color: "#c0392b" }}>{val === 0 ? "Sale" : val === 1 ? "Giáo viên (2)" : "Giáo viên"}</span>
                 )
             }
         },
@@ -65,7 +76,7 @@ export default function Salaries(): JSX.Element {
             key: "status",
             render: function fineCol(val: number): JSX.Element {
                 return (
-                    <span style={{ color: "#c0392b" }}>{val}</span>
+                    <span style={{ color: "#c0392b" }}>{val === 0 ? <Tag color="red">Chưa thanh toán</Tag> : <Tag color="green">Đã thanh toán</Tag>}</span>
                 )
             }
         },
@@ -79,9 +90,12 @@ export default function Salaries(): JSX.Element {
                         <DetailSalary salaryInfo={record} />
                         <Tooltip title="Sửa bảng lương"> <Button disabled={Number(record.status) === 1 ? true : false} type="link" icon={<EditOutlined />} onClick={() => history.push(`/salaries-edit/${record.id}`)} /></Tooltip>
                         <PaymentConfirmModal salaryInfo={record} />
-                        {
+                        <Tooltip title="Xoá bảng lương">
+                            <Button type="link" danger icon={<DeleteOutlined />} onClick={() => handleDeleteSalary(record)} />
+                        </Tooltip>
+                        {/* {
                             record.status === 0 ? <DeleyteConfirmModal salaryInfo={record} /> : ""
-                        }
+                        } */}
                     </>
                 )
             }
@@ -120,44 +134,6 @@ function PaymentConfirmModal(props: { salaryInfo: SalaryType }): JSX.Element {
                 cancelText="Huỷ bỏ"
             >
                 <p>Lưu ý khi đã xác nhận thanh toán thì không thể sửa được bảng lương.</p>
-            </Modal>
-        </>
-
-    )
-}
-
-function DeleyteConfirmModal(props: { salaryInfo: SalaryType }): JSX.Element {
-    const { salaryInfo } = props;
-    const [show, setShow] = useState(false)
-    const dispatch = useAppDispatch();
-    const deleteSalaryStatus = useSelector((state: RootState) => state.salariesReducer.deleteSalaryStatus);
-
-    useEffect(() => {
-        if (deleteSalaryStatus === 'success') {
-            setShow(false)
-            dispatch(actionSetDeleteSalaryStateIdle());
-            dispatch(actionGetSalaries());
-        }
-    }, [deleteSalaryStatus, dispatch])
-
-    function handlSubmit() {
-        console.log('submit')
-        dispatch(actionDeleteSalary(salaryInfo.id));
-    }
-    return (
-        <>
-            <Tooltip title="Xoá bảng lương">
-                <Button type="link" danger icon={<DeleteOutlined />} onClick={() => setShow(true)} loading={deleteSalaryStatus === "loading" ? true : false} />
-            </Tooltip>
-            <Modal
-                title={<p><InfoCircleOutlined style={{ color: "#d35400" }} /> Xác nhận xoá bảng lương</p>}
-                visible={show}
-                onOk={handlSubmit}
-                onCancel={() => setShow(false)}
-                okText="OK"
-                cancelText="Huỷ bỏ"
-            >
-                <p>Thông tin bảng lương sẽ bị xoá khỏi hệ thống và không thể phục hồi!</p>
             </Modal>
         </>
 
@@ -211,7 +187,7 @@ function DetailSalary(props: { salaryInfo: SalaryType }): JSX.Element {
                     title="Chi tiết bảng lương"
                     bordered
                     column={{ xxl: 3, xl: 2, lg: 2, md: 2, sm: 2, xs: 1 }}
-                    style={{marginBottom:20}}
+                    style={{ marginBottom: 20 }}
                 >
                     <Descriptions.Item span={3} label="Nhân viên"><strong>{salaryInfo.user.name}</strong></Descriptions.Item>
                     <Descriptions.Item span={2} label="Ngày tạo">{moment(salaryInfo.created_at).format("YYYY-MM-DD")}</Descriptions.Item>
@@ -221,7 +197,7 @@ function DetailSalary(props: { salaryInfo: SalaryType }): JSX.Element {
                     <Descriptions.Item label="Thưởng"><strong>{numeral(salaryInfo.bonus).format("0,0")}</strong></Descriptions.Item>
                     <Descriptions.Item label="Phạt"><strong>{numeral(salaryInfo.fines).format("0,0")}</strong></Descriptions.Item>
                     <Descriptions.Item span={3} label="Tổng"><strong style={{ color: "#2980b9" }}>{numeral(amount).format("0,0")}</strong></Descriptions.Item>
-                    <Descriptions.Item span={3} label="Trạng thái"><strong>{salaryInfo.status === 0 ?   <Tag color="volcano">Chưa thanh toán</Tag> : <Tag color="green">Đã thanh toán</Tag>}</strong></Descriptions.Item>
+                    <Descriptions.Item span={3} label="Trạng thái"><strong>{salaryInfo.status === 0 ? <Tag color="volcano">Chưa thanh toán</Tag> : <Tag color="green">Đã thanh toán</Tag>}</strong></Descriptions.Item>
                     <Descriptions.Item label="Ghi chú">
                         {salaryInfo.note}
                     </Descriptions.Item>

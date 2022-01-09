@@ -26,11 +26,11 @@ function Classes(): JSX.Element {
 	}, [dispatch]);
 
 	useEffect(() => {
-		dispatch(actionGetEmployees({}));
+		dispatch(actionGetEmployees({role_id:'2,4'}));
 	}, [dispatch]);
 
 	const searchTeacher = (search: string) => {
-		if (search.length >= 3 || search.length === 0) dispatch(actionGetEmployees({ class_id: 0, search }));
+		if (search.length >= 3 || search.length === 0) dispatch(actionGetEmployees({ class_id: 0, role_id:'2,4', search }));
 	};
 
 	const columns = [

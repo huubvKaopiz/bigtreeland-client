@@ -18,6 +18,7 @@ export interface ParamGetUsers {
 	per_page?: number;
 	class_id?: number;
 	role_name?: string;
+	role_id?:string;
 }
 
 export interface EmployeeParams {
