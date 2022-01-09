@@ -372,7 +372,7 @@ export interface SalaryType {
 	fines: "";
 	period_id: 1;
 	note: "";
-	status: 0;
+	status: number;
 	from_date: '',
 	to_date: '',
 	created_at: '';

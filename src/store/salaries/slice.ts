@@ -54,12 +54,23 @@ export const actionAddSalary = createAsyncThunk("actionAddSalary", async (data: 
     return response.data;
 })
 
-export const actionUpdateSalary = createAsyncThunk("actionUpdateSalary", async (params: { sID: number, data: AddSalaryData }) => {
+export const actionUpdateSalary = createAsyncThunk("actionUpdateSalary", async (params: { sID: number, data:{bonus:string, fines:string, note:string} }) => {
     const { sID, data } = params;
     const response = await request({
         url: `/api/salaries/${sID}`,
         method: "put",
         data
+    })
+    return response.data;
+})
+
+export const actionSalaryPaymentConfirmed = createAsyncThunk("actionSalaryPaymentConfirmed", async (sID:number) => {
+    const response = await request({
+        url: `/api/salaries/${sID}`,
+        method: "put",
+        data:{
+            status:1
+        }
     })
     return response.data;
 })
@@ -146,6 +157,16 @@ export const salariesSlice = createSlice({
                 state.updateSalaryStatus = "success";
                 notification.success({ message: "Cập nhật bảng lương thành công" });
             }).addCase(actionUpdateSalary.rejected, state => {
+                state.updateSalaryStatus = "error";
+                notification.error({ message: "Cập nhật bảng lương bị lỗi!" });
+            })
+
+            .addCase(actionSalaryPaymentConfirmed.pending, state => {
+                state.updateSalaryStatus = "loading";
+            }).addCase(actionSalaryPaymentConfirmed.fulfilled, (state) => {
+                state.updateSalaryStatus = "success";
+                notification.success({ message: "Cập nhật bảng lương thành công" });
+            }).addCase(actionSalaryPaymentConfirmed.rejected, state => {
                 state.updateSalaryStatus = "error";
                 notification.error({ message: "Cập nhật bảng lương bị lỗi!" });
             })
