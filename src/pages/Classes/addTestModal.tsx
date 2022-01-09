@@ -20,25 +20,11 @@ export default function AddTest(props: { classInfo: ClassType | null }): JSX.Ele
 	const { classInfo } = props;
 	const dispatch = useAppDispatch();
 	const [show, setShow] = useState(false);
-	const [uploading, setUploading] = useState(false);
-	const [fileUploadList, setFileUploadList] = useState<UploadFile[] | undefined>(undefined);
 	const [submiting, setSubmiting] = useState(false);
 	const [showSelect, setShowSelect] = useState(false);
 	const [resultFilesModal, setResultFilesModal] = useState(false);
 	const [fileSelected, setFileSelected] = useState<Array<FileType>>([]);
 	const [resultFiles, setResultFiles] = useState<Array<FileType>>([]);
-
-	const uploadStatus = useSelector((state: RootState) => state.filesReducer.statusUploadFile);
-
-	useEffect(() => {
-		if (uploadStatus === "success") {
-			setFileUploadList([]);
-			setUploading(false);
-			dispatch(resetUploadFileStatus());
-		
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [uploadStatus]);
 
 	function handleFileSelected(filesSelected: Array<FileType>) {
 		setFileSelected(filesSelected);

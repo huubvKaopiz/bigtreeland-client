@@ -1,4 +1,4 @@
-import PlusOutlined from "@ant-design/icons/lib/icons/PlusOutlined";
+import UploadOutlined from "@ant-design/icons/lib/icons/UploadOutlined";
 import { Button, Modal } from "antd";
 import FileUpload from "components/FileUpload";
 import React, { useEffect, useState } from "react";
@@ -25,7 +25,7 @@ function UploadFileModal(): JSX.Element {
 		<Wrapper>
 			<Button
 				type="primary"
-				icon={<PlusOutlined />}
+				icon={<UploadOutlined />}
 				onClick={() => {
 					setShow(true);
 				}}

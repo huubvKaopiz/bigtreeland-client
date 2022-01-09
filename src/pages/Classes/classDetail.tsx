@@ -1,13 +1,16 @@
-import { LikeOutlined, MessageOutlined, NotificationOutlined, TeamOutlined, UploadOutlined } from "@ant-design/icons";
+import { LikeOutlined, MessageOutlined, NotificationOutlined, TeamOutlined, UploadOutlined, InboxOutlined } from "@ant-design/icons";
 import {
 	Button,
 	Col,
 	DatePicker,
 	Descriptions,
+	Form,
 	Image,
 	Input,
+	InputNumber,
 	Layout,
 	List,
+	Modal,
 	PageHeader,
 	Row,
 	Space,
@@ -17,11 +20,13 @@ import {
 	Upload,
 } from "antd";
 import Checkbox, { CheckboxChangeEvent } from "antd/lib/checkbox/Checkbox";
+import Dragger from "antd/lib/upload/Dragger";
+import { UploadFile } from "antd/lib/upload/interface";
 import { TestType } from "interface";
-import { get } from "lodash";
+import { functions, get } from "lodash";
 import moment from "moment";
 import { useEffect, useMemo, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import {
 	actionAddAttendance,
@@ -33,7 +38,8 @@ import {
 import { actionGetClass } from "store/classes/slice";
 import { RootState, useAppDispatch } from "store/store";
 import { actionGetTestes } from "store/testes/slice";
-import { dayOptions } from "utils/const";
+import { dayOptions, imageExtensionsList } from "utils/const";
+import { dummyRequest } from "utils/ultil";
 import AddStudentsModal from "./addStudentsModal";
 import AddTest from "./addTestModal";
 
@@ -130,7 +136,7 @@ export default function ClassDetail(): JSX.Element {
 	function handleChangeCoductPoint(e: React.ChangeEvent<HTMLInputElement>, id: number) {
 		const finder = listComments.find((p) => p.id === `${id}`);
 		if (finder) finder.conduct_point = e.target.value;
-		else listComments.push({ id: `${id}`, comment: "", conduct_point: e.target.value });
+		else listComments.push({ id: `${id}`, comment: "", conduct_point: parseFloat(e.target.value).toString() });
 	}
 
 	function handleNotityToParent() {
@@ -222,10 +228,13 @@ export default function ClassDetail(): JSX.Element {
 		// width: 80,
 		render: function col(st: { id: number }): JSX.Element {
 			return (
-				<Space>
-					{" "}
-					<Input placeholder="điểm hạnh kiểm" onChange={(e) => handleChangeCoductPoint(e, st.id)} />
-				</Space>
+				<Input
+					style={{ width: "100%" }}
+					type="number"
+					step={0.1}
+					placeholder="điểm hạnh kiểm"
+					onChange={(e) => handleChangeCoductPoint(e, st.id)}
+				/>
 			);
 		},
 	};
@@ -345,11 +354,7 @@ export default function ClassDetail(): JSX.Element {
 						</TabPane>
 						<TabPane tab="Album ảnh" key="3">
 							<Space style={{ paddingTop: 20, marginBottom: 20 }}>
-								<Upload>
-									<Button type="primary" icon={<UploadOutlined />}>
-										Upload
-									</Button>
-								</Upload>
+								<ClassPhotoAlbum class_id={+params.class_id}/>
 							</Space>
 
 							<Space style={{ backgroundColor: "white", padding: 10 }} size={[10, 10]} wrap>
@@ -385,5 +390,101 @@ export default function ClassDetail(): JSX.Element {
 				</Descriptions>
 			</PageHeader>
 		</Layout.Content>
+	);
+}
+
+function ClassPhotoAlbum(props: { class_id: number }): JSX.Element {
+	const dispatch = useDispatch();
+	const [show, setShow] = useState(false);
+	const [fileList, setFileList] = useState<UploadFile[]>([]);
+	const [form] = Form.useForm();
+
+	useEffect(() => {
+		// if (statusUploadFile === "success" || statusUploadFile === "error") {
+		// 	setLoading(false);
+		// 	dispatch(resetUploadFileStatus());
+		// 	if (statusUploadFile === "success") {
+		// 		setFileList([]);
+		// 	}
+		// }
+	}, []);
+
+	function handleUploadFile() {
+		if (fileList.length > 0) {
+			const listFileUpload = fileList.map((file) => {
+				return file.originFileObj as File;
+			});
+			//Todo dispatch action to upload file then reset
+			// dispatch(actionUploadFile(listFileUpload));
+			// const data = {class_id: props.class_id, file_id: }
+		}
+	}
+
+	return (
+		<>
+			<Button
+				type="primary"
+				icon={<UploadOutlined />}
+				onClick={() => {
+					setShow(true);
+				}}
+			>
+				Upload
+			</Button>
+			<Modal
+				title="Chọn ảnh để upload"
+				centered
+				visible={show}
+				onCancel={() => {
+					setShow(false);
+				}}
+				footer={null}
+				width={950}
+				maskClosable={false}
+			>
+				{/* Todo */}
+				<Spin spinning={false}>
+					<Form onFinish={handleUploadFile} form={form}>
+						<Form.Item>
+							<Dragger
+								accept={imageExtensionsList.map((ext) => `.${ext}`).join(",")}
+								name="file"
+								multiple={true}
+								customRequest={dummyRequest}
+								onDrop={(e) => {
+									// console.log(e.dataTransfer.files);
+								}}
+								listType="picture-card"
+								fileList={fileList}
+								onChange={({ fileList }) => {
+									setFileList(fileList);
+								}}
+								// className="upload-list-inline"
+							>
+								<p className="ant-upload-drag-icon">
+									<InboxOutlined />
+								</p>
+								<p className="ant-upload-text">
+									Nhấn hoặc kéo thả file vào khu vực để upload!
+								</p>
+							</Dragger>
+						</Form.Item>
+						<Form.Item style={{ textAlign: "center" }}>
+							<Button type="primary" htmlType="submit">
+								Upload
+							</Button>
+							<Button
+								style={{ marginLeft: 30 }}
+								onClick={() => {
+									setShow(false);
+								}}
+							>
+								Cancel
+							</Button>
+						</Form.Item>
+					</Form>
+				</Spin>
+			</Modal>
+		</>
 	);
 }

@@ -15,6 +15,7 @@ import {
 	Card,
 	Spin,
 	Form,
+	DatePicker,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import React, { useEffect, useState } from "react";
@@ -164,6 +165,10 @@ export function ListTestResults(): JSX.Element {
 						<UploadTestResultModal
 							key={params.test_id}
 							id={+params.test_id}
+							title={storeTestInfo?.title ?? ""}
+							date={storeTestInfo?.date ?? ""}
+							content_link={storeTestInfo?.content_link ?? ""}
+							content_files={storeTestInfo?.content_files ?? []}
 							result_link={storeTestInfo?.result_link ?? ""}
 							result_files={storeTestInfo?.result_files ?? []}
 						/>,
@@ -495,51 +500,75 @@ function UploadResultModal(props: {
 
 function UploadTestResultModal(props: {
 	id: number;
+	title: string;
+	date: string ;
+	content_link: string;
+	content_files: FileType[];
 	result_link: string;
 	result_files: FileType[];
 }): JSX.Element {
+	const {
+		id,
+		title,
+		date,
+		content_link,
+		content_files,
+		result_link,
+		result_files,
+	} = props;
 	const dispatch = useDispatch();
 	const [show, setShow] = useState(false);
 	const [resultFilesModal, setResultFilesModal] = useState(false);
+	const [showSelect, setShowSelect] = useState(false);
 	const storeUpdateTestState = useSelector(
 		(state: RootState) => state.testReducer.updateTestStatus
 	);
 	const listFile = useSelector((state: RootState) => state.filesReducer.files);
 	const [resultFiles, setResultFiles] = useState<Array<FileType>>([]);
-
+	const [fileSelected, setFileSelected] = useState<Array<FileType>>([]);
+	
 	useEffect(() => {
 		if(storeUpdateTestState === 'success'){
 			dispatch(actionResetUpdateTest())
-			dispatch(actionGetTest(props.id))
+			dispatch(actionGetTest(id))
 			setShow(false)
 		}
-	}, [dispatch, props.id, storeUpdateTestState])
+	}, [dispatch, id, storeUpdateTestState])
 
 	useEffect(() => {
-		const fileList = props.result_files.map((propsFile) => {
+		const results = result_files.map((propsFile) => {
 			return listFile.data?.find((file) => file.id === propsFile.id);
 		});
-		setResultFiles(fileList.filter(Boolean) as FileType[]);
-	}, [props.result_files, listFile]);
+		const contents = content_files.map((propsFile) => {
+			return listFile.data?.find((file) => file.id === propsFile.id);
+		});
+		setResultFiles(results.filter(Boolean) as FileType[]);
+		setFileSelected(contents.filter(Boolean) as FileType[]);
+	}, [result_files, content_files, listFile]);
 
 	function handleSubmit(values: any) {
-		const { result_link } = values;
+		const { result_link, content_link, title, date } = values;
 		const result_files = resultFiles.map(file => file.id)
+		const content_files = fileSelected.map(file => file.id)
 		// Todo update
-		dispatch(actionUpdateTest({id: props.id, result_link, result_files}))
+		dispatch(actionUpdateTest({id, title, date, content_files, content_link, result_link, result_files}))
 	}
 
 	function handleResultFileSelected(filesSelected: Array<FileType>) {
 		setResultFiles(filesSelected);
 	}
 
+	function handleFileSelected(filesSelected: Array<FileType>) {
+		setFileSelected(filesSelected);
+	}
+
 	return (
 		<>
 			<Button type="primary" onClick={() => setShow(true)}>
-				Cập nhật đáp án
+				Cập nhật bài kiểm tra và đáp án
 			</Button>
 			<Modal
-				title="Cập nhật đán án bài kiểm tra"
+				title="Cập nhật bài kiểm tra và đáp án"
 				visible={show}
 				closable
 				width={800}
@@ -561,12 +590,38 @@ function UploadTestResultModal(props: {
 			>
 				<Form
 					id="aForm"
-					initialValues={{ result_link: props?.result_link ?? "" }}
+					initialValues={{ result_link, content_files, content_link, result_files, title, date: moment(date) }}
 					labelCol={{ span: 4 }}
 					wrapperCol={{ span: 18 }}
 					layout="horizontal"
 					onFinish={handleSubmit}
 				>
+					<Form.Item
+						label="Tiêu đề"
+						name="title"
+						rules={[{ required: true, message: "Tiêu đề bài test không được bỏ trống" }]}
+					>
+						<Input />
+					</Form.Item>
+					<Form.Item label="Ngày" name="date" >
+						<DatePicker format="YYYY-MM-DD" />
+					</Form.Item>
+					<Form.Item label="Link đề bài" name="content_link">
+						<Input />
+					</Form.Item>
+					<Form.Item label="Chọn files đề thi">
+						<FileSelectModal
+							defaultSelected={fileSelected}
+							isShow={showSelect}
+							okFunction={handleFileSelected}
+							closeFunction={() => setShowSelect(false)}
+							showSelectedList
+						>
+							<Button onClick={() => setShowSelect(true)} type="default" size="middle" icon={<UploadOutlined />}>
+								Chọn files
+							</Button>
+						</FileSelectModal>
+					</Form.Item>
 					<Form.Item label="Link đáp án" name="result_link">
 						<Input />
 					</Form.Item>
