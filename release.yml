@@ -1,0 +1,10 @@
+version: "3.7"
+services:
+  client:
+    deploy:
+      replicas: 1
+    image: buivanhuu2017/bigtreeland-client:latest
+    ports:
+      - 80:80
+    env_file:
+      - .env

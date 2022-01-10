@@ -335,9 +335,9 @@ export default function AddSalary(): JSX.Element {
                                 style={{ width: 350 }}
                                 placeholder="Search to Select"
                                 optionFilterProp="children"
-                                filterSort={(optionA, optionB) =>
-                                    optionA.children.toLowerCase().localeCompare(optionB.children.toLowerCase())
-                                }
+                                // filterSort={(optionA, optionB) =>
+                                //     optionA.children.toLowerCase().localeCompare(optionB.children.toLowerCase())
+                                // }
                             >
                                 {
                                     role === 'none' ? <Option value={0} key={0}>--</Option > : ""
