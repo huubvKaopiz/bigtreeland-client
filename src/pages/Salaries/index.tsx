@@ -105,7 +105,7 @@ export default function Salaries(): JSX.Element {
                         <DetailSalary salaryInfo={record} />
                         {/* <Tooltip title="Sửa bảng lương"> <Button disabled={Number(record.status) === 1 ? true : false} type="link" icon={<EditOutlined />} onClick={() => history.push(`/salaries-edit/${record.id}`)} /></Tooltip> */}
                         <Tooltip title="Đã thanh toán">
-                            <Button disabled={Number(record.status) === 1 ? true : false} type="link" icon={<DollarCircleOutlined style={{ color: "#27ae60" }} />} onClick={() => handlePaymentConfirm(record)} />
+                            <Button disabled={Number(record.status) === 1 ? true : false} type="link" icon={<DollarCircleOutlined style={{ color: record.status === 0 ? "#27ae60" : "#bdc3c7" }} />} onClick={() => handlePaymentConfirm(record)} />
                         </Tooltip>
                         <Tooltip title="Xoá bảng lương">
                             <Button disabled={record.status === 1 ? true : false} type="link" danger icon={<DeleteOutlined />} onClick={() => handleDeleteSalary(record)} />
@@ -267,7 +267,7 @@ function DetailSalary(props: { salaryInfo: SalaryType }): JSX.Element {
                                 <List
                                     rowKey="id"
                                     itemLayout="horizontal"
-                                    header={<div style={{ justifyContent: "space-between", display: "flex" }}><div>Chi tiết doanh thu</div><div>{numeral(0).format("0,0")}</div></div>}
+                                    // header={<div style={{ justifyContent: "space-between", display: "flex" }}><div>Chi tiết doanh thu</div><div>{numeral(0).format("0,0")}</div></div>}
                                     loading={getReceiptStatus === "loading" ? true : false}
                                     dataSource={get(receipts, "data", [])}
                                     renderItem={item => (
@@ -282,7 +282,7 @@ function DetailSalary(props: { salaryInfo: SalaryType }): JSX.Element {
                                 /> : salaryInfo.type === 1 ?
                                     <List rowKey="id"
                                         itemLayout="horizontal"
-                                        header={<div style={{ justifyContent: "end", display: "flex", fontWeight: 600 }}>{numeral(0).format("0,0")}</div>}
+                                        // header={<div style={{ justifyContent: "end", display: "flex", fontWeight: 600 }}>{numeral(0).format("0,0")}</div>}
                                         loading={getLessonsStatus === "loading" ? true : false}
                                         dataSource={get(lessons, "data", [])}
                                         renderItem={item => (

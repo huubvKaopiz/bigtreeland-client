@@ -67,7 +67,7 @@ export default function TuitionDetail(): JSX.Element {
 		//update tuition fees data
 		if (tuitionPeriodInfo) {
 			let totalTuitionFee = 0;
-			let totalPayment = 0;
+			let paidCount = 0;
 			const estTuiionFeeMap:number[] = [];
 			get(tuitionPeriodInfo, "tuition_fees", []).forEach((tuition: TuitionFeeType) => {
 				const est_fee =
@@ -78,7 +78,7 @@ export default function TuitionDetail(): JSX.Element {
 					+get(tuition, "flexible_deduction", 0)
 				const cal_fee = est_fee - deduce_amount;
 				if (cal_fee > 0) totalTuitionFee += cal_fee;
-				if (tuition.status === 1) totalPayment++;
+				if (tuition.status === 1) paidCount++;
 				if (tuition.est_session_num === 0) {
 					const est_fee = get(tuitionPeriodInfo, "est_session_num", 0) * get(tuitionPeriodInfo, "fee_per_session", 0)
 					estTuiionFeeMap[tuition.id] = est_fee;
@@ -88,7 +88,7 @@ export default function TuitionDetail(): JSX.Element {
 				}
 			})
 			setEstTuitionFee(totalTuitionFee);
-			setPaymentCount(totalPayment);
+			setPaymentCount(paidCount);
 			setFeesPerStudent(estTuiionFeeMap);
 		}
 
@@ -107,7 +107,6 @@ export default function TuitionDetail(): JSX.Element {
 		setNewStudentList(newList);
 	}, [students, tuitionPeriodInfo]);
 
-	// console.log(feesPerStudent);
 	//render ui
 	const renderContent = (column = 2) => (
 		<Descriptions size="middle" column={column}>

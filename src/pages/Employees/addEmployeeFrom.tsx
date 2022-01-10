@@ -9,20 +9,20 @@ import { RoleType } from "interface";
 
 const IsNumeric = { pattern: /^-{0,1}\d*\.{0,1}\d+$/, message: "Giá trị nhập phải là số" };
 
-export default function AddEmplyeeForm(props: { roles: RoleType[] }): JSX.Element {
-	const { roles } = props;
+export default function AddEmplyeeForm(props: { roles: RoleType[], selectedRole:string }): JSX.Element {
+	const { roles, selectedRole } = props;
 	const [aForm] = Form.useForm();
 	const [show, setShow] = useState(false);
 	const dispatch = useAppDispatch();
 	const status = useSelector((state: RootState) => state.employeeReducer.addEmployeeStatus);
 
-	useEffect(() => {
-		if (status === "success") {
-			setShow(false);
-			dispatch(actionGetEmployees({}));
-			dispatch(actionResetAddEmployeeStatus());
-		}
-	}, [status, dispatch]);
+	// useEffect(() => {
+	// 	if (status === "success") {
+	// 		setShow(false);
+	// 		dispatch(actionGetEmployees({}));
+	// 		dispatch(actionResetAddEmployeeStatus());
+	// 	}
+	// }, [status, dispatch]);
 
 	const submitForm = (values: any) => {
 		const data = {
@@ -31,7 +31,10 @@ export default function AddEmplyeeForm(props: { roles: RoleType[] }): JSX.Elemen
 			working_day: moment(values.working_day).format("YYYY-MM-DD"),
 		};
 
-		dispatch(actionAddEmployee(data));
+		dispatch(actionAddEmployee(data)).finally(()=>{
+			setShow(false);
+			dispatch(actionGetEmployees({role_name:selectedRole}));
+		})
 	};
 
 	const reFresh = () => {

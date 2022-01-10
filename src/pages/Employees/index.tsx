@@ -1,14 +1,16 @@
-import { Button, Col, Input, Layout, Radio, Row, Space, Table, Tag } from "antd";
+import { Button, Col, Input, Layout, Radio, Row, Space, Table, Tag, Tooltip, Modal } from "antd";
+import { DeleteOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { EmployeeType, UserType } from "interface";
 import { debounce, get } from "lodash";
 import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
-import { actionGetEmployees } from "store/employees/slice";
+import { actionDeleteEmployee, actionGetEmployees } from "store/employees/slice";
 import { actionGetRoles } from "store/roles/slice";
 import { RootState, useAppDispatch } from "../../store/store";
 import AddEmplyeeForm from "./addEmployeeFrom";
-import DeleteEmployeeModal from "./deleteEmployee";
 import UpdateEmplyeeForm from "./updateEmployee";
+
+const { confirm } = Modal;
 
 function Employees(): JSX.Element {
 	const dispatch = useAppDispatch();
@@ -48,18 +50,21 @@ function Employees(): JSX.Element {
 
 	function handleChangeRole(e: any) {
 		setRole(e.target.value);
-		console.log(e.target.value)
+		// console.log(e.target.value)
 	}
 
-	const ColActions = (text: string, record: EmployeeType) => {
-		return (
-			<Space size="middle">
-				<UpdateEmplyeeForm employee={record} roles={roles} />
-				<DeleteEmployeeModal employee={record} />
-			</Space>
-		);
-	};
-	ColActions.displayName = "ColActions";
+	function handleDelete(emp: EmployeeType) {
+		confirm({
+			title: "Bạn muốn xoá nhân viên này!",
+			icon: <ExclamationCircleOutlined />,
+			onOk() {
+				dispatch(actionDeleteEmployee(emp.id)).finally(() => {
+					dispatch(actionGetEmployees({ per_page: 100, role_name: role }));
+				})
+			}
+		})
+	}
+
 	const columns = [
 		{
 			width: "15%",
@@ -126,7 +131,16 @@ function Employees(): JSX.Element {
 			width: "15%",
 			title: "Action",
 			key: "action",
-			render: ColActions,
+			render: function ColActionn(text: string, record: EmployeeType): JSX.Element {
+				return (
+					<Space size="middle">
+						<UpdateEmplyeeForm employee={record} roles={roles} />
+						<Tooltip placement="top" title="Xoá nhân viên">
+							<Button type="link" icon={<DeleteOutlined />} danger onClick={() => handleDelete(record)} />
+						</Tooltip>
+					</Space>
+				)
+			}
 		},
 	];
 
@@ -137,14 +151,15 @@ function Employees(): JSX.Element {
 					<Input allowClear onChange={({ target: input }) => handleSearch(input.value)} />
 				</Col>
 				<Col span={6} style={{ marginLeft: 20 }}>
-					<AddEmplyeeForm roles={roles} />
+					<AddEmplyeeForm roles={roles} selectedRole={role} />
 				</Col>
 			</Row>
-			<Space style={{marginBottom:20}}>
+			<Space style={{ marginBottom: 20 }}>
 				<Radio.Group onChange={handleChangeRole} value={role}>
 					<Radio value={'teacher'}>Giáo viên</Radio>
+					<Radio value={'teacher2'}>Giáo viên(2)</Radio>
 					<Radio value={'sale'}>Sale</Radio>
-					<Radio value={'employee'}>Nhân viên</Radio>
+					<Radio value={''}>Tẩt cả</Radio>
 				</Radio.Group>
 			</Space>
 			<Table
