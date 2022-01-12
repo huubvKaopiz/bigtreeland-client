@@ -1,6 +1,16 @@
-import { Layout, Space, Button, Table, Row, Col, Input, Tag, Tooltip } from "antd";
+import {
+	Layout,
+	Space,
+	Button,
+	Table,
+	Row,
+	Col,
+	Input,
+	Tag,
+	Tooltip,
+} from "antd";
 import { CheckCircleOutlined } from "@ant-design/icons";
-import { ParentType } from "interface";
+import { ParentType, User } from "interface";
 import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { actionGetParents } from "store/parents/slice";
@@ -12,8 +22,12 @@ import AddStudent from "./addStudents";
 
 export default function Parents(): JSX.Element {
 	const dispatch = useAppDispatch();
-	const getParentsStatus = useSelector((state: RootState) => state.parentReducer.getParentsStatus);
-	const parents = useSelector((state: RootState) => state.parentReducer.parents);
+	const getParentsStatus = useSelector(
+		(state: RootState) => state.parentReducer.getParentsStatus
+	);
+	const parents = useSelector(
+		(state: RootState) => state.parentReducer.parents
+	);
 
 	useEffect(() => {
 		dispatch(actionGetParents({ page: 1 }));
@@ -23,10 +37,9 @@ export default function Parents(): JSX.Element {
 		{
 			width: "15%",
 			title: "Họ tên",
-			dataIndex: "name",
 			key: "name",
-			render: function NameCol(name: string): JSX.Element {
-				return <strong>{name}</strong>;
+			render: function NameCol(user: User): JSX.Element {
+				return <strong>{get(user, "profile.name", "")}</strong>;
 			},
 		},
 		{
@@ -42,10 +55,19 @@ export default function Parents(): JSX.Element {
 			width: "10%",
 			title: "Điện thoại",
 			key: "phone",
-			render: function UserCol(user: { id: number; phone: string; phone_verified_at: string }): JSX.Element {
+			render: function UserCol(user: {
+				id: number;
+				phone: string;
+				phone_verified_at: string;
+			}): JSX.Element {
 				return (
 					<Space>
-						{user.phone} {user.phone_verified_at == null ? <Tag color="volcano">Chưa xác thực</Tag> : ""}
+						{user.phone}{" "}
+						{user.phone_verified_at == null ? (
+							<Tag color="volcano">Chưa xác thực</Tag>
+						) : (
+							""
+						)}
 					</Space>
 				);
 			},
@@ -55,7 +77,9 @@ export default function Parents(): JSX.Element {
 			title: "Học sinh",
 			dataIndex: "students",
 			key: "students",
-			render: function StudentsCol(students: { id: number; name: string }[]): JSX.Element {
+			render: function StudentsCol(
+				students: { id: number; name: string }[]
+			): JSX.Element {
 				return (
 					<div>
 						{students &&
@@ -98,7 +122,11 @@ export default function Parents(): JSX.Element {
 					<AddParent />
 				</Col>
 			</Row>
-			<Table loading={getParentsStatus === "loading"} columns={columns} dataSource={get(parents, "data", [])} />
+			<Table
+				loading={getParentsStatus === "loading"}
+				columns={columns}
+				dataSource={get(parents, "data", [])}
+			/>
 		</Layout.Content>
 	);
 }

@@ -23,10 +23,19 @@ export default function Users(): JSX.Element {
 	const users = useSelector((state: RootState) => state.userReducer.users);
 	const [search, setSearch] = useState("");
 	const [page, setPage] = useState(1);
-	const status = useSelector((state: RootState) => state.userReducer.statusGetUser);
-	const statusDeactiveUser = useSelector((state: RootState) => state.userReducer.statusDeactiveUser);
+	const status = useSelector(
+		(state: RootState) => state.userReducer.statusGetUser
+	);
+	const statusDeactiveUser = useSelector(
+		(state: RootState) => state.userReducer.statusDeactiveUser
+	);
 
-	const debounceSearch = useRef(debounce((nextValue) => dispatch(actionGetUsers({ search: nextValue })), 500)).current;
+	const debounceSearch = useRef(
+		debounce(
+			(nextValue) => dispatch(actionGetUsers({ search: nextValue })),
+			500
+		)
+	).current;
 
 	useEffect(() => {
 		dispatch(actionGetUsers({ page, search }));
@@ -45,7 +54,10 @@ export default function Users(): JSX.Element {
 		debounceSearch(value);
 	}
 
-	function handleChangePass(payload: { new_password: string; user_id: number }) {
+	function handleChangePass(payload: {
+		new_password: string;
+		user_id: number;
+	}) {
 		dispatch(actionChangePassworfOfUser(payload));
 	}
 
@@ -53,9 +65,17 @@ export default function Users(): JSX.Element {
 		dispatch(actionDeactiveUser(+user.id));
 	}
 
-	function handleSetPermission(user: User, newPermissionList: number[], oldPermissionList: number[]) {
-		const listPermissionAdded = newPermissionList.filter((permission) => !oldPermissionList.includes(permission));
-		const listPermissionRemoved = oldPermissionList.filter((permission) => !newPermissionList.includes(permission));
+	function handleSetPermission(
+		user: User,
+		newPermissionList: number[],
+		oldPermissionList: number[]
+	) {
+		const listPermissionAdded = newPermissionList.filter(
+			(permission) => !oldPermissionList.includes(permission)
+		);
+		const listPermissionRemoved = oldPermissionList.filter(
+			(permission) => !newPermissionList.includes(permission)
+		);
 		dispatch(
 			actionSetPermissionsForUser({
 				user_id: +user.id,
@@ -74,9 +94,17 @@ export default function Users(): JSX.Element {
 			<Space size="middle">
 				<ChangePassword userId={+user.id} handleChangePass={handleChangePass} />
 				<Tooltip placement="top" title="Vô hiệu hoá tài khoản">
-					<Button type="link" icon={<DeleteOutlined />} danger onClick={() => handleDeactive(user)} />
+					<Button
+						type="link"
+						icon={<DeleteOutlined />}
+						danger
+						onClick={() => handleDeactive(user)}
+					/>
 				</Tooltip>
-				<ChangePermisstion user={user} handleChangePermission={handleSetPermission}></ChangePermisstion>
+				<ChangePermisstion
+					user={user}
+					handleChangePermission={handleSetPermission}
+				></ChangePermisstion>
 			</Space>
 		);
 	};
@@ -86,21 +114,19 @@ export default function Users(): JSX.Element {
 		{
 			width: "30%",
 			title: "Email",
-			dataIndex: "email",
 			key: "email",
 			// eslint-disable-next-line react/display-name
-			render: (_: any, user: User) => {
+			render: (user: User) => {
 				return <span>{get(user, "profile.email", "")}</span>;
 			},
 		},
 		{
 			width: "30%",
 			title: "Name",
-			dataIndex: "name",
 			key: "name",
 			// eslint-disable-next-line react/display-name
-			render: function nameCol(name: string) {
-				return <span>{name}</span>;
+			render: (user: User) => {
+				return <span>{get(user, "profile.name", "")}</span>;
 			},
 		},
 		{
@@ -132,7 +158,13 @@ export default function Users(): JSX.Element {
 	return (
 		<Layout.Content style={{ height: "100vh", padding: 20 }}>
 			<Spin spinning={status === "loading"}>
-				<div style={{ marginBottom: 20, display: "flex", justifyContent: "space-between" }}>
+				<div
+					style={{
+						marginBottom: 20,
+						display: "flex",
+						justifyContent: "space-between",
+					}}
+				>
 					<Input
 						placeholder="Tìm kiếm thông qua email, phone hoặc role"
 						onChange={({ target: input }) => handleTableFilter(input.value)}
