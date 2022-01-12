@@ -156,7 +156,7 @@ export default function Users(): JSX.Element {
 	];
 
 	return (
-		<Layout.Content style={{ height: "100vh", padding: 20 }}>
+		<Layout.Content>
 			<Spin spinning={status === "loading"}>
 				<div
 					style={{
