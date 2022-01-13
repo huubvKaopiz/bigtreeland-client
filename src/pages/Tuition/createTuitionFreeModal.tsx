@@ -6,7 +6,7 @@ import {FileAddOutlined} from '@ant-design/icons';
 import { useSelector } from 'react-redux';
 import { actionGetDayoffs } from 'store/settings/dayoff';
 import { get } from 'lodash';
-import { countSameDates, getDatesInRange } from 'utils/dateUltils';
+import { getDatesInRange, getSameDates } from 'utils/dateUltils';
 import { actionAddTuitionFee } from 'store/tuition/tuition';
 import { actionGetPeriodTuion } from 'store/tuition/periodslice';
 import numeral from 'numeral';
@@ -20,7 +20,7 @@ export function CreateTuitionFeeModal(prop: { periodInfo: PeriodTuitionType | nu
 	const { TextArea } = Input;
 	const [submiting, setSubmiting] = useState(false);
 	const [estSessionNum, setEstSessionNum] = useState(0);
-
+	const [dayoffList, setDayoffList] = useState<string[]>([]);
 	const dayoffs = useSelector((state: RootState) => state.dayoffReducer.dayoffs);
 
 	useEffect(() => {
@@ -38,13 +38,17 @@ export function CreateTuitionFeeModal(prop: { periodInfo: PeriodTuitionType | nu
 			});
 		}
 		let dateListInRang: string[] = [];
+		let dayoff_list:string[] = [];
 		if (get(studentInfo, "class.schedule", []).length > 0) {
 			let count = 0;
 			get(studentInfo, "class.schedule", []).forEach((day: number) => {
 				dateListInRang = getDatesInRange(get(studentInfo, "admission_date", ""), get(periodInfo, "to_date", ""), day);
-				count += dateListInRang.length - countSameDates(dateListInRang, dayoffList);
+				count += dateListInRang.length;
+				dayoff_list = dayoff_list.concat(getSameDates(dateListInRang, dayoffList))
 			})
+			count -= dayoff_list.length;
 			setEstSessionNum(count);
+			setDayoffList(dayoff_list);
 			uFrom.setFieldsValue({
 				est_fee: count * +get(periodInfo, "fee_per_session", 0),
 				amount: count * +get(periodInfo, "fee_per_session", 0),
@@ -83,7 +87,8 @@ export function CreateTuitionFeeModal(prop: { periodInfo: PeriodTuitionType | nu
 			note: values.note,
 			from_date: get(studentInfo, "admission_date", ""),
 			to_date: get(periodInfo, "to_date", ""),
-			est_session_num: estSessionNum
+			est_session_num: estSessionNum,
+			dayoffs:dayoffList
 		})).then(() => {
 			setShow(false);
 			dispatch(actionGetPeriodTuion(get(periodInfo, "id", 0)));

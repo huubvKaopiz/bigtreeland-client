@@ -3,6 +3,7 @@ import { Button, DatePicker, Layout, Select, Space, Table, Tag, Tooltip, Modal }
 import { ClassType } from "interface";
 import { get } from "lodash";
 import moment from "moment";
+import numeral from "numeral";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
@@ -73,7 +74,7 @@ export default function Tuition(): JSX.Element {
 				fromDate: period.from_date,
 				toDate: period.to_date,
 				active: period.active,
-				estact_session_num: `${classOfPeriod?.act_session_num}/${period.est_session_num}`,
+				estact_session_num: `${get(period,"lessons",[]).length}/${period.est_session_num}`,
 				amout: amount,
 				status: `${paidCount}` + '/' + `${tuitionsCount}`,
 				id: period.id,
@@ -165,7 +166,7 @@ export default function Tuition(): JSX.Element {
 					<Column title="Đến ngày" dataIndex="toDate" key="toDate" render={(v) => moment(v).format(dateFormat)} />
 				</ColumnGroup>
 				<Column title="Số buổi học (act/est)" dataIndex="estact_session_num" key="estact_session_num" />
-				<Column title="Tổng thu" dataIndex="amout" key="amout" render={(v) => <strong style={{ color: "#2980b9" }}>{formatCurrency(v)}</strong>} />
+				<Column title="Tổng học phí" dataIndex="amout" key="amout" render={(v) => <strong style={{ color: "#2980b9" }}>{numeral(v).format("0,0")}</strong>} />
 				<Column title="Đã nộp" dataIndex="status" key="status" />
 				<Column title="Trạng thái" dataIndex="active" key="active" render={(v) => v === 1 ? <Tag color="green">Active</Tag> : <Tag color="red">Deactive</Tag>} />
 				<Column

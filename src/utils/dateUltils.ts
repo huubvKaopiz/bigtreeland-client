@@ -37,16 +37,15 @@ export function getDatesInRange(startDate: string, endDate: string, day: number)
 	return dateList
 }
 
-export function countSameDates(dateList1: string[], dateList2: string[]): number {
-	let res = 0;
-	// console.log(dateList1);
-	// console.log(dateList2);
-	if(dateList1.length == 0 || dateList2.length == 0) return res;
+export function getSameDates(dateList1: string[], dateList2: string[]): string[] {
+	const dateSameList:string[] = [];
+	if(dateList1.length == 0 || dateList2.length == 0) return dateSameList;
 	dateList1.forEach(date1 => {
 		dateList2.forEach(date2 => {
-			if (moment(date1).isSame(moment(date2))) res++;
+			if (moment(date1).isSame(moment(date2))){
+				dateSameList.push(date1)
+			}
 		});
 	});
-	// console.log(res)
-	return res;
+	return dateSameList;
 }

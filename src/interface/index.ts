@@ -308,6 +308,7 @@ export interface PeriodTuitionType {
 	active: 1,
 	from_date: "",
 	to_date: "",
+	dayoffs:string[];
 	lessons?: LessonType[];
 	class?: ClassType;
 	tuition_fees: TuitionFeeType[];
@@ -319,13 +320,14 @@ export interface TuitionFeeType {
 	student_id: 1,
 	fixed_deduction: "null",
 	flexible_deduction: "null",
-	debt: "null",
+	prev_debt: "null",
 	note: "null",
 	residual: "null",
 	status: number,
 	from_date: "null",
 	to_date: "null",
 	est_session_num:number,
+	dayoffs:string[],
 	student: {
 		id: number,
 		name: string,
@@ -339,6 +341,7 @@ export interface TuitionFeeType {
 		to_date: "2022 - 01 - 31",
 		est_session_num: 13,
 		fee_per_session:number,
+		dayoffs:string[];
 	}
 
 }

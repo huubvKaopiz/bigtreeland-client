@@ -7,7 +7,6 @@ import { RootState, useAppDispatch } from "store/store";
 import { actionResetUpdateStudent, actionUpdateStudent } from "store/students/slice";
 import moment from "moment";
 import { useSelector } from "react-redux";
-import { actionGetClasses } from "store/classes/slice";
 
 const dateFormat = "DD/MM/YYYY";
 
@@ -110,7 +109,7 @@ export default function EditStudentModal(props: {
 							{get(parents, "data", []).map((parent: ParentType) => {
 								return (
 									<Select.Option key={parent.id} value={parent.id}>
-										{parent.name} - {parent.phone}
+										<a>{get(parent,"profile.name")}</a> ({parent.phone})
 									</Select.Option>
 								);
 							})}

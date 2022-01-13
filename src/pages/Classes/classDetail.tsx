@@ -393,20 +393,21 @@ export default function ClassDetail(): JSX.Element {
 			>
 				<Descriptions size="small" column={2} style={{ backgroundColor: "white", marginTop: 20 }} bordered>
 					<Descriptions.Item label="Giáo viên">
-						<a>{get(classInfo, "user.name", "")}</a>
+						<a>{get(classInfo, "user.profile.name", "")}</a>
 					</Descriptions.Item>
 					<Descriptions.Item label="Ngày bắt đầu">
-						{moment(get(classInfo, "start_date", "") ?? void 0).format("DD-MM-YYYY")}
+						<strong>{moment(get(classInfo, "start_date", "") ?? void 0).format("DD-MM-YYYY")}</strong>
 					</Descriptions.Item>
-					<Descriptions.Item label="Số học sinh">{classInfo?.students_num}</Descriptions.Item>
+			<Descriptions.Item label="Số học sinh"><strong style={{color:"#e67e22"}}>{get(classInfo,"students_num",0)}</strong></Descriptions.Item>
 					<Descriptions.Item label="Lịch học">
-						{(() => {
+						<strong>{(() => {
 							const sortedSchedule = classInfo?.schedule ? [...classInfo.schedule] : [];
 							return sortedSchedule
 								.sort()
 								.map((day) => dayOptions[day])
 								.join(", ");
-						})()}
+						})()}{' '}
+						({get(classInfo,"schedule_time","")})</strong>
 					</Descriptions.Item>
 				</Descriptions>
 			</PageHeader>

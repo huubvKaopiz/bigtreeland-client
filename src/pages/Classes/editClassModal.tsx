@@ -42,6 +42,7 @@ export default function EditClassModal(props: {
 	function handleSubmit(values:any) {
 		setSubmiting(true);
 		let scheduleTime = null;
+		console.log(values)
 		if(values.schedule_time){
 			scheduleTime = moment(values.schedule_time[0]).format("HH:mm:ss") + "-" + moment(values.schedule_time[1]).format("HH:mm:ss")
 		}
@@ -63,7 +64,7 @@ export default function EditClassModal(props: {
 				title="Thay đổi thông tin lớp học"
 				onCancel={() => setShow(false)}
 				footer={[
-					<Button loading={submiting} key="btnsubmit" type="primary" htmlType="submit" onClick={handleSubmit}>
+					<Button loading={submiting} key="btnsubmit" type="primary" htmlType="submit" form="uForm">
 						Lưu lại
 					</Button>,
 				]}

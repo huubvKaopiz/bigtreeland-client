@@ -30,8 +30,11 @@ export default function AddClassModal(props: {
 
 	function handleSubmit(values: any) {
 		setSumiting(true);
-		console.log(values)
-		dispatch(actionAddClass({...values, schedule_time:moment(values.schedule_time[0]).format("HH:mm:ss") + "-" + moment(values.schedule_time[1]).format("HH:mm:ss")})).finally(() => {
+		let scheduleTime = null;
+		if (values.schedule_time) {
+			scheduleTime = moment(values.schedule_time[0]).format("HH:mm:ss") + "-" + moment(values.schedule_time[1]).format("HH:mm:ss");
+		}
+		dispatch(actionAddClass({ ...values, schedule_time: scheduleTime })).finally(() => {
 			setSumiting(false);
 			setShow(false);
 		});
@@ -75,7 +78,7 @@ export default function AddClassModal(props: {
 								get(teachers, "data", []).map((tc: EmployeeType) => {
 									return (
 										<Select.Option value={tc.id} key={tc.id}>
-											<a>{get(tc,"profile.name","")}</a> ({tc.phone})
+											<a>{get(tc, "profile.name", "")}</a> ({tc.phone})
 										</Select.Option>
 									);
 								})}
@@ -84,10 +87,10 @@ export default function AddClassModal(props: {
 					{/* <Form.Item label="Số buổi học" name="sessions_num">
 						<Input />
 					</Form.Item> */}
-					<Form.Item label="Học phí" name="fee_per_session" required>
+					<Form.Item label="Học phí/buổi" name="fee_per_session" required>
 						<InputNumber formatter={(value) => numeral(value).format()} style={{ width: "100%" }} />
 					</Form.Item>
-					<Form.Item label="Lịch học" name="schedule" required> 
+					<Form.Item label="Lịch học" name="schedule" required>
 						<Select mode="multiple" placeholder="Chọn lịch học">
 							{dayOptions.map((day, value) => (
 								<Select.Option value={value} key={value}>
@@ -97,7 +100,7 @@ export default function AddClassModal(props: {
 						</Select>
 					</Form.Item>
 					<Form.Item label="Thời gian học" name="schedule_time">
-						<TimePicker.RangePicker/>
+						<TimePicker.RangePicker />
 					</Form.Item>
 				</Form>
 			</Modal>

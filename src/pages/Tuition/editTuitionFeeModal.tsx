@@ -2,38 +2,39 @@ import React, { useEffect, useState } from 'react';
 import { PeriodTuitionType } from 'interface';
 import { useAppDispatch } from 'store/store';
 import { Button, Form, Input, InputNumber, Modal, Tooltip } from 'antd';
-import { EditOutlined } from '@ant-design/icons';
+import { FileTextOutlined } from '@ant-design/icons';
 import { get } from 'lodash';
 import { actionGetPeriodTuion } from 'store/tuition/periodslice';
 import numeral from 'numeral';
 import { TuitionFeeType } from './createTuitionPeriod';
 import { actionUpdateTuitionFee } from 'store/tuition/tuition';
+const { TextArea } = Input;
 
-export function EditTuitionFeeModal(prop: { periodInfo: PeriodTuitionType | null, tuitionFeeInfo: TuitionFeeType, stName?:string }): JSX.Element {
+export function EditTuitionFeeModal(prop: { periodInfo: PeriodTuitionType | null, tuitionFeeInfo: TuitionFeeType, stName?: string }): JSX.Element {
 
 	const { periodInfo, tuitionFeeInfo, stName } = prop;
 	const dispatch = useAppDispatch();
 	const [show, setShow] = useState(false);
 	const [uFrom] = Form.useForm();
-	const { TextArea } = Input;
 	const [submiting, setSubmiting] = useState(false);
 
 	useEffect(() => {
-		if(tuitionFeeInfo){
-			const est_session_num = get(tuitionFeeInfo,"est_session_num",0) > 0 ? get(tuitionFeeInfo,"est_session_num",0) :  get(periodInfo, "est_session_num", 0);
+		if (tuitionFeeInfo) {
+			const est_session_num = get(tuitionFeeInfo, "est_session_num", 0) > 0 ? get(tuitionFeeInfo, "est_session_num", 0) : get(periodInfo, "est_session_num", 0);
 			const est_fee = est_session_num * get(periodInfo, "fee_per_session", 0);
 			uFrom.setFieldsValue(
 				{
-					"stname":stName,
-					"est_fee":est_fee,
+					"stname": stName,
+					"est_fee": est_fee,
+					"prev_debt": get(tuitionFeeInfo, "prev_debt", "0"),
 					"fixed_deduction": get(tuitionFeeInfo, "fixed_deduction", "0"),
 					"flexible_deduction": 100 * +get(tuitionFeeInfo, "flexible_deduction", '0') / est_fee,
-					"amount":est_fee - +get(tuitionFeeInfo, "fixed_deduction", "0") - +get(tuitionFeeInfo, "flexible_deduction", '0'),
-					"note":get(tuitionFeeInfo,"note",""),
+					"amount": est_fee + +get(tuitionFeeInfo, "prev_debt", "0") - +get(tuitionFeeInfo, "fixed_deduction", "0") - +get(tuitionFeeInfo, "flexible_deduction", '0'),
+					"note": get(tuitionFeeInfo, "note", ""),
 				}
 			)
 		}
-	},[tuitionFeeInfo,uFrom, periodInfo, stName])
+	}, [tuitionFeeInfo, uFrom, periodInfo, stName])
 
 	function handleValuesChange(changeValue: any, allValues: any) {
 		if (changeValue.note) return;
@@ -44,10 +45,13 @@ export function EditTuitionFeeModal(prop: { periodInfo: PeriodTuitionType | null
 	}
 
 	function handleCancel() {
+		const est_session_num = get(tuitionFeeInfo, "est_session_num", 0) > 0 ? get(tuitionFeeInfo, "est_session_num", 0) : get(periodInfo, "est_session_num", 0);
+		const est_fee = est_session_num * get(periodInfo, "fee_per_session", 0);
 		uFrom.setFieldsValue(
 			{
 				"fixed_deduction": get(tuitionFeeInfo, "fixed_deduction", "0"),
-				"flexible_deduction": 100 * +get(tuitionFeeInfo, "flexible_deduction", '0') / get(periodInfo, "est_session_num", 0) * get(periodInfo, "fee_per_session", 0)
+				"flexible_deduction":100 * +get(tuitionFeeInfo, "flexible_deduction", '0') / est_fee,
+				"note":get(tuitionFeeInfo,"note","")
 			}
 		)
 		setShow(false)
@@ -69,28 +73,28 @@ export function EditTuitionFeeModal(prop: { periodInfo: PeriodTuitionType | null
 	}
 	return (
 		<>
-			<Tooltip title="Sửa bảng học phí">
-				<Button onClick={() => setShow(true)} icon={<EditOutlined />} type="link" disabled={tuitionFeeInfo.status === 1 ? true : false} />
+			<Tooltip title="Chi tiết bảng học phí">
+				<Button onClick={() => setShow(true)} icon={<FileTextOutlined />} type="link"  />
 			</Tooltip>
 
-			<Modal title="Sửa bảng học phí cho học sinh"
+			<Modal title="Bảng học phí cho học sinh"
 				visible={show}
 				closable
 				onCancel={handleCancel}
 				width={800}
 				cancelText="Huỷ bỏ"
 				footer={[
-					<Button key="btnsubmit" onClick={handleCancel}>
-						Huỷ bỏ
+					<Button key="btnPrint" onClick={handleCancel}>
+						In
 					</Button>,
-					<Button loading={submiting} key="btnsubmit" type="primary" htmlType="submit" form="aForm">
-						Hoàn tất
+					<Button loading={submiting} key="btnsubmit" type="primary" htmlType="submit" form="uForm" disabled={tuitionFeeInfo.status === 1 ? true : false}>
+						Cập nhật
 					</Button>,
 				]}
 			>
 
 				<Form
-					id="aForm"
+					id="uForm"
 					form={uFrom}
 					labelCol={{ span: 6 }}
 					wrapperCol={{ span: 16 }}
@@ -99,19 +103,24 @@ export function EditTuitionFeeModal(prop: { periodInfo: PeriodTuitionType | null
 					onFinish={handleSubmit}
 				>
 					<Form.Item label="Họ và tên" name="stname">
-						<Input disabled style={{color:"#2c3e50"}}/>
+						<Input disabled style={{ color: "#2c3e50" }} />
 					</Form.Item>
-					<Form.Item label={`Học phí ước tính (${0} buổi)`} name="est_fee">
+					<Form.Item label={`Học phí ước tính (${get(tuitionFeeInfo, "est_session_num", 0) > 0 ? get(tuitionFeeInfo, "est_session_num", 0) : get(periodInfo, "est_session_num", 0)} buổi)`} name="est_fee">
+						<InputNumber formatter={(value) => numeral(value).format()} style={{ width: "50%", color: "#3498db", fontWeight: 700 }} disabled />
+					</Form.Item>
+					<Form.Item label={`Nợ kỳ trước`} name="prev_debt">
 						<InputNumber formatter={(value) => numeral(value).format()} style={{ width: "50%", color: "#3498db", fontWeight: 700 }} disabled />
 					</Form.Item>
 					<Form.Item label="Giảm trừ đặc biệt" name="fixed_deduction">
 						<InputNumber formatter={(value) => numeral(value).format()} style={{ width: "50%", color: "#e74c3c" }} />
 					</Form.Item>
-					<Form.Item label="Giảm trừ theo đợt(%)" name="flexible_deduction">
-						<InputNumber formatter={(value) => numeral(value).format()} style={{ width: "20%", color: "#e67e22" }} />
+					<Form.Item label="Giảm trừ theo đợt(%)" name="flexible_deduction" >
+						<InputNumber  
+							style={{ width: "20%", color: "#e67e22" }} 
+							/>
 					</Form.Item>
 					<Form.Item label="Thành tiền" name="amount">
-						<InputNumber formatter={(value) => numeral(value).format()} style={{ width: "50%", color: "#3498db", fontWeight: 700 }} disabled />
+						<InputNumber formatter={(value) => numeral(value).format()} style={{ width: "50%", color: "#3498db" }} disabled />
 					</Form.Item>
 					<Form.Item label="Ghi chú" name="note">
 						<TextArea

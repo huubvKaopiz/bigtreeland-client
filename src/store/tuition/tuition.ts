@@ -22,6 +22,7 @@ interface addTuitionFeeParams {
     from_date?:string;
     to_date?:string;
     est_session_num:number;
+    dayoffs:string[];
 }
 
 interface UpdateTuitionFeeParams {
@@ -69,12 +70,12 @@ export const actionUpdateTuitionFee = createAsyncThunk("actionUpdateTuitionFee",
     return response.data;
 })
 
-export const actionTuitionFeeTranferDebt = createAsyncThunk("actionTuitionFeeTranferDebt", async (params: { debt_tranfer: string, tuition_id: number }) => {
-    const { debt_tranfer, tuition_id } = params;
+export const actionTuitionFeeTranferDebt = createAsyncThunk("actionTuitionFeeTranferDebt", async (data: { debt_tranfer: string, tuition_fee_id: number }) => {
+    // const { debt_tranfer, tuition_id } = params;
     const response = await request({
-        url: `/api/tuition-fees/${tuition_id}`,
-        method: "put",
-        data:{debt_tranfer}
+        url: `/api/tuition-fees/debit-tranfer`,
+        method: "post",
+        data,
     })
     return response.data;
 })
@@ -136,7 +137,7 @@ export const tuitionFeeSlice = createSlice({
                 state.addTuitionFeeState = "loading";
             }).addCase(actionAddTuitionFee.fulfilled, (state) => {
                 state.addTuitionFeeState = "success";
-                notification.error({ message: "Tạo bảng học phí thành công!" });
+                notification.success({ message: "Tạo bảng học phí thành công!" });
             }).addCase(actionAddTuitionFee.rejected, state => {
                 state.addTuitionFeeState = "error";
                 notification.error({ message: "Tạo bảng học phí bị lỗi!" });
@@ -146,7 +147,7 @@ export const tuitionFeeSlice = createSlice({
                 state.updateTuitionFeeState = "loading";
             }).addCase(actionUpdateTuitionFee.fulfilled, (state) => {
                 state.updateTuitionFeeState = "success";
-                notification.error({ message: "Cập nhật bảng học phí thành công!" });
+                notification.success({ message: "Cập nhật bảng học phí thành công!" });
             }).addCase(actionUpdateTuitionFee.rejected, state => {
                 state.updateTuitionFeeState = "error";
                 notification.error({ message: "Cập nhật bảng học phí bị lỗi!" });
@@ -156,7 +157,7 @@ export const tuitionFeeSlice = createSlice({
                 state.updateTuitionFeeState = "loading";
             }).addCase(actionTuitionFeeTranferDebt.fulfilled, (state) => {
                 state.updateTuitionFeeState = "success";
-                notification.error({ message: "Chuyển nợ học phí thành công!" });
+                notification.success({ message: "Chuyển nợ học phí thành công!" });
             }).addCase(actionTuitionFeeTranferDebt.rejected, state => {
                 state.updateTuitionFeeState = "error";
                 notification.error({ message: "Chuyển nợ học phí bị lỗi!" });

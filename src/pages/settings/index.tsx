@@ -9,7 +9,7 @@ import { get } from 'lodash';
 const { Panel } = Collapse;
 export default function Settings(): JSX.Element {
     const dispatch = useAppDispatch();
-    const [daySelected, setDaySelected] = useState(moment("2021-01-01"));
+    const [daySelected, setDaySelected] = useState(moment(new Date()));
     const [calandarValue, setCalendarValue] = useState(moment("2021-12-01"));
     // const [setCollapeKey] = useState('1');
 
@@ -32,13 +32,13 @@ export default function Settings(): JSX.Element {
 
     function dateCellRender(value: Moment) {
         let isDayoff = false;
+        const dateValue = moment(value).format("YYYY-MM-DD")
         get(dayoffs, "data", []).forEach((element: { from_date: string, to_date: string }) => {
-            if (value.isSame(moment(element.from_date)) ||
-                value.isSame(moment(element.to_date)) ||
-                value.isBetween(moment(element.from_date), moment(element.to_date))) {
+            if (moment(dateValue).isSame(moment(element.from_date))){
                 isDayoff = true;
             }
         });
+       
         if (isDayoff) {
             return (
                 <>
@@ -107,7 +107,7 @@ export default function Settings(): JSX.Element {
                                 </Button>
                         }
                     </Space>
-                    <Calendar dateCellRender={dateCellRender} value={daySelected} onSelect={onSelectDay} onPanelChange={onPanelChange} />
+                    <Calendar dateCellRender={dateCellRender}  onSelect={onSelectDay} onPanelChange={onPanelChange} />
                 </Panel>
                 <Panel header="This is panel header 2" key="2">
                 </Panel>

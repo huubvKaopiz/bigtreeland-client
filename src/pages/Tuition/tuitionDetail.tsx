@@ -18,7 +18,7 @@ import { EditTuitionFeeModal } from "./editTuitionFeeModal";
 
 const { TabPane } = Tabs;
 const { confirm } = Modal;
-const dateFormat = "DD-MM-YYYY";
+const dateFormat = "DD/MM/YYYY";
 
 const lesson_columns = [
 	{
@@ -71,14 +71,16 @@ export default function TuitionDetail(): JSX.Element {
 			let paidCount = 0;
 			const estTuiionFeeMap: number[] = [];
 			get(tuitionPeriodInfo, "tuition_fees", []).forEach((tuition: TuitionFeeType) => {
-				const est_fee =
-					get(tuitionPeriodInfo, "class.fee_per_session", 0) * get(tuitionPeriodInfo, "est_session_num", 0);
-				const deduce_amount =
-					+get(tuition, "residual", 0) +
-					+get(tuition, "fixed_deduction", 0) +
-					+get(tuition, "flexible_deduction", 0)
-				const cal_fee = est_fee - deduce_amount;
-				if (cal_fee > 0) totalTuitionFee += cal_fee;
+				if (tuition.status === 1) {
+					const est_session_num = get(tuition, "est_session_num", 0) > 0 ? get(tuition, "est_session_num", 0) : get(tuitionPeriodInfo, "est_session_num", 0);
+					const est_fee = get(tuitionPeriodInfo, "fee_per_session", 0) * est_session_num + +get(tuition, "prev_debt", "0")
+					const deduce_amount =
+						+get(tuition, "residual", 0) +
+						+get(tuition, "fixed_deduction", 0) +
+						+get(tuition, "flexible_deduction", 0)
+					const cal_fee = est_fee - deduce_amount;
+					if (cal_fee > 0) totalTuitionFee += cal_fee;
+				}
 				if (tuition.status === 1) paidCount++;
 				if (tuition.est_session_num === 0) {
 					const est_fee = get(tuitionPeriodInfo, "est_session_num", 0) * get(tuitionPeriodInfo, "fee_per_session", 0)
@@ -117,14 +119,14 @@ export default function TuitionDetail(): JSX.Element {
 			icon: <ExclamationCircleOutlined />,
 			onOk() {
 				const debt_tranfer = feesPerStudent[tuition.id] - +tuition.fixed_deduction - +tuition.flexible_deduction;
-				dispatch(actionTuitionFeeTranferDebt({ debt_tranfer: String(debt_tranfer), tuition_id: tuition.id })).finally(() => {
+				dispatch(actionTuitionFeeTranferDebt({ debt_tranfer: String(debt_tranfer), tuition_fee_id: tuition.id })).finally(() => {
 					dispatch(actionGetPeriodTuion(parseInt(params.tuition_id)));
 				})
 			}
 		})
 	}
 
-	function handlePaidConfirm(tuition:TuitionFeeType){
+	function handlePaidConfirm(tuition: TuitionFeeType) {
 		confirm({
 			title: "Xác nhận đã thanh toán",
 			content: "Lưu ý sau khi xác nhận đã thanh toán sẽ không thể sửa được bảng học phí!",
@@ -142,8 +144,8 @@ export default function TuitionDetail(): JSX.Element {
 		<Descriptions size="middle" column={column}>
 			<Descriptions.Item label="Lớp học"><a>{get(tuitionPeriodInfo, "class.name", "")}</a></Descriptions.Item>
 			<Descriptions.Item label="Chu kỳ">
-				{moment(get(tuitionPeriodInfo, "from_date", "")).format(dateFormat)} - {" "}
-				{moment(get(tuitionPeriodInfo, "to_date", "")).format(dateFormat)}
+				<strong>{moment(get(tuitionPeriodInfo, "from_date", "")).format(dateFormat)} - {" "}
+					{moment(get(tuitionPeriodInfo, "to_date", "")).format(dateFormat)}</strong>
 			</Descriptions.Item>
 			<Descriptions.Item
 				label={
@@ -162,7 +164,10 @@ export default function TuitionDetail(): JSX.Element {
 				<strong style={{ float: "right" }}>{formatCurrency(get(tuitionPeriodInfo, "class.fee_per_session", ""))}</strong>
 			</Descriptions.Item>
 			<Descriptions.Item label="Số buổi đã học">
-				<span style={{ color: "#e74c3c" }}>{get(tuitionPeriodInfo, "class.act_session_num", "")}</span>
+				<span style={{ color: "#e74c3c" }}>{get(tuitionPeriodInfo, "lessons", []).length}</span>
+			</Descriptions.Item>
+			<Descriptions.Item label="Trạng thái">
+				<span style={{ color: "#e74c3c" }}>{get(tuitionPeriodInfo, "active", 0) === 1 ? <Tag color="green">Active</Tag> : <Tag color="red">Deactive</Tag>}</span>
 			</Descriptions.Item>
 		</Descriptions>
 	);
@@ -175,12 +180,12 @@ export default function TuitionDetail(): JSX.Element {
 			}}
 		>
 			<Statistic
-				title="Học Phí Ước Tính"
+				title="Học phí thu được"
 				value={formatCurrency(estTuitionFee)}
 				style={{
 					marginRight: 32,
 					fontWeight: 600,
-					color: "#2980b9"
+					color: "#3498db"
 				}}
 			/>
 			<Statistic
@@ -199,59 +204,17 @@ export default function TuitionDetail(): JSX.Element {
 			dataIndex: "student_id",
 			key: "student_id",
 			render: function nameCol(student_id: number): JSX.Element {
-				return <a>{studentList.find((st) => st.id === student_id)?.name}</a>;
+				return <strong>{studentList.find((st) => st.id === student_id)?.name}</strong>;
 			},
 		},
 		{
-			title: (
-				<>
-					Học phí{" "}
-					<Tooltip title="Học phí ước tính của kỳ này, dựa trên số buổi học ước tính kỳ này trừ đi số buổi dư kỳ trước">
-						<QuestionCircleOutlined style={{ color: "#f39c12" }} />
-					</Tooltip>
-				</>
-			),
-			dataIndex: "",
-			key: "tuition",
-			render: function amountCol(record: TuitionFeeType): JSX.Element {
-				return <span style={{ fontWeight: 700 }}>{numeral(feesPerStudent[record.id]).format("0,0")}</span>;
-			},
-			// align: 'right',
-		},
-		{
-			title: "Giảm trừ đặc biệt",
-			dataIndex: "fixed_deduction",
-			key: "fixed_deduction",
-			render: function amountCol(amount: number): JSX.Element {
-				return <span style={{ color: "#ff4300" }}>{numeral(amount).format("0,0")}</span>;
-			},
-			// align: 'right',
-		},
-		{
-			title: (
-				<>
-					Giảm trừ theo đợt{" "}
-					<Tooltip title="Giảm trừ học phí tuỳ chỉnh theo đợt">
-						{" "}
-						<QuestionCircleOutlined style={{ color: "#f39c12" }} />
-					</Tooltip>
-				</>
-			),
-			dataIndex: "flexible_deduction",
-			key: "flexible_deduction",
-			render: function amountCol(amount: number): JSX.Element {
-				return <span style={{ color: "#ff8c00" }}>{numeral(amount).format("0,0")}</span>;
-			},
-			// align: 'right',
-		},
-		{
-			title: "Thành tiền",
+			title: "Tổng học phí",
 			dataIndex: "residual",
 			key: "residual",
 			render: function amountCol(_: number, feeItem: TuitionFeeType): JSX.Element {
 				return (
 					<span style={{ color: "#2980b9", fontWeight: 700 }}>
-						{numeral(feesPerStudent[feeItem.id]! - +feeItem.fixed_deduction - +feeItem.flexible_deduction).format("0,0")}
+						{numeral(feesPerStudent[feeItem.id]! + +feeItem.prev_debt - +feeItem.fixed_deduction - +feeItem.flexible_deduction).format("0,0")}
 					</span>
 				);
 			},
@@ -264,16 +227,11 @@ export default function TuitionDetail(): JSX.Element {
 			render: function statusCol(status: number): JSX.Element {
 				return (
 					<>
-						{status === 0 ? <Tag color="red">Chư nộp</Tag> : <Tag color="green">Đã nộp</Tag>}
+						{status === 0 ? <Tag color="red">Chư nộp</Tag> : status === 1 ? <Tag color="green">Đã nộp</Tag> : <Tag color="orange">Chuyển nợ</Tag>}
 					</>
 				)
 			}
 		},
-		// {
-		// 	title: "Ghi chú",
-		// 	dataIndex: "note",
-		// 	key: "note",
-		// },
 		{
 			width: "5%",
 			title: "Action",
@@ -285,21 +243,25 @@ export default function TuitionDetail(): JSX.Element {
 							<Tooltip title="Chỉnh sửa">
 								<EditTuitionFeeModal tuitionFeeInfo={record} periodInfo={tuitionPeriodInfo} stName={studentList.find((st) => st.id === record.student_id)?.name} />
 							</Tooltip>
-							<Tooltip title="Chuyển nợ">
-								<Button disabled={record.status === 1 ? true : false}
-									icon={<TransactionOutlined style={{ color: record.status === 1 ? "#bdc3c7" : "#e67e22" }} />}
-									type="link"
-									onClick={() => handleTraferDebt(record)}
-								/>
-							</Tooltip>
-							<Tooltip title="Chuyển nợ">
-								<Button disabled={record.status === 1 ? true : false}
-									icon={<CreditCardOutlined style={{ color: record.status === 1 ? "#bdc3c7" : "#27ae60" }} />}
+							<SendNotiModal tuition={record} />
+							{
+								get(tuitionPeriodInfo, "active", 0) === 0 ?
+									<Tooltip title="Chuyển nợ">
+										<Button disabled={record.status === 0 ? false : true}
+											icon={<TransactionOutlined style={{ color: record.status === 0 ? "#e67e22" : "#bdc3c7" }} />}
+											type="link"
+											onClick={() => handleTraferDebt(record)}
+										/>
+									</Tooltip> : ""
+
+							}
+							<Tooltip title="Xác nhận đã nộp">
+								<Button disabled={record.status === 0 ? false : true}
+									icon={<CreditCardOutlined style={{ color: record.status === 0 ? "#27ae60" : "#bdc3c7" }} />}
 									type="link"
 									onClick={() => handlePaidConfirm(record)}
 								/>
 							</Tooltip>
-							<SendNotiModal tuition={record} />
 						</Space>
 					</>
 
@@ -323,7 +285,7 @@ export default function TuitionDetail(): JSX.Element {
 			<PageHeader
 				onBack={() => window.history.back()}
 				className="site-page-header-responsive"
-				title="Chi tiết học phí"
+				title="Chi tiết chu kỳ học phí"
 				style={{ backgroundColor: "white" }}
 				footer={
 					<Tabs defaultActiveKey="1" >
@@ -407,7 +369,7 @@ function SendNotiModal(prop: { tuition: TuitionFeeType }): JSX.Element {
 					type="link"
 					onClick={() => setShow(true)}
 					icon={<NotificationOutlined />}
-					// disabled={tuition.status === 1 ? true : false}
+				// disabled={tuition.status === 1 ? true : false}
 				/>
 			</Tooltip>
 			<Modal title="Gửi thông báo nhắc nhở cho phụ huynh!"

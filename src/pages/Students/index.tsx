@@ -81,15 +81,15 @@ export default function Students(): JSX.Element {
 			key: "birthday",
 		},
 
-		{
-			width: "15%",
-			title: "Phụ huynh",
-			dataIndex: "parent",
-			key: "parent",
-			render: function parentCol(value?: { email: string; id: number; name: string }): JSX.Element {
-				return <a>{get(value, "name", "")}</a>;
-			},
-		},
+		// {
+		// 	width: "15%",
+		// 	title: "Phụ huynh",
+		// 	dataIndex: "parent",
+		// 	key: "parent",
+		// 	render: function parentCol(value?: { email: string; id: number; name: string }): JSX.Element {
+		// 		return <a>{get(value, "profile.name", "")}</a>;
+		// 	},
+		// },
 		{
 			width: "15%",
 			title: "Lớp",
@@ -99,12 +99,12 @@ export default function Students(): JSX.Element {
 				return <a>{get(value, "name", "")}</a>;
 			},
 		},
-		{
-			width: "10%",
-			title: "Trường học",
-			dataIndex: "school",
-			key: "school",
-		},
+		// {
+		// 	width: "10%",
+		// 	title: "Trường học",
+		// 	dataIndex: "school",
+		// 	key: "school",
+		// },
 
 		{
 			width: "10%",

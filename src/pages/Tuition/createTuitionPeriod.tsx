@@ -22,9 +22,9 @@ import { useHistory } from "react-router-dom";
 import { actionGetClass, actionGetClasses, actionSetClassStateNull, classSlice } from "store/classes/slice";
 import { RootState, useAppDispatch } from "store/store";
 import { actionSetStudentsStateNull } from "store/students/slice";
-import { StudentType } from "interface";
+import { DayoffType, StudentType } from "interface";
 import { actionGetDayoffs } from "store/settings/dayoff";
-import { countSameDates, getDatesInRange } from "utils/dateUltils";
+import { getDatesInRange, getSameDates } from "utils/dateUltils";
 import {
 	actionAddPeriodTuion,
 	actionSetAddPeriodtuitionStateIdle,
@@ -44,6 +44,7 @@ export interface TuitionFeeType {
 	from_date?: string;
 	to_date?: string;
 	status:number;
+	dayoffs:string[];
 }
 
 export default function CreateTuitionPeriod(): JSX.Element {
@@ -60,6 +61,7 @@ export default function CreateTuitionPeriod(): JSX.Element {
 	const [fixedDeductionAllType, setFixedDeductionAllType] = useState(0);
 	const [fixedDeductionTypeList, setFixedDeductionTypeList] = useState<number[]>([]);
 	const [showConfirmSubmit, setShowConfirmSubmit] = useState(false);
+	const [dayoffsInPeriod, setDayoffsInPeriod] = useState<string[]>([]);
 
 	const classesList = useSelector((state: RootState) => state.classReducer.classes);
 	const classInfo = useSelector((state: RootState) => state.classReducer.classInfo);
@@ -90,17 +92,20 @@ export default function CreateTuitionPeriod(): JSX.Element {
 			);
 			const dayoffList: string[] = [];
 			let dateListInRang: string[] = [];
-			dayoffs.data?.forEach((day) => {
+			let dayoff_in_period:string[]=[];
+			get(dayoffs,"data",[]).forEach((day:DayoffType) => {
 				dayoffList.push(day.from_date);
 			});
-			console.log(get(dayoffs,"data",[]))
 			if (classInfo.schedule.length > 0) {
 				let count = 0;
 				for (let index = 0; index < classInfo.schedule.length; index++) {
 					const day = classInfo.schedule[index];
 					dateListInRang = getDatesInRange(fromDate, toDate, day);
-					count += dateListInRang.length - countSameDates(dateListInRang, dayoffList);
+					count += dateListInRang.length;
+					dayoff_in_period = dayoff_in_period.concat(getSameDates(dateListInRang, dayoffList))
 				}
+				count -= dayoff_in_period.length;
+				setDayoffsInPeriod(dayoff_in_period)
 				setEstSessionNum(count);
 			}
 
@@ -151,7 +156,8 @@ export default function CreateTuitionPeriod(): JSX.Element {
 					note: "",
 					from_date: "",
 					to_date: "",
-					status:0
+					status:0,
+					dayoffs:[]
 				});
 			});
 			setTuitionFees(tuitionFeeList);
@@ -246,6 +252,7 @@ export default function CreateTuitionPeriod(): JSX.Element {
 				to_date: toDate,
 				tuition_fees: tuitionFees,
 				draft,
+				dayoffs:dayoffsInPeriod,
 			};
 			dispatch(actionSetAddPeriodtuitionStateIdle());
 			dispatch(actionAddPeriodTuion(payload as AddPeriodTuionParms));
@@ -305,8 +312,7 @@ export default function CreateTuitionPeriod(): JSX.Element {
 					<>
 						<InputNumber
 							defaultValue={tuitionFees[index]?.fixed_deduction}
-							formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-							parser={(value: any) => value.replace(/(,*)/g, "")}
+							formatter={(value) => numeral(value).format("0,0")}
 							ref={(e) => (fixed_deductions_ref.current[index] = e)}
 							style={{ width: "90%", color: "#c0392b" }}
 							onChange={(e) => handleOnChangeFixedDeduction(e, index)}

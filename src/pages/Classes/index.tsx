@@ -26,11 +26,11 @@ function Classes(): JSX.Element {
 	}, [dispatch]);
 
 	useEffect(() => {
-		dispatch(actionGetEmployees({role_id:'2,4'}));
+		dispatch(actionGetEmployees({ role_id: '2,4' }));
 	}, [dispatch]);
 
 	const searchTeacher = (search: string) => {
-		if (search.length >= 3 || search.length === 0) dispatch(actionGetEmployees({ class_id: 0, role_id:'2,4', search }));
+		if (search.length >= 3 || search.length === 0) dispatch(actionGetEmployees({ class_id: 0, role_id: '2,4', search }));
 	};
 
 	const columns = [
@@ -46,10 +46,10 @@ function Classes(): JSX.Element {
 		{
 			width: "15%",
 			title: "Giáo viên",
-			dataIndex:"user",
+			dataIndex: "user",
 			key: "user",
-			render: function TeacherCol(value:{id:number, name:string}): JSX.Element {
-				return <Button type="link">{get(value,"name","")}</Button>;
+			render: function TeacherCol(value: { id: number, profile: { name: string } }): JSX.Element {
+				return <Button type="link">{get(value, "profile.name", "")}</Button>;
 			},
 		},
 		{
@@ -64,7 +64,7 @@ function Classes(): JSX.Element {
 			dataIndex: "fee_per_session",
 			key: "fee_per_session",
 			render: function feeCol(amount: number): JSX.Element {
-				return <span style={{color:"#e67e22"}}>{numeral(amount).format("0,0")}</span>;
+				return <span style={{ color: "#e67e22" }}>{numeral(amount).format("0,0")}</span>;
 			},
 		},
 		{

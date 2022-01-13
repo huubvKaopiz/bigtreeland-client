@@ -27,6 +27,7 @@ export interface AddPeriodTuionParms {
 	to_date: string;
 	est_session_num: number;
 	fee_per_session: number;
+	dayoffs:string[];
 	tuition_fees: {
 		student_id: number;
 		residual: string;
@@ -37,6 +38,7 @@ export interface AddPeriodTuionParms {
 		from_date: string;
 		to_date: string;
 		status:0;
+		dayoffs:string[];
 	}[];
 	draft: boolean;
 }

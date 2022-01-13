@@ -8,10 +8,11 @@ import {
 	Timeline,
 	DatePicker,
 } from "antd";
+import { ClockCircleOutlined } from '@ant-design/icons';
 import { Line } from "@ant-design/charts";
 import { useEffect } from "react";
 import io from "socket.io-client";
-import { useTranslation } from "react-i18next";
+// import { useTranslation } from "react-i18next";
 import { RootState, useAppDispatch } from "store/store";
 import { actionGetDayoffs } from "store/settings/dayoff";
 import { useSelector } from "react-redux";
@@ -74,24 +75,17 @@ function Home(): JSX.Element {
 	function scheduleCellRender(value: Moment) {
 		let isDayoff = false;
 		// console.log(value,dayoffs);
-		get(dayoffs, "data", []).forEach(
-			(element: { from_date: string; to_date: string }) => {
-				// console.log(value,moment(element.from_date,'day'));
-				if (
-					value.isSame(moment(element.from_date, "day")) ||
-					value.isSame(moment(element.to_date)) ||
-					value.isBetween(moment(element.from_date), moment(element.to_date))
-				) {
-					isDayoff = true;
-					return dayoffs;
-				}
+		const dateValue = moment(value).format("YYYY-MM-DD")
+		get(dayoffs, "data", []).forEach((element: { from_date: string, to_date: string }) => {
+			if (moment(dateValue).isSame(moment(element.from_date))) {
+				isDayoff = true;
 			}
-		);
+		});
 		console.log(isDayoff);
 		if (isDayoff) {
 			return (
 				<>
-					<Tag color="#f50">Ngày nghỉ</Tag>
+					<span style={{ color: "#f50" }}>&#8226;</span>
 				</>
 			);
 		}
