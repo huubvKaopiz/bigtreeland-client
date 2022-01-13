@@ -67,11 +67,12 @@ export default function AddStudentModal(props: {
 							showSearch
 							onSearch={(e) => searchParent(e)}
 							notFoundContent={searchStatus === "loading" ? <Spin size="small" /> : null}
+							allowClear
 						>
 							{listParents.map((parent: ParentType) => {
 								return (
 									<Select.Option key={parent.id} value={parent.id}>
-										{parent.name} - {parent.phone}
+										<a>{get(parent,"profile.name","")}</a> ({parent.phone})
 									</Select.Option>
 								);
 							})}

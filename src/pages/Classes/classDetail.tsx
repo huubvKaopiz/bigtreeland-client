@@ -7,7 +7,6 @@ import {
 	Form,
 	Image,
 	Input,
-	InputNumber,
 	Layout,
 	List,
 	Modal,
@@ -17,13 +16,12 @@ import {
 	Spin,
 	Table,
 	Tabs,
-	Upload,
 } from "antd";
 import Checkbox, { CheckboxChangeEvent } from "antd/lib/checkbox/Checkbox";
 import Dragger from "antd/lib/upload/Dragger";
 import { UploadFile } from "antd/lib/upload/interface";
 import { TestType } from "interface";
-import { functions, get } from "lodash";
+import { get } from "lodash";
 import moment from "moment";
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -44,6 +42,8 @@ import AddStudentsModal from "./addStudentsModal";
 import AddTest from "./addTestModal";
 
 const dateFormat = "DD-MM-YYYY";
+const { RangePicker } = DatePicker;
+
 export default function ClassDetail(): JSX.Element {
 	const params = useParams() as { class_id: string };
 	const history = useHistory();
@@ -78,7 +78,7 @@ export default function ClassDetail(): JSX.Element {
 		if (params.class_id) {
 			dispatch(actionGetAttendances({ class_id: parseInt(params.class_id) }));
 			dispatch(actionGetClass({ class_id: parseInt(params.class_id) }));
-			dispatch(actionGetTestes({class_id: +params.class_id}))
+			dispatch(actionGetTestes({ class_id: +params.class_id }))
 		}
 	}, [dispatch, params]);
 
@@ -179,88 +179,98 @@ export default function ClassDetail(): JSX.Element {
 				return <span>{moment(value).format("DD-MM-YYYY")}</span>;
 			},
 		},
-	];
+		{
+			title: (
+				<div style={{ textAlign: "center" }}>
+					<Checkbox onChange={handleCheckAll} checked={checkAll} />
+				</div>
+			),
+			key: "operation",
+			dataIndex: "",
+			// width: 10,
+			render: function col(st: { id: number }): JSX.Element {
+				return (
+					<div style={{ textAlign: "center" }}>
+						<Checkbox onChange={() => handleCheckbox(st.id)} checked={isAttendantToday(st.id)} />
+					</div>
+				);
+			},
+		},
+		{
+			title: "Nhận xét",
+			key: "comment",
+			dataIndex: "",
+			// width: 80,
+			render: function col(st: { id: number }): JSX.Element {
+				return <Input style={{ width: "100%" }} placeholder="Nhận xét" onChange={(e) => handleChangeComment(e, st.id)} />;
+			},
+		},
+		{
+			title: "Điểm hạnh kiểm",
+			key: "point",
+			dataIndex: "",
+			// width: 80,
+			render: function col(st: { id: number }): JSX.Element {
+				return (
+					<Input
+						style={{ width: "100%" }}
+						type="number"
+						step={0.1}
+						placeholder="điểm hạnh kiểm"
+						onChange={(e) => handleChangeCoductPoint(e, st.id)}
+					/>
+				);
+			}
+		},
+		{
+			title: "",
+			key: "action",
+			dataIndex: "",
+			width: 80,
+			render: function col(st: { id: number }): JSX.Element {
+				return (
+					<Space>
+						{" "}
+						<Button icon={<NotificationOutlined />} type="link" onClick={(e) => handleNotityToParent()} />
+					</Space>
+				);
+			},
+		}
 
-	/* Todo cái này làm gì nhỉ? */
+	];
+	const lessonCols: any[] = [];
+	lessonCols.push({
+		title: "Họ tên",
+		dataIndex: "name",
+		key: "name",
+		width: 180,
+		render: function col(value: string): JSX.Element {
+			return <strong>{value}</strong>;
+		},
+	})
 	for (const key in get(attendances, "attendances", [])) {
-		attendance_columns.push({
+		lessonCols.push({
 			title: `${moment(key).format("DD/MM/YYYY")}`,
 			dataIndex: "",
 			key: `${key}`,
-			fixed: false,
+			width:20,
 			render: function col(st: { id: number; name: string }): JSX.Element {
-				return <Checkbox checked={isAttendant(st.id, key)} disabled />;
+				return (
+					<>
+					<Checkbox checked={isAttendant(st.id, key)} disabled />
+					</>
+				);
 			},
 		});
 	}
+	lessonCols.push({
+		
+	})
 
-	const attendanceCheckCol = {
-		title: (
-			<div style={{ textAlign: "center" }}>
-				<Checkbox onChange={handleCheckAll} checked={checkAll} />
-			</div>
-		),
-		key: "operation",
-		dataIndex: "",
-		// width: 10,
-		render: function col(st: { id: number }): JSX.Element {
-			return (
-				<div style={{ textAlign: "center" }}>
-					<Checkbox onChange={() => handleCheckbox(st.id)} checked={isAttendantToday(st.id)} />
-				</div>
-			);
-		},
-	};
-
-	const commentCol = {
-		title: "Nhận xét",
-		key: "comment",
-		dataIndex: "",
-		// width: 80,
-		render: function col(st: { id: number }): JSX.Element {
-			return <Input style={{ width: "100%" }} placeholder="Nhận xét" onChange={(e) => handleChangeComment(e, st.id)} />;
-		},
-	};
-	const conductPointCol = {
-		title: "Điểm hạnh kiểm",
-		key: "point",
-		dataIndex: "",
-		// width: 80,
-		render: function col(st: { id: number }): JSX.Element {
-			return (
-				<Input
-					style={{ width: "100%" }}
-					type="number"
-					step={0.1}
-					placeholder="điểm hạnh kiểm"
-					onChange={(e) => handleChangeCoductPoint(e, st.id)}
-				/>
-			);
-		},
-	};
-	const actionCol = {
-		title: "",
-		key: "action",
-		dataIndex: "",
-		width: 80,
-		render: function col(st: { id: number }): JSX.Element {
-			return (
-				<Space>
-					{" "}
-					<Button icon={<NotificationOutlined />} type="link" onClick={(e) => handleNotityToParent()} />
-				</Space>
-			);
-		},
-	};
-
-	attendance_columns.push(attendanceCheckCol);
-	attendance_columns.push(commentCol);
-	attendance_columns.push(conductPointCol);
-	attendance_columns.push(actionCol);
 
 	/* For Test */
 	function handleChangePageOfTest(page: number) {
-		dispatch(actionGetTestes({class_id: +params.class_id, page}))
+		dispatch(actionGetTestes({ class_id: +params.class_id, page }))
 	}
 
 	return (
@@ -276,7 +286,7 @@ export default function ClassDetail(): JSX.Element {
 				]}
 				footer={
 					<Tabs defaultActiveKey="1">
-						<TabPane tab="Học tập" key="1">
+						<TabPane tab="Điểm danh" key="1">
 							<Space style={{ paddingTop: 20, marginBottom: 20 }}>
 								Ngày:
 								<DatePicker
@@ -323,15 +333,15 @@ export default function ClassDetail(): JSX.Element {
 										style={{ backgroundColor: "white", cursor: "pointer" }}
 										key={item.id}
 										actions={[
-											<Space key="act1" onClick={e => {e.stopPropagation()}}>
+											<Space key="act1" onClick={e => { e.stopPropagation() }}>
 												<Button type="link" icon={<TeamOutlined />} />
 												{studentList.length}
 											</Space>,
-											<Space key="act2" onClick={e => {e.stopPropagation();}}>
+											<Space key="act2" onClick={e => { e.stopPropagation(); }}>
 												{/* Todo refer liked */}
 												<Button type="link" icon={<LikeOutlined />} /> 0
 											</Space>,
-											<Space key="act3" onClick={e => {e.stopPropagation()}}>
+											<Space key="act3" onClick={e => { e.stopPropagation() }}>
 												{/* Todo refer commented */}
 												<MessageOutlined /> 0
 											</Space>,
@@ -342,7 +352,7 @@ export default function ClassDetail(): JSX.Element {
 												height={100}
 												alt="logo"
 												src="https://images.unsplash.com/photo-1641231366774-0260d3ee85d0?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80"
-												onClick={e => {e.stopPropagation()}}
+												onClick={e => { e.stopPropagation() }}
 											/>
 										}
 									>
@@ -352,9 +362,20 @@ export default function ClassDetail(): JSX.Element {
 							/>
 							,
 						</TabPane>
-						<TabPane tab="Album ảnh" key="3">
+						<TabPane tab="DS buổi học" key="3">
+							<RangePicker style={{ marginTop: 20, marginBottom: 20 }} />
+							<Table
+								dataSource={studentList}
+								columns={lessonCols}
+								bordered
+								rowKey="id"
+								size="small"
+								pagination={false}
+							/>
+						</TabPane>
+						<TabPane tab="Album ảnh" key="4">
 							<Space style={{ paddingTop: 20, marginBottom: 20 }}>
-								<ClassPhotoAlbum class_id={+params.class_id}/>
+								<ClassPhotoAlbum class_id={+params.class_id} />
 							</Space>
 
 							<Space style={{ backgroundColor: "white", padding: 10 }} size={[10, 10]} wrap>
@@ -370,7 +391,7 @@ export default function ClassDetail(): JSX.Element {
 					</Tabs>
 				}
 			>
-				<Descriptions size="small" column={2} style={{ backgroundColor: "white", padding: 20 }}>
+				<Descriptions size="small" column={2} style={{ backgroundColor: "white", marginTop: 20 }} bordered>
 					<Descriptions.Item label="Giáo viên">
 						<a>{get(classInfo, "user.name", "")}</a>
 					</Descriptions.Item>
@@ -459,7 +480,7 @@ function ClassPhotoAlbum(props: { class_id: number }): JSX.Element {
 								onChange={({ fileList }) => {
 									setFileList(fileList);
 								}}
-								// className="upload-list-inline"
+							// className="upload-list-inline"
 							>
 								<p className="ant-upload-drag-icon">
 									<InboxOutlined />

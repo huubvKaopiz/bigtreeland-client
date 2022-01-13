@@ -332,18 +332,18 @@ export default function AddSalary(): JSX.Element {
                                 allowClear
                                 showSearch
                                 disabled={disableSelectEmployee}
-                                style={{ width: 350 }}
+                                style={{ width: 450 }}
                                 placeholder="Search to Select"
                                 optionFilterProp="children"
-                                filterSort={(optionA, optionB) =>
-                                    optionA.children.toLowerCase().localeCompare(optionB.children.toLowerCase())
-                                }
+                                // filterSort={(optionA, optionB) =>
+                                //     optionA.children.toLowerCase().localeCompare(optionB.children.toLowerCase())
+                                // }
                             >
                                 {
                                     role === 'none' ? <Option value={0} key={0}>--</Option > : ""
                                 }
                                 {
-                                    get(emloyees, "data", []).map((e) => <Option value={e.id} key={e.id}><a>{e.name}</a> - {e.phone}</Option >)
+                                    get(emloyees, "data", []).map((e) => <Option value={e.id} key={e.id}><a>{get(e,"profile.name")}</a> ({e.phone})</Option >)
                                 }
                             </Select>
                         </Form.Item>
@@ -357,8 +357,7 @@ export default function AddSalary(): JSX.Element {
                         <Form.Item name="revenue_salary">
                             <InputNumber
                                 style={{ width: "90%", color: "#16a085" }}
-                                formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-                                parser={(value: any) => value.replace(/(,*)/g, "")}
+                                formatter={(value) => numeral(value).format("0,0")}
                                 disabled
                             />
                         </Form.Item>
@@ -369,8 +368,7 @@ export default function AddSalary(): JSX.Element {
                         <Form.Item label="Lương cơ bản" name="basic_salary" rules={[IsNumeric]} tooltip="Nếu nhân viên là giáo viên (2) thì lương cơ bản chính là lương/buổi dạy">
                             <InputNumber
                                 style={{ width: "90%" }}
-                                formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-                                parser={(value: any) => value.replace(/(,*)/g, "")}
+                                formatter={(value) => numeral(value).format("0,0")}
                             />
                         </Form.Item>
                     </Col>
@@ -378,8 +376,7 @@ export default function AddSalary(): JSX.Element {
                         <Form.Item label="Lương thưởng" name="bonus" rules={[IsNumeric]} >
                             <InputNumber
                                 style={{ width: "90%", color: "#16a085" }}
-                                formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-                                parser={(value: any) => value.replace(/(,*)/g, "")}
+                                formatter={(value) => numeral(value).format("0,0")}
                             />
                         </Form.Item>
                     </Col>
@@ -387,8 +384,7 @@ export default function AddSalary(): JSX.Element {
                         <Form.Item label="Lương trừ" name="fines" rules={[IsNumeric]} >
                             <InputNumber
                                 style={{ width: "90%", color: "#c0392b" }}
-                                formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-                                parser={(value: any) => value.replace(/(,*)/g, "")}
+                                formatter={(value) => numeral(value).format("0,0")}
                             />
                         </Form.Item>
                     </Col>

@@ -52,9 +52,9 @@ export interface ClassType {
 	user: { id: number; name: number; phone: string };
 	employee_id?: number;
 	students_num: 0;
-	sessions_num: 24;
 	fee_per_session: 300000;
 	schedule: number[];
+	schedule_time:string;
 	start_date: string;
 	end_date: string;
 	deleted_at: string;

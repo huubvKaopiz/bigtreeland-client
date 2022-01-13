@@ -32,7 +32,7 @@ const initialState: ParentReducerState = {
 
 export const actionGetParents = createAsyncThunk("actionGetParents", async (params: GetParentsPrams) => {
 	const response = await request({
-		url: "/api/users?role_id=3",
+		url: "/api/users?role_name=parent",
 		method: "get",
 		params,
 	});

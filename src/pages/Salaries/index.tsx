@@ -230,8 +230,7 @@ function DetailSalary(props: { salaryInfo: SalaryType }): JSX.Element {
                                 <InputNumber
                                     value={editPayload.bonus}
                                     style={{ width: "90%", color: "#16a085" }}
-                                    formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-                                    parser={(value: any) => value.replace(/(,*)/g, "")}
+                                    formatter={(value) => numeral(value).format("0,0")}
                                     onChange={(value) => { editPayload.bonus = value; setEditPayload({ ...editPayload }) }}
                                 /> :
                                 <strong>{numeral(salaryInfo.bonus).format("0,0")}</strong>
@@ -243,8 +242,7 @@ function DetailSalary(props: { salaryInfo: SalaryType }): JSX.Element {
                                 <InputNumber
                                     value={editPayload.fines}
                                     style={{ width: "90%", color: "#e74c3c" }}
-                                    formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-                                    parser={(value: any) => value.replace(/(,*)/g, "")}
+                                    formatter={(value) => numeral(value).format("0,0")}
                                     onChange={(value) => { editPayload.fines = value; setEditPayload({ ...editPayload })}}
                                 /> :
                                 <strong>{numeral(salaryInfo.fines).format("0,0")}</strong>

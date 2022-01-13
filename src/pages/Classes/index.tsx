@@ -39,20 +39,18 @@ function Classes(): JSX.Element {
 			title: "Tên lớp",
 			dataIndex: "name",
 			key: "name",
+			render: function nameCol(name: string): JSX.Element {
+				return <strong>{name}</strong>;
+			},
 		},
 		{
 			width: "15%",
 			title: "Giáo viên",
-			key: "employee",
-			render: function TeacherCol(value?: { user: {id: number, name: string} }): JSX.Element {
-				return <Button type="link">{value?.user && value?.user.name}</Button>;
+			dataIndex:"user",
+			key: "user",
+			render: function TeacherCol(value:{id:number, name:string}): JSX.Element {
+				return <Button type="link">{get(value,"name","")}</Button>;
 			},
-		},
-		{
-			width: "10%",
-			title: "Số buổi",
-			dataIndex: "sessions_num",
-			key: "sessions_num",
 		},
 		{
 			width: "10%",
@@ -65,8 +63,8 @@ function Classes(): JSX.Element {
 			title: "Học phí / buổi",
 			dataIndex: "fee_per_session",
 			key: "fee_per_session",
-			render: function amountCol(amount: number): JSX.Element {
-				return <span>{numeral(amount).format("0,0")}</span>;
+			render: function feeCol(amount: number): JSX.Element {
+				return <span style={{color:"#e67e22"}}>{numeral(amount).format("0,0")}</span>;
 			},
 		},
 		{

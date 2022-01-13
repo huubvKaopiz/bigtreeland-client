@@ -24,6 +24,8 @@ export interface ClassParams {
 	sessions_num: 24;
 	fee_per_session: 300000;
 	employee_id: 1;
+	schedule:number[];
+	schedule_time:string;
 }
 
 export interface AddTestParms {

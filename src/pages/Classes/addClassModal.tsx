@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Form, Input, Button, Select, Spin, InputNumber } from "antd";
+import { Modal, Form, Input, Button, Select, Spin, InputNumber, TimePicker } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { RootState, useAppDispatch } from "store/store";
 import { useSelector } from "react-redux";
@@ -8,6 +8,7 @@ import { get } from "lodash";
 import { EmployeeType, ListEmployeeType } from "interface";
 import numeral from "numeral";
 import { dayOptions } from "utils/const";
+import moment from "moment";
 
 export default function AddClassModal(props: {
 	teachers: ListEmployeeType | null;
@@ -29,7 +30,8 @@ export default function AddClassModal(props: {
 
 	function handleSubmit(values: any) {
 		setSumiting(true);
-		dispatch(actionAddClass(values)).finally(() => {
+		console.log(values)
+		dispatch(actionAddClass({...values, schedule_time:moment(values.schedule_time[0]).format("HH:mm:ss") + "-" + moment(values.schedule_time[1]).format("HH:mm:ss")})).finally(() => {
 			setSumiting(false);
 			setShow(false);
 		});
@@ -59,7 +61,7 @@ export default function AddClassModal(props: {
 					// initialValues={}
 					onFinish={handleSubmit}
 				>
-					<Form.Item label="Tên lớp" name="name">
+					<Form.Item label="Tên lớp" name="name" required>
 						<Input />
 					</Form.Item>
 					<Form.Item label="Giáo viên" name="employee_id">
@@ -73,19 +75,19 @@ export default function AddClassModal(props: {
 								get(teachers, "data", []).map((tc: EmployeeType) => {
 									return (
 										<Select.Option value={tc.id} key={tc.id}>
-											{tc.name} - {tc.phone}
+											<a>{get(tc,"profile.name","")}</a> ({tc.phone})
 										</Select.Option>
 									);
 								})}
 						</Select>
 					</Form.Item>
-					<Form.Item label="Số buổi học" name="sessions_num">
+					{/* <Form.Item label="Số buổi học" name="sessions_num">
 						<Input />
-					</Form.Item>
-					<Form.Item label="Học phí" name="fee_per_session">
+					</Form.Item> */}
+					<Form.Item label="Học phí" name="fee_per_session" required>
 						<InputNumber formatter={(value) => numeral(value).format()} style={{ width: "100%" }} />
 					</Form.Item>
-					<Form.Item label="Lịch học" name="schedule">
+					<Form.Item label="Lịch học" name="schedule" required> 
 						<Select mode="multiple" placeholder="Chọn lịch học">
 							{dayOptions.map((day, value) => (
 								<Select.Option value={value} key={value}>
@@ -93,6 +95,9 @@ export default function AddClassModal(props: {
 								</Select.Option>
 							))}
 						</Select>
+					</Form.Item>
+					<Form.Item label="Thời gian học" name="schedule_time">
+						<TimePicker.RangePicker/>
 					</Form.Item>
 				</Form>
 			</Modal>

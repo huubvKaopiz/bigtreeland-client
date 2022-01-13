@@ -1,4 +1,4 @@
-import { QuestionCircleOutlined, NotificationOutlined, DollarOutlined } from "@ant-design/icons";
+import { QuestionCircleOutlined, NotificationOutlined, CreditCardOutlined, TransactionOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
 import { Alert, Button, Descriptions, Input, Layout, Modal, PageHeader, Space, Statistic, Table, Tabs, Tag, Tooltip } from "antd";
 import Column from "antd/lib/table/Column";
 import { StudentType, TuitionFeeType } from "interface";
@@ -11,12 +11,13 @@ import { useParams } from "react-router-dom";
 import { RootState, useAppDispatch } from "store/store";
 import { actionGetStudents } from "store/students/slice";
 import { actionGetPeriodTuion } from "store/tuition/periodslice";
-import { actionUpdateTuitionFee } from "store/tuition/tuition";
+import { actionTuitionFeeTranferDebt, actionUpdateTuitionFee } from "store/tuition/tuition";
 import { formatCurrency } from "utils/ultil";
 import { CreateTuitionFeeModal } from "./createTuitionFreeModal";
 import { EditTuitionFeeModal } from "./editTuitionFeeModal";
 
 const { TabPane } = Tabs;
+const { confirm } = Modal;
 const dateFormat = "DD-MM-YYYY";
 
 const lesson_columns = [
@@ -68,7 +69,7 @@ export default function TuitionDetail(): JSX.Element {
 		if (tuitionPeriodInfo) {
 			let totalTuitionFee = 0;
 			let paidCount = 0;
-			const estTuiionFeeMap:number[] = [];
+			const estTuiionFeeMap: number[] = [];
 			get(tuitionPeriodInfo, "tuition_fees", []).forEach((tuition: TuitionFeeType) => {
 				const est_fee =
 					get(tuitionPeriodInfo, "class.fee_per_session", 0) * get(tuitionPeriodInfo, "est_session_num", 0);
@@ -106,6 +107,35 @@ export default function TuitionDetail(): JSX.Element {
 		}
 		setNewStudentList(newList);
 	}, [students, tuitionPeriodInfo]);
+
+
+	function handleTraferDebt(tuition: TuitionFeeType) {
+
+		confirm({
+			title: "Xác nhận chuyển nợ sang chu kỳ mới",
+			content: "Lưu ý để chuyển nợ bắt buộc phải tồn tại một chu kỳ mới tương ứng của học sinh!",
+			icon: <ExclamationCircleOutlined />,
+			onOk() {
+				const debt_tranfer = feesPerStudent[tuition.id] - +tuition.fixed_deduction - +tuition.flexible_deduction;
+				dispatch(actionTuitionFeeTranferDebt({ debt_tranfer: String(debt_tranfer), tuition_id: tuition.id })).finally(() => {
+					dispatch(actionGetPeriodTuion(parseInt(params.tuition_id)));
+				})
+			}
+		})
+	}
+
+	function handlePaidConfirm(tuition:TuitionFeeType){
+		confirm({
+			title: "Xác nhận đã thanh toán",
+			content: "Lưu ý sau khi xác nhận đã thanh toán sẽ không thể sửa được bảng học phí!",
+			icon: <ExclamationCircleOutlined />,
+			onOk() {
+				dispatch(actionUpdateTuitionFee({ data: { status: 1 }, tuition_id: get(tuition, "id", 0) })).finally(() => {
+					dispatch(actionGetPeriodTuion(parseInt(params.tuition_id)));
+				})
+			}
+		})
+	}
 
 	//render ui
 	const renderContent = (column = 2) => (
@@ -184,7 +214,7 @@ export default function TuitionDetail(): JSX.Element {
 			dataIndex: "",
 			key: "tuition",
 			render: function amountCol(record: TuitionFeeType): JSX.Element {
-				return <span style={{ fontWeight:700 }}>{numeral(feesPerStudent[record.id]).format("0,0")}</span>;
+				return <span style={{ fontWeight: 700 }}>{numeral(feesPerStudent[record.id]).format("0,0")}</span>;
 			},
 			// align: 'right',
 		},
@@ -220,7 +250,7 @@ export default function TuitionDetail(): JSX.Element {
 			key: "residual",
 			render: function amountCol(_: number, feeItem: TuitionFeeType): JSX.Element {
 				return (
-					<span style={{ color: "#2980b9", fontWeight:700 }}>
+					<span style={{ color: "#2980b9", fontWeight: 700 }}>
 						{numeral(feesPerStudent[feeItem.id]! - +feeItem.fixed_deduction - +feeItem.flexible_deduction).format("0,0")}
 					</span>
 				);
@@ -239,11 +269,11 @@ export default function TuitionDetail(): JSX.Element {
 				)
 			}
 		},
-		{
-			title: "Ghi chú",
-			dataIndex: "note",
-			key: "note",
-		},
+		// {
+		// 	title: "Ghi chú",
+		// 	dataIndex: "note",
+		// 	key: "note",
+		// },
 		{
 			width: "5%",
 			title: "Action",
@@ -255,7 +285,20 @@ export default function TuitionDetail(): JSX.Element {
 							<Tooltip title="Chỉnh sửa">
 								<EditTuitionFeeModal tuitionFeeInfo={record} periodInfo={tuitionPeriodInfo} stName={studentList.find((st) => st.id === record.student_id)?.name} />
 							</Tooltip>
-							<PaymentConfirmModal tuition={record} period_id={get(tuitionPeriodInfo, "id", 0)} />
+							<Tooltip title="Chuyển nợ">
+								<Button disabled={record.status === 1 ? true : false}
+									icon={<TransactionOutlined style={{ color: record.status === 1 ? "#bdc3c7" : "#e67e22" }} />}
+									type="link"
+									onClick={() => handleTraferDebt(record)}
+								/>
+							</Tooltip>
+							<Tooltip title="Chuyển nợ">
+								<Button disabled={record.status === 1 ? true : false}
+									icon={<CreditCardOutlined style={{ color: record.status === 1 ? "#bdc3c7" : "#27ae60" }} />}
+									type="link"
+									onClick={() => handlePaidConfirm(record)}
+								/>
+							</Tooltip>
 							<SendNotiModal tuition={record} />
 						</Space>
 					</>
@@ -364,7 +407,7 @@ function SendNotiModal(prop: { tuition: TuitionFeeType }): JSX.Element {
 					type="link"
 					onClick={() => setShow(true)}
 					icon={<NotificationOutlined />}
-					disabled={tuition.status === 1 ? true : false}
+					// disabled={tuition.status === 1 ? true : false}
 				/>
 			</Tooltip>
 			<Modal title="Gửi thông báo nhắc nhở cho phụ huynh!"
@@ -373,45 +416,6 @@ function SendNotiModal(prop: { tuition: TuitionFeeType }): JSX.Element {
 				onOk={handleSendNotification}
 			>
 				<Input.TextArea placeholder="Write something here!" />
-
-			</Modal>
-
-		</>
-	)
-}
-
-function PaymentConfirmModal(prop: { tuition: TuitionFeeType, period_id: number }): JSX.Element {
-	const { tuition, period_id } = prop;
-	const dispatch = useAppDispatch();
-	const [show, setShow] = useState(false);
-
-	function handleSubmit() {
-		if (tuition) {
-			dispatch(actionUpdateTuitionFee({ data: { status: 1 }, tuition_id: get(tuition, "id", 0) }))
-				.then(() => {
-					setShow(false);
-					dispatch(actionGetPeriodTuion(period_id));
-				})
-
-		}
-	}
-
-	return (
-		<>
-			<Tooltip title="Xác nhận đã thanh toán">
-				<Button
-					type="link"
-					onClick={() => setShow(true)}
-					icon={<DollarOutlined style={{ color: tuition.status === 0 ? "#27ae60" : "" }} />}
-					disabled={tuition.status === 1 ? true : false}
-				/>
-			</Tooltip>
-			<Modal title="Xác nhận đã thanh toán!"
-				visible={show}
-				onCancel={() => setShow(false)}
-				onOk={handleSubmit}
-			>
-				Lưu ý sau khi xác nhận đã thanh toán sẽ không thể sửa được bảng học phí!
 
 			</Modal>
 
