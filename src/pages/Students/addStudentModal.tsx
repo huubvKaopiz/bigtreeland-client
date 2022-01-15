@@ -13,7 +13,7 @@ export default function AddStudentModal(props: {
 	searchParent: (search: string) => void;
 	searchStatus: string;
 }): JSX.Element {
-	const { parents, searchParent, searchStatus } = props;
+	const { parents } = props;
 	const [show, setShow] = useState(false);
 	const dispatch = useAppDispatch();
 	const status = useSelector((state: RootState) => state.studentReducer.addStudentStatus);
@@ -38,10 +38,13 @@ export default function AddStudentModal(props: {
 		dispatch(actionAddStudent(data));
 	};
 
-	// console.log(listParents);
 	return (
 		<div>
-			<Button type="primary" icon={<PlusOutlined />} onClick={() => setShow(true)}>
+			<Button
+				type="primary"
+				icon={<PlusOutlined />}
+				onClick={() => setShow(true)}
+			>
 				Thêm học sinh
 			</Button>
 			<Modal
@@ -58,20 +61,27 @@ export default function AddStudentModal(props: {
 					</Button>,
 				]}
 			>
-				<Form id="sForm" labelCol={{ span: 6 }} wrapperCol={{ span: 14 }} layout="horizontal" onFinish={handleSubmit}>
+				<Form
+					id="sForm"
+					labelCol={{ span: 6 }}
+					wrapperCol={{ span: 14 }}
+					layout="horizontal"
+					onFinish={handleSubmit}
+				>
 					<Form.Item label="Họ và tên" name="name">
 						<Input />
 					</Form.Item>
 					<Form.Item name="parent_id" label="Phụ huynh">
 						<Select
 							showSearch
-							onSearch={(e) => searchParent(e)}
-							notFoundContent={searchStatus === "loading" ? <Spin size="small" /> : null}
 							allowClear
+							filterOption={(input, option) =>
+								(option?.label as string)?.toLowerCase().indexOf(input.toLowerCase()) >= 0
+							}
 						>
 							{listParents.map((parent: ParentType) => {
 								return (
-									<Select.Option key={parent.id} value={parent.id}>
+									<Select.Option key={parent.id} value={parent.id} label={`${get(parent,"profile.name","")} (${parent.phone})`}>
 										<a>{get(parent,"profile.name","")}</a> ({parent.phone})
 									</Select.Option>
 								);
@@ -100,7 +110,11 @@ export default function AddStudentModal(props: {
 					<Form.Item name="knowledge_status" label="Tình trạng đầu vào">
 						<InputNumber />
 					</Form.Item>
-					<Form.Item name="is_special" label="Trường hợp đặc biệt" valuePropName="checked">
+					<Form.Item
+						name="is_special"
+						label="Trường hợp đặc biệt"
+						valuePropName="checked"
+					>
 						<Switch />
 					</Form.Item>
 					<Form.Item name="personality" label="Tính cách">
