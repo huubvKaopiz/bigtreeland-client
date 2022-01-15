@@ -63,7 +63,6 @@ export default function ClassDetail(): JSX.Element {
 	const testList = useSelector((state: RootState) => state.testReducer.testes);
 	const addStudentsStatus = useSelector((state: RootState) => state.classReducer.addStudentsStatus);
 	const getAttendancesStatus = useSelector((state: RootState) => state.attendanceReducer.getAttendancesStatus);
-	const storeGetLessonStatus = useSelector((state: RootState) => state.lessonReducer.getLessonsState);
 
 
 	useEffect(() => {
@@ -481,7 +480,7 @@ export default function ClassDetail(): JSX.Element {
 								</Button>
 							</Space>
 							<Table
-								loading={storeGetLessonStatus === "loading"}
+								loading={getAttendancesStatus === "loading"}
 								dataSource={get(attendances, 'students', [])}
 								columns={lessonCols}
 								bordered
