@@ -19,6 +19,7 @@ export interface AttendanceStudentComment {
 	id: string;
 	comment: string;
 	conduct_point: string;
+	reminder: string;
 }
 export interface AddAttendenceParams {
 	class_id: number;

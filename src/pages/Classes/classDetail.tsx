@@ -10,6 +10,7 @@ import {
 	Layout,
 	List,
 	Modal,
+	notification,
 	PageHeader,
 	Row,
 	Space,
@@ -18,6 +19,7 @@ import {
 	Tabs,
 } from "antd";
 import Checkbox, { CheckboxChangeEvent } from "antd/lib/checkbox/Checkbox";
+import TextArea from "antd/lib/input/TextArea";
 import Dragger from "antd/lib/upload/Dragger";
 import { UploadFile } from "antd/lib/upload/interface";
 import { TestType } from "interface";
@@ -120,15 +122,16 @@ export default function ClassDetail(): JSX.Element {
 		setAttendantList([...attendantList]);
 	}
 
-	function handleChangeComment(e: React.ChangeEvent<HTMLInputElement>, id: number) {
+	function handleChangeComment(comment: string, id: number) {
 		const f = listComments.findIndex((element) => element.id === `${id}`);
 		if (f >= 0) {
-			listComments[f].comment = e.target.value;
+			listComments[f].comment = comment;
 		} else {
 			listComments.push({
 				id: `${id}`,
-				comment: e.target.value,
+				comment: comment,
 				conduct_point: "",
+				reminder: "",
 			});
 		}
 	}
@@ -136,7 +139,13 @@ export default function ClassDetail(): JSX.Element {
 	function handleChangeCoductPoint(e: React.ChangeEvent<HTMLInputElement>, id: number) {
 		const finder = listComments.find((p) => p.id === `${id}`);
 		if (finder) finder.conduct_point = e.target.value;
-		else listComments.push({ id: `${id}`, comment: "", conduct_point: parseFloat(e.target.value).toString() });
+		else listComments.push({ id: `${id}`, comment: "",  conduct_point: parseFloat(e.target.value).toString(), reminder: "" });
+	}
+
+	function handleChangeReminder(reminder: string, id: number) {
+		const finder = listComments.find((p) => p.id === `${id}`);
+		if (finder) finder.conduct_point = reminder;
+		else listComments.push({ id: `${id}`, comment: "", conduct_point: "", reminder });
 	}
 
 	function handleNotityToParent() {
@@ -149,7 +158,7 @@ export default function ClassDetail(): JSX.Element {
 			attendantList.forEach((at) => {
 				const student = listComments.find((p) => +p.id === at);
 				if (student) studentAttendanceList.push(student);
-				else studentAttendanceList.push({ id: `${at}`, comment: "", conduct_point: "" });
+				else studentAttendanceList.push({ id: `${at}`, comment: "", conduct_point: "", reminder: "" });
 			});
 			const params = {
 				class_id: classInfo.id,
@@ -160,12 +169,16 @@ export default function ClassDetail(): JSX.Element {
 			};
 			dispatch(actionAddAttendance(params));
 		}
+		else {
+			notification.warn({message: "Danh sách điểm danh trống"})
+		}
 	}
 	const attendance_columns: any[] = [
 		{
 			title: "Họ tên",
 			dataIndex: "name",
 			key: "name",
+			with: "40%",
 			render: function col(value: string): JSX.Element {
 				return <strong>{value}</strong>;
 			},
@@ -191,25 +204,19 @@ export default function ClassDetail(): JSX.Element {
 			render: function col(st: { id: number }): JSX.Element {
 				return (
 					<div style={{ textAlign: "center" }}>
-						<Checkbox onChange={() => handleCheckbox(st.id)} checked={isAttendantToday(st.id)} />
+						<Checkbox
+							onChange={() => handleCheckbox(st.id)}
+							checked={isAttendantToday(st.id)}
+						/>
 					</div>
 				);
-			},
-		},
-		{
-			title: "Nhận xét",
-			key: "comment",
-			dataIndex: "",
-			// width: 80,
-			render: function col(st: { id: number }): JSX.Element {
-				return <Input style={{ width: "100%" }} placeholder="Nhận xét" onChange={(e) => handleChangeComment(e, st.id)} />;
 			},
 		},
 		{
 			title: "Điểm hạnh kiểm",
 			key: "point",
 			dataIndex: "",
-			// width: 80,
+			width: 150,
 			render: function col(st: { id: number }): JSX.Element {
 				return (
 					<Input
@@ -220,7 +227,41 @@ export default function ClassDetail(): JSX.Element {
 						onChange={(e) => handleChangeCoductPoint(e, st.id)}
 					/>
 				);
-			}
+			},
+		},
+		{
+			title: "Reminder",
+			key: "reminder",
+			dataIndex: "",
+			width: 150,
+			render: function col(st: { id: number }): JSX.Element {
+				return (
+					<Input
+						style={{ width: "100%" }}
+						type="text"
+						step={0.1}
+						placeholder="Lời nhắc nhở"
+						onChange={({ target: { value } }) => handleChangeReminder(value, st.id)}
+					/>
+				);
+			},
+		},
+		{
+			title: "Nhận xét",
+			key: "comment",
+			dataIndex: "",
+			render: function col(st: { id: number }): JSX.Element {
+				return (
+					<TextArea
+						style={{ width: "100%" }}
+						autoSize={{minRows: 1, maxRows: 3}}
+						placeholder="Nhận xét"
+						onChange={({ target: { value } }) =>
+							handleChangeComment(value, st.id)
+						}
+					/>
+				);
+			},
 		},
 		{
 			title: "",
@@ -231,12 +272,15 @@ export default function ClassDetail(): JSX.Element {
 				return (
 					<Space>
 						{" "}
-						<Button icon={<NotificationOutlined />} type="link" onClick={(e) => handleNotityToParent()} />
+						<Button
+							icon={<NotificationOutlined />}
+							type="link"
+							onClick={(e) => handleNotityToParent()}
+						/>
 					</Space>
 				);
 			},
-		}
-
+		},
 	];
 	const lessonCols: any[] = [];
 	lessonCols.push({
