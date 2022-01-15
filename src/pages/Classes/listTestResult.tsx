@@ -16,6 +16,7 @@ import {
 	Spin,
 	Form,
 	DatePicker,
+	Select,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import React, { useEffect, useState } from "react";
@@ -24,12 +25,16 @@ import { useParams } from "react-router-dom";
 import Modal from "antd/lib/modal/Modal";
 import { RootState } from "store/store";
 import { actionGetClass } from "store/classes/slice";
-import { actionGetTest, actionResetUpdateTest, actionUpdateTest } from "store/testes/slice";
+import {
+	actionGetTest,
+	actionResetUpdateTest,
+	actionUpdateTest,
+} from "store/testes/slice";
 import moment from "moment";
 import { dayOptions, fileIconList } from "utils/const";
 import { isImageType } from "utils/ultil";
 import FileSelectModal from "components/FileSelectModal";
-import { FileType } from "interface";
+import { FileType, LessonType } from "interface";
 import {
 	actionGetTestResults,
 	actionUpdateTestResults,
@@ -38,6 +43,10 @@ import {
 import { actionGetAttendances } from "store/attendances/slice";
 import { get } from "lodash";
 import { actionGetListFile } from "store/files/slice";
+import {
+	actionGetLessons,
+	actionSetLessionsStateNull,
+} from "store/lesson/slice";
 
 const { Title } = Typography;
 const dateFormat = "DD-MM-YYYY";
@@ -83,14 +92,14 @@ export function ListTestResults(): JSX.Element {
 	//State
 	const [listResults, setListResults] = useState<TestResult[]>([]);
 
-	console.log("re-render");
-
 	useEffect(() => {
 		if (params.test_id && params.class_id) {
 			dispatch(actionGetAttendances({ class_id: parseInt(params.class_id) }));
 			dispatch(actionGetClass({ class_id: parseInt(params.class_id) }));
 			dispatch(actionGetTest(+params.test_id));
 			dispatch(actionGetTestResults({ test_id: +params.test_id }));
+			dispatch(actionSetLessionsStateNull());
+			dispatch(actionGetLessons({ class_id: params.class_id }));
 		}
 	}, [dispatch, params]);
 
@@ -171,12 +180,13 @@ export function ListTestResults(): JSX.Element {
 							content_files={storeTestInfo?.content_files ?? []}
 							result_link={storeTestInfo?.result_link ?? ""}
 							result_files={storeTestInfo?.result_files ?? []}
+							lesson_id={storeTestInfo?.lesson_id ?? undefined}
 						/>,
 					]}
 				>
 					<Descriptions size="small" column={2}>
 						<Descriptions.Item label="Giáo viên">
-							<a>{storeClassInfo?.user.name ?? "Tên giáo viên"}</a>
+							<a>{storeClassInfo?.user?.profile?.name ?? "Tên giáo viên"}</a>
 						</Descriptions.Item>
 						<Descriptions.Item label="Lớp">
 							{storeClassInfo?.name ?? "Tên Lớp"}
@@ -501,11 +511,12 @@ function UploadResultModal(props: {
 function UploadTestResultModal(props: {
 	id: number;
 	title: string;
-	date: string ;
+	date: string;
 	content_link: string;
 	content_files: FileType[];
 	result_link: string;
 	result_files: FileType[];
+	lesson_id: number| undefined
 }): JSX.Element {
 	const {
 		id,
@@ -515,6 +526,7 @@ function UploadTestResultModal(props: {
 		content_files,
 		result_link,
 		result_files,
+		lesson_id
 	} = props;
 	const dispatch = useDispatch();
 	const [show, setShow] = useState(false);
@@ -523,17 +535,20 @@ function UploadTestResultModal(props: {
 	const storeUpdateTestState = useSelector(
 		(state: RootState) => state.testReducer.updateTestStatus
 	);
+	const lessonList = useSelector(
+		(state: RootState) => state.lessonReducer.lessons
+	);
 	const listFile = useSelector((state: RootState) => state.filesReducer.files);
 	const [resultFiles, setResultFiles] = useState<Array<FileType>>([]);
 	const [fileSelected, setFileSelected] = useState<Array<FileType>>([]);
-	
+
 	useEffect(() => {
-		if(storeUpdateTestState === 'success'){
-			dispatch(actionResetUpdateTest())
-			dispatch(actionGetTest(id))
-			setShow(false)
+		if (storeUpdateTestState === "success") {
+			dispatch(actionResetUpdateTest());
+			dispatch(actionGetTest(id));
+			setShow(false);
 		}
-	}, [dispatch, id, storeUpdateTestState])
+	}, [dispatch, id, storeUpdateTestState]);
 
 	useEffect(() => {
 		const results = result_files.map((propsFile) => {
@@ -547,11 +562,22 @@ function UploadTestResultModal(props: {
 	}, [result_files, content_files, listFile]);
 
 	function handleSubmit(values: any) {
-		const { result_link, content_link, title, date } = values;
-		const result_files = resultFiles.map(file => file.id)
-		const content_files = fileSelected.map(file => file.id)
+		const { result_link, content_link, title, date, lesson_id } = values;
+		const result_files = resultFiles.map((file) => file.id);
+		const content_files = fileSelected.map((file) => file.id);
 		// Todo update
-		dispatch(actionUpdateTest({id, title, date, content_files, content_link, result_link, result_files}))
+		dispatch(
+			actionUpdateTest({
+				id,
+				title,
+				date: moment(date).format('YYYY-MM-DD'),
+				content_files,
+				content_link,
+				result_link,
+				result_files,
+				lesson_id
+			})
+		);
 	}
 
 	function handleResultFileSelected(filesSelected: Array<FileType>) {
@@ -590,7 +616,15 @@ function UploadTestResultModal(props: {
 			>
 				<Form
 					id="aForm"
-					initialValues={{ result_link, content_files, content_link, result_files, title, date: moment(date) }}
+					initialValues={{
+						result_link,
+						content_files,
+						content_link,
+						result_files,
+						title,
+						date: moment(date),
+						lesson_id
+					}}
 					labelCol={{ span: 4 }}
 					wrapperCol={{ span: 18 }}
 					layout="horizontal"
@@ -599,12 +633,44 @@ function UploadTestResultModal(props: {
 					<Form.Item
 						label="Tiêu đề"
 						name="title"
-						rules={[{ required: true, message: "Tiêu đề bài test không được bỏ trống" }]}
+						rules={[
+							{
+								required: true,
+								message: "Tiêu đề bài test không được bỏ trống",
+							},
+						]}
 					>
 						<Input />
 					</Form.Item>
-					<Form.Item label="Ngày" name="date" >
-						<DatePicker format="YYYY-MM-DD" />
+					<Form.Item label="Bài học ngày" name="lesson_id">
+						<Select
+							showSearch
+							allowClear
+							filterOption={(input, option) =>
+								(option?.label as string)
+									?.toLowerCase()
+									.indexOf(input.toLowerCase()) >= 0
+							}
+						>
+							{get(lessonList, "data", []).map((lesson: LessonType) => {
+								return (
+									<Select.Option
+										key={lesson.id}
+										value={lesson.id}
+										label={moment(lesson.date, "YYYY-MM-DD").format(
+											"DD-MM-YYYY"
+										)}
+									>
+										<a>
+											{moment(lesson.date, "YYYY-MM-DD").format("DD-MM-YYYY")}{" "}
+										</a>
+									</Select.Option>
+								);
+							})}
+						</Select>
+					</Form.Item>
+					<Form.Item label="Ngày" name="date">
+						<DatePicker format="DD-MM-YYYY" />
 					</Form.Item>
 					<Form.Item label="Link đề bài" name="content_link">
 						<Input />
@@ -617,7 +683,12 @@ function UploadTestResultModal(props: {
 							closeFunction={() => setShowSelect(false)}
 							showSelectedList
 						>
-							<Button onClick={() => setShowSelect(true)} type="default" size="middle" icon={<UploadOutlined />}>
+							<Button
+								onClick={() => setShowSelect(true)}
+								type="default"
+								size="middle"
+								icon={<UploadOutlined />}
+							>
 								Chọn files
 							</Button>
 						</FileSelectModal>

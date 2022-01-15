@@ -103,12 +103,14 @@ export default function EditStudentModal(props: {
 					<Form.Item name="parent_id" label="Phụ huynh">
 						<Select
 							showSearch
-							onSearch={(e) => searchParent(e)}
-							notFoundContent={searchStatus === "loading" ? <Spin size="small" /> : null}
+							allowClear
+							filterOption={(input, option) =>
+								(option?.label as string)?.toLowerCase().indexOf(input.toLowerCase()) >= 0
+							}
 						>
 							{get(parents, "data", []).map((parent: ParentType) => {
 								return (
-									<Select.Option key={parent.id} value={parent.id}>
+									<Select.Option key={parent.id} value={parent.id} label={`${get(parent,"profile.name","")} (${parent.phone})`}>
 										<a>{get(parent,"profile.name")}</a> ({parent.phone})
 									</Select.Option>
 								);

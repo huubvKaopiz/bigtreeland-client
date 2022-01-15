@@ -49,7 +49,7 @@ export interface ParentType {
 export interface ClassType {
 	id: 1;
 	name: "Lớp tiếng Anh 3";
-	user: { id: number; name: number; phone: string };
+	user: { id: number; phone: string; profile: {name: string} };
 	employee_id?: number;
 	students_num: 0;
 	fee_per_session: 300000;
@@ -230,6 +230,7 @@ export interface TestType {
 	result_link: string;
 	title: string;
 	updated_at: string;
+	lesson_id?: number;
 }
 
 export interface ListTestType {

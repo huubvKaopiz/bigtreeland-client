@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 import { ClassType } from "../../interface";
@@ -12,6 +12,7 @@ import { get } from "lodash";
 import { actionGetEmployees } from "store/employees/slice";
 import numeral from "numeral";
 import { dayOptions } from "utils/const";
+import useDebouncedCallback from "../../hooks/useDebounceCallback";
 
 function Classes(): JSX.Element {
 	const dispatch = useDispatch();
@@ -20,11 +21,23 @@ function Classes(): JSX.Element {
 	const classes = useSelector((state: RootState) => state.classReducer.classes);
 	const teachers = useSelector((state: RootState) => state.employeeReducer.employees);
 	const seachStatus = useSelector((state: RootState) => state.employeeReducer.getEmployeesStatus);
+	const [page, setPage] = useState(1);
+	const [search, setSearch] = useState('')
+
+	const searchClass = useDebouncedCallback((searchParam) => {
+		setSearch(searchParam)
+		dispatch(actionGetClasses({page: 1, search: searchParam}))
+	}, 500)
 
 	useEffect(() => {
 		dispatch(actionGetClasses({ page: 1 }));
 		dispatch(actionGetEmployees({ role_id:"4" }));
 	}, [dispatch]);
+
+	useEffect(() => {
+		dispatch(actionGetClasses({page, search}))
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	},[dispatch, page])
 
 	const searchTeacher = (search: string) => {
 		if (search.length >= 3 || search.length === 0) dispatch(actionGetEmployees({ class_id: 0, role_id: '2,4', search }));
@@ -102,10 +115,10 @@ function Classes(): JSX.Element {
 		<Layout.Content>
 			<Row style={{ marginBottom: 20, marginTop: 20 }} justify="start">
 				<Col span={10}>
-					<Input.Search allowClear />
+					<Input.Search allowClear onChange={ ({ target: { value } }) => searchClass(value)}/>
 				</Col>
 				<Col span={6} style={{ marginLeft: 20 }}>
-					<AddClassModal teachers={teachers} searchTeacher={searchTeacher} searchStatus={seachStatus} />
+					<AddClassModal teachers={teachers} />
 				</Col>
 			</Row>
 			<Table
@@ -115,6 +128,13 @@ function Classes(): JSX.Element {
 				rowKey="id"
 				bordered
 				size="small"
+				pagination={{
+					pageSize: 20,
+					total: get(classes, "total", 0),
+					onChange: (page) => {
+						setPage(page);
+					},
+				}}
 			/>
 		</Layout.Content>
 	);

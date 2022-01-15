@@ -26,14 +26,13 @@ export default function EditClassModal(props: {
 			let scheduleTime:string[] = [];
 			if(classInfo.schedule_time){
 				scheduleTime = classInfo.schedule_time.split("-");
-				console.log(scheduleTime)
 			}
 			uFrom.setFieldsValue({
 				name: classInfo.name,
 				employee_id: get(classInfo, "user.id", ""),
 				fee_per_session: classInfo.fee_per_session,
 				schedule: classInfo.schedule,
-				schedule_time:scheduleTime.length > 0 ? [moment(scheduleTime[0]), moment(scheduleTime[1])] : null
+				schedule_time:scheduleTime.length > 0 ? [moment(scheduleTime[0],"HH:mm:ss"), moment(scheduleTime[1], "HH:mm:ss")] : null
 			});
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -42,7 +41,6 @@ export default function EditClassModal(props: {
 	function handleSubmit(values:any) {
 		setSubmiting(true);
 		let scheduleTime = null;
-		console.log(values)
 		if(values.schedule_time){
 			scheduleTime = moment(values.schedule_time[0]).format("HH:mm:ss") + "-" + moment(values.schedule_time[1]).format("HH:mm:ss")
 		}
@@ -82,14 +80,16 @@ export default function EditClassModal(props: {
 					<Form.Item label="Giáo viên" name="employee_id">
 						<Select
 						// showSearch
-						// onSearch={(e) => searchTeacher(e)}
-						// notFoundContent={searchStatus === "loading" ? <Spin size="small" /> : null}
+						// allowClear
+						// filterOption={(input, option) =>
+						// 	(option?.label as string)?.toLowerCase().indexOf(input.toLowerCase()) >= 0
+						// }
 						>
-							<Select.Option value={0}>Chọn sau</Select.Option>
+							<Select.Option value={0} label="Chọn sau">Chọn sau</Select.Option>
 							{teachers &&
 								get(teachers, "data", []).map((tc: EmployeeType) => {
 									return (
-										<Select.Option value={tc.id} key={tc.id}>
+										<Select.Option value={tc.id} key={tc.id} label={`${get(tc, "profile.name", "")} (${tc.phone})`}>
 											<a>{get(tc, "profile.name", "")}</a> ({tc.phone})
 										</Select.Option>
 									);
@@ -113,7 +113,7 @@ export default function EditClassModal(props: {
 						</Select>
 					</Form.Item>
 					<Form.Item label="Thời gian học" name="schedule_time"> 
-						<TimePicker.RangePicker format="HH:mm:ss"/>
+						<TimePicker.RangePicker format="HH:mm"/>
 					</Form.Item>
 				</Form>
 			</Modal>

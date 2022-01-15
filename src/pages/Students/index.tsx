@@ -12,6 +12,7 @@ import EditStudentModal from "./editStudentModal";
 import { actionGetParents } from "store/parents/slice";
 import { actionGetClasses } from "store/classes/slice";
 import Profile from "./Profile";
+import moment from "moment";
 
 export default function Students(): JSX.Element {
 	const dispatch = useAppDispatch();
@@ -79,6 +80,9 @@ export default function Students(): JSX.Element {
 			title: "Ngày sinh",
 			dataIndex: "birthday",
 			key: "birthday",
+			render: function nameCol(value: string): JSX.Element {
+				return <>{moment(value).format('DD-MM-YYYY')}</>;
+			},
 		},
 
 		// {

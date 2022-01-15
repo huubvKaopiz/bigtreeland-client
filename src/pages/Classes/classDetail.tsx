@@ -1,4 +1,4 @@
-import { LikeOutlined, MessageOutlined, NotificationOutlined, TeamOutlined, UploadOutlined, InboxOutlined } from "@ant-design/icons";
+import { InboxOutlined, LikeOutlined, MessageOutlined, NotificationOutlined, SearchOutlined, TeamOutlined, UploadOutlined } from "@ant-design/icons";
 import {
 	Button,
 	Col,
@@ -16,7 +16,7 @@ import {
 	Space,
 	Spin,
 	Table,
-	Tabs,
+	Tabs
 } from "antd";
 import Checkbox, { CheckboxChangeEvent } from "antd/lib/checkbox/Checkbox";
 import TextArea from "antd/lib/input/TextArea";
@@ -24,7 +24,7 @@ import Dragger from "antd/lib/upload/Dragger";
 import { UploadFile } from "antd/lib/upload/interface";
 import { TestType } from "interface";
 import { get } from "lodash";
-import moment from "moment";
+import moment, { Moment } from "moment";
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
@@ -33,9 +33,10 @@ import {
 	actionGetAttendances,
 	actionResetAddAttendanceStatus,
 	actionResetGetAttendancesStatus,
-	AttendanceStudentComment,
+	AttendanceStudentComment
 } from "store/attendances/slice";
 import { actionGetClass } from "store/classes/slice";
+import { actionGetLessons, actionSetLessionsStateNull } from "store/lesson/slice";
 import { RootState, useAppDispatch } from "store/store";
 import { actionGetTestes } from "store/testes/slice";
 import { dayOptions, imageExtensionsList } from "utils/const";
@@ -55,12 +56,14 @@ export default function ClassDetail(): JSX.Element {
 	const [attendantList, setAttendantList] = useState<number[]>([]);
 	const [checkAll, setCheckAll] = useState(false);
 	const [listComments, setListComments] = useState<AttendanceStudentComment[]>([]);
+	const [lessonTime, setlessonTime] = useState<string[]>(['',''])
 	// const classInfo = location.state.classInfo as ClassType;
 	const attendances = useSelector((state: RootState) => state.attendanceReducer.attendances);
 	const classInfo = useSelector((state: RootState) => state.classReducer.classInfo);
 	const testList = useSelector((state: RootState) => state.testReducer.testes);
 	const addStudentsStatus = useSelector((state: RootState) => state.classReducer.addStudentsStatus);
 	const getAttendancesStatus = useSelector((state: RootState) => state.attendanceReducer.getAttendancesStatus);
+	const storeGetLessonStatus = useSelector((state: RootState) => state.lessonReducer.getLessonsState);
 
 
 	useEffect(() => {
@@ -88,9 +91,7 @@ export default function ClassDetail(): JSX.Element {
 
 	function isAttendant(sID: number, atKey: string) {
 		const atList = attendances?.attendances[atKey];
-		const found = atList && atList.find((element: number) => element === sID);
-		if (found !== undefined && found > 0) return true;
-		else return false;
+		return !!(atList && atList.find((element: any) => element.student_id === sID));
 	}
 
 	function isAttendantToday(sID: number) {
@@ -173,6 +174,17 @@ export default function ClassDetail(): JSX.Element {
 			notification.warn({message: "Danh sách điểm danh trống"})
 		}
 	}
+
+	function handleChangeLessonRange(_: any, dateString: string[]){
+		setlessonTime(dateString)
+	}
+
+	function handleSearchLessonInRange(){
+		const from_date = lessonTime[0] || void 0
+		const to_date = lessonTime[1] || void 0
+		dispatch(actionGetAttendances({class_id: +params.class_id, from_date, to_date}))
+	}
+
 	const attendance_columns: any[] = [
 		{
 			title: "Họ tên",
@@ -292,6 +304,22 @@ export default function ClassDetail(): JSX.Element {
 			return <strong>{value}</strong>;
 		},
 	})
+	// Object.keys(attendances?.attendances ?? {}).map((key: string) => {
+	// 	lessonCols.push({
+	// 		title: `${moment(key).format("DD/MM/YYYY")}`,
+	// 		dataIndex: "",
+	// 		key: `${key}`,
+	// 		width:20,
+	// 		render: function col(st:any /*{ id: number; name: string }*/): JSX.Element {
+	// 			console.log(st)
+	// 			return (
+	// 				<>
+	// 				<Checkbox checked={isAttendant(st.id, key)} disabled />
+	// 				</>
+	// 			);
+	// 		},
+	// 	});
+	// })
 	for (const key in get(attendances, "attendances", [])) {
 		lessonCols.push({
 			title: `${moment(key).format("DD/MM/YYYY")}`,
@@ -299,6 +327,7 @@ export default function ClassDetail(): JSX.Element {
 			key: `${key}`,
 			width:20,
 			render: function col(st: { id: number; name: string }): JSX.Element {
+				// console.log(st)
 				return (
 					<>
 					<Checkbox checked={isAttendant(st.id, key)} disabled />
@@ -359,7 +388,14 @@ export default function ClassDetail(): JSX.Element {
 							</Row>
 						</TabPane>
 						<TabPane tab="Bài tập" key="2">
-							<Space style={{ paddingTop: 20, marginBottom: 20 }}>
+							<Space
+								style={{
+									paddingTop: 20,
+									marginBottom: 20,
+									display: "flex",
+									justifyContent: "flex-end",
+								}}
+							>
 								<AddTest classInfo={classInfo} />
 							</Space>
 							<List
@@ -368,24 +404,43 @@ export default function ClassDetail(): JSX.Element {
 								pagination={{
 									onChange: handleChangePageOfTest,
 									pageSize: 20,
-									total: get(testList, "total", 0)
+									total: get(testList, "total", 0),
 								}}
 								dataSource={get(testList, "data", [])}
 								renderItem={(item: TestType) => (
 									<List.Item
-										onClick={() => history.push({ pathname: `/tests/${item.id}/${params.class_id}` })}
+										onClick={() =>
+											history.push({
+												pathname: `/tests/${item.id}/${params.class_id}`,
+											})
+										}
 										style={{ backgroundColor: "white", cursor: "pointer" }}
 										key={item.id}
 										actions={[
-											<Space key="act1" onClick={e => { e.stopPropagation() }}>
+											<Space
+												key="act1"
+												onClick={(e) => {
+													e.stopPropagation();
+												}}
+											>
 												<Button type="link" icon={<TeamOutlined />} />
 												{studentList.length}
 											</Space>,
-											<Space key="act2" onClick={e => { e.stopPropagation(); }}>
+											<Space
+												key="act2"
+												onClick={(e) => {
+													e.stopPropagation();
+												}}
+											>
 												{/* Todo refer liked */}
 												<Button type="link" icon={<LikeOutlined />} /> 0
 											</Space>,
-											<Space key="act3" onClick={e => { e.stopPropagation() }}>
+											<Space
+												key="act3"
+												onClick={(e) => {
+													e.stopPropagation();
+												}}
+											>
 												{/* Todo refer commented */}
 												<MessageOutlined /> 0
 											</Space>,
@@ -396,20 +451,38 @@ export default function ClassDetail(): JSX.Element {
 												height={100}
 												alt="logo"
 												src="https://images.unsplash.com/photo-1641231366774-0260d3ee85d0?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80"
-												onClick={e => { e.stopPropagation() }}
+												onClick={(e) => {
+													e.stopPropagation();
+												}}
 											/>
 										}
 									>
-										<List.Item.Meta title={item.title} description={<>{item.date}</>} />
+										<List.Item.Meta
+											title={item.title}
+											description={<>{item.date}</>}
+										/>
 									</List.Item>
 								)}
 							/>
 							,
 						</TabPane>
 						<TabPane tab="DS buổi học" key="3">
-							<RangePicker style={{ marginTop: 20, marginBottom: 20 }} />
+							<Space>
+								<RangePicker
+									style={{ marginTop: 20, marginBottom: 20 }}
+									onChange={handleChangeLessonRange}
+								/>
+								<Button
+									icon={<SearchOutlined />}
+									type="primary"
+									onClick={handleSearchLessonInRange}
+								>
+									Tìm tiếm
+								</Button>
+							</Space>
 							<Table
-								dataSource={studentList}
+								loading={storeGetLessonStatus === "loading"}
+								dataSource={get(attendances, 'students', [])}
 								columns={lessonCols}
 								bordered
 								rowKey="id"
@@ -422,7 +495,11 @@ export default function ClassDetail(): JSX.Element {
 								<ClassPhotoAlbum class_id={+params.class_id} />
 							</Space>
 
-							<Space style={{ backgroundColor: "white", padding: 10 }} size={[10, 10]} wrap>
+							<Space
+								style={{ backgroundColor: "white", padding: 10 }}
+								size={[10, 10]}
+								wrap
+							>
 								{new Array(10).fill(null).map((_, index) => (
 									<Image
 										key={index}
@@ -435,23 +512,40 @@ export default function ClassDetail(): JSX.Element {
 					</Tabs>
 				}
 			>
-				<Descriptions size="small" column={2} style={{ backgroundColor: "white", marginTop: 20 }} bordered>
+				<Descriptions
+					size="small"
+					column={2}
+					style={{ backgroundColor: "white", marginTop: 20 }}
+					bordered
+				>
 					<Descriptions.Item label="Giáo viên">
 						<a>{get(classInfo, "user.profile.name", "")}</a>
 					</Descriptions.Item>
 					<Descriptions.Item label="Ngày bắt đầu">
-						<strong>{moment(get(classInfo, "start_date", "") ?? void 0).format("DD-MM-YYYY")}</strong>
+						<strong>
+							{moment(get(classInfo, "start_date", "") ?? void 0).format(
+								"DD-MM-YYYY"
+							)}
+						</strong>
 					</Descriptions.Item>
-			<Descriptions.Item label="Số học sinh"><strong style={{color:"#e67e22"}}>{get(classInfo,"students_num",0)}</strong></Descriptions.Item>
+					<Descriptions.Item label="Số học sinh">
+						<strong style={{ color: "#e67e22" }}>
+							{get(classInfo, "students_num", 0)}
+						</strong>
+					</Descriptions.Item>
 					<Descriptions.Item label="Lịch học">
-						<strong>{(() => {
-							const sortedSchedule = classInfo?.schedule ? [...classInfo.schedule] : [];
-							return sortedSchedule
-								.sort()
-								.map((day) => dayOptions[day])
-								.join(", ");
-						})()}{' '}
-						({get(classInfo,"schedule_time","")})</strong>
+						<strong>
+							{(() => {
+								const sortedSchedule = classInfo?.schedule
+									? [...classInfo.schedule]
+									: [];
+								return sortedSchedule
+									.sort()
+									.map((day) => dayOptions[day])
+									.join(", ");
+							})()}{" "}
+							({get(classInfo, "schedule_time", "")})
+						</strong>
 					</Descriptions.Item>
 				</Descriptions>
 			</PageHeader>

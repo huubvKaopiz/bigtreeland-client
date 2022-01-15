@@ -12,10 +12,8 @@ import moment from "moment";
 
 export default function AddClassModal(props: {
 	teachers: ListEmployeeType | null;
-	searchTeacher: (search: string) => void;
-	searchStatus: string;
 }): JSX.Element {
-	const { teachers, searchStatus, searchTeacher } = props;
+	const { teachers } = props;
 	const [show, setShow] = useState(false);
 	const dispatch = useAppDispatch();
 	const addStatus = useSelector((state: RootState) => state.classReducer.addClassStatus);
@@ -70,14 +68,16 @@ export default function AddClassModal(props: {
 					<Form.Item label="Giáo viên" name="employee_id">
 						<Select
 							showSearch
-							onSearch={(e) => searchTeacher(e)}
-							notFoundContent={searchStatus === "loading" ? <Spin size="small" /> : null}
+							allowClear
+							filterOption={(input, option) =>
+								(option?.label as string)?.toLowerCase().indexOf(input.toLowerCase()) >= 0
+							}
 						>
-							<Select.Option value={0}>Chọn sau</Select.Option>
+							<Select.Option value={0} label="Chọn sau">Chọn sau</Select.Option>
 							{teachers &&
 								get(teachers, "data", []).map((tc: EmployeeType) => {
 									return (
-										<Select.Option value={tc.id} key={tc.id}>
+										<Select.Option value={tc.id} key={tc.id} label={`${get(tc, "profile.name", "")} (${tc.phone})`}>
 											<a>{get(tc, "profile.name", "")}</a> ({tc.phone})
 										</Select.Option>
 									);

@@ -1,16 +1,13 @@
 import { PlusOutlined, UploadOutlined } from "@ant-design/icons";
-import { Button, DatePicker, Form, Input, Modal, notification, Upload } from "antd";
-import { UploadFile } from "antd/lib/upload/interface";
+import { Button, DatePicker, Form, Input, Modal, Select } from "antd";
 import FileSelectModal from "components/FileSelectModal";
-import { ClassType, FileType } from "interface";
+import { ClassType, FileType, LessonType } from "interface";
 import { get } from "lodash";
 import moment from "moment";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import {
-	actionUploadFileTest,
-	resetRecentFileTestUploaded,
-	resetUploadFileStatus
+	resetRecentFileTestUploaded
 } from "store/files/slice";
 import { RootState, useAppDispatch } from "store/store";
 import { actionAddTest, actionGetTestes } from "store/testes/slice";
@@ -25,6 +22,8 @@ export default function AddTest(props: { classInfo: ClassType | null }): JSX.Ele
 	const [resultFilesModal, setResultFilesModal] = useState(false);
 	const [fileSelected, setFileSelected] = useState<Array<FileType>>([]);
 	const [resultFiles, setResultFiles] = useState<Array<FileType>>([]);
+
+	const lessonList = useSelector((state: RootState) => state.lessonReducer.lessons)
 
 	function handleFileSelected(filesSelected: Array<FileType>) {
 		setFileSelected(filesSelected);
@@ -45,7 +44,8 @@ export default function AddTest(props: { classInfo: ClassType | null }): JSX.Ele
 			content_files: listIdFile,
 			content_link: values.content_link,
 			result_files: listResultsFileId,
-			result_link: values.result_link
+			result_link: values.result_link,
+			lesson_id: values.lesson_id
 		};
 		dispatch(actionAddTest(data))
 			.then(() => {
@@ -58,7 +58,11 @@ export default function AddTest(props: { classInfo: ClassType | null }): JSX.Ele
 
 	return (
 		<>
-			<Button icon={<PlusOutlined />} type="primary" onClick={() => setShow(true)}>
+			<Button
+				icon={<PlusOutlined />}
+				type="primary"
+				onClick={() => setShow(true)}
+			>
 				Tạo bài test
 			</Button>
 			<Modal
@@ -71,7 +75,13 @@ export default function AddTest(props: { classInfo: ClassType | null }): JSX.Ele
 					<Button key="btncancle" onClick={() => setShow(false)}>
 						Huỷ bỏ
 					</Button>,
-					<Button loading={submiting} key="btnok" type="primary" htmlType="submit" form="aForm">
+					<Button
+						loading={submiting}
+						key="btnok"
+						type="primary"
+						htmlType="submit"
+						form="aForm"
+					>
 						Lưu lại
 					</Button>,
 				]}
@@ -87,12 +97,40 @@ export default function AddTest(props: { classInfo: ClassType | null }): JSX.Ele
 					<Form.Item
 						label="Tiêu đề"
 						name="title"
-						rules={[{ required: true, message: "Tiêu đề bài test không được bỏ trống" }]}
+						rules={[
+							{
+								required: true,
+								message: "Tiêu đề bài test không được bỏ trống",
+							},
+						]}
 					>
 						<Input />
 					</Form.Item>
-					<Form.Item label="Ngày" name="date" >
-						<DatePicker format="YYYY-MM-DD" />
+					<Form.Item label="Bài học ngày" name="lesson_id">
+						<Select
+							showSearch
+							allowClear
+							filterOption={(input, option) =>
+								(option?.label as string)
+									?.toLowerCase()
+									.indexOf(input.toLowerCase()) >= 0
+							}
+						>
+							{get(lessonList, 'data', []).map((lesson: LessonType) => {
+								return (
+									<Select.Option
+										key={lesson.id}
+										value={lesson.id}
+										label={moment(lesson.date, 'YYYY-MM-DD').format('DD-MM-YYYY')} 
+									>
+										<a>{moment(lesson.date, 'YYYY-MM-DD').format('DD-MM-YYYY')} </a>
+									</Select.Option>
+								);
+							})}
+						</Select>
+					</Form.Item>
+					<Form.Item label="Ngày" name="date">
+						<DatePicker format="DD-MM-YYYY" />
 					</Form.Item>
 					<Form.Item label="Link đề bài" name="content_link">
 						<Input />
@@ -105,7 +143,12 @@ export default function AddTest(props: { classInfo: ClassType | null }): JSX.Ele
 							closeFunction={() => setShowSelect(false)}
 							showSelectedList
 						>
-							<Button onClick={() => setShowSelect(true)} type="default" size="middle" icon={<UploadOutlined />}>
+							<Button
+								onClick={() => setShowSelect(true)}
+								type="default"
+								size="middle"
+								icon={<UploadOutlined />}
+							>
 								Chọn files
 							</Button>
 						</FileSelectModal>
@@ -121,7 +164,12 @@ export default function AddTest(props: { classInfo: ClassType | null }): JSX.Ele
 							closeFunction={() => setResultFilesModal(false)}
 							showSelectedList
 						>
-							<Button onClick={() => setResultFilesModal(true)} type="default" size="middle" icon={<UploadOutlined />}>
+							<Button
+								onClick={() => setResultFilesModal(true)}
+								type="default"
+								size="middle"
+								icon={<UploadOutlined />}
+							>
 								Chọn files
 							</Button>
 						</FileSelectModal>

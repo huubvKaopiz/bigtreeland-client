@@ -26,6 +26,7 @@ export interface AddTestParms {
 	content_link?: string;
 	result_link?: string;
 	result_files?: number[];
+	lesson_id?: number;
 }
 
 export interface UpdateTestParams {
@@ -37,6 +38,7 @@ export interface UpdateTestParams {
 	content_link?: string;
 	result_link?: string;
 	result_files?: number[];
+	lesson_id?: number;
 }
 
 const initialState: TestReducerState = {
