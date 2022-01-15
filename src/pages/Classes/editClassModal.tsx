@@ -47,11 +47,9 @@ export default function EditClassModal(props: {
 			scheduleTime = moment(values.schedule_time[0]).format("HH:mm:ss") + "-" + moment(values.schedule_time[1]).format("HH:mm:ss")
 		}
 		dispatch(actionUpdateClass({ data: {...values, schedule_time:scheduleTime}, cID: classInfo.id }))
-			.then(() => {
+			.finally(() => {
 				dispatch(actionGetClasses({ page: 1 }));
 				setShow(false);
-			})
-			.finally(() => {
 				setSubmiting(false);
 			});
 	}
@@ -64,14 +62,14 @@ export default function EditClassModal(props: {
 				title="Thay đổi thông tin lớp học"
 				onCancel={() => setShow(false)}
 				footer={[
-					<Button loading={submiting} key="btnsubmit" type="primary" htmlType="submit" form="uForm">
+					<Button loading={submiting} key="btnsubmit" type="primary" htmlType="submit" form={`uclassForm${classInfo.id}`}>
 						Lưu lại
 					</Button>,
 				]}
 				width={800}
 			>
 				<Form
-					id="uForm"
+					id={`uclassForm${classInfo.id}`}
 					form={uFrom}
 					labelCol={{ span: 5 }}
 					wrapperCol={{ span: 17 }}
@@ -87,7 +85,7 @@ export default function EditClassModal(props: {
 						// onSearch={(e) => searchTeacher(e)}
 						// notFoundContent={searchStatus === "loading" ? <Spin size="small" /> : null}
 						>
-							<Select.Option value={-1}>Chọn sau</Select.Option>
+							<Select.Option value={0}>Chọn sau</Select.Option>
 							{teachers &&
 								get(teachers, "data", []).map((tc: EmployeeType) => {
 									return (

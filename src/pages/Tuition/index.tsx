@@ -11,7 +11,6 @@ import { actionGetClasses } from "store/classes/slice";
 import { RootState, useAppDispatch } from "store/store";
 import { actionDeletePeriodTuion, actionGetPeriodTuions, actionUpdatePeriodTuion, GetPeriodTuionsPrams } from "store/tuition/periodslice";
 import { dateFormat } from "utils/const";
-import { formatCurrency } from "utils/ultil";
 
 const { Option } = Select;
 const { Column, ColumnGroup } = Table;

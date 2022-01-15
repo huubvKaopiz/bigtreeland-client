@@ -23,10 +23,7 @@ function Classes(): JSX.Element {
 
 	useEffect(() => {
 		dispatch(actionGetClasses({ page: 1 }));
-	}, [dispatch]);
-
-	useEffect(() => {
-		dispatch(actionGetEmployees({ role_id: '2,4' }));
+		dispatch(actionGetEmployees({ role_id:"4" }));
 	}, [dispatch]);
 
 	const searchTeacher = (search: string) => {

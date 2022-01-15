@@ -11,6 +11,7 @@ import {
 	Button,
 	Modal,
 	InputNumber,
+	Alert,
 } from "antd";
 import { QuestionCircleOutlined, CheckCircleOutlined, FileOutlined } from "@ant-design/icons";
 import { get } from "lodash";
@@ -27,13 +28,13 @@ import { actionGetDayoffs } from "store/settings/dayoff";
 import { getDatesInRange, getSameDates } from "utils/dateUltils";
 import {
 	actionAddPeriodTuion,
-	actionSetAddPeriodtuitionStateIdle,
 	AddPeriodTuionParms,
 } from "store/tuition/periodslice";
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
-// const dateFormat = 'YYYY/MM/DD';
+const { confirm } = Modal;
+
 
 export interface TuitionFeeType {
 	student_id: number;
@@ -43,13 +44,14 @@ export interface TuitionFeeType {
 	note: string;
 	from_date?: string;
 	to_date?: string;
-	status:number;
-	dayoffs:string[];
+	status: number;
+	dayoffs: string[];
 }
 
 export default function CreateTuitionPeriod(): JSX.Element {
 	const history = useHistory();
 	const dispatch = useAppDispatch();
+
 	const [fromDate, setFromDate] = useState("");
 	const [toDate, setToDate] = useState("");
 	const [estSessionNum, setEstSessionNum] = useState(0);
@@ -62,10 +64,11 @@ export default function CreateTuitionPeriod(): JSX.Element {
 	const [fixedDeductionTypeList, setFixedDeductionTypeList] = useState<number[]>([]);
 	const [showConfirmSubmit, setShowConfirmSubmit] = useState(false);
 	const [dayoffsInPeriod, setDayoffsInPeriod] = useState<string[]>([]);
+	const [periodDateRangValid, setPeriodDateRangValid] = useState(true);
 
+	// aplication state
 	const classesList = useSelector((state: RootState) => state.classReducer.classes);
 	const classInfo = useSelector((state: RootState) => state.classReducer.classInfo);
-	// const students = useSelector((state: RootState) => state.studentReducer.students);
 	const getClassInfoStatus = useSelector((state: RootState) => state.classReducer.getClassStatus);
 	const dayoffs = useSelector((state: RootState) => state.dayoffReducer.dayoffs);
 	const addPeriodTuitionState = useSelector((state: RootState) => state.periodTuitionReducer.addPeriodTuitionStatus);
@@ -85,17 +88,14 @@ export default function CreateTuitionPeriod(): JSX.Element {
 	// update session_num (est, act, dayyoff)
 	useEffect(() => {
 		if (classInfo && dayoffs) {
-			setrResidualSessionNum(
-				get(classInfo, "period_tuitions", []).length > 0
-					? get(classInfo, "period_tuitions", [])[0].est_session_num - get(classInfo, "act_session_num", 0)
-					: 0
-			);
+			//get list of dayoffs in period date_range
 			const dayoffList: string[] = [];
 			let dateListInRang: string[] = [];
-			let dayoff_in_period:string[]=[];
-			get(dayoffs,"data",[]).forEach((day:DayoffType) => {
+			let dayoff_in_period: string[] = [];
+			get(dayoffs, "data", []).forEach((day: DayoffType) => {
 				dayoffList.push(day.from_date);
 			});
+			// base on class's schedule and list of dayoffs -> calc est_session_num
 			if (classInfo.schedule.length > 0) {
 				let count = 0;
 				for (let index = 0; index < classInfo.schedule.length; index++) {
@@ -108,70 +108,75 @@ export default function CreateTuitionPeriod(): JSX.Element {
 				setDayoffsInPeriod(dayoff_in_period)
 				setEstSessionNum(count);
 			}
-
+			// calc ResidualSessionNum
 			if (classInfo.active_period_tuition) {
 				const num =
 					get(classInfo, "active_period_tuition.est_session_num") -
 					get(classInfo, "active_period_tuition.lessons", []).length;
 				setrResidualSessionNum(num);
+				if (moment(classInfo.active_period_tuition.to_date).isSameOrAfter(moment(fromDate))) setPeriodDateRangValid(false);
+				else setPeriodDateRangValid(true)
+
 			} else {
 				setrResidualSessionNum(0);
 			}
 		}
+
 	}, [classInfo, dayoffs, fromDate, toDate]);
 
 	// update list of tuition_fees
 	useEffect(() => {
 		if (classInfo && classInfo.students) {
-			const fee_per_session = get(classInfo, "fee_per_session", 0);
+
 			fixed_deductions_ref.current = [];
 			flexible_deductions_ref.current = [];
 			notes_ref.current = [];
 			const tuitionFeeList: TuitionFeeType[] = [];
 
 			classInfo.students.forEach((st) => {
+				const fee_per_session = get(classInfo, "active_period_tuition.fee_per_session", 0);
 				let special_residual_session_num = 0;
-				// check if student entered after period tuition
+				let flexible_deduction_percent = 0;
+				// check if student entered after period_tution from_date
 				if (classInfo.active_period_tuition) {
 					const tuitionFee = get(classInfo.active_period_tuition, "tuition_fees", []).find(
 						(el: { id: number; student_id: number }) => el.student_id === st.id
 					);
-					if (tuitionFee && tuitionFee.from_date) {
-						get(classInfo.active_period_tuition, "lessons", []).forEach((ls) => {
-							if (moment(ls.date).isSameOrBefore(tuitionFee.from_date)) special_residual_session_num++;
-						});
+					if (tuitionFee) {
+						if (tuitionFee.from_date) {
+							let act_session_num = 0;
+							get(classInfo.active_period_tuition, "lessons", []).forEach((ls) => {
+								if (moment(ls.date).isSameOrBefore(tuitionFee.from_date)) act_session_num++;
+							});
+							special_residual_session_num = get(tuitionFee, "est_session_num", 0) - act_session_num;
+							flexible_deduction_percent = 100 * +get(tuitionFee, "flexible_deduction", 0) / (get(tuitionFee, "est_session_num", 0) * fee_per_session)
+						} else {
+							flexible_deduction_percent = 100 * +get(tuitionFee, "flexible_deduction", 0) / (get(classInfo, "active_period_tuition.est_session_num", 0) * fee_per_session)
+						}
 					}
 				}
+
+				const finalResidual = special_residual_session_num === 0
+					? residualSessionNum * fee_per_session - (residualSessionNum * fee_per_session * flexible_deduction_percent / 100)
+					: special_residual_session_num * fee_per_session - (special_residual_session_num * fee_per_session * flexible_deduction_percent / 100)
 				// push tuition_fee
 				tuitionFeeList.push({
 					student_id: st.id,
 					fixed_deduction: "0",
 					flexible_deduction: "0",
-					residual: `${
-						special_residual_session_num == 0
-							? residualSessionNum * fee_per_session
-							: special_residual_session_num * fee_per_session
-					}`,
+					residual: `${finalResidual}`,
 					// debt: "0",
 					note: "",
 					from_date: "",
 					to_date: "",
-					status:0,
-					dayoffs:[]
+					status: 0,
+					dayoffs: []
 				});
 			});
 			setTuitionFees(tuitionFeeList);
 			setFixedDeductionTypeList(Array(classInfo.students.length).fill(0));
 		}
 	}, [classInfo, residualSessionNum, estSessionNum]);
-
-	//handle add_period_tuition state change
-	useEffect(() => {
-		if (addPeriodTuitionState === "success") {
-			setShowConfirmSubmit(false);
-			dispatch(actionSetAddPeriodtuitionStateIdle());
-		}
-	}, [dispatch, addPeriodTuitionState, history]);
 
 	function getTuitionFeeAmount(index: number): number {
 		const est_fee = estSessionNum * get(classInfo, "fee_per_session", 0);
@@ -188,11 +193,14 @@ export default function CreateTuitionPeriod(): JSX.Element {
 	function handleChangePeriod(dates: any, dateString: [string, string]) {
 		setFromDate(dateString[0]);
 		setToDate(dateString[1]);
+		if (get(classInfo, "active_period_tuition.to_date", "") != "") {
+			if (moment(get(classInfo, "active_period_tuition.to_date", "")).isSameOrAfter(moment(dateString[0]))) setPeriodDateRangValid(false);
+			else setPeriodDateRangValid(true);
+		}else setPeriodDateRangValid(true);
 		dispatch(actionGetDayoffs({ from_date: dateString[0], to_date: dateString[1] }));
-		// dispatch(actionGetDayoffs({}))
 	}
 
-	//handle class change
+	//handle class change, get classInfo with current active tuition_period
 	function handleChangeClass(classID: number) {
 		// dispatch(actionSetStudentsStateNull());
 		setEstSessionNum(0);
@@ -247,15 +255,23 @@ export default function CreateTuitionPeriod(): JSX.Element {
 			const payload = {
 				class_id: classInfo.id,
 				est_session_num: estSessionNum,
-				fee_per_session:classInfo.fee_per_session,
+				fee_per_session: classInfo.fee_per_session,
 				from_date: fromDate,
 				to_date: toDate,
 				tuition_fees: tuitionFees,
 				draft,
-				dayoffs:dayoffsInPeriod,
+				dayoffs: dayoffsInPeriod,
 			};
-			dispatch(actionSetAddPeriodtuitionStateIdle());
-			dispatch(actionAddPeriodTuion(payload as AddPeriodTuionParms));
+			dispatch(actionAddPeriodTuion(payload as AddPeriodTuionParms)).finally(() => {
+				setShowConfirmSubmit(false);
+				confirm({
+					title: "Chuyển tới bảng danh sách chu kỳ học phí!",
+					icon: <CheckCircleOutlined />,
+					onOk() {
+						history.push("/payments/tuition")
+					}
+				})
+			})
 		}
 	}
 
@@ -265,6 +281,8 @@ export default function CreateTuitionPeriod(): JSX.Element {
 			title: "Họ tên",
 			dataIndex: "name",
 			key: "name",
+			width: 180,
+			fixed: true,
 			render: function nameCol(name: string): JSX.Element {
 				return <a>{name}</a>;
 			},
@@ -280,6 +298,7 @@ export default function CreateTuitionPeriod(): JSX.Element {
 			),
 			dataIndex: "tuition",
 			key: "tuition",
+			width: 160,
 			render: function tuitionCol(): JSX.Element {
 				return <span>{numeral(estSessionNum * get(classInfo, "fee_per_session", 0)).format("0,0")}</span>;
 			},
@@ -293,7 +312,8 @@ export default function CreateTuitionPeriod(): JSX.Element {
 					</Tooltip>
 				</>
 			),
-			key: "debt",
+			key: "residual",
+			width: 160,
 			render: function debtCol(_: string, st: StudentType, index: number): JSX.Element {
 				return (
 					<>
@@ -306,7 +326,7 @@ export default function CreateTuitionPeriod(): JSX.Element {
 		{
 			title: "Giảm trừ đặc biệt",
 			key: "fixed_deduction",
-			width: 180,
+			width: 200,
 			render: function fixedDeductionCol(_: string, st: StudentType, index: number): JSX.Element {
 				return (
 					<>
@@ -350,7 +370,7 @@ export default function CreateTuitionPeriod(): JSX.Element {
 							addonBefore={
 								<Select
 									value={fixedDeductionAllType}
-									style={{ width: 65 }}
+									style={{ width: 60 }}
 									onChange={(v) => setFixedDeductionAllType(v)}
 								>
 									<Option key={0} value={0}>
@@ -400,6 +420,8 @@ export default function CreateTuitionPeriod(): JSX.Element {
 		{
 			title: "Thành tiền",
 			key: "residual",
+			width: 160,
+			fixed: true,
 			render: function residualCol(_: string, st: StudentType, index: number): JSX.Element {
 				return (
 					<>
@@ -412,6 +434,7 @@ export default function CreateTuitionPeriod(): JSX.Element {
 			title: "Ghi chú",
 			key: "note",
 			width: 180,
+			fixed: true,
 			render: function fixedDeductionCol(_: string, st: StudentType, index: number): JSX.Element {
 				return (
 					<>
@@ -431,11 +454,11 @@ export default function CreateTuitionPeriod(): JSX.Element {
 				subTitle={get(classInfo, "name")}
 				style={{ backgroundColor: "white" }}
 				extra={[
-					<Button key="2" icon={<FileOutlined />} onClick={() => handleCreatePeriodTuition(true)}>
+					<Button key="2" icon={<FileOutlined />} onClick={() => handleCreatePeriodTuition(true)} disabled={!periodDateRangValid}>
 						Lưu nháp
 					</Button>,
 					<>
-						<Button type="primary" key="1" icon={<CheckCircleOutlined />} onClick={() => setShowConfirmSubmit(true)}>
+						<Button type="primary" key="1" icon={<CheckCircleOutlined />} onClick={() => setShowConfirmSubmit(true)} disabled={!periodDateRangValid}>
 							Hoàn tất
 						</Button>
 						<Modal
@@ -523,7 +546,18 @@ export default function CreateTuitionPeriod(): JSX.Element {
 						<strong style={{ color: "#e74c3c" }}>{residualSessionNum}</strong>
 					</Descriptions.Item>
 				</Descriptions>
+				{
+					periodDateRangValid === false ?
+						<Alert
+							style={{marginTop:20}}
+							message="Sai khoảng thời gian tính học phí"
+							description={`Ngày bắt đầu tính học phí phải sau ngày ${get(classInfo, "active_period_tuition.to_date", "")}`}
+							type="error"
+						/>
+						: ""
+				}
 			</PageHeader>
+
 			<strong style={{ marginTop: 40, padding: 20 }}>Học phí mỗi học sinh</strong>
 			<Table
 				rowKey="id"

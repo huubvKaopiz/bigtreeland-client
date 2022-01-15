@@ -1,4 +1,4 @@
-import { Col, Form, Input, Layout, Row, Select, Divider, Typography, Button, List, DatePicker, Space, InputNumber, Alert, Table, Tabs, Modal } from 'antd';
+import { Col, Form, Input, Layout, Row, Select, Divider, Typography, Button, List, DatePicker, Space, InputNumber, Alert, Table, Tabs, Modal, Tag } from 'antd';
 import { CheckCircleOutlined } from '@ant-design/icons';
 import React, { useEffect, useState } from 'react';
 import { RootState, useAppDispatch } from 'store/store';
@@ -122,7 +122,7 @@ export default function AddSalary(): JSX.Element {
                 //get all of tuitonFees of periods 
                 if (period_id_str != '') {
                     setRevenueLoading(true)
-                    dispatch(actionGetTuitionFees({ period_tuition_fee_id: period_id_str, per_page: 1000 })).then(() => setRevenueLoading(false));
+                    dispatch(actionGetTuitionFees({ period_tuition_ids: period_id_str, per_page: 1000 })).then(() => setRevenueLoading(false));
                 }
                 setPeriodTuitions(peridoList);
             }
@@ -486,7 +486,7 @@ function TeacherRevenueTable(prop: {
             tuitionFeeList.forEach((tuition: TuitionFeeType) => {
                 if (tuition.from_date == null) {
                     const found = periodTuitionFeeList.find((p) => p.id === tuition.period_tuition_id);
-                    console.log(found)
+                    // console.log(found)
                     if (found) lessonNumList[tuition.id] = found.count;
                     else lessonNumList[tuition.id] = 0
                 } else {
@@ -563,6 +563,16 @@ function TeacherRevenueTable(prop: {
                 )
             }
         },
+        {
+            title: "Trạng thái",
+            dataIndex: "status",
+            key: "status",
+            render: function studentCol(val:number): JSX.Element {
+                return (
+                <span>{val === 0 ? <Tag color="red">Chưa nộp</Tag> : val === 1 ? <Tag color="green">Đã nộp</Tag> : <Tag color="orange">Chuyển nợ</Tag>}</span>
+                )
+            }
+        },
     ]
 
     return (
@@ -589,7 +599,7 @@ function TeacherRevenueTable(prop: {
                                     title={<a href="#">Lớp: {get(item, "tuition_period.class.name", "")}</a>}
                                     description={item.date}
                                 />
-                                {/* <div style={{ color: "#2980b9" }}>{item.date}</div> */}
+                                <div style={{ color: "#2980b9" }}>Kết thúc chu kỳ: {item.tuition_period.to_date}</div>
 
                             </List.Item>
                         )} />

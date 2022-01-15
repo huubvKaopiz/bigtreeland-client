@@ -73,7 +73,7 @@ export default function AddClassModal(props: {
 							onSearch={(e) => searchTeacher(e)}
 							notFoundContent={searchStatus === "loading" ? <Spin size="small" /> : null}
 						>
-							<Select.Option value={-1}>Chọn sau</Select.Option>
+							<Select.Option value={0}>Chọn sau</Select.Option>
 							{teachers &&
 								get(teachers, "data", []).map((tc: EmployeeType) => {
 									return (

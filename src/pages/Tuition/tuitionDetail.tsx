@@ -100,14 +100,16 @@ export default function TuitionDetail(): JSX.Element {
 	// handle students change
 	useEffect(() => {
 		setStudetnList([...(get(students, "data", []) as StudentType[])]);
-		const newList: StudentType[] = [];
-		if (get(students, "data", []).length > get(tuitionPeriodInfo, "tuition_fees", []).length) {
-			get(students, "data", []).forEach((st) => {
-				const index = get(tuitionPeriodInfo, "tuition_fees", []).findIndex((tuition) => tuition.student_id === st.id);
-				if (index === -1) newList.push(st);
-			})
+		if (get(tuitionPeriodInfo, "active", 0) === 1) {
+			const newList: StudentType[] = [];
+			if (get(students, "data", []).length > get(tuitionPeriodInfo, "tuition_fees", []).length) {
+				get(students, "data", []).forEach((st) => {
+					const index = get(tuitionPeriodInfo, "tuition_fees", []).findIndex((tuition) => tuition.student_id === st.id);
+					if (index === -1 && moment(st.admission_date).isSameOrAfter(moment(get(tuitionPeriodInfo,"from_date","")))) newList.push(st);
+				})
+			}
+			setNewStudentList(newList);
 		}
-		setNewStudentList(newList);
 	}, [students, tuitionPeriodInfo]);
 
 
@@ -202,9 +204,17 @@ export default function TuitionDetail(): JSX.Element {
 		{
 			title: "Họ tên",
 			dataIndex: "student_id",
-			key: "student_id",
+			key: "student_name",
 			render: function nameCol(student_id: number): JSX.Element {
 				return <strong>{studentList.find((st) => st.id === student_id)?.name}</strong>;
+			},
+		},
+		{
+			title: "Ngày sinh",
+			dataIndex: "student_id",
+			key: "student_birthday",
+			render: function nameCol(student_id: number): JSX.Element {
+				return <>{studentList.find((st) => st.id === student_id)?.birthday}</>;
 			},
 		},
 		{

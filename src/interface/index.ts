@@ -358,6 +358,7 @@ export interface LessonType {
 	date: "";
 	tuition_period:{
 		id:number;
+		to_date:string;
 		class:{
 			id:number;
 			name:string;
