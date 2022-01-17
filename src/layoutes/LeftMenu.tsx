@@ -91,6 +91,13 @@ function LeftMenu(): JSX.Element {
 			return;
 		}
 
+		if (pathname.includes("/study-summary")) {
+			setOpenKeys(["classes"]);
+			setSelectedKeys(["15"]);
+			return;
+		}
+
+
 		if (pathname.includes("/salaries")) {
 			setOpenKeys(["employees"]);
 			setSelectedKeys(["4"]);
@@ -148,6 +155,9 @@ function LeftMenu(): JSX.Element {
 				</Menu.Item>
 				<Menu.Item key="7" onClick={() => history.push("/parents")}>
 					Phụ huynh
+				</Menu.Item>
+				<Menu.Item key="15" onClick={() => history.push("/study-summary")}>
+					Bảng tổng kết
 				</Menu.Item>
 			</SubMenu>
 			<SubMenu onTitleClick={() => setOpenKeys(["payments"])} key="payments" icon={<DollarOutlined />} title="Thu Chi">

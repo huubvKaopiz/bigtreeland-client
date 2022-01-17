@@ -90,7 +90,9 @@ export default function ClassDetail(): JSX.Element {
 
 	function isAttendant(sID: number, atKey: string) {
 		const atList = attendances?.attendances[atKey];
-		return !!(atList && atList.find((element: any) => element.student_id === sID));
+		const found = atList && atList.find((element) => element.student_id === sID);
+		if (found !== undefined) return true;
+		else return false;
 	}
 
 	function isAttendantToday(sID: number) {

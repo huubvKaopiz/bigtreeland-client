@@ -25,6 +25,7 @@ import dayoffReducer from "./settings/dayoff";
 import lessonReducer from "./lesson/slice";
 import salariesReducer from "./salaries/slice";
 import testResultsReducer from "./test-results/slice";
+import studySummaryReducer from './study-summary/slice';
 
 const rootReducer = combineReducers({
 	auth,
@@ -46,6 +47,7 @@ const rootReducer = combineReducers({
 	lessonReducer,
 	salariesReducer,
 	testResultsReducer,
+	studySummaryReducer,
 });
 
 const persistConfig = {

@@ -8,23 +8,22 @@ interface LessionReducerState {
 	getLessonsState: "idle" | "loading" | "success" | "error";
 }
 
-export const actionGetLessons = createAsyncThunk(
-	"actionGetLessions",
-	async (params: {
-		period_tion_id?: number,
-		employee_id?: number,
-		from_date?: string,
-		to_date?: string,
-        class_id?: string,
-	}) => {
-		const response = await request({
-			url: `/api/lessons/`,
-			method: "get",
-			params,
-		});
-		return response.data;
-	}
-);
+interface GetLessonsParmasType {
+    period_tion_id?:number,
+    employee_id?:number, 
+    class_id?:number,
+    from_date?:string, 
+    to_date?:string
+}
+
+export const actionGetLessons = createAsyncThunk("actionGetLessions", async (params:GetLessonsParmasType) => {
+    const response = await request({
+        url: `/api/lessons/`,
+        method: "get",
+        params
+    })
+    return response.data;
+})
 
 const initialState: LessionReducerState = {
 	lessons: null,

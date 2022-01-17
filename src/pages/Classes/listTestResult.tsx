@@ -99,7 +99,7 @@ export function ListTestResults(): JSX.Element {
 			dispatch(actionGetTest(+params.test_id));
 			dispatch(actionGetTestResults({ test_id: +params.test_id }));
 			dispatch(actionSetLessionsStateNull());
-			dispatch(actionGetLessons({ class_id: params.class_id }));
+			dispatch(actionGetLessons({ class_id: +params.class_id }));
 		}
 	}, [dispatch, params]);
 

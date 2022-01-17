@@ -15,6 +15,8 @@ export interface TestReducerState {
 
 export interface GetTestsPrams {
 	class_id?: number;
+	from_date?:string;
+	to_date?:string;
 	page?: number;
 }
 

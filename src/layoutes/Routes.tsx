@@ -19,6 +19,8 @@ import Salaries from "pages/Salaries";
 import AddSalary from "pages/Salaries/addSalary";
 import EditSalary from "pages/Salaries/editSalary";
 import CreateTuitionPeriod from "pages/Tuition/createTuitionPeriod";
+import { StudySumaryBoard } from "pages/StudySummary";
+import { StudySummaryDetail } from "pages/StudySummary/studySummaryDetail";
 
 function Routes(): JSX.Element {
 	return (
@@ -34,6 +36,8 @@ function Routes(): JSX.Element {
 			<Route path="/payments/tuition-detail/:tuition_id" component={TuitionDetail} />
 			<Route path="/payments/tuition-create" component={CreateTuitionPeriod} />
 			<Route path="/parents" component={Parents} />
+			<Route path="/study-summary" component={StudySumaryBoard} />
+			<Route path="/study-summary-detail/:sumamry_id" component={StudySummaryDetail} />
 			<Route path="/permissions" component={Permissions} />
 			<Route path="/roles" component={Roles} />
 			<Route path="/payments/payment-slips" component={Payment} />

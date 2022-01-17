@@ -54,7 +54,7 @@ export interface ClassType {
 	students_num: 0;
 	fee_per_session: 300000;
 	schedule: number[];
-	schedule_time:string;
+	schedule_time: string;
 	start_date: string;
 	end_date: string;
 	deleted_at: string;
@@ -216,7 +216,14 @@ export interface ListAttendancesType {
 	class_id: number;
 	class_name: string;
 	students: { id: number; name: string; birthday: string }[];
-	attendances: { [key: string]: number[] };
+	attendances: {
+		[key: string]: {
+			comment: string;
+			conduct_point: number;
+			student_id: number;
+			student_name: string;
+		}[]
+	};
 }
 
 export interface TestType {
@@ -231,6 +238,11 @@ export interface TestType {
 	title: string;
 	updated_at: string;
 	lesson_id?: number;
+	test_results?:{
+		id:number,
+		student_id:number,
+		point:number,
+	}[];
 }
 
 export interface ListTestType {
@@ -305,11 +317,11 @@ export interface PeriodTuitionType {
 	id: 1;
 	class_id: 1;
 	est_session_num: 1,
-	fee_per_session:number,
+	fee_per_session: number,
 	active: 1,
 	from_date: "",
 	to_date: "",
-	dayoffs:string[];
+	dayoffs: string[];
 	lessons?: LessonType[];
 	class?: ClassType;
 	tuition_fees: TuitionFeeType[];
@@ -327,8 +339,8 @@ export interface TuitionFeeType {
 	status: number,
 	from_date: "null",
 	to_date: "null",
-	est_session_num:number,
-	dayoffs:string[],
+	est_session_num: number,
+	dayoffs: string[],
 	student: {
 		id: number,
 		name: string,
@@ -341,8 +353,8 @@ export interface TuitionFeeType {
 		from_date: "2022-01 - 01",
 		to_date: "2022 - 01 - 31",
 		est_session_num: 13,
-		fee_per_session:number,
-		dayoffs:string[];
+		fee_per_session: number,
+		dayoffs: string[];
 	}
 
 }
@@ -357,12 +369,12 @@ export interface LessonType {
 	id: 1;
 	tuition_period_id: 1;
 	date: "";
-	tuition_period:{
-		id:number;
-		to_date:string;
-		class:{
-			id:number;
-			name:string;
+	tuition_period: {
+		id: number;
+		to_date: string;
+		class: {
+			id: number;
+			name: string;
 		}
 	}
 }
@@ -386,5 +398,17 @@ export interface SalaryType {
 		id: number;
 		name: string;
 		phone: string;
+	}
+}
+
+export interface StudySummaryType {
+	id: number;
+	class_id: number;
+	from_date: string;
+	to_date: string;
+	class?: {
+		id: number;
+		name: number;
+		students_num:number;
 	}
 }
