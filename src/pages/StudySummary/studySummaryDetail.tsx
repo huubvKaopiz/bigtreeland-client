@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Descriptions, Typography, Layout, Table, Col, Divider } from 'antd';
-import { Attendance, StudentType, StudySummaryType } from 'interface';
+import { Descriptions, Typography, Layout, Table } from 'antd';
+import { StudentType, StudySummaryType } from 'interface';
 import { RootState, useAppDispatch } from 'store/store';
 import { actionGetAttendances } from 'store/attendances/slice';
 import { actionGetTestes } from 'store/testes/slice';
@@ -9,9 +9,9 @@ import { get } from 'lodash';
 import { useLocation } from 'react-router-dom';
 import moment from 'moment';
 import { actionGetLessons } from 'store/lesson/slice';
-import { JsxEmit } from 'typescript';
-const { Column, ColumnGroup } = Table;
+
 const { Title } = Typography;
+
 export function StudySummaryDetail(): JSX.Element {
 
     const location = useLocation();
@@ -24,6 +24,7 @@ export function StudySummaryDetail(): JSX.Element {
     const attendances = useSelector((state: RootState) => state.attendanceReducer.attendances);
     const testes = useSelector((state: RootState) => state.testReducer.testes);
     const lessons = useSelector((state: RootState) => state.lessonReducer.lessons);
+    const getAttendanceStatus = useSelector((state: RootState) => state.attendanceReducer.getAttendancesStatus);
 
     useEffect(() => {
         if (summaryInfo) {
@@ -54,6 +55,7 @@ export function StudySummaryDetail(): JSX.Element {
             const attendanceMap = attendances?.attendances;
             for (const key in attendanceMap) {
                 const found = attendanceMap[key].find((el) => el.student_id === st.id);
+                console.log(found?.conduct_point)
                 if (found) total += +found.conduct_point;
             }
             conduct.push(total + 10);
@@ -76,7 +78,7 @@ export function StudySummaryDetail(): JSX.Element {
                 }
             })
             if (count > 0) testPoint.push(Math.floor(total / count * 100) / 100);
-            else  testPoint.push(0)
+            else testPoint.push(0)
         });
         setTestPointAvg(testPoint);
     }, [testes, attendances]);
@@ -88,7 +90,7 @@ export function StudySummaryDetail(): JSX.Element {
         if (found) {
             res = found.find((at) => at.student_id === stID)?.conduct_point || 0;
         }
-        return res > 0 ? `${res}` : '-'
+        return res != 0 ? `${res}` : '-'
     }
 
     function getTestPoint(stID: number, date: string): string {
@@ -184,6 +186,7 @@ export function StudySummaryDetail(): JSX.Element {
             <Title level={4} style={{ marginTop: 20, marginBottom: 20 }}>Bảng tổng kết</Title>
             <Table
                 rowKey="id"
+                loading={getAttendanceStatus === 'loading' ? true : false}
                 bordered
                 columns={cols}
                 dataSource={get(attendances, "students", [])}

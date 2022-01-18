@@ -31,7 +31,7 @@ function Classes(): JSX.Element {
 
 	useEffect(() => {
 		dispatch(actionGetClasses({ page: 1 }));
-		dispatch(actionGetEmployees({ role_id:"4" }));
+		dispatch(actionGetEmployees({ role_id:"2" }));
 	}, [dispatch]);
 
 	useEffect(() => {

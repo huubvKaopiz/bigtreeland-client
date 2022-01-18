@@ -10,20 +10,14 @@ import { get } from "lodash";
 
 export default function AddStudentModal(props: {
 	parents: ListParentType | null;
+	searchStatus: string,
 	searchParent: (search: string) => void;
-	searchStatus: string;
 }): JSX.Element {
 	const { parents } = props;
+	const [aForm] = Form.useForm();
 	const [show, setShow] = useState(false);
 	const dispatch = useAppDispatch();
-	const status = useSelector((state: RootState) => state.studentReducer.addStudentStatus);
-
-	useEffect(() => {
-		if (status === "success") {
-			setShow(false);
-			dispatch(actionGetStudents({}));
-		}
-	}, [status, dispatch]);
+	const addStatus = useSelector((state: RootState) => state.studentReducer.addStudentStatus);
 
 	const listParents: ParentType[] = get(parents, "data", []);
 
@@ -35,8 +29,30 @@ export default function AddStudentModal(props: {
 			admission_date: moment(values.admission_date).format("YYYY-MM-DD"),
 			is_special: values.is_special === true ? 1 : 0,
 		};
-		dispatch(actionAddStudent(data));
+		dispatch(actionAddStudent(data)).finally(() => {
+			dispatch(actionGetStudents({}));
+			handleRefresh();
+		})
 	};
+
+	function handleRefresh() {
+		setShow(false);
+		aForm.setFieldsValue({
+			name: "",
+			parent_id: null,
+			gender: null,
+			birthday: null,
+			school: "",
+			address: "",
+			admission_date: null,
+			knowledge_status: 0,
+			is_special: false,
+			personality: "",
+			interests: "",
+			dislikes: "",
+			hope: ""
+		})
+	}
 
 	return (
 		<div>
@@ -53,19 +69,20 @@ export default function AddStudentModal(props: {
 				onCancel={() => setShow(false)}
 				width={1000}
 				footer={[
-					<Button key="btnCancel" onClick={() => setShow(false)}>
+					<Button key="btnCancel" onClick={() => handleRefresh()}>
 						Huỷ bỏ
 					</Button>,
-					<Button type="primary" key="btnSubmit" htmlType="submit" form="sForm">
+					<Button type="primary" key="btnSubmit" htmlType="submit" form="addStudentForm" loading={addStatus === 'loading' ? true : false}>
 						Lưu thông tin
 					</Button>,
 				]}
 			>
 				<Form
-					id="sForm"
+					id="addStudentForm"
 					labelCol={{ span: 6 }}
 					wrapperCol={{ span: 14 }}
 					layout="horizontal"
+					form={aForm}
 					onFinish={handleSubmit}
 				>
 					<Form.Item label="Họ và tên" name="name">
@@ -81,8 +98,8 @@ export default function AddStudentModal(props: {
 						>
 							{listParents.map((parent: ParentType) => {
 								return (
-									<Select.Option key={parent.id} value={parent.id} label={`${get(parent,"profile.name","")} (${parent.phone})`}>
-										<a>{get(parent,"profile.name","")}</a> ({parent.phone})
+									<Select.Option key={parent.id} value={parent.id} label={`${get(parent, "profile.name", "")} (${parent.phone})`}>
+										<a>{get(parent, "profile.name", "")}</a> ({parent.phone})
 									</Select.Option>
 								);
 							})}
