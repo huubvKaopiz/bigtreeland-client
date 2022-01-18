@@ -30,9 +30,9 @@ function TopHeader(props: TopHeaderType): JSX.Element {
 	const dispatch = useDispatch();
 	const user = useSelector((state: RootState) => state.auth.user);
 
-	useEffect(() => {
-		userService.getMe();
-	}, []);
+	// useEffect(() => {
+	// 	userService.getMe();
+	// }, []);
 
 	function handleLogout() {
 		dispatch(actionLogout());
