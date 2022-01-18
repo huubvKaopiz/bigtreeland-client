@@ -1,6 +1,7 @@
 import { DownOutlined, MenuOutlined, UserOutlined } from "@ant-design/icons";
 import { Avatar, Button, Dropdown, Layout, Menu } from "antd";
 import userService from "api/user.service";
+import { get } from "lodash";
 // import { PasswordFormProps } from "interface/interfaces";
 // import ChangePassForm from "pages/Users/ChangePassword";
 import React, { useEffect } from "react";
@@ -64,7 +65,7 @@ function TopHeader(props: TopHeaderType): JSX.Element {
 						className="mr-2"
 					>
 						<Button type="link">
-							<span>{user?.name}</span>
+							<span>{get(user, "profile.name", "")}</span>
 							<DownOutlined />
 						</Button>
 					</Dropdown>
