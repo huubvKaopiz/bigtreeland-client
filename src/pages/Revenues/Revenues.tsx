@@ -159,7 +159,7 @@ function Revenues(): JSX.Element {
 					<div>
 						<Space>
 							<UserOutlined />
-							{row.creator.name}
+							{get(row, "creator.profile.name", "")}
 						</Space>
 					</div>
 				);
@@ -175,7 +175,7 @@ function Revenues(): JSX.Element {
 					<div>
 						<Space>
 							<UserOutlined />
-							{row.creator.name}
+							{get(row, "saler.profile.name", "")}
 						</Space>
 					</div>
 				);
