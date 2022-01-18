@@ -25,6 +25,14 @@ export interface UserType {
 	updated_at: "2021-11-02T00:50:17.000000Z";
 	key?: React.Key;
 	phone?: number;
+	profile?: {
+		id: 1;
+		name: "parent";
+		email: "parent@gmail.com";
+		deleted_at: null;
+		created_at: null;
+		updated_at: null;
+	};
 }
 
 export interface ParentType {

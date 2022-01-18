@@ -1,6 +1,7 @@
 import { PlusOutlined } from "@ant-design/icons";
 import { Button, Form, Input, Modal, Select, Spin, Table, Tag } from "antd";
 import { OptionType, RoleCreateFormType } from "interface";
+import { get } from "lodash";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { actionGetPermissions, PermistionType } from "store/permissions/slice";
@@ -58,7 +59,7 @@ function AddRolesForm({
 		users?.data &&
 			setUserOptions(
 				users.data.map((user) => ({
-					label: user.name,
+					label: get(user, "profile.name", ""),
 					value: user.id,
 				}))
 			);
