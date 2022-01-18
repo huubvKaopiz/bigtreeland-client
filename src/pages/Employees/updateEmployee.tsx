@@ -14,7 +14,6 @@ import moment from "moment";
 import { EditOutlined, UploadOutlined } from "@ant-design/icons";
 import { EmployeeType, RoleType } from "interface";
 import {
-	actionGetEmployees,
 	actionResetUpdateEmployeeSatus,
 	actionUpdateEmployee,
 } from "store/employees/slice";
@@ -39,11 +38,7 @@ export default function UpdateEmplyeeForm(props: {
 	useEffect(() => {
 		if (employee) {
 			uFrom.setFieldsValue({
-<<<<<<< HEAD
-				name: employee.profile?.name,
-=======
 				name: get(employee,"profile.name",""),
->>>>>>> [update] fix some ui issue
 				email: get(employee, "profile.email", ""),
 				phone: get(employee, "phone", ""),
 				birthday: moment(get(employee, "profile.birthday", moment())),

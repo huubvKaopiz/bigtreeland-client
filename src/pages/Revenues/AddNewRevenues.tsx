@@ -94,11 +94,7 @@ function AddNewRevenues(): JSX.Element {
 								{userList &&
 									get(userList, "data", []).map((emp: EmployeeType) => (
 										<Select.Option key={emp.id} value={emp.id}>
-<<<<<<< HEAD
-											{`${emp.profile?.name} - ${emp.profile?.email ?? ""}`}
-=======
 											{`${get(emp,"profile.name","")} - ${emp.profile?.email ?? ''}`}
->>>>>>> [update] fix some ui issue
 										</Select.Option>
 									))}
 							</Select>
