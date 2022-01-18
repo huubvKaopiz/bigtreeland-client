@@ -1,11 +1,25 @@
 import { PlusOutlined } from "@ant-design/icons";
-import { Button, DatePicker, Divider, Form, Input, InputNumber, Modal, Select, Spin } from "antd";
+import {
+	Button,
+	DatePicker,
+	Divider,
+	Form,
+	Input,
+	InputNumber,
+	Modal,
+	Select,
+	Spin,
+} from "antd";
 import { EmployeeType } from "interface";
 import { get } from "lodash";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { actionAddNewRevenues, RevenuesRequestAddType, RevenuesTypeList } from "store/revenues/slice";
+import {
+	actionAddNewRevenues,
+	RevenuesRequestAddType,
+	RevenuesTypeList,
+} from "store/revenues/slice";
 import { RootState, useAppDispatch } from "store/store";
 import styled from "styled-components";
 
@@ -19,8 +33,12 @@ function AddNewRevenues(): JSX.Element {
 	//Redux state
 	const dispatch = useAppDispatch();
 	const creatorUser = useSelector((state: RootState) => state.auth.user);
-	const userList = useSelector((state: RootState) => state.employeeReducer.employees);
-	const statusAddRevenues = useSelector((state: RootState) => state.revenuesReducer.addRevenuesStatus);
+	const userList = useSelector(
+		(state: RootState) => state.employeeReducer.employees
+	);
+	const statusAddRevenues = useSelector(
+		(state: RootState) => state.revenuesReducer.addRevenuesStatus
+	);
 
 	console.log("add receive re-render");
 
@@ -40,7 +58,11 @@ function AddNewRevenues(): JSX.Element {
 
 	return (
 		<Wrapper>
-			<Button type="primary" icon={<PlusOutlined />} onClick={() => setShow(true)}>
+			<Button
+				type="primary"
+				icon={<PlusOutlined />}
+				onClick={() => setShow(true)}
+			>
 				Thêm mới doanh thu
 			</Button>
 			<Modal
@@ -72,7 +94,7 @@ function AddNewRevenues(): JSX.Element {
 								{userList &&
 									get(userList, "data", []).map((emp: EmployeeType) => (
 										<Select.Option key={emp.id} value={emp.id}>
-											{`${emp.name} - ${emp.profile?.email ?? ''}`}
+											{`${emp.profile?.name} - ${emp.profile?.email ?? ""}`}
 										</Select.Option>
 									))}
 							</Select>
@@ -81,18 +103,27 @@ function AddNewRevenues(): JSX.Element {
 						<Form.Item
 							name="amount"
 							label="Số tiền"
-							rules={[{ required: true, message: "Số tiền không được để trống!" }]}
+							rules={[
+								{ required: true, message: "Số tiền không được để trống!" },
+							]}
 						>
 							<InputNumber
 								style={{ width: "100%" }}
-								formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+								formatter={(value) =>
+									`${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+								}
 								parser={(value: any) => value.replace(/(,*)/g, "")}
 							/>
 						</Form.Item>
 						<Form.Item
 							name="type"
 							label="Loại chi tiêu"
-							rules={[{ required: true, message: "Loại chi tiêu không được để trống!" }]}
+							rules={[
+								{
+									required: true,
+									message: "Loại chi tiêu không được để trống!",
+								},
+							]}
 						>
 							<Select onChange={(v) => v !== undefined && setReceiveType(+v)}>
 								{RevenuesTypeList.map((v, i) => (
@@ -105,7 +136,9 @@ function AddNewRevenues(): JSX.Element {
 						<Form.Item
 							name="date"
 							label="Ngày thu"
-							rules={[{ required: true, message: "Ngày thu không được để trống!" }]}
+							rules={[
+								{ required: true, message: "Ngày thu không được để trống!" },
+							]}
 						>
 							<DatePicker />
 						</Form.Item>

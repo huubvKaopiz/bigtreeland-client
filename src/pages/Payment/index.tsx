@@ -61,22 +61,33 @@ function Payment(): JSX.Element {
 	const [showDrawer, setShowDrawer] = useState(false);
 	const [currentDrawerData, setCurrentDrawerData] = useState(null);
 	const [page, setPage] = useState(1);
-	const [searchInput, setSearchInput] = useState('')
+	const [searchInput, setSearchInput] = useState("");
 
 	const [editingKey, setEditingKey] = useState("");
 	const [statusValueChange, setStatusValueChange] = useState("");
 
-	const paymentTableData = useSelector((state: RootState) => state.paymentReducer.payments);
-	const statusGetPayment = useSelector((state: RootState) => state.paymentReducer.getPaymentStatus);
-	const statusUpdatePayment = useSelector((state: RootState) => state.paymentReducer.updatePaymentStatus);
-	const statusAddNewPayment = useSelector((state: RootState) => state.paymentReducer.addPaymentStatus);
+	const paymentTableData = useSelector(
+		(state: RootState) => state.paymentReducer.payments
+	);
+	const statusGetPayment = useSelector(
+		(state: RootState) => state.paymentReducer.getPaymentStatus
+	);
+	const statusUpdatePayment = useSelector(
+		(state: RootState) => state.paymentReducer.updatePaymentStatus
+	);
+	const statusAddNewPayment = useSelector(
+		(state: RootState) => state.paymentReducer.addPaymentStatus
+	);
 
 	const isEditting = (record: any) => record.id === editingKey;
 
 	console.log("re-render");
 
 	const debounceSearch = useRef(
-		debounce((nextValue) => dispatch(actionGetPayments({ search: nextValue })), 500)
+		debounce(
+			(nextValue) => dispatch(actionGetPayments({ search: nextValue })),
+			500
+		)
 	).current;
 
 	useEffect(() => {
@@ -93,7 +104,7 @@ function Payment(): JSX.Element {
 			const toDate = searchRange[1];
 			if (fromDate) searchObj.fromDate = fromDate;
 			if (toDate) searchObj.toDate = toDate;
-			if(searchInput) searchObj.search = searchInput
+			if (searchInput) searchObj.search = searchInput;
 			dispatch(actionGetPayments({ ...searchObj, page }));
 		},
 		[dispatch, searchRange, searchInput]
@@ -104,10 +115,14 @@ function Payment(): JSX.Element {
 	}, [dispatch, handleSearchRange, page]);
 
 	useEffect(() => {
-		if (statusGetPayment === "loading" || statusUpdatePayment === "loading") setLoading(true);
+		if (statusGetPayment === "loading" || statusUpdatePayment === "loading")
+			setLoading(true);
 		else if (statusGetPayment === "success") {
 			const tableData = get(paymentTableData, "data", []) as PaymentType[];
-			const spendAmount = tableData.reduce((pre, current) => pre + +current.amount, 0);
+			const spendAmount = tableData.reduce(
+				(pre, current) => pre + +current.amount,
+				0
+			);
 			(spendAmount || spendAmount === 0) && setSpenValue(spendAmount);
 			setRawTableData(tableData);
 			dispatch(resetGetPaymentStatus());
@@ -118,19 +133,31 @@ function Payment(): JSX.Element {
 		} else if (statusAddNewPayment === "success") {
 			dispatch(resetAddPaymentStatus());
 			dispatch(actionGetPayments());
-		} else if (statusGetPayment === "error" || statusUpdatePayment === "error") {
+		} else if (
+			statusGetPayment === "error" ||
+			statusUpdatePayment === "error"
+		) {
 			setLoading(false);
 		}
-	}, [dispatch, paymentTableData, statusAddNewPayment, statusGetPayment, statusUpdatePayment]);
+	}, [
+		dispatch,
+		paymentTableData,
+		statusAddNewPayment,
+		statusGetPayment,
+		statusUpdatePayment,
+	]);
 
 	useEffect(() => {
 		const tableData = get(paymentTableData, "data", []) as PaymentType[];
-		const spendAmount = tableData.reduce((pre, current) => pre + +current.amount, 0);
+		const spendAmount = tableData.reduce(
+			(pre, current) => pre + +current.amount,
+			0
+		);
 		if (spendAmount) setSpenValue(spendAmount);
 	}, [paymentTableData]);
 
 	function onTableFiler(value: string) {
-		setSearchInput(value)
+		setSearchInput(value);
 		debounceSearch(value);
 	}
 
@@ -140,7 +167,9 @@ function Payment(): JSX.Element {
 	}
 
 	function handleUpdateRowData() {
-		dispatch(actionUpdatePaymentStatus({ id: +editingKey, status: +statusValueChange }));
+		dispatch(
+			actionUpdatePaymentStatus({ id: +editingKey, status: +statusValueChange })
+		);
 		// Get payment again after update.
 	}
 
@@ -164,7 +193,7 @@ function Payment(): JSX.Element {
 					<div>
 						<Space>
 							<UserOutlined />
-							{row.creator.name}
+							{get(row, "creator.profile.name", "")}
 						</Space>
 					</div>
 				);
@@ -180,7 +209,7 @@ function Payment(): JSX.Element {
 					<div>
 						<Space>
 							<UserOutlined />
-							{row.payer.name}
+							{get(row, "payer.profile.name", "")}
 						</Space>
 					</div>
 				);
@@ -193,7 +222,11 @@ function Payment(): JSX.Element {
 			key: "payemnt_type",
 			align: "center" as "center",
 			render: function TypeCol(type: number): JSX.Element {
-				return <span style={{ color: type === 0 ? "#cf1322" : "#3f8600" }}>{PaymentTypeEnum[type]}</span>;
+				return (
+					<span style={{ color: type === 0 ? "#cf1322" : "#3f8600" }}>
+						{PaymentTypeEnum[type]}
+					</span>
+				);
 			},
 		},
 		{
@@ -202,7 +235,9 @@ function Payment(): JSX.Element {
 			dataIndex: "amount",
 			key: "payemnt_amount",
 			render: function amountCol(amount: number): JSX.Element {
-				return <span style={{ color: "#cf1322" }}>{formatCurrency(amount)}</span>;
+				return (
+					<span style={{ color: "#cf1322" }}>{formatCurrency(amount)}</span>
+				);
 			},
 		},
 		{
@@ -315,7 +350,10 @@ function Payment(): JSX.Element {
 			<Layout.Content>
 				<Row style={{ marginBottom: 20, marginTop: 20 }} justify="start">
 					<Col span={10}>
-						<Input prefix={<SearchOutlined />} onChange={({ target: input }) => onTableFiler(input.value)} />
+						<Input
+							prefix={<SearchOutlined />}
+							onChange={({ target: input }) => onTableFiler(input.value)}
+						/>
 					</Col>
 
 					<Col style={{ marginLeft: 20 }}>
@@ -323,7 +361,10 @@ function Payment(): JSX.Element {
 							<RangePicker
 								allowEmpty={[true, true]}
 								onChange={searchRangeChange}
-								defaultValue={[moment().startOf("month"), moment().endOf("month")]}
+								defaultValue={[
+									moment().startOf("month"),
+									moment().endOf("month"),
+								]}
 							/>
 						</Row>
 					</Col>
@@ -335,11 +376,18 @@ function Payment(): JSX.Element {
 				<Row style={{ justifyContent: "space-between" }}>
 					{/* Todo */}
 					<Button type="primary"> Đặt ngưỡng chi tiêu </Button>
-					<Statistic title="Tổng chi" value={spenValue} suffix="VND" valueStyle={{ color: "#cf1322" }} />
+					<Statistic
+						title="Tổng chi"
+						value={spenValue}
+						suffix="VND"
+						valueStyle={{ color: "#cf1322" }}
+					/>
 				</Row>
 				<Spin spinning={loading}>
 					<Table
-						rowClassName={(record) => (record.id === editingKey ? "editing-row" : "")}
+						rowClassName={(record) =>
+							record.id === editingKey ? "editing-row" : ""
+						}
 						rowKey="id"
 						size="small"
 						pagination={{
@@ -361,7 +409,11 @@ function Payment(): JSX.Element {
 							};
 						}}
 					/>
-					<PaymentDetails handleShowDetail={handleShowDrawer} show={showDrawer} data={currentDrawerData} />
+					<PaymentDetails
+						handleShowDetail={handleShowDrawer}
+						show={showDrawer}
+						data={currentDrawerData}
+					/>
 				</Spin>
 			</Layout.Content>
 		</Wrapper>

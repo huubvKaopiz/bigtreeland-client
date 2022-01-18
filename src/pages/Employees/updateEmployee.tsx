@@ -1,26 +1,45 @@
-import { Form, Modal, Button, Input, Select, DatePicker, Divider, Upload, Tooltip } from "antd";
+import {
+	Form,
+	Modal,
+	Button,
+	Input,
+	Select,
+	DatePicker,
+	Divider,
+	Upload,
+	Tooltip,
+} from "antd";
 import React, { useEffect, useState } from "react";
 import moment from "moment";
 import { EditOutlined, UploadOutlined } from "@ant-design/icons";
 import { EmployeeType, RoleType } from "interface";
-import { actionGetEmployees, actionResetUpdateEmployeeSatus, actionUpdateEmployee } from "store/employees/slice";
+import {
+	actionGetEmployees,
+	actionResetUpdateEmployeeSatus,
+	actionUpdateEmployee,
+} from "store/employees/slice";
 import { RootState, useAppDispatch } from "store/store";
 import { useSelector } from "react-redux";
 import { get } from "lodash";
 
 const dateFormat = "DD/MM/YYYY";
 
-export default function UpdateEmplyeeForm(props: { employee: EmployeeType; roles: RoleType[] }): JSX.Element {
+export default function UpdateEmplyeeForm(props: {
+	employee: EmployeeType;
+	roles: RoleType[];
+}): JSX.Element {
 	const { employee, roles } = props;
 	const [uFrom] = Form.useForm();
 	const [show, setShow] = useState(false);
 	const dispatch = useAppDispatch();
-	const status = useSelector((state: RootState) => state.employeeReducer.updateEmployeeStatus);
+	const status = useSelector(
+		(state: RootState) => state.employeeReducer.updateEmployeeStatus
+	);
 
 	useEffect(() => {
 		if (employee) {
 			uFrom.setFieldsValue({
-				name: employee.name,
+				name: employee.profile?.name,
 				email: get(employee, "profile.email", ""),
 				phone: get(employee, "phone", ""),
 				birthday: moment(get(employee, "profile.birthday", moment())),
@@ -56,11 +75,18 @@ export default function UpdateEmplyeeForm(props: { employee: EmployeeType; roles
 		dispatch(actionUpdateEmployee(params));
 	};
 
-	const IsNumeric = { pattern: /^-{0,1}\d*\.{0,1}\d+$/, message: "Giá trị nhập phải là số" };
+	const IsNumeric = {
+		pattern: /^-{0,1}\d*\.{0,1}\d+$/,
+		message: "Giá trị nhập phải là số",
+	};
 	return (
 		<div>
 			<Tooltip placement="top" title="Sửa thông tin">
-				<Button type="link" icon={<EditOutlined />} onClick={() => setShow(true)} />
+				<Button
+					type="link"
+					icon={<EditOutlined />}
+					onClick={() => setShow(true)}
+				/>
 			</Tooltip>
 			<Modal
 				width={800}
@@ -74,7 +100,13 @@ export default function UpdateEmplyeeForm(props: { employee: EmployeeType; roles
 					<Button key="cancel" onClick={() => setShow(false)}>
 						Huỷ bỏ
 					</Button>,
-					<Button loading={status === "loading"} type="primary" key="submit" htmlType="submit" form="ueForm">
+					<Button
+						loading={status === "loading"}
+						type="primary"
+						key="submit"
+						htmlType="submit"
+						form="ueForm"
+					>
 						Lưu thông tin
 					</Button>,
 				]}
@@ -89,16 +121,26 @@ export default function UpdateEmplyeeForm(props: { employee: EmployeeType; roles
 					style={{ height: "80vh", overflowY: "auto" }}
 				>
 					<Divider>Thông tin cơ bản</Divider>
-					<Form.Item name="name" label="Họ tên" rules={[{ required: true, message: "Họ tên không được để trống!" }]}>
+					<Form.Item
+						name="name"
+						label="Họ tên"
+						rules={[{ required: true, message: "Họ tên không được để trống!" }]}
+					>
 						<Input />
 					</Form.Item>
-					<Form.Item name="email" label="email" rules={[{ required: true, message: "Email không được để trống!" }]}>
+					<Form.Item
+						name="email"
+						label="email"
+						rules={[{ required: true, message: "Email không được để trống!" }]}
+					>
 						<Input />
 					</Form.Item>
 					<Form.Item
 						name="phone"
 						label="Số điện thoại"
-						rules={[{ required: true, message: "Số điện thoại không được để trống!" }]}
+						rules={[
+							{ required: true, message: "Số điện thoại không được để trống!" },
+						]}
 					>
 						<Input />
 					</Form.Item>
@@ -125,7 +167,11 @@ export default function UpdateEmplyeeForm(props: { employee: EmployeeType; roles
 					<Form.Item name="identify" label="Số CMT/CCCD">
 						<Input />
 					</Form.Item>
-					<Form.Item rules={[IsNumeric]} name={"basic_salary"} label="Lương cơ bản">
+					<Form.Item
+						rules={[IsNumeric]}
+						name={"basic_salary"}
+						label="Lương cơ bản"
+					>
 						<Input />
 					</Form.Item>
 					<Form.Item name="sales_salary" label="Lương doanh số">

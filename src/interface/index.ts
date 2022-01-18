@@ -49,7 +49,7 @@ export interface ParentType {
 export interface ClassType {
 	id: 1;
 	name: "Lớp tiếng Anh 3";
-	user: { id: number; phone: string; profile: {name: string} };
+	user: { id: number; phone: string; profile: { name: string } };
 	employee_id?: number;
 	students_num: 0;
 	fee_per_session: 300000;
@@ -121,7 +121,6 @@ export interface EmployeeType {
 	};
 	id: number;
 	phone: string;
-	name: string;
 	employee_contract: EmployeeContractType;
 }
 
@@ -222,7 +221,7 @@ export interface ListAttendancesType {
 			conduct_point: number;
 			student_id: number;
 			student_name: string;
-		}[]
+		}[];
 	};
 }
 
@@ -238,10 +237,10 @@ export interface TestType {
 	title: string;
 	updated_at: string;
 	lesson_id?: number;
-	test_results?:{
-		id:number,
-		student_id:number,
-		point:number,
+	test_results?: {
+		id: number;
+		student_id: number;
+		point: number;
 	}[];
 }
 
@@ -316,11 +315,11 @@ export interface GetResponseType<T = unknown> {
 export interface PeriodTuitionType {
 	id: 1;
 	class_id: 1;
-	est_session_num: 1,
-	fee_per_session: number,
-	active: 1,
-	from_date: "",
-	to_date: "",
+	est_session_num: 1;
+	fee_per_session: number;
+	active: 1;
+	from_date: "";
+	to_date: "";
 	dayoffs: string[];
 	lessons?: LessonType[];
 	class?: ClassType;
@@ -328,35 +327,34 @@ export interface PeriodTuitionType {
 }
 
 export interface TuitionFeeType {
-	id: 1,
-	period_tuition_id: 1,
-	student_id: 1,
-	fixed_deduction: "null",
-	flexible_deduction: "null",
-	prev_debt: "null",
-	note: "null",
-	residual: "null",
-	status: number,
-	from_date: "null",
-	to_date: "null",
-	est_session_num: number,
-	dayoffs: string[],
+	id: 1;
+	period_tuition_id: 1;
+	student_id: 1;
+	fixed_deduction: "null";
+	flexible_deduction: "null";
+	prev_debt: "null";
+	note: "null";
+	residual: "null";
+	status: number;
+	from_date: "null";
+	to_date: "null";
+	est_session_num: number;
+	dayoffs: string[];
 	student: {
-		id: number,
-		name: string,
-		birthday: string,
-		class_id: number
-	},
+		id: number;
+		name: string;
+		birthday: string;
+		class_id: number;
+	};
 	period_tuition: {
-		id: 3,
-		class_id: 4,
-		from_date: "2022-01 - 01",
-		to_date: "2022 - 01 - 31",
-		est_session_num: 13,
-		fee_per_session: number,
+		id: 3;
+		class_id: 4;
+		from_date: "2022-01 - 01";
+		to_date: "2022 - 01 - 31";
+		est_session_num: 13;
+		fee_per_session: number;
 		dayoffs: string[];
-	}
-
+	};
 }
 
 export interface DayoffType {
@@ -375,8 +373,8 @@ export interface LessonType {
 		class: {
 			id: number;
 			name: string;
-		}
-	}
+		};
+	};
 }
 
 export interface SalaryType {
@@ -390,15 +388,15 @@ export interface SalaryType {
 	period_id: 1;
 	note: "";
 	status: number;
-	from_date: '',
-	to_date: '',
-	created_at: '';
+	from_date: "";
+	to_date: "";
+	created_at: "";
 	type: number;
 	user: {
 		id: number;
 		name: string;
 		phone: string;
-	}
+	};
 }
 
 export interface StudySummaryType {
@@ -409,6 +407,6 @@ export interface StudySummaryType {
 	class?: {
 		id: number;
 		name: number;
-		students_num:number;
-	}
+		students_num: number;
+	};
 }
