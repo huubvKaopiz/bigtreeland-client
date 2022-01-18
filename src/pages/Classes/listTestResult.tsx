@@ -11,7 +11,6 @@ import {
 	Skeleton,
 	Space,
 	Typography,
-	Upload,
 	Card,
 	Spin,
 	Form,
@@ -343,7 +342,7 @@ export function ListTestResults(): JSX.Element {
 									<UploadResultModal
 										key="upload"
 										id={item.id}
-										correct_files={item.correct_files}
+										correct_files={item.correct_files && []}
 									/>,
 									<CommentModal
 										key="cmt"
@@ -448,9 +447,9 @@ function UploadResultModal(props: {
 	const [showSelect, setShowSelect] = useState(false);
 
 	useEffect(() => {
-		const fileList = props.correct_files.map((propsFile) => {
+		const fileList = props.correct_files?.map((propsFile) => {
 			return listFile.data?.find((file) => file.id === propsFile.id);
-		});
+		}) ?? [];
 		setFileSelected(fileList.filter(Boolean) as FileType[]);
 	}, [props.correct_files, listFile]);
 
