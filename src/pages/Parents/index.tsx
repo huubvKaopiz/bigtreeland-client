@@ -11,7 +11,7 @@ import {
 } from "antd";
 import { CheckCircleOutlined } from "@ant-design/icons";
 import { ParentType, User } from "interface";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { actionGetParents } from "store/parents/slice";
 import { RootState, useAppDispatch } from "store/store";
@@ -19,9 +19,13 @@ import AddParent from "./addParentModal";
 import { get } from "lodash";
 import DeleteParent from "./deleteParentModal";
 import AddStudent from "./addStudents";
+import useDebouncedCallback from "hooks/useDebounceCallback";
 
 export default function Parents(): JSX.Element {
 	const dispatch = useAppDispatch();
+	const [page, setPage] = useState(1);
+	const [search, setSearch] = useState('')
+
 	const getParentsStatus = useSelector(
 		(state: RootState) => state.parentReducer.getParentsStatus
 	);
@@ -29,9 +33,15 @@ export default function Parents(): JSX.Element {
 		(state: RootState) => state.parentReducer.parents
 	);
 
+	const searchParent = useDebouncedCallback( search => {
+		setSearch(search)
+		dispatch(actionGetParents({page: 1, search}))
+	}, 500)
+
 	useEffect(() => {
-		dispatch(actionGetParents({ page: 1 }));
-	}, [dispatch]);
+		dispatch(actionGetParents({ page, search }));
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [dispatch, page]);
 
 	const columns = [
 		{
@@ -116,16 +126,25 @@ export default function Parents(): JSX.Element {
 		<Layout.Content>
 			<Row style={{ marginBottom: 20, marginTop: 20 }} justify="start">
 				<Col span={10}>
-					<Input.Search allowClear />
+					<Input.Search allowClear onChange={ ({ target: { value } }) => searchParent(value)}/>
 				</Col>
 				<Col span={6} style={{ marginLeft: 20 }}>
 					<AddParent />
 				</Col>
 			</Row>
 			<Table
+				bordered
 				loading={getParentsStatus === "loading"}
 				columns={columns}
+				size="small"
 				dataSource={get(parents, "data", [])}
+				pagination={{
+					pageSize: 20,
+					total: get(parents, "total", 0),
+					onChange: (page) => {
+						setPage(page);
+					},
+				}}
 			/>
 		</Layout.Content>
 	);
