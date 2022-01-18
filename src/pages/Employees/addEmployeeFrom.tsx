@@ -1,7 +1,7 @@
-import { Form, Modal, Button, Input, Select, DatePicker, Divider, Upload } from "antd";
+import { Form, Modal, Button, Input, Select, DatePicker, Divider, Upload, Checkbox } from "antd";
 import React, { useEffect, useState } from "react";
 import { PlusOutlined, UploadOutlined } from "@ant-design/icons";
-import { actionAddEmployee, actionGetEmployees, actionResetAddEmployeeStatus } from "store/employees/slice";
+import { actionAddEmployee, actionGetEmployees} from "store/employees/slice";
 import moment from "moment";
 import { RootState, useAppDispatch } from "store/store";
 import { useSelector } from "react-redux";
@@ -13,6 +13,7 @@ export default function AddEmplyeeForm(props: { roles: RoleType[], selectedRole:
 	const { roles, selectedRole } = props;
 	const [aForm] = Form.useForm();
 	const [show, setShow] = useState(false);
+	const [keepShow,setKeepShow] =  useState(false);
 	const dispatch = useAppDispatch();
 	const status = useSelector((state: RootState) => state.employeeReducer.addEmployeeStatus);
 
@@ -32,7 +33,7 @@ export default function AddEmplyeeForm(props: { roles: RoleType[], selectedRole:
 		};
 
 		dispatch(actionAddEmployee(data)).finally(()=>{
-			setShow(false);
+			if(keepShow === false) setShow(false);
 			dispatch(actionGetEmployees({role_name:selectedRole}));
 		})
 	};
@@ -42,7 +43,7 @@ export default function AddEmplyeeForm(props: { roles: RoleType[], selectedRole:
 			name: "",
 			email: "",
 			phone: "",
-			gender: 0,
+			gender: null,
 			birthday: "",
 			address: "",
 			interests: "",
@@ -50,7 +51,7 @@ export default function AddEmplyeeForm(props: { roles: RoleType[], selectedRole:
 			identifier: "",
 			basic_salary: "",
 			sales_salary: "",
-			role_id: 0,
+			role_id: null,
 			working_day: "",
 		});
 	};
@@ -69,6 +70,7 @@ export default function AddEmplyeeForm(props: { roles: RoleType[], selectedRole:
 				closable={true}
 				onCancel={() => setShow(false)}
 				footer={[
+					<Checkbox key="keepShow" onChange={(e: any) => setKeepShow(e.target.checked)}>Giữ cửa sổ</Checkbox>,
 					<Button key="btncall" onClick={() => reFresh()}>
 						Làm mới
 					</Button>,

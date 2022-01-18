@@ -39,7 +39,11 @@ export default function UpdateEmplyeeForm(props: {
 	useEffect(() => {
 		if (employee) {
 			uFrom.setFieldsValue({
+<<<<<<< HEAD
 				name: employee.profile?.name,
+=======
+				name: get(employee,"profile.name",""),
+>>>>>>> [update] fix some ui issue
 				email: get(employee, "profile.email", ""),
 				phone: get(employee, "phone", ""),
 				birthday: moment(get(employee, "profile.birthday", moment())),

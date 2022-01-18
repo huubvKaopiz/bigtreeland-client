@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Form, Input, Button, Select, Spin, InputNumber, TimePicker } from "antd";
+import { Modal, Form, Input, Button, Select, Checkbox, InputNumber, TimePicker } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { RootState, useAppDispatch } from "store/store";
 import { useSelector } from "react-redux";
@@ -13,28 +13,30 @@ import moment from "moment";
 export default function AddClassModal(props: {
 	teachers: ListEmployeeType | null;
 }): JSX.Element {
-	const { teachers } = props;
-	const [show, setShow] = useState(false);
-	const dispatch = useAppDispatch();
-	const addStatus = useSelector((state: RootState) => state.classReducer.addClassStatus);
-	const [submiting, setSumiting] = useState(false);
 
-	useEffect(() => {
-		if (addStatus === "success") {
-			setShow(false);
-			dispatch(actionGetClasses({ page: 1 }));
-		}
-	}, [dispatch, addStatus]);
+	const { teachers } = props;
+	const dispatch = useAppDispatch();
+	const [addForm] = Form.useForm();
+	const [show, setShow] = useState(false);
+	const [keepShow, setKeepShow] = useState(false);
+
+	const addStatus = useSelector((state: RootState) => state.classReducer.addClassStatus);
 
 	function handleSubmit(values: any) {
-		setSumiting(true);
 		let scheduleTime = null;
 		if (values.schedule_time) {
 			scheduleTime = moment(values.schedule_time[0]).format("HH:mm:ss") + "-" + moment(values.schedule_time[1]).format("HH:mm:ss");
 		}
 		dispatch(actionAddClass({ ...values, schedule_time: scheduleTime })).finally(() => {
-			setSumiting(false);
-			setShow(false);
+			if (keepShow === false) setShow(false);
+			addForm.setFieldsValue({
+				name: "",
+				employee_id: null,
+				fee_per_session: "",
+				schedule: [],
+				schedule_time: null,
+			})
+			dispatch(actionGetClasses({ page: 1 }));
 		});
 	}
 
@@ -48,7 +50,8 @@ export default function AddClassModal(props: {
 				title="Thêm lớp học"
 				onCancel={() => setShow(false)}
 				footer={[
-					<Button loading={submiting} key="btnsubmit" type="primary" htmlType="submit" form="aForm">
+					<Checkbox key="keepShow" onChange={(e: any) => setKeepShow(e.target.checked)}>Giữ cửa sổ</Checkbox>,
+					<Button loading={addStatus === 'loading' ? true : false} key="btnsubmit" type="primary" htmlType="submit" form="aForm">
 						Lưu lại
 					</Button>,
 				]}
@@ -56,6 +59,7 @@ export default function AddClassModal(props: {
 			>
 				<Form
 					id="aForm"
+					form={addForm}
 					labelCol={{ span: 5 }}
 					wrapperCol={{ span: 17 }}
 					layout="horizontal"

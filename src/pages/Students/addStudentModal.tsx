@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Modal, Form, Input, Select, DatePicker, InputNumber, Switch, Spin } from "antd";
+import { Button, Modal, Form, Input, Select, DatePicker, InputNumber, Switch, Checkbox } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { RootState, useAppDispatch } from "store/store";
 import { useSelector } from "react-redux";
@@ -16,6 +16,7 @@ export default function AddStudentModal(props: {
 	const { parents } = props;
 	const [aForm] = Form.useForm();
 	const [show, setShow] = useState(false);
+	const [keepShow, setKeepShow] = useState(false);
 	const dispatch = useAppDispatch();
 	const addStatus = useSelector((state: RootState) => state.studentReducer.addStudentStatus);
 
@@ -36,7 +37,7 @@ export default function AddStudentModal(props: {
 	};
 
 	function handleRefresh() {
-		setShow(false);
+		if(keepShow === false) setShow(false);
 		aForm.setFieldsValue({
 			name: "",
 			parent_id: null,
@@ -45,7 +46,7 @@ export default function AddStudentModal(props: {
 			school: "",
 			address: "",
 			admission_date: null,
-			knowledge_status: 0,
+			knowledge_status: "",
 			is_special: false,
 			personality: "",
 			interests: "",
@@ -69,6 +70,7 @@ export default function AddStudentModal(props: {
 				onCancel={() => setShow(false)}
 				width={1000}
 				footer={[
+					<Checkbox key="keepShow" onChange={(e: any) => setKeepShow(e.target.checked)}>Giữ cửa sổ</Checkbox>,
 					<Button key="btnCancel" onClick={() => handleRefresh()}>
 						Huỷ bỏ
 					</Button>,

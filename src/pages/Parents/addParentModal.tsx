@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Form, Input } from "antd";
+import { Button, Form, Input, Checkbox } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { RootState, useAppDispatch } from "store/store";
 import { useSelector } from "react-redux";
@@ -8,18 +8,21 @@ import Modal from "antd/lib/modal/Modal";
 
 export default function AddParent(): JSX.Element {
 	const dispatch = useAppDispatch();
+	const [addFrom]  = Form.useForm();
 	const [show, setShow] = useState(false);
+	const [keepShow, setKeepShow] = useState(false);
 	const status = useSelector((state: RootState) => state.parentReducer.addParentStatus);
 
-	useEffect(() => {
-		if (status === "success") {
-			setShow(false);
-			dispatch(actionGetParents({ page: 1 }));
-		}
-	}, [status, dispatch]);
-
 	const handleSubmit = (values: any) => {
-		dispatch(actionAddParent({ ...values, role_id: 3 }));
+		dispatch(actionAddParent({ ...values, role_id: 3 })).finally(()=>{
+			if(keepShow === false) setShow(false);
+			addFrom.setFieldsValue({
+				name:"",
+				phone:"",
+				email:"",
+			})
+			dispatch(actionGetParents({ page: 1 }));
+		});
 	};
 
 	return (
@@ -34,15 +37,16 @@ export default function AddParent(): JSX.Element {
 				onCancel={() => setShow(false)}
 				width={800}
 				footer={[
+					<Checkbox key="keepShow" onChange={(e: any) => setKeepShow(e.target.checked)}>Giữ cửa sổ</Checkbox>,
 					<Button key="btncanl" onClick={() => setShow(false)}>
 						Huỷ bỏ
 					</Button>,
-					<Button key="btnSubmit" htmlType="submit" form="aForm" type="primary">
+					<Button key="btnSubmit" htmlType="submit" form="aForm" type="primary" loading={status === 'loading' ? true :  false}>
 						Lưu lại
 					</Button>,
 				]}
 			>
-				<Form id="aForm" labelCol={{ span: 6 }} wrapperCol={{ span: 14 }} onFinish={handleSubmit}>
+				<Form form={addFrom} id="aForm" labelCol={{ span: 6 }} wrapperCol={{ span: 14 }} onFinish={handleSubmit}>
 					<Form.Item label="Họ tên" name="name">
 						<Input />
 					</Form.Item>
