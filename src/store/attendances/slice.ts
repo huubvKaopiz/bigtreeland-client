@@ -93,7 +93,7 @@ export const attendanceSlice = createSlice({
 			})
 			.addCase(actionAddAttendance.rejected, (state) => {
 				state.addAttendanceStatus = "error";
-				notification.error({ message: "Có lỗi xảy ra!" });
+				notification.error({ message: "Không tìm thấy chu kỳ học phí hiện tại" });
 			});
 	},
 });

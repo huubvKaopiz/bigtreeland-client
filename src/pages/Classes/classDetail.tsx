@@ -155,7 +155,11 @@ export default function ClassDetail(): JSX.Element {
 	}
 
 	function handleSubmit() {
-		if (attendantList.length > 0 && classInfo) {
+		const teacher_id = get(classInfo, "user.id", null)
+		if(!teacher_id) {
+			notification.warn({message: "Chưa có thông tin giáo viên!"})
+		}
+		else if (attendantList.length > 0 && classInfo) {
 			const studentAttendanceList: AttendanceStudentComment[] = [];
 			attendantList.forEach((at) => {
 				const student = listComments.find((p) => +p.id === at);
@@ -165,7 +169,7 @@ export default function ClassDetail(): JSX.Element {
 			const params = {
 				class_id: classInfo.id,
 				// Todo teacher_id is null becaues user is null
-				teacher_id: get(classInfo, "user.id", 0),
+				teacher_id: teacher_id,
 				students: studentAttendanceList,
 				date: moment(today, "DD-MM-YYYY").format("YYYY-MM-DD"),
 			};
