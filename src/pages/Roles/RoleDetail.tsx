@@ -2,6 +2,7 @@
 import { Button, Divider, Form, Input, Modal, Table } from "antd";
 import { RoleType, UserType } from "interface";
 import { UpdateRoleDataType } from "interface/api-params-interface";
+import { get } from "lodash";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { PermistionType } from "store/permissions/slice";
@@ -108,7 +109,7 @@ function RoleDetail({ show, roleDetail, onClose, onChange }: RoleDetailProps): J
 		setPermissionsSelected(value);
 	}
 
-	const tableUserColumn = [
+	const tableUserColumn:any[] = [
 		{
 			title: "Id",
 			key: "id",
@@ -120,10 +121,10 @@ function RoleDetail({ show, roleDetail, onClose, onChange }: RoleDetailProps): J
 		},
 		{
 			title: "Tên người dùng",
-			key: "name",
-			dataIndex: "name",
-			render: function RenderUserName(text: string): JSX.Element {
-				return <a className="example-link">{text}</a>;
+			key: "user_name",
+			dataIndex: "user_name",
+			render: function RenderUserName(text: string, record:UserType): JSX.Element {
+				return <a className="example-link">{get(record,"profile.name","")}</a>;
 			},
 		},
 	];

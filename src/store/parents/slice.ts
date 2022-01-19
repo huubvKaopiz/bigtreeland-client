@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { notification } from "antd";
 import { ListParentType } from "interface";
+import { ROLE_NAMES } from "utils/const";
 import request from "utils/request";
 
 export interface ParentReducerState {
@@ -32,7 +33,7 @@ const initialState: ParentReducerState = {
 
 export const actionGetParents = createAsyncThunk("actionGetParents", async (params: GetParentsPrams) => {
 	const response = await request({
-		url: "/api/users?role_name=parent",
+		url: `/api/users?role_name=${ROLE_NAMES.PARENT}`,
 		method: "get",
 		params,
 	});

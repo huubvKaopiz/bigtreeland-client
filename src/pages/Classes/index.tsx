@@ -31,7 +31,7 @@ function Classes(): JSX.Element {
 
 	useEffect(() => {
 		dispatch(actionGetClasses({ page: 1 }));
-		dispatch(actionGetEmployees({ role_id:"2" }));
+		dispatch(actionGetEmployees({ role_ids:`2,3` })); //role_id of teacher and teacher2
 	}, [dispatch]);
 
 	useEffect(() => {
@@ -40,7 +40,7 @@ function Classes(): JSX.Element {
 	},[dispatch, page])
 
 	const searchTeacher = (search: string) => {
-		if (search.length >= 3 || search.length === 0) dispatch(actionGetEmployees({ class_id: 0, role_id: '2,4', search }));
+		if (search.length >= 3 || search.length === 0) dispatch(actionGetEmployees({role_ids:`2,3`, search }));
 	};
 
 	const columns = [

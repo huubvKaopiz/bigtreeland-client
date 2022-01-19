@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Form, Input, Button, Select, Checkbox, InputNumber, TimePicker } from "antd";
+import { Modal, Form, Input, Button, Select, Checkbox, InputNumber, TimePicker, Space, Tag } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { RootState, useAppDispatch } from "store/store";
 import { useSelector } from "react-redux";
@@ -7,8 +7,9 @@ import { actionAddClass, actionGetClasses } from "store/classes/slice";
 import { get } from "lodash";
 import { EmployeeType, ListEmployeeType } from "interface";
 import numeral from "numeral";
-import { dayOptions } from "utils/const";
+import { dayOptions, ROLE_NAMES } from "utils/const";
 import moment from "moment";
+import { converRoleNameToVN } from "utils/ultil";
 
 export default function AddClassModal(props: {
 	teachers: ListEmployeeType | null;
@@ -82,7 +83,10 @@ export default function AddClassModal(props: {
 								get(teachers, "data", []).map((tc: EmployeeType) => {
 									return (
 										<Select.Option value={tc.id} key={tc.id} label={`${get(tc, "profile.name", "")} (${tc.phone})`}>
+											<Space>
+											{get(tc,"roles",[]).map((role:{id:number, name:string}) => <Tag color="orange" key={role.id}>{converRoleNameToVN(role.name as ROLE_NAMES)}</Tag>)}
 											<a>{get(tc, "profile.name", "")}</a> ({tc.phone})
+											</Space>
 										</Select.Option>
 									);
 								})}

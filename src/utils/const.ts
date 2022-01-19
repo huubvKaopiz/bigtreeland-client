@@ -20,3 +20,13 @@ export const fileIconList = {
 export const dayOptions = ["Chủ nhật", "Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm", "Thứ sáu", "Thứ bảy"];
 
 export const dateFormat = "DD/MM/YYYY"
+
+
+export enum ROLE_NAMES {
+	ADMIM = 'admin',
+	TEACHER = 'teacher',
+	TEACHER2 = 'teacher2',
+	SALE = 'sale',
+	PARENT = 'parent',
+	EMPLOYEE = 'employee'
+}
