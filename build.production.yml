@@ -4,4 +4,4 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: buivanhuu2017/bigtreeland-client
+    image: buivanhuu2017/bigtreeland-client:production
