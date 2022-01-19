@@ -35,8 +35,10 @@ import {
 	actionResetGetAttendancesStatus,
 	AttendanceStudentComment
 } from "store/attendances/slice";
-import { actionGetClass } from "store/classes/slice";
+import { actionGetClass, actionUpdateClass } from "store/classes/slice";
 import { actionGetLessons, actionSetLessionsStateNull } from "store/lesson/slice";
+import { actionUploadFile } from "store/files/slice";
+import { FileType } from "interface";
 import { RootState, useAppDispatch } from "store/store";
 import { actionGetTestes } from "store/testes/slice";
 import { dayOptions, imageExtensionsList } from "utils/const";
@@ -497,7 +499,7 @@ export default function ClassDetail(): JSX.Element {
 						</TabPane>
 						<TabPane tab="Album ảnh" key="4">
 							<Space style={{ paddingTop: 20, marginBottom: 20 }}>
-								<ClassPhotoAlbum class_id={+params.class_id} />
+								<ClassPhotoAlbum class_id={+params.class_id} fee_per_session={classInfo?.fee_per_session ?? 0} name={classInfo?.name ?? ''}/>
 							</Space>
 
 							<Space
@@ -505,11 +507,11 @@ export default function ClassDetail(): JSX.Element {
 								size={[10, 10]}
 								wrap
 							>
-								{new Array(10).fill(null).map((_, index) => (
+								{get(classInfo, "albums", []).map((file: any, index: number) => (
 									<Image
 										key={index}
 										width={200}
-										src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
+										src={get(file, "url", "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png")}
 									/>
 								))}
 							</Space>
@@ -549,7 +551,7 @@ export default function ClassDetail(): JSX.Element {
 									.map((day) => dayOptions[day])
 									.join(", ");
 							})()}{" "}
-							({get(classInfo, "schedule_time", "")})
+							({classInfo?.schedule_time ?? "Chưa có thời gian học"})
 						</strong>
 					</Descriptions.Item>
 				</Descriptions>
@@ -558,30 +560,39 @@ export default function ClassDetail(): JSX.Element {
 	);
 }
 
-function ClassPhotoAlbum(props: { class_id: number }): JSX.Element {
-	const dispatch = useDispatch();
+function ClassPhotoAlbum(props: { class_id: number, name: string, fee_per_session: number }): JSX.Element {
+	const dispatch = useAppDispatch();
 	const [show, setShow] = useState(false);
 	const [fileList, setFileList] = useState<UploadFile[]>([]);
 	const [form] = Form.useForm();
+	const [isLoading, setIsLoading] = useState(false)
 
 	useEffect(() => {
-		// if (statusUploadFile === "success" || statusUploadFile === "error") {
-		// 	setLoading(false);
-		// 	dispatch(resetUploadFileStatus());
-		// 	if (statusUploadFile === "success") {
-		// 		setFileList([]);
-		// 	}
-		// }
+		setFileList([])
 	}, []);
 
 	function handleUploadFile() {
 		if (fileList.length > 0) {
+			setIsLoading(true)
 			const listFileUpload = fileList.map((file) => {
 				return file.originFileObj as File;
 			});
 			//Todo dispatch action to upload file then reset
-			// dispatch(actionUploadFile(listFileUpload));
-			// const data = {class_id: props.class_id, file_id: }
+			const fileIdUploaded: number[] = []
+			dispatch(actionUploadFile(listFileUpload)).then((data) => {
+				(get(data, "payload", [])as FileType[]).forEach(file => {
+				fileIdUploaded.push(file.id)})
+				return fileIdUploaded
+			}).then((fileIdList) => {
+				const data = {albums: fileIdList, name: props.name, fee_per_session: props.fee_per_session}
+				dispatch(actionUpdateClass({data, cID: props.class_id})).then(()  => {
+					dispatch(actionGetClass({ class_id: props.class_id}));
+				}).finally(() => {
+					setIsLoading(false)
+					setShow(false)
+				})
+			})
+			
 		}
 	}
 
@@ -607,8 +618,7 @@ function ClassPhotoAlbum(props: { class_id: number }): JSX.Element {
 				width={950}
 				maskClosable={false}
 			>
-				{/* Todo */}
-				<Spin spinning={false}>
+				<Spin spinning={isLoading}>
 					<Form onFinish={handleUploadFile} form={form}>
 						<Form.Item>
 							<Dragger
