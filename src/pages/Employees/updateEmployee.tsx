@@ -20,6 +20,8 @@ import {
 import { RootState, useAppDispatch } from "store/store";
 import { useSelector } from "react-redux";
 import { get } from "lodash";
+import { converRoleNameToVN } from "utils/ultil";
+import { ROLE_NAMES } from "utils/const";
 
 const dateFormat = "DD/MM/YYYY";
 
@@ -182,7 +184,7 @@ export default function UpdateEmplyeeForm(props: {
 							{roles.map((role: RoleType) => {
 								return (
 									<Select.Option key={role.id} value={role.id}>
-										{role.name}
+										{converRoleNameToVN(role.name as ROLE_NAMES)}
 									</Select.Option>
 								);
 							})}
