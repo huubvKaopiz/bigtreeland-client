@@ -15,6 +15,7 @@ import {
 	actionUpdateRole,
 } from "store/roles/slice";
 import { RootState, useAppDispatch } from "store/store";
+import { actionGetUsers } from "store/users/slice";
 import { ROLE_NAMES } from "utils/const";
 import { DatePattern, dateSort, formatDate } from "utils/dateUltils";
 import { converRoleNameToVN } from "utils/ultil";
@@ -35,6 +36,7 @@ function Roles(): JSX.Element {
 	//Get roles for mounted
 	useEffect(() => {
 		dispatch(actionGetRoles());
+		dispatch(actionGetUsers({per_page: 1000000000}))
 	}, [dispatch]);
 
 	useEffect(() => {

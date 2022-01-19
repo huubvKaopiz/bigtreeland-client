@@ -71,11 +71,15 @@ export const actionUpdateRole = createAsyncThunk("actionUpdateRole", async (data
 			data: { name: data.role_name },
 		});
 
-	if (data.user_ids) {
+	if (data.add_user_ids || data.remove_users_ids) {
 		actionUpdateRole = await request({
 			url: "/api/roles/set-role-for-list-user",
 			method: "post",
-			data: { role_id: data.role_id, user_ids: data.user_ids },
+			data: {
+				role_id: data.role_id,
+				add_user_ids: data.add_user_ids,
+				remove_users_ids: data.remove_users_ids,
+			},
 		});
 	}
 	if (data.permission) {

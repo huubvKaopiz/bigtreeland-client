@@ -75,6 +75,9 @@ function RoleDetail({ show, roleDetail, onClose, onChange }: RoleDetailProps): J
 		const listPermissionAdded = permissionsSelected.filter((permission) => !permissionsGranted.includes(permission));
 		const listPermissionRemoved = permissionsGranted.filter((permission) => !permissionsSelected.includes(permission));
 
+		const listUserAdded = userSelected.filter((user) => !userGranted.includes(user));
+		const listUserRemoved = userGranted.filter((user) => !userSelected.includes(user));
+
 		const updateObject: UpdateRoleDataType = {
 			role_id: roleDetail?.id,
 		};
@@ -84,7 +87,10 @@ function RoleDetail({ show, roleDetail, onClose, onChange }: RoleDetailProps): J
 		if (changeRoleName) updateObject.role_name = roleName;
 		if (changePermission)
 			updateObject.permission = { added: [...listPermissionAdded], removed: [...listPermissionRemoved] };
-		if (changeUser) updateObject.user_ids = [...userSelected];
+		if (changeUser) {
+			updateObject.add_user_ids = [...listUserAdded];
+			updateObject.remove_users_ids = [...listUserRemoved];
+		}
 		if (changeRoleName || changePermission || changeUser)
 			onChange(updateObject);
 		onClose();
