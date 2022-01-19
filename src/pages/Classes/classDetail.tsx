@@ -499,9 +499,9 @@ export default function ClassDetail(): JSX.Element {
 						</TabPane>
 						<TabPane tab="Album ảnh" key="4">
 							<Space style={{ paddingTop: 20, marginBottom: 20 }}>
-								<ClassPhotoAlbum class_id={+params.class_id} fee_per_session={classInfo?.fee_per_session ?? 0} name={classInfo?.name ?? ''}/>
+								<ClassPhotoAlbum class_id={+params.class_id}/>
 							</Space>
-
+							<div></div>
 							<Space
 								style={{ backgroundColor: "white", padding: 10 }}
 								size={[10, 10]}
@@ -510,7 +510,10 @@ export default function ClassDetail(): JSX.Element {
 								{get(classInfo, "albums", []).map((file: any, index: number) => (
 									<Image
 										key={index}
-										width={200}
+										width={240}
+										height={240}
+										style={{ objectFit: "cover" }}
+										alt="logo"
 										src={get(file, "url", "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png")}
 									/>
 								))}
@@ -560,7 +563,7 @@ export default function ClassDetail(): JSX.Element {
 	);
 }
 
-function ClassPhotoAlbum(props: { class_id: number, name: string, fee_per_session: number }): JSX.Element {
+function ClassPhotoAlbum(props: { class_id: number}): JSX.Element {
 	const dispatch = useAppDispatch();
 	const [show, setShow] = useState(false);
 	const [fileList, setFileList] = useState<UploadFile[]>([]);
@@ -585,7 +588,7 @@ function ClassPhotoAlbum(props: { class_id: number, name: string, fee_per_sessio
 				fileIdUploaded.push(file.id)})
 				return fileIdUploaded
 			}).then((fileIdList) => {
-				const data = {albums: fileIdList, name: props.name, fee_per_session: props.fee_per_session}
+				const data = {albums: fileIdList}
 				dispatch(actionUpdateClass({data, cID: props.class_id})).then(()  => {
 					dispatch(actionGetClass({ class_id: props.class_id}));
 				}).finally(() => {
