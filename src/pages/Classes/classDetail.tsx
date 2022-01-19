@@ -568,8 +568,9 @@ function ClassPhotoAlbum(props: { class_id: number, name: string, fee_per_sessio
 	const [isLoading, setIsLoading] = useState(false)
 
 	useEffect(() => {
-		setFileList([])
-	}, []);
+		if(show)
+			setFileList([])
+	}, [show]);
 
 	function handleUploadFile() {
 		if (fileList.length > 0) {
