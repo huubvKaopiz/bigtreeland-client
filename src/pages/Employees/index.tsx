@@ -11,7 +11,7 @@ import {
 	Tooltip,
 	Modal,
 } from "antd";
-import { DeleteOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
+import { DeleteOutlined, ExclamationCircleOutlined, QuestionCircleOutlined } from "@ant-design/icons";
 import { EmployeeType, User, UserType } from "interface";
 import { debounce, get } from "lodash";
 import React, { useEffect, useRef, useState } from "react";
@@ -24,6 +24,7 @@ import { actionGetRoles } from "store/roles/slice";
 import { RootState, useAppDispatch } from "../../store/store";
 import AddEmplyeeForm from "./addEmployeeFrom";
 import UpdateEmplyeeForm from "./updateEmployee";
+import { ROLE_NAMES } from "utils/const";
 
 const { confirm } = Modal;
 
@@ -32,7 +33,7 @@ function Employees(): JSX.Element {
 
 	const [page, setPage] = useState(0);
 	const [search, setSearch] = useState("");
-	const [role, setRole] = useState("teacher");
+	const [role, setRole] = useState(ROLE_NAMES.TEACHER);
 
 	const roles = useSelector((state: RootState) => state.roleReducer.roles);
 	const employees = useSelector(
@@ -195,10 +196,25 @@ function Employees(): JSX.Element {
 			</Row>
 			<Space style={{ marginBottom: 20 }}>
 				<Radio.Group onChange={handleChangeRole} value={role}>
-					<Radio value={"teacher"}>Giáo viên</Radio>
-					<Radio value={"teacher2"}>Giáo viên(2)</Radio>
-					<Radio value={"sale"}>Sale</Radio>
-					<Radio value={""}>Tẩt cả</Radio>
+					<Radio value={ROLE_NAMES.TEACHER}>
+						Giáo viên(1) {' '} 	
+						<Tooltip title="Giáo viên chính thức (lương theo doanh thu học phí)">
+							<QuestionCircleOutlined style={{ color: "#f39c12" }} />
+						</Tooltip>
+					</Radio>
+					<Radio value={ROLE_NAMES.TEACHER2}>
+						Giáo viên(2) {' '} 
+						<Tooltip title="Giáo viên hợp đồng (lương trên số buổi dạy)">
+							<QuestionCircleOutlined style={{ color: "#f39c12" }} />
+						</Tooltip>
+					</Radio>
+					<Radio value={ROLE_NAMES.SALE}>
+						Sale{' '} 
+						<Tooltip title="Nhân viên sale">
+							<QuestionCircleOutlined style={{ color: "#f39c12" }} />
+						</Tooltip>
+					</Radio>
+					<Radio value={ROLE_NAMES.EMPLOYEE}>Khác</Radio>
 				</Radio.Group>
 			</Space>
 			<Table

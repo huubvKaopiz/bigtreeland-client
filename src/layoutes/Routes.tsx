@@ -17,7 +17,6 @@ import TuitionDetail from "pages/Tuition/tuitionDetail";
 import Settings from "pages/settings";
 import Salaries from "pages/Salaries";
 import AddSalary from "pages/Salaries/addSalary";
-import EditSalary from "pages/Salaries/editSalary";
 import CreateTuitionPeriod from "pages/Tuition/createTuitionPeriod";
 import { StudySumaryBoard } from "pages/StudySummary";
 import { StudySummaryDetail } from "pages/StudySummary/studySummaryDetail";
@@ -46,8 +45,6 @@ function Routes(): JSX.Element {
 			<Route path="/settings" component={Settings} />
 			<Route path="/salaries" component={Salaries} />
 			<Route path="/salaries-create" component={AddSalary} />
-			<Route path="/salaries-edit/:salary_id" component={EditSalary} />
-
 		</>
 	);
 }

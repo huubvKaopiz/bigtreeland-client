@@ -15,7 +15,9 @@ import {
 	actionUpdateRole,
 } from "store/roles/slice";
 import { RootState, useAppDispatch } from "store/store";
+import { ROLE_NAMES } from "utils/const";
 import { DatePattern, dateSort, formatDate } from "utils/dateUltils";
+import { converRoleNameToVN } from "utils/ultil";
 import AddRolesForm from "./AddRolesForm";
 import RoleDetail from "./RoleDetail";
 
@@ -85,7 +87,7 @@ function Roles(): JSX.Element {
 					>
 						<Space>
 							<UserOutlined />
-							{text}
+							{text}({converRoleNameToVN(text as ROLE_NAMES)})
 						</Space>
 					</a>
 				);
@@ -172,7 +174,7 @@ function Roles(): JSX.Element {
 				loading={statusGetRoles === "loading" || statusDeleteRoles === "loading"}
 				pagination={{ pageSize: 20 }}
 				dataSource={listRoles}
-				// size="small"
+			// size="small"
 			/>
 			<RoleDetail
 				roleDetail={roleDetail}

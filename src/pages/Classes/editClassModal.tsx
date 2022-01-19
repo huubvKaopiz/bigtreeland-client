@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
-import { Button, Modal, Form, Select, Input, TimePicker, InputNumber } from "antd";
+import { Button, Modal, Form, Select, Input, TimePicker, InputNumber, Space, Tag } from "antd";
 import { EditOutlined } from "@ant-design/icons";
 import { useAppDispatch } from "store/store";
 import { actionUpdateClass, actionGetClasses } from "store/classes/slice";
 import { get } from "lodash";
 import { ClassType, EmployeeType, ListEmployeeType } from "interface";
-import { dayOptions } from "utils/const";
+import { dayOptions, ROLE_NAMES } from "utils/const";
 import numeral from "numeral";
 import moment from "moment";
+import { converRoleNameToVN } from "utils/ultil";
 
 export default function EditClassModal(props: {
 	classInfo: ClassType;
@@ -23,8 +24,8 @@ export default function EditClassModal(props: {
 
 	useEffect(() => {
 		if (classInfo) {
-			let scheduleTime:string[] = [];
-			if(classInfo.schedule_time){
+			let scheduleTime: string[] = [];
+			if (classInfo.schedule_time) {
 				scheduleTime = classInfo.schedule_time.split("-");
 			}
 			uFrom.setFieldsValue({
@@ -32,19 +33,19 @@ export default function EditClassModal(props: {
 				employee_id: get(classInfo, "user.id", ""),
 				fee_per_session: classInfo.fee_per_session,
 				schedule: classInfo.schedule,
-				schedule_time:scheduleTime.length > 0 ? [moment(scheduleTime[0],"HH:mm:ss"), moment(scheduleTime[1], "HH:mm:ss")] : null
+				schedule_time: scheduleTime.length > 0 ? [moment(scheduleTime[0], "HH:mm:ss"), moment(scheduleTime[1], "HH:mm:ss")] : null
 			});
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [classInfo]);
 
-	function handleSubmit(values:any) {
+	function handleSubmit(values: any) {
 		setSubmiting(true);
 		let scheduleTime = null;
-		if(values.schedule_time){
+		if (values.schedule_time) {
 			scheduleTime = moment(values.schedule_time[0]).format("HH:mm:ss") + "-" + moment(values.schedule_time[1]).format("HH:mm:ss")
 		}
-		dispatch(actionUpdateClass({ data: {...values, schedule_time:scheduleTime}, cID: classInfo.id }))
+		dispatch(actionUpdateClass({ data: { ...values, schedule_time: scheduleTime }, cID: classInfo.id }))
 			.finally(() => {
 				dispatch(actionGetClasses({ page: 1 }));
 				setShow(false);
@@ -90,7 +91,10 @@ export default function EditClassModal(props: {
 								get(teachers, "data", []).map((tc: EmployeeType) => {
 									return (
 										<Select.Option value={tc.id} key={tc.id} label={`${get(tc, "profile.name", "")} (${tc.phone})`}>
-											<a>{get(tc, "profile.name", "")}</a> ({tc.phone})
+											<Space>
+												{get(tc, "roles", []).map((role: { id: number, name: string }) => <Tag color="orange" key={role.id}>{converRoleNameToVN(role.name as ROLE_NAMES)}</Tag>)}
+												<a>{get(tc, "profile.name", "")}</a> ({tc.phone})
+											</Space>
 										</Select.Option>
 									);
 								})}
@@ -112,8 +116,8 @@ export default function EditClassModal(props: {
 							))}
 						</Select>
 					</Form.Item>
-					<Form.Item label="Thời gian học" name="schedule_time"> 
-						<TimePicker.RangePicker format="HH:mm"/>
+					<Form.Item label="Thời gian học" name="schedule_time">
+						<TimePicker.RangePicker format="HH:mm" />
 					</Form.Item>
 				</Form>
 			</Modal>

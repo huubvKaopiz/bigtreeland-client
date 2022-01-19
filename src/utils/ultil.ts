@@ -1,6 +1,6 @@
 import { AxiosResponse } from "axios";
 import numeral from "numeral";
-import { imageExtensionsList } from "./const";
+import { imageExtensionsList, ROLE_NAMES } from "./const";
 import request from "./request";
 
 export function formatCurrency(amount: number | string | undefined | null): string {
@@ -35,4 +35,32 @@ export function downloadFile(urlFile: string, fileName: string): void {
 		document.body.appendChild(fileLink);
 		fileLink.click();
 	});
+}
+
+
+export function converRoleNameToVN(role: ROLE_NAMES): string {
+	let res = "";
+	switch (role) {
+		case ROLE_NAMES.ADMIM:
+			res = 'Quản trị hệ thống';
+			break;
+		case ROLE_NAMES.TEACHER:
+			res = "Giáo viên chính thức";
+			break;
+		case ROLE_NAMES.TEACHER2:
+			res = "Giáo viên hợp đồng";
+			break;
+		case ROLE_NAMES.SALE:
+			res = "Nhân viên kinh doanh";
+			break;
+		case ROLE_NAMES.EMPLOYEE:
+			res = "Nhân viên";
+			break;
+		case ROLE_NAMES.PARENT:
+			res = "Phụ huynh";
+			break;
+		default:
+			break;
+	}
+	return res;
 }
