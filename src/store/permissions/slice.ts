@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { message } from "antd";
+import { notification } from "antd";
 import React from "react";
 import request from "../../utils/request";
 
@@ -65,7 +65,7 @@ export const permissionSlice = createSlice({
 		})
 		.addCase(actionGetPermissions.rejected, (state) => {
 			state.getPermissionsState = "error",
-			message.error({messanger:"Lấy danh sách quyền bị lỗi"})
+			notification.error({message:"Lấy danh sách quyền bị lỗi"})
 		})
 
 		.addCase(actionSetRolePermissions.pending, (state) => {
@@ -73,7 +73,7 @@ export const permissionSlice = createSlice({
 		})
 		.addCase(actionSetRolePermissions.fulfilled, (state) => {
 			state.setPermissionsState = "success";
-			message.success({messanger:"Set quyền thành công!"})
+			notification.success({message:"Set quyền thành công!"})
 		})
 		.addCase(actionSetRolePermissions.rejected, (state) => {
 			state.setPermissionsState = "error";

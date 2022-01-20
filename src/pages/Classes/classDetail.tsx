@@ -370,6 +370,7 @@ export default function ClassDetail(): JSX.Element {
 							<Space style={{ paddingTop: 20, marginBottom: 20 }}>
 								Ngày:
 								<DatePicker
+									disabledDate={(current) => current && current > moment().endOf('day')}
 									defaultValue={moment(new Date(), dateFormat)}
 									format={dateFormat}
 									onChange={(e) => setToday(moment(e).format("DD/MM/YYYY"))}
