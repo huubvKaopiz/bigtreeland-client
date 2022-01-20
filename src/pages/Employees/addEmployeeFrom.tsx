@@ -6,6 +6,8 @@ import moment from "moment";
 import { RootState, useAppDispatch } from "store/store";
 import { useSelector } from "react-redux";
 import { RoleType } from "interface";
+import { converRoleNameToVN } from "utils/ultil";
+import { ROLE_NAMES } from "utils/const";
 
 const IsNumeric = { pattern: /^-{0,1}\d*\.{0,1}\d+$/, message: "Giá trị nhập phải là số" };
 
@@ -146,7 +148,7 @@ export default function AddEmplyeeForm(props: { roles: RoleType[], selectedRole:
 							{roles.map((role: RoleType) => {
 								return (
 									<Select.Option key={role.id} value={role.id}>
-										{role.name}
+										{converRoleNameToVN(role.name as ROLE_NAMES)}
 									</Select.Option>
 								);
 							})}

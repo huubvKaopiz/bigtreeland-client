@@ -26,6 +26,7 @@ import lessonReducer from "./lesson/slice";
 import salariesReducer from "./salaries/slice";
 import testResultsReducer from "./test-results/slice";
 import studySummaryReducer from "./study-summary/slice";
+import systemSettingReducer from './settings/system';
 
 const rootReducer = combineReducers({
 	auth,
@@ -48,6 +49,7 @@ const rootReducer = combineReducers({
 	salariesReducer,
 	testResultsReducer,
 	studySummaryReducer,
+	systemSettingReducer
 });
 
 const persistConfig = {

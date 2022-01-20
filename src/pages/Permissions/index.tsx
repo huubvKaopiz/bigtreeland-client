@@ -68,19 +68,6 @@ const tableColumn = [
 		},
 	},
 	{
-		title: "Ngày update",
-		key: "updated_at",
-		dataIndex: "updated_at",
-		render: function UserLink(date: string): JSX.Element {
-			return <>{formatDate(date, DatePattern.DD_MM_YYYY_HH_mm_ss)}</>;
-		},
-		showSorterTooltip: false,
-		sorter: {
-			compare: (a: PermistionType, b: PermistionType) => dateSort(a.updated_at, b.updated_at),
-			multiple: 1,
-		},
-	},
-	{
 		title: "Action",
 		key: "action",
 		render: function ActionRow(_: string, record: PermistionType): JSX.Element {
@@ -88,23 +75,6 @@ const tableColumn = [
 				<Space size="large" style={{ display: "flex", justifyContent: "center" }}>
 					<a>
 						<EditOutlined />
-					</a>
-					<a
-						onClick={() => {
-							RoleService.deleteRole(record.id)
-								.then(() => {
-									notification.success({
-										message: `Xoá quyền ${record.name} thành công!`,
-									});
-								})
-								.catch(() => {
-									notification.error({
-										message: "Có lỗi xảy ra!",
-									});
-								});
-						}}
-					>
-						<DeleteOutlined />
 					</a>
 				</Space>
 			);
@@ -116,19 +86,19 @@ function Permissions(): JSX.Element {
 	const dispatch = useAppDispatch()
 	const [isLoading, setIsLoading] = useState(false);
 	const listPermission = useSelector((state: RootState) => state.permissionReducer.permissions);
-	const [tableItem, setTableItem] = useState<PermistionType[]>(listPermission)
-	
+	const [tableItem, setTableItem] = useState<PermistionType[] | null>(listPermission)
+
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	useEffect(() => {
-		if(listPermission.length === 0) {
+		if (listPermission && listPermission.length === 0) {
 			setIsLoading(true)
-			dispatch(actionGetPermissions()).then(()=> {
+			dispatch(actionGetPermissions()).then(() => {
 				setTableItem(listPermission)
 			}).finally(() => {
 				setIsLoading(false)
 			})
 		}
-	// eslint-disable-next-line react-hooks/exhaustive-deps
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [dispatch]);
 
 	return (
@@ -139,7 +109,7 @@ function Permissions(): JSX.Element {
 					columns={tableColumn}
 					loading={isLoading}
 					pagination={{ pageSize: 20 }}
-					dataSource={tableItem}
+					// dataSource={tableItem && tableItem}
 					size="small"
 				/>
 			</Layout.Content>

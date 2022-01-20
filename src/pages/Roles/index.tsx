@@ -1,6 +1,5 @@
-import DeleteOutlined from "@ant-design/icons/lib/icons/DeleteOutlined";
-import UserOutlined from "@ant-design/icons/lib/icons/UserOutlined";
-import { Col, Input, Layout, Row, Space, Table } from "antd";
+import { Button, Col, Input, Layout, Modal, Row, Space, Table, Tooltip } from "antd";
+import { DeleteOutlined, UserOutlined, ExclamationCircleOutlined, AuditOutlined } from '@ant-design/icons';
 import { RoleCreateFormType, RoleType, UserType } from "interface";
 import { UpdateRoleDataType } from "interface/api-params-interface";
 import React, { useEffect, useState } from "react";
@@ -12,31 +11,29 @@ import {
 	actionResetStatusDeleteRole,
 	actionResetStatusGetRole,
 	actionResetStatusUpdateRole,
-	actionUpdateRole,
 } from "store/roles/slice";
 import { RootState, useAppDispatch } from "store/store";
-import { actionGetUsers } from "store/users/slice";
 import { ROLE_NAMES } from "utils/const";
 import { DatePattern, dateSort, formatDate } from "utils/dateUltils";
 import { converRoleNameToVN } from "utils/ultil";
 import AddRolesForm from "./AddRolesForm";
-import RoleDetail from "./RoleDetail";
+import { useHistory } from "react-router-dom";
+import { RoleUsers } from "./roleUsers";
+
+const { confirm } = Modal;
 
 function Roles(): JSX.Element {
 	const dispatch = useAppDispatch();
+	const history = useHistory();
 	const statusCreateRole = useSelector((state: RootState) => state.roleReducer.statusCreateRole);
 	const statusGetRoles = useSelector((state: RootState) => state.roleReducer.statusGetRole);
 	const statusDeleteRoles = useSelector((state: RootState) => state.roleReducer.statusDeleteRole);
 	const statusUpdateRole = useSelector((state: RootState) => state.roleReducer.statusUpdateRole);
 	const listRoles = useSelector((state: RootState) => state.roleReducer.roles);
 
-	const [showDetail, setShowDetail] = useState(false);
-	const [roleDetail, setRoleDetail] = useState<RoleType>();
-
 	//Get roles for mounted
 	useEffect(() => {
 		dispatch(actionGetRoles());
-		dispatch(actionGetUsers({per_page: 1000000000}))
 	}, [dispatch]);
 
 	useEffect(() => {
@@ -56,8 +53,17 @@ function Roles(): JSX.Element {
 		dispatch(actionCreateRole({ ...formValue, permission_ids: [...permissionsSelected] }));
 	}
 
-	function handlelUpdateRoles(updateObject: UpdateRoleDataType) {
-		dispatch(actionUpdateRole(updateObject));
+	function handleDeleteRole(roleID: number) {
+		confirm({
+			title: "Bạn muốn xoá vai trò này?",
+			icon: <ExclamationCircleOutlined />,
+			content: "Lưu ý khi xoá vai trò, tất cả quyền của nhân viên có vai trò này sẽ bị xoá!",
+			onOk() {
+				dispatch(actionDeleteRoles(roleID)).finally(() => {
+					dispatch(actionGetRoles());
+				});
+			},
+		});
 	}
 
 	const tableColumn = [
@@ -78,14 +84,10 @@ function Roles(): JSX.Element {
 			title: "Tên",
 			key: "name",
 			dataIndex: "name",
-			render: function UserLink(text: string, record: RoleType): JSX.Element {
+			render: function UserLink(text: string): JSX.Element {
 				return (
 					<a
 						className="example-link"
-						onClick={() => {
-							setShowDetail(true);
-							setRoleDetail(record);
-						}}
 					>
 						<Space>
 							<UserOutlined />
@@ -99,14 +101,9 @@ function Roles(): JSX.Element {
 			title: "Số thành viên",
 			key: "users",
 			dataIndex: "users",
-			render: function UserLink(users: UserType[], record: RoleType): JSX.Element {
+			render: function UserLink(users: UserType[]): JSX.Element {
 				return (
-					<a
-						onClick={() => {
-							setShowDetail(true);
-							setRoleDetail(record);
-						}}
-					>
+					<a>
 						{users.length}
 					</a>
 				);
@@ -131,30 +128,20 @@ function Roles(): JSX.Element {
 			},
 		},
 		{
-			title: "Ngày update",
-			key: "updated_at",
-			dataIndex: "updated_at",
-			render: function UserLink(date: string): JSX.Element {
-				return <>{formatDate(date, DatePattern.DD_MM_YYYY_HH_mm_ss)}</>;
-			},
-			showSorterTooltip: false,
-			sorter: {
-				compare: (a: RoleType, b: RoleType) => dateSort(a.updated_at, b.updated_at),
-				multiple: 1,
-			},
-		},
-		{
 			title: "",
 			key: "action",
 			render: function ActionRow(_: string, record: RoleType): JSX.Element {
 				return (
-					<a
-						onClick={() => {
-							dispatch(actionDeleteRoles(record.id));
-						}}
-					>
-						<DeleteOutlined />
-					</a>
+					<Space>
+						<Tooltip title="Xoá vai trò">
+							<Button type="link" danger onClick={() => handleDeleteRole(record.id)} icon={<DeleteOutlined />} />
+						</Tooltip>
+						<RoleUsers roleInfo={record} />
+						<Tooltip title="Phân quyền vai trò">
+							<Button type="link" onClick={() => history.push({ pathname: "/roles-set-permissions", state: { roleInfo: record } })} icon={<AuditOutlined />} />
+						</Tooltip>
+					</Space>
+
 				);
 			},
 		},
@@ -176,13 +163,6 @@ function Roles(): JSX.Element {
 				loading={statusGetRoles === "loading" || statusDeleteRoles === "loading"}
 				pagination={{ pageSize: 20 }}
 				dataSource={listRoles}
-			// size="small"
-			/>
-			<RoleDetail
-				roleDetail={roleDetail}
-				show={showDetail}
-				onClose={() => setShowDetail(false)}
-				onChange={handlelUpdateRoles}
 			/>
 		</Layout.Content>
 	);

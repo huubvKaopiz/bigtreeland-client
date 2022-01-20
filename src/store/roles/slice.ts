@@ -58,8 +58,20 @@ export const actionCreateRole = createAsyncThunk("actionCreateRole", async (data
 			data: { role_id: role_id.id, permission_add_ids: data.permission_ids, permission_delete_ids: [] },
 		});
 	}
-
 	return createRoleResponse.data;
+});
+
+export const actionSetRoleForUsers = createAsyncThunk("actionSetRoleForUsers", async (data: {
+	role_id: number,
+	add_user_ids: number[],
+	remove_user_ids: number[]
+}) => {
+	const response = await request({
+		url: "/api/roles/set-role-for-list-user",
+		method:"post",
+		data
+	});
+	return response.data;
 });
 
 export const actionUpdateRole = createAsyncThunk("actionUpdateRole", async (data: any) => {
@@ -123,6 +135,9 @@ export const slice = createSlice({
 		actionResetStatusUpdateRole(state) {
 			state.statusUpdateRole = "idle";
 		},
+		actionSetRoleForUsers(state){
+			state.statusUpdateRole = "idle";
+		}
 	},
 
 	extraReducers: (builder) => {
@@ -153,15 +168,27 @@ export const slice = createSlice({
 				notification.error({ message: "Có lỗi xảy ra" });
 			})
 
-			// Delete Row
+			// update Row
 			.addCase(actionDeleteRoles.fulfilled, (state) => {
 				state.statusDeleteRole = "success";
-				notification.success({ message: "Xoá một vai trò thành công!" });
+				notification.success({ message: "Cập nhật vai trò thành công!" });
 			})
 			.addCase(actionDeleteRoles.pending, (state) => {
 				state.statusDeleteRole = "loading";
 			})
 			.addCase(actionDeleteRoles.rejected, (state) => {
+				state.statusDeleteRole = "error";
+				notification.error({ message: "Có lỗi xảy ra" });
+			})
+
+			.addCase(actionSetRoleForUsers.fulfilled, (state) => {
+				state.statusDeleteRole = "success";
+				notification.success({ message: "Cập nhật danh sách người dùng thành công!" });
+			})
+			.addCase(actionSetRoleForUsers.pending, (state) => {
+				state.statusDeleteRole = "loading";
+			})
+			.addCase(actionSetRoleForUsers.rejected, (state) => {
 				state.statusDeleteRole = "error";
 				notification.error({ message: "Có lỗi xảy ra" });
 			})

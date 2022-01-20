@@ -64,3 +64,121 @@ export function converRoleNameToVN(role: ROLE_NAMES): string {
 	}
 	return res;
 }
+
+export function getPermissionDes(name: string): string {
+	let res = '';
+	switch (name) {
+		case 'users':
+			res = 'Người dùng';
+			break;
+		case 'get-list-teacher':
+			res = 'Xem danh sách phụ huynh';
+			break;
+		case 'change-password-of-user':
+			res = 'Thay đổi mật khẩu';
+			break;
+		case 'add-teacher':
+			res = 'Thêm giáo viên';
+			break;
+		case 'tuition-fees':
+			res = 'Học phí'
+			break;
+		case 'debit-tranfer':
+			res = 'Chuyển nợ';
+			break;
+		case 'tests':
+			res = 'Bài tập';
+			break;
+		case 'test-results':
+			res = 'Kết quả bài tập';
+			break;
+		case 'study-summary-boards':
+			res = 'Bảng tổng kết';
+			break;
+		case 'students':
+			res = 'Học sinh';
+			break;
+		case 'update-status':
+			res = 'Cập nhật trạng thái';
+			break;
+
+		case 'student-gifts':
+			res = 'Chọn quà tặng';
+			break;
+		case 'settings':
+			res = 'Cài đặt hệ thống';
+			break;
+		case 'salaries':
+			res = 'Bảng lương';
+			break;
+		case 'roles':
+			res = 'Vai trò';
+			break;
+		case 'set-role-for-list-user':
+			res = 'Set vai trò cho người dùng';
+			break;
+		case 'remove-role-of-list-user':
+			res = 'Bỏ vai trò của người dùng';
+			break;
+		case 'review-lessons':
+			res = 'Xem lại bài học';
+			break;
+		case 'receipts':
+			res = 'Phiếu thu';
+			break;
+		case 'permissions':
+			res = 'Phân quyền';
+			break;
+		case 'set-permission-for-user':
+			res = 'Phân quyền cho người dùng';
+			break;
+		case 'set-permission-for-role':
+			res = 'Phân quyền cho vai trò';
+			break;
+		case 'list-permission-of-user':
+			res = 'Xem ds quyền của người dùng';
+			break;
+		case 'period-tuitions':
+			res = 'Chu kỳ học phí';
+			break;
+		case 'payment-slips':
+			res = 'Phiếu chi';
+			break;
+		case 'notifications':
+			res = 'Thông báo';
+			break;
+		case 'news':
+			res = 'Tin tức';
+			break;
+		case 'lessons':
+			res = 'Bài học';
+			break;
+		case 'lessons-feedback':
+			res = 'Phản hồi bài học';
+			break;
+		case 'files':
+			res = 'Quản lý files';
+			break;
+		case 'day-offs':
+			res = 'Ngày nghỉ';
+			break;
+		case 'classes':
+			res = 'Lớp học';
+			break;
+		case 'add-student':
+			res = 'Thêm học sinh';
+			break;
+		case 'attendances':
+			res = 'Điểm danh';
+			break;
+		case 'albums':
+			res = 'Album ảnh ';
+			break;
+		case 'gifts':
+			res = 'Quà tặng';
+			break;
+		default:
+			break;
+	}
+	return res;
+}

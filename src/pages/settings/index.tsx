@@ -1,5 +1,5 @@
-import { Alert, Button, Calendar, Collapse, Layout, Space, Tag } from 'antd';
-import { FieldTimeOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import { Alert, Button, Calendar, Collapse, Form, Input, InputNumber, Layout, Space, Tag, Upload } from 'antd';
+import { FieldTimeOutlined, CloseCircleOutlined, UploadOutlined } from '@ant-design/icons';
 import moment, { Moment } from 'moment';
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -7,6 +7,12 @@ import { RootState, useAppDispatch } from 'store/store';
 import { actionAddDayoff, actionDeleteDayoff, actionGetDayoffs, actionSetAddDayoffStateIdle, actionSetDeleteDayoffStateIdle } from 'store/settings/dayoff';
 import { get } from 'lodash';
 const { Panel } = Collapse;
+
+const layout = {
+    labelCol: { span: 3 },
+    wrapperCol: { span: 12 },
+};
+
 export default function Settings(): JSX.Element {
     const dispatch = useAppDispatch();
     const [daySelected, setDaySelected] = useState(moment(new Date()));
@@ -34,11 +40,11 @@ export default function Settings(): JSX.Element {
         let isDayoff = false;
         const dateValue = moment(value).format("YYYY-MM-DD")
         get(dayoffs, "data", []).forEach((element: { from_date: string, to_date: string }) => {
-            if (moment(dateValue).isSame(moment(element.from_date))){
+            if (moment(dateValue).isSame(moment(element.from_date))) {
                 isDayoff = true;
             }
         });
-       
+
         if (isDayoff) {
             return (
                 <>
@@ -90,10 +96,46 @@ export default function Settings(): JSX.Element {
         }
     }
 
+    function handleUpdateSystemtInfo(values: any) {
+        console.log(values);
+    }
+
     return (
         <Layout.Content>
             <Collapse defaultActiveKey={['1']} >
-                <Panel header="Lịch trung tâm" key="1">
+                <Panel header="Thông tin trung tâm" key="1">
+                    <Form {...layout} name="nest-messages" onFinish={handleUpdateSystemtInfo} >
+                        <Form.Item name='name' label="Tên trung tâm" >
+                            <Input />
+                        </Form.Item>
+                        <Form.Item name='email' label="Email" rules={[{ type: 'email' }]}>
+                            <Input />
+                        </Form.Item>
+                        <Form.Item name='phone' label="Điện thoại" >
+                            <InputNumber />
+                        </Form.Item>
+                        <Form.Item name='addresss' label="Địa chỉ">
+                            <Input />
+                        </Form.Item>
+                        <Form.Item name='logo' label="Logo file">
+                            <Upload>
+                                <Button icon={<UploadOutlined />}>Click to Upload</Button>
+                            </Upload>
+                        </Form.Item>
+                        <Form.Item name='config' label="Config file">
+                            <Upload>
+                                <Button icon={<UploadOutlined />}>Click to Upload</Button>
+                            </Upload>
+                        </Form.Item>
+
+                        <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 3 }}>
+                            <Button type="primary" htmlType="submit">
+                                Cập nhật
+                            </Button>
+                        </Form.Item>
+                    </Form>
+                </Panel>
+                <Panel header="Lịch trung tâm" key="2">
                     <Space>
                         <Alert message={`Ngày đã chọn: ${daySelected && daySelected.format('YYYY-MM-DD')}`} />
                         {
@@ -107,13 +149,11 @@ export default function Settings(): JSX.Element {
                                 </Button>
                         }
                     </Space>
-                    <Calendar dateCellRender={dateCellRender}  onSelect={onSelectDay} onPanelChange={onPanelChange} />
+                    <Calendar dateCellRender={dateCellRender} onSelect={onSelectDay} onPanelChange={onPanelChange} />
                 </Panel>
-                <Panel header="This is panel header 2" key="2">
-                </Panel>
-                <Panel header="This is panel header 3" key="3">
-                </Panel>
-            </Collapse>,
+                {/* <Panel header="This is panel header 3" key="3">
+                </Panel> */}
+            </Collapse>
 
         </Layout.Content>
     )

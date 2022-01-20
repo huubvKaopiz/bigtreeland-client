@@ -20,6 +20,7 @@ import AddSalary from "pages/Salaries/addSalary";
 import CreateTuitionPeriod from "pages/Tuition/createTuitionPeriod";
 import { StudySumaryBoard } from "pages/StudySummary";
 import { StudySummaryDetail } from "pages/StudySummary/studySummaryDetail";
+import { SetRolePermissions } from "pages/Roles/setPermissions";
 
 function Routes(): JSX.Element {
 	return (
@@ -39,6 +40,7 @@ function Routes(): JSX.Element {
 			<Route path="/study-summary-detail/:sumamry_id" component={StudySummaryDetail} />
 			<Route path="/permissions" component={Permissions} />
 			<Route path="/roles" component={Roles} />
+			<Route path="/roles-set-permissions" component={SetRolePermissions} />
 			<Route path="/payments/payment-slips" component={Payment} />
 			<Route path="/files" component={Files} />
 			<Route path="/payments/revenue" component={Revenue} />

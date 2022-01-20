@@ -17,7 +17,7 @@ export interface UserType {
 	email: "admin@gmail.com";
 	email_verified_at: null;
 	employee: null;
-	id: string | number;
+	id: number;
 	name: "admin";
 	parent: null;
 	permissions: [];
@@ -418,4 +418,19 @@ export interface StudySummaryType {
 		name: number;
 		students_num: number;
 	};
+}
+
+export interface SystemSettingsType {
+	name:string,
+	address:string,
+	phone:string,
+	email:string,
+	logo_file:{
+		id:number,
+		url:string,
+	},
+	permission_configuration_file:{
+		id:number,
+		url:string,
+	}
 }

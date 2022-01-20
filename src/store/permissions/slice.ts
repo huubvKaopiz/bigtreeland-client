@@ -1,4 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { message } from "antd";
 import React from "react";
 import request from "../../utils/request";
 
@@ -12,11 +13,15 @@ export interface PermistionType {
 	updated_at: string;
 }
 export interface PermissionsState {
-	permissions: PermistionType[];
+	permissions: PermistionType[]|null;
+	getPermissionsState: "idle" | "loading" | "success" | "error";
+	setPermissionsState: "idle" | "loading" | "success" | "error"
 }
 
 const initialState: PermissionsState = {
 	permissions: [],
+	setPermissionsState: "idle",
+	getPermissionsState:"idle",
 };
 
 export const actionGetPermissions = createAsyncThunk("actionGetPermissions", async () => {
@@ -27,16 +32,53 @@ export const actionGetPermissions = createAsyncThunk("actionGetPermissions", asy
 	return response.data;
 });
 
-export const slice = createSlice({
+export const actionSetRolePermissions = createAsyncThunk("actionSetRolePermissions", async (data: {
+	role_id: number,
+	permission_add_ids: number[],
+	permission_delete_ids: number[]
+}) => {
+	const response = await request({
+		url: "/api/permissions/set-permission-for-role",
+		method: "post",
+		data
+	});
+	return response.data;
+});
+
+
+export const permissionSlice = createSlice({
 	name: "permissions",
 	initialState,
-	reducers: {},
+	reducers:{
+		actionGetPermissions(state){
+			state.getPermissionsState="idle";
+		},
+		actionSetRolePermissions(state) {
+			state.setPermissionsState = "idle";
+		}
+	},
 
 	extraReducers: (builder) => {
 		builder.addCase(actionGetPermissions.fulfilled, (state, action) => {
+			state.getPermissionsState = "success";
 			state.permissions = action.payload as PermistionType[];
-		});
+		})
+		.addCase(actionGetPermissions.rejected, (state) => {
+			state.getPermissionsState = "error",
+			message.error({messanger:"Lấy danh sách quyền bị lỗi"})
+		})
+
+		.addCase(actionSetRolePermissions.pending, (state) => {
+			state.setPermissionsState = "loading";
+		})
+		.addCase(actionSetRolePermissions.fulfilled, (state) => {
+			state.setPermissionsState = "success";
+			message.success({messanger:"Set quyền thành công!"})
+		})
+		.addCase(actionSetRolePermissions.rejected, (state) => {
+			state.setPermissionsState = "error";
+		})
 	},
 });
 
-export default slice.reducer;
+export default permissionSlice.reducer;
