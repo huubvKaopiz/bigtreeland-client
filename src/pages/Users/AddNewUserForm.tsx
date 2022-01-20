@@ -1,36 +1,49 @@
 import { PlusOutlined } from "@ant-design/icons";
 import { Button, Form, Input, Modal, Select, Space, Spin } from "antd";
+import { AddNewUser } from "interface/interfaces";
 import validateMessage from "lib/validateMessage";
 import { useEffect, useState } from "react";
-import { AddNewUser } from "interface/interfaces";
 import { useSelector } from "react-redux";
+import { actionGetRoles } from "store/roles/slice";
 import { RootState, useAppDispatch } from "store/store";
 import { actionGetUsers, actionResetStatusAddUser } from "store/users/slice";
 
-function AddNewUserForm({ onAddUser }: { onAddUser: (userInfo: AddNewUser) => void }): JSX.Element {
+function AddNewUserForm({
+	onAddUser,
+}: {
+	onAddUser: (userInfo: AddNewUser) => void;
+}): JSX.Element {
 	const [showForm, setShowForm] = useState(false);
 	const [form] = Form.useForm();
-	const status = useSelector((state: RootState) => state.userReducer.statusAddUser);
+	const status = useSelector(
+		(state: RootState) => state.userReducer.statusAddUser
+	);
+	const storeListRoles = useSelector(
+		(state: RootState) => state.roleReducer.roles
+	);
 	const dispatch = useAppDispatch();
+	const [listRole, setListRole] = useState<{ label: string; value: number }[]>(
+		[]
+	);
 
+	useEffect(() => {
+		dispatch(actionGetRoles());
+	}, [dispatch]);
+
+	useEffect(() => {
+		console.log(storeListRoles);
+		setListRole(
+			storeListRoles.map((role) => ({
+				label: role.name,
+				value: role.id,
+			}))
+		);
+	}, [storeListRoles]);
 	const form_layout = {
 		labelCol: { span: 8 },
 		wrapperCol: { span: 16 },
 	};
-	const listRole = [
-		{
-			label: "admin",
-			value: 1,
-		},
-		{
-			label: "teacher",
-			value: 2,
-		},
-		{
-			label: "parrent",
-			value: 3,
-		},
-	];
+
 	function handleResetFormField() {
 		form.resetFields();
 	}
@@ -48,7 +61,11 @@ function AddNewUserForm({ onAddUser }: { onAddUser: (userInfo: AddNewUser) => vo
 
 	return (
 		<>
-			<Button type="primary" icon={<PlusOutlined />} onClick={() => setShowForm(true)}>
+			<Button
+				type="primary"
+				icon={<PlusOutlined />}
+				onClick={() => setShowForm(true)}
+			>
 				Thêm người dùng
 			</Button>
 			<Modal
@@ -63,7 +80,13 @@ function AddNewUserForm({ onAddUser }: { onAddUser: (userInfo: AddNewUser) => vo
 				width={800}
 			>
 				<Spin spinning={status === "loading"}>
-					<Form {...form_layout} labelAlign="left" name="nest-messages" onFinish={handleAddUser} form={form}>
+					<Form
+						{...form_layout}
+						labelAlign="left"
+						name="nest-messages"
+						onFinish={handleAddUser}
+						form={form}
+					>
 						<Form.Item
 							name={"email"}
 							label="Email"
@@ -75,7 +98,11 @@ function AddNewUserForm({ onAddUser }: { onAddUser: (userInfo: AddNewUser) => vo
 							<Input />
 						</Form.Item>
 
-						<Form.Item name={"phone"} label="Phone" rules={[{ required: true, message: validateMessage.REQUIRE }]}>
+						<Form.Item
+							name={"phone"}
+							label="Phone"
+							rules={[{ required: true, message: validateMessage.REQUIRE }]}
+						>
 							<Input />
 						</Form.Item>
 
@@ -86,7 +113,11 @@ function AddNewUserForm({ onAddUser }: { onAddUser: (userInfo: AddNewUser) => vo
 						>
 							<Input />
 						</Form.Item>
-						<Form.Item name={"role_id"} label="Role" rules={[{ required: true, message: validateMessage.REQUIRE }]}>
+						<Form.Item
+							name={"role_id"}
+							label="Role"
+							rules={[{ required: true, message: validateMessage.REQUIRE }]}
+						>
 							<Select options={listRole} />
 						</Form.Item>
 						<Form.Item

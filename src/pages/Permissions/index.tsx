@@ -134,14 +134,7 @@ function Permissions(): JSX.Element {
 	return (
 		<Wrapper>
 			<Layout.Content>
-				<div className="permission__button">
-					<Space>
-						<Button type="primary">
-							<SearchOutlined />
-						</Button>
-						<Button type="primary">Tạo quyền mới</Button>
-					</Space>
-				</div>
+				
 				<Table
 					columns={tableColumn}
 					loading={isLoading}

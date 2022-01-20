@@ -30,7 +30,7 @@ function ChangePermisstion({ user, handleChangePermission }: Props): JSX.Element
 	const isMounted = useIsMounted();
 	const [userPermissionList, setUserPermissionList] = useState<number[]>([]);
 	const [userPermissionSelected, setUserPermissionSelected] = useState<number[]>([]);
-	console.log(user)
+	
 	useEffect(() => {
 		if (showForm)
 			PermissionService.getListPermissionOfUser(user.id).then(({ data }: { data: any }) => {
@@ -66,7 +66,7 @@ function ChangePermisstion({ user, handleChangePermission }: Props): JSX.Element
 				<Button type="link" icon={<SafetyCertificateOutlined />} onClick={() => setShowForm(true)} />
 			</Tooltip>
 			<Modal
-				title={`Phân quyền cho user ${user.name}`}
+				title={`Phân quyền cho user ${user?.profile?.name ?? ''}`}
 				width={800}
 				visible={showForm}
 				onCancel={handleCancelButton}

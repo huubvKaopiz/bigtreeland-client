@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store/store";
-import { ClassType } from "../../interface";
+import { ClassType, RoleType } from "../../interface";
 import { Button, Col, Input, Layout, Row, Space, Table } from "antd";
 import { UnorderedListOutlined } from "@ant-design/icons";
 import EditClassModal from "./editClassModal";
@@ -21,21 +21,30 @@ function Classes(): JSX.Element {
 	const classes = useSelector((state: RootState) => state.classReducer.classes);
 	const teachers = useSelector((state: RootState) => state.employeeReducer.employees);
 	const seachStatus = useSelector((state: RootState) => state.employeeReducer.getEmployeesStatus);
+	const userStore = useSelector((state: RootState) => state.auth.user);
 	const [page, setPage] = useState(1);
 	const [search, setSearch] = useState('')
+	const [teacher_id, setTeacherId] = useState<number| undefined>(undefined)
 
 	const searchClass = useDebouncedCallback((searchParam) => {
 		setSearch(searchParam)
-		dispatch(actionGetClasses({page: 1, search: searchParam}))
+		dispatch(actionGetClasses({page: 1, search: searchParam, teacher_id}))
 	}, 500)
 
 	useEffect(() => {
-		dispatch(actionGetClasses({ page: 1 }));
-		dispatch(actionGetEmployees({ role_ids:`2,3` })); //role_id of teacher and teacher2
-	}, [dispatch]);
+		const admin = (get(userStore, 'roles', []) as RoleType[]).find(role => role.id === 1)
+		if(!admin){
+			setTeacherId(get(userStore, 'id', void 0));
+		}
+	}, [userStore])
 
 	useEffect(() => {
-		dispatch(actionGetClasses({page, search}))
+		dispatch(actionGetClasses({ page: 1, teacher_id }));
+		dispatch(actionGetEmployees({ role_ids:`2,3` })); //role_id of teacher and teacher2
+	}, [dispatch, teacher_id]);
+
+	useEffect(() => {
+		dispatch(actionGetClasses({page, search, teacher_id}))
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	},[dispatch, page])
 
