@@ -39,11 +39,12 @@ export default function UpdateEmplyeeForm(props: {
 
 	useEffect(() => {
 		if (employee) {
+			const birthday = get(employee, "profile.birthday", null)
 			uFrom.setFieldsValue({
 				name: get(employee,"profile.name",""),
 				email: get(employee, "profile.email", ""),
 				phone: get(employee, "phone", ""),
-				birthday: moment(get(employee, "profile.birthday", moment())),
+				birthday: birthday ? moment(birthday) : null,
 				gender: get(employee, "profile.gender", 0),
 				address: get(employee, "profile.address", ""),
 				interests: get(employee, "profile.interests", ""),
@@ -153,7 +154,7 @@ export default function UpdateEmplyeeForm(props: {
 						</Select>
 					</Form.Item>
 					<Form.Item name="birthday" label="Ngày sinh">
-						<DatePicker />
+						<DatePicker format="DD-MM-YYYY"/>
 					</Form.Item>
 					<Form.Item name="address" label="Địa chỉ">
 						<Input />

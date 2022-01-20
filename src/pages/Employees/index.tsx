@@ -25,6 +25,7 @@ import { RootState, useAppDispatch } from "../../store/store";
 import AddEmplyeeForm from "./addEmployeeFrom";
 import UpdateEmplyeeForm from "./updateEmployee";
 import { ROLE_NAMES } from "utils/const";
+import moment from "moment";
 
 const { confirm } = Modal;
 
@@ -111,7 +112,9 @@ function Employees(): JSX.Element {
 			title: "Ngày sinh",
 			key: "birthday",
 			render: function col(user: UserType): JSX.Element {
-				return <span>{get(user, "profile.birthday", "")}</span>;
+				const birthday = get(user, "profile.birthday", null)
+				const birthdayLabel = birthday ? moment(birthday).format('DD-MM-YYYY') : ''
+				return <span>{ birthdayLabel}</span>;
 			},
 		},
 		{
