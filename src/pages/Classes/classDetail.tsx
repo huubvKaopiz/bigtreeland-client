@@ -88,7 +88,6 @@ export default function ClassDetail(): JSX.Element {
 		(state: RootState) => state.attendanceReducer.addAttendanceStatus
 	);
 
-	const inputRef = useRef<any>(null);
 	const [resetAttendance, setResetAttendance] = useState(1);
 
 	const modalConfirmConfig: ModalFuncProps = {
@@ -310,7 +309,6 @@ export default function ClassDetail(): JSX.Element {
 			render: function col(st: { id: number }): JSX.Element {
 				return (
 					<Input
-						ref={inputRef}
 						className="_input_"
 						style={{ width: "100%" }}
 						type="number"
