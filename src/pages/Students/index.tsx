@@ -30,13 +30,6 @@ export default function Students(): JSX.Element {
 	const searchClassStatus = useSelector((state: RootState) => state.classReducer.getClassesStatus);
 	const updateStudentStatus = useSelector((state: RootState) => state.studentReducer.updateStudentStatus);
 
-
-
-
-	useEffect(() => {
-		dispatch(actionGetStudents({ page: 1 }));
-	}, [dispatch]);
-
 	useEffect(() => {
 		if (loadListStatus === "error" || loadListStatus === "success") {
 			dispatch(actionResetGetStudents());
