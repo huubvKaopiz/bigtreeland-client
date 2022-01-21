@@ -1,4 +1,4 @@
-import { InboxOutlined, LikeOutlined, MessageOutlined, NotificationOutlined, SearchOutlined, TeamOutlined, UploadOutlined } from "@ant-design/icons";
+import { ExclamationCircleOutlined, InboxOutlined, LikeOutlined, MessageOutlined, NotificationOutlined, SearchOutlined, TeamOutlined, UploadOutlined } from "@ant-design/icons";
 import {
 	Button,
 	Col,
@@ -10,6 +10,7 @@ import {
 	Layout,
 	List,
 	Modal,
+	ModalFuncProps,
 	notification,
 	PageHeader,
 	Row,
@@ -22,11 +23,11 @@ import Checkbox, { CheckboxChangeEvent } from "antd/lib/checkbox/Checkbox";
 import TextArea from "antd/lib/input/TextArea";
 import Dragger from "antd/lib/upload/Dragger";
 import { UploadFile } from "antd/lib/upload/interface";
-import { TestType } from "interface";
+import { FileType, TestType } from "interface";
 import { get } from "lodash";
-import moment, { Moment } from "moment";
-import { useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import moment from "moment";
+import { useEffect, useMemo, useReducer, useRef, useState } from "react";
+import { useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import {
 	actionAddAttendance,
@@ -36,9 +37,7 @@ import {
 	AttendanceStudentComment
 } from "store/attendances/slice";
 import { actionGetClass, actionUpdateClass } from "store/classes/slice";
-import { actionGetLessons, actionSetLessionsStateNull } from "store/lesson/slice";
 import { actionUploadFile } from "store/files/slice";
-import { FileType } from "interface";
 import { RootState, useAppDispatch } from "store/store";
 import { actionGetTestes } from "store/testes/slice";
 import { dayOptions, imageExtensionsList } from "utils/const";
@@ -59,13 +58,36 @@ export default function ClassDetail(): JSX.Element {
 	const [checkAll, setCheckAll] = useState(false);
 	const [listComments, setListComments] = useState<AttendanceStudentComment[]>([]);
 	const [lessonTime, setlessonTime] = useState<string[]>(['',''])
+	const [classActiveTab, setClassActiveTab] = useState<string>('1')
 	// const classInfo = location.state.classInfo as ClassType;
 	const attendances = useSelector((state: RootState) => state.attendanceReducer.attendances);
 	const classInfo = useSelector((state: RootState) => state.classReducer.classInfo);
 	const testList = useSelector((state: RootState) => state.testReducer.testes);
 	const addStudentsStatus = useSelector((state: RootState) => state.classReducer.addStudentsStatus);
 	const getAttendancesStatus = useSelector((state: RootState) => state.attendanceReducer.getAttendancesStatus);
+	const statusAddAttendanceStatus = useSelector((state: RootState) => state.attendanceReducer.addAttendanceStatus);
 
+	const inputRef = useRef<any>(null)
+
+	const modalConfirmConfig: ModalFuncProps = {
+		title: "",
+		content: "Di chuyển đến danh sách buổi học",
+		icon: <ExclamationCircleOutlined />,
+		okText: "Ok",
+		cancelText: "Ở lại",
+		onOk: () => {
+			setClassActiveTab("3");
+			//Clear value: @a Huu. fix cho e nhe
+			const listInput: NodeListOf<HTMLInputElement> =
+				document.querySelectorAll("._input_");
+			listInput.forEach((input) => {
+				console.log(input.value);
+				input.value = "";
+			});
+			setCheckAll(false);
+			setAttendantList([]);
+		},
+	};
 
 	useEffect(() => {
 		if (addStudentsStatus === "success") {
@@ -87,6 +109,13 @@ export default function ClassDetail(): JSX.Element {
 			dispatch(actionGetTestes({ class_id: +params.class_id }))
 		}
 	}, [dispatch, params]);
+
+	useEffect(() => {
+		if (statusAddAttendanceStatus === "success") {
+			Modal.confirm(modalConfirmConfig);
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [statusAddAttendanceStatus]);
 
 	const studentList = useMemo(() => get(attendances, "students", []), [attendances]);
 
@@ -239,6 +268,8 @@ export default function ClassDetail(): JSX.Element {
 			render: function col(st: { id: number }): JSX.Element {
 				return (
 					<Input
+						ref={inputRef}
+						className="_input_"
 						style={{ width: "100%" }}
 						type="number"
 						step={0.1}
@@ -252,15 +283,16 @@ export default function ClassDetail(): JSX.Element {
 			title: "Reminder",
 			key: "reminder",
 			dataIndex: "",
-			width: 150,
 			render: function col(st: { id: number }): JSX.Element {
 				return (
-					<Input
+					<TextArea
+						className="_input_"
 						style={{ width: "100%" }}
-						type="text"
-						step={0.1}
+						autoSize={{ minRows: 1, maxRows: 3 }}
 						placeholder="Lời nhắc nhở"
-						onChange={({ target: { value } }) => handleChangeReminder(value, st.id)}
+						onChange={({ target: { value } }) =>
+							handleChangeReminder(value, st.id)
+						}
 					/>
 				);
 			},
@@ -272,6 +304,7 @@ export default function ClassDetail(): JSX.Element {
 			render: function col(st: { id: number }): JSX.Element {
 				return (
 					<TextArea
+						className="_input_"
 						style={{ width: "100%" }}
 						autoSize={{minRows: 1, maxRows: 3}}
 						placeholder="Nhận xét"
@@ -311,22 +344,7 @@ export default function ClassDetail(): JSX.Element {
 			return <strong>{value}</strong>;
 		},
 	})
-	// Object.keys(attendances?.attendances ?? {}).map((key: string) => {
-	// 	lessonCols.push({
-	// 		title: `${moment(key).format("DD/MM/YYYY")}`,
-	// 		dataIndex: "",
-	// 		key: `${key}`,
-	// 		width:20,
-	// 		render: function col(st:any /*{ id: number; name: string }*/): JSX.Element {
-	// 			console.log(st)
-	// 			return (
-	// 				<>
-	// 				<Checkbox checked={isAttendant(st.id, key)} disabled />
-	// 				</>
-	// 			);
-	// 		},
-	// 	});
-	// })
+
 	for (const key in get(attendances, "attendances", [])) {
 		lessonCols.push({
 			title: `${moment(key).format("DD/MM/YYYY")}`,
@@ -334,7 +352,6 @@ export default function ClassDetail(): JSX.Element {
 			key: `${key}`,
 			width:20,
 			render: function col(st: { id: number; name: string }): JSX.Element {
-				// console.log(st)
 				return (
 					<>
 					<Checkbox checked={isAttendant(st.id, key)} disabled />
@@ -365,8 +382,8 @@ export default function ClassDetail(): JSX.Element {
 					<Button key="2">In danh sách</Button>,
 				]}
 				footer={
-					<Tabs defaultActiveKey="1">
-						<TabPane tab="Điểm danh" key="1">
+					<Tabs activeKey={classActiveTab} onChange={setClassActiveTab}>
+						<TabPane tab="Điểm danh" key="1" >
 							<Space style={{ paddingTop: 20, marginBottom: 20 }}>
 								Ngày:
 								<DatePicker
@@ -382,7 +399,7 @@ export default function ClassDetail(): JSX.Element {
 
 							<Row>
 								<Col span={24}>
-									<Spin spinning={getAttendancesStatus === "loading"}>
+									<Spin spinning={getAttendancesStatus === "loading" || statusAddAttendanceStatus==="loading"}>
 										<Table
 											dataSource={studentList}
 											columns={attendance_columns}
