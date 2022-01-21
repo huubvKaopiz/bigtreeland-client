@@ -1,5 +1,5 @@
-import { MinusCircleOutlined, SearchOutlined } from "@ant-design/icons";
-import { Button, Input, Layout, Radio, Space, Spin, Table, Tag, Tooltip } from "antd";
+import { MinusCircleOutlined, SearchOutlined, RedoOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
+import { Button, Input, Layout, Radio, Space, Spin, Table, Tag, Tooltip, Modal } from "antd";
 import { UserType as User } from "interface";
 import { AddNewUser } from "interface/interfaces";
 import { debounce, get } from "lodash";
@@ -12,22 +12,26 @@ import {
 	actionDeactiveUser,
 	actionGetUsers,
 	actionResetStatusDeactiveUser,
+	actionRestoreUser,
 	actionSetPermissionsForUser,
 } from "store/users/slice";
 import AddNewUserForm from "./AddNewUserForm";
 import ChangePassword from "./ChangePassword";
 import ChangePermisstion from "./ChangePermisstion";
 
+const { confirm } = Modal;
+
 export default function Users(): JSX.Element {
 	const dispatch = useAppDispatch();
 	const users = useSelector((state: RootState) => state.userReducer.users);
 	const [search, setSearch] = useState("");
 	const [page, setPage] = useState(1);
+	const [statusFilter, setStatusFilter] = useState('active');
 	const status = useSelector(
 		(state: RootState) => state.userReducer.statusGetUser
 	);
 	const statusDeactiveUser = useSelector(
-		(state: RootState) => state.userReducer.statusDeactiveUser
+		(state: RootState) => state.userReducer.statusUpdateUserState
 	);
 
 	const debounceSearch = useRef(
@@ -38,9 +42,9 @@ export default function Users(): JSX.Element {
 	).current;
 
 	useEffect(() => {
-		dispatch(actionGetUsers({ page, search }));
+		dispatch(actionGetUsers({ page, search, status: statusFilter }));
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [dispatch, page]);
+	}, [dispatch, page, statusFilter]);
 
 	useEffect(() => {
 		if (statusDeactiveUser === "success") {
@@ -54,8 +58,9 @@ export default function Users(): JSX.Element {
 		debounceSearch(value);
 	}
 
-	function onChangeListFilter(e:any){
+	function onChangeListFilter(e: any) {
 		console.log(e.target.value)
+		setStatusFilter(e.target.value)
 	}
 
 	function handleChangePass(payload: {
@@ -66,7 +71,15 @@ export default function Users(): JSX.Element {
 	}
 
 	function handleDeactive(user: User) {
-		dispatch(actionDeactiveUser(+user.id));
+		confirm({
+			title: "Bạn muốn vô hiệu hoá tài khoản này!",
+			icon: <ExclamationCircleOutlined />,
+			onOk() {
+				dispatch(actionDeactiveUser(user.id)).finally(() => {
+					dispatch(actionGetUsers({ per_page: 100, status: 'active' }));
+				});
+			},
+		});
 	}
 
 	function handleSetPermission(
@@ -93,24 +106,48 @@ export default function Users(): JSX.Element {
 		dispatch(actionAddUser(userValue));
 	}
 
+	function handleRestore(user: User) {
+		confirm({
+			title: "Bạn muốn khôi phục tài khoản này!",
+			icon: <ExclamationCircleOutlined />,
+			onOk() {
+				dispatch(actionRestoreUser(user.id)).finally(() => {
+					dispatch(actionGetUsers({ per_page: 100, status: 'deactive' }));
+				});
+			},
+		});
+	}
+
 	const ColActions = (user: User) => {
 		return (
-			<Space size="middle">
-				<ChangePassword userId={+user.id} handleChangePass={handleChangePass} />
-
-				<ChangePermisstion
-					user={user}
-					handleChangePermission={handleSetPermission}
-				/>
-				<Tooltip placement="top" title="Vô hiệu hoá tài khoản">
-					<Button
-						type="link"
-						icon={<MinusCircleOutlined />}
-						danger
-						onClick={() => handleDeactive(user)}
-					/>
-				</Tooltip>
-			</Space>
+			<>
+				{user.deleted_at === null ?
+					<Space>
+						<ChangePassword userId={+user.id} handleChangePass={handleChangePass} />
+						<ChangePermisstion
+							user={user}
+							handleChangePermission={handleSetPermission}
+						/>
+						<Tooltip placement="top" title="Vô hiệu hoá tài khoản">
+							<Button
+								type="link"
+								icon={<MinusCircleOutlined />}
+								danger
+								onClick={() => handleDeactive(user)}
+							/>
+						</Tooltip>
+					</Space>
+					:
+					<Tooltip placement="top" title="Khôi phục tài khoản">
+						<Button
+							type="link"
+							icon={<RedoOutlined style={{ color: "#27ae60" }} />}
+							danger
+							onClick={() => handleRestore(user)}
+						/>
+					</Tooltip>
+				}
+			</>
 		);
 	};
 	ColActions.displayName = "ColActions";
@@ -182,9 +219,9 @@ export default function Users(): JSX.Element {
 						<AddNewUserForm onAddUser={handleAddNewUser} />
 					</div>
 				</div>
-				<Radio.Group defaultValue={1} onChange={onChangeListFilter} style={{marginBottom:20, marginTop:20}}>
-					<Radio value={1}>Đang kích hoạt</Radio>
-					<Radio value={2}>Vô hiệu hoá</Radio>
+				<Radio.Group defaultValue={'active'} onChange={onChangeListFilter} style={{ marginBottom: 20, marginTop: 20 }}>
+					<Radio value={'active'}>Đang kích hoạt</Radio>
+					<Radio value={'deactive'}>Vô hiệu hoá</Radio>
 				</Radio.Group>
 				<Table
 					rowKey="id"

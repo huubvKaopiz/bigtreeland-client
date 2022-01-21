@@ -8,7 +8,7 @@ export interface UserReducerState {
 	users: ListUserType | null;
 	statusGetUser: "idle" | "loading" | "success" | "error";
 	statusChangePassword: "idle" | "loading" | "success" | "error";
-	statusDeactiveUser: "idle" | "loading" | "success" | "error";
+	statusUpdateUserState: "idle" | "loading" | "success" | "error";
 	statusSetPermissionsForUser: "idle" | "loading" | "success" | "error";
 	statusAddUser: "idle" | "loading" | "success" | "error";
 }
@@ -17,13 +17,14 @@ export interface ParamGetUsers {
 	search?: string;
 	page?: number;
 	per_page?: number;
+	status?:string;
 }
 
 const initialState: UserReducerState = {
 	users: null,
 	statusGetUser: "idle",
 	statusChangePassword: "idle",
-	statusDeactiveUser: "idle",
+	statusUpdateUserState: "idle",
 	statusSetPermissionsForUser: "idle",
 	statusAddUser: "idle",
 };
@@ -57,6 +58,14 @@ export const actionDeactiveUser = createAsyncThunk("actionDeactiveUser", async (
 	return response.data;
 });
 
+export const actionRestoreUser =  createAsyncThunk("actionRestoreUser", async (userId: number) => {
+	const response = await request({
+		url: `/api/users/${userId}/restore`,
+		method: "post",
+	});
+	return response.data;
+});
+
 export const actionSetPermissionsForUser = createAsyncThunk(
 	"actionSetPermissionsForUser",
 	async (data: { user_id: number; permission_add_ids: number[]; permission_delete_ids: number[] }) => {
@@ -86,7 +95,10 @@ export const slice = createSlice({
 			state.statusAddUser = "idle";
 		},
 		actionResetStatusDeactiveUser(state) {
-			state.statusDeactiveUser = "idle";
+			state.statusUpdateUserState = "idle";
+		},
+		actionRestoreUser(state) {
+			state.statusUpdateUserState = "idle";
 		},
 		actionResetStatusChangePassword(state) {
 			state.statusChangePassword = "idle";
@@ -123,14 +135,27 @@ export const slice = createSlice({
 
 			//  DEACTIVE USER
 			.addCase(actionDeactiveUser.pending, (state) => {
-				state.statusDeactiveUser = "loading";
+				state.statusUpdateUserState = "loading";
 			})
 			.addCase(actionDeactiveUser.fulfilled, (state) => {
-				state.statusDeactiveUser = "success";
+				state.statusUpdateUserState = "success";
 				notification.success({ message: "Vô hiệu hoá tài khoản thành công" });
 			})
 			.addCase(actionDeactiveUser.rejected, (state) => {
-				state.statusDeactiveUser = "error";
+				state.statusUpdateUserState = "error";
+				notification.error({ message: "Có lỗi xảy ra" });
+			})
+
+			//  RESTORE USER
+			.addCase(actionRestoreUser.pending, (state) => {
+				state.statusUpdateUserState = "loading";
+			})
+			.addCase(actionRestoreUser.fulfilled, (state) => {
+				state.statusUpdateUserState = "success";
+				notification.success({ message: "Khôi phục tài khoản thành công" });
+			})
+			.addCase(actionRestoreUser.rejected, (state) => {
+				state.statusUpdateUserState = "error";
 				notification.error({ message: "Có lỗi xảy ra" });
 			})
 

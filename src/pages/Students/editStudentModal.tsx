@@ -54,126 +54,127 @@ export default function EditStudentModal(props: {
 	}, [student, uForm]);
 
 	const handleSubmit = (values: any) => {
-		dispatch(
-			actionUpdateStudent({
-				data: {
-					...student,
-					...values,
-					birthday: moment(values.birthday).format("YYYY-MM-DD"),
-					admission_date: moment(values.admission_date).format("YYYY-MM-DD"),
-					is_special: values.is_special === true ? 1 : 0,
-				},
-				sID: student?.id ?? 0,
-			})
-		).finally(() => {
-			setShow(false);
-			dispatch(actionGetStudents({}));
-		});
+		if (student) {
+			dispatch(
+				actionUpdateStudent({
+					data: {
+						...student,
+						...values,
+						birthday: moment(values.birthday).format("YYYY-MM-DD"),
+						admission_date: moment(values.admission_date).format("YYYY-MM-DD"),
+						is_special: values.is_special === true ? 1 : 0,
+					},
+					sID: student.id,
+				})
+			).finally(() => {
+				setShow(false);
+				dispatch(actionGetStudents({}));
+			});
+		}
 	};
 
 	return (
 		<div>
-			{student && (
-				<Modal
-					visible={show}
-					title="Sửa thông tin học sinh"
-					onCancel={() => setShow(false)}
-					width={1000}
-					footer={[
-						<Button key="btnCancel" onClick={() => setShow(false)}>
-							Huỷ bỏ
-						</Button>,
-						<Button
-							type="primary"
-							key="btnSubmit"
-							loading={status === "loading"}
-							htmlType="submit"
-							form={`uForm${student?.id ?? 0}`}
-						>
-							Lưu thông tin
-						</Button>,
-					]}
-				>
-					<Form
-						id={`uForm${student?.id ?? 0}`}
-						form={uForm}
-						labelCol={{ span: 6 }}
-						wrapperCol={{ span: 14 }}
-						layout="horizontal"
-						onFinish={handleSubmit}
+			<Modal
+				visible={show}
+				title="Sửa thông tin học sinh"
+				onCancel={() => setShow(false)}
+				width={1000}
+				footer={[
+					<Button key="btnCancel" onClick={() => setShow(false)}>
+						Huỷ bỏ
+					</Button>,
+					<Button
+						type="primary"
+						key="btnSubmit"
+						loading={status === "loading"}
+						htmlType="submit"
+						form="uForm"
 					>
-						<Form.Item label="Họ và tên" name="name">
-							<Input />
-						</Form.Item>
-						<Form.Item name="parent_id" label="Phụ huynh">
-							<Select
-								showSearch
-								allowClear
-								filterOption={(input, option) =>
-									(option?.label as string)
-										?.toLowerCase()
-										.indexOf(input.toLowerCase()) >= 0
-								}
-							>
-								{get(parents, "data", []).map((parent: ParentType) => {
-									return (
-										<Select.Option
-											key={parent.id}
-											value={parent.id}
-											label={`${get(parent, "profile.name", "")} (${
-												parent.phone
-											})`}
-										>
-											<a>{get(parent, "profile.name")}</a> ({parent.phone})
-										</Select.Option>
-									);
-								})}
-							</Select>
-						</Form.Item>
-						<Form.Item name="gender" label="Giới tính" wrapperCol={{ span: 2 }}>
-							<Select>
-								<Select.Option value={1}>Nam</Select.Option>
-								<Select.Option value={0}>Nữ</Select.Option>
-								<Select.Option value={2}>Khác</Select.Option>
-							</Select>
-						</Form.Item>
-						<Form.Item name="birthday" label="Sinh nhật">
-							<DatePicker format={dateFormat} />
-						</Form.Item>
-						<Form.Item name="school" label="Trường đang học">
-							<Input />
-						</Form.Item>
-						<Form.Item name="address" label="Địa chỉ">
-							<Input />
-						</Form.Item>
-						<Form.Item name="admission_date" label="Ngày nhập học">
-							<DatePicker format={dateFormat} />
-						</Form.Item>
-						<Form.Item name="knowledge_status" label="Tình trạng đầu vào">
-							<InputNumber />
-						</Form.Item>
-						<Form.Item
-							name="is_special"
-							label="Trường hợp đặc biệt"
-							valuePropName="checked"
+						Lưu thông tin
+					</Button>,
+				]}
+			>
+				<Form
+					id={`uForm`}
+					form={uForm}
+					labelCol={{ span: 6 }}
+					wrapperCol={{ span: 14 }}
+					layout="horizontal"
+					onFinish={handleSubmit}
+				>
+
+					<Form.Item label="Họ và tên" name="name">
+						<Input />
+					</Form.Item>
+					<Form.Item name="parent_id" label="Phụ huynh">
+						<Select
+							showSearch
+							allowClear
+							filterOption={(input, option) =>
+								(option?.label as string)
+									?.toLowerCase()
+									.indexOf(input.toLowerCase()) >= 0
+							}
 						>
-							<Switch />
-						</Form.Item>
-						<Form.Item name="personality" label="Tính cách">
-							<Input.TextArea />
-						</Form.Item>
-						<Form.Item name="interests" label="Sở thích">
-							<Input.TextArea />
-						</Form.Item>
-						<Form.Item name="dislikes" label="Sở ghét">
-							<Input.TextArea />
-						</Form.Item>
-						<Form.Item name="hope" label="Ước mơ">
-							<Input.TextArea />
-						</Form.Item>
-					</Form>
-				</Modal>
-			)}
+							{get(parents, "data", []).map((parent: ParentType) => {
+								return (
+									<Select.Option
+										key={parent.id}
+										value={parent.id}
+										label={`${get(parent, "profile.name", "")} (${parent.phone
+											})`}
+									>
+										<a>{get(parent, "profile.name")}</a> ({parent.phone})
+									</Select.Option>
+								);
+							})}
+						</Select>
+					</Form.Item>
+					<Form.Item name="gender" label="Giới tính" wrapperCol={{ span: 2 }}>
+						<Select>
+							<Select.Option value={1}>Nam</Select.Option>
+							<Select.Option value={0}>Nữ</Select.Option>
+							<Select.Option value={2}>Khác</Select.Option>
+						</Select>
+					</Form.Item>
+					<Form.Item name="birthday" label="Sinh nhật">
+						<DatePicker format={dateFormat} />
+					</Form.Item>
+					<Form.Item name="school" label="Trường đang học">
+						<Input />
+					</Form.Item>
+					<Form.Item name="address" label="Địa chỉ">
+						<Input />
+					</Form.Item>
+					<Form.Item name="admission_date" label="Ngày nhập học">
+						<DatePicker format={dateFormat} />
+					</Form.Item>
+					<Form.Item name="knowledge_status" label="Tình trạng đầu vào">
+						<InputNumber />
+					</Form.Item>
+					<Form.Item
+						name="is_special"
+						label="Trường hợp đặc biệt"
+						valuePropName="checked"
+					>
+						<Switch />
+					</Form.Item>
+					<Form.Item name="personality" label="Tính cách">
+						<Input.TextArea />
+					</Form.Item>
+					<Form.Item name="interests" label="Sở thích">
+						<Input.TextArea />
+					</Form.Item>
+					<Form.Item name="dislikes" label="Sở ghét">
+						<Input.TextArea />
+					</Form.Item>
+					<Form.Item name="hope" label="Ước mơ">
+						<Input.TextArea />
+					</Form.Item>
+				</Form>
+			</Modal>
+			)
 		</div>
 	);
 }

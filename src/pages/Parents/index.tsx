@@ -72,7 +72,10 @@ export default function Parents(): JSX.Element {
 			dispatch(actionUpdateParent({
 				data: { name: editPayload.name, email: editPayload.email, gender: 0 },
 				uID: editPayload.user_id
-			})).finally(() => handleSetEdit(-1, null))
+			})).finally(() =>{
+				handleSetEdit(-1, null);
+				dispatch(actionGetParents({ page: 1, search }))
+			})
 		}
 	}
 	const columns = [
