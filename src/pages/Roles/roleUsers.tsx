@@ -17,10 +17,9 @@ interface RoleUserType {
 
 const { Option } = Select;
 
-export function RoleUsers(prop: { roleInfo: RoleType }): JSX.Element {
+export function RoleUsers(prop: { roleInfo: RoleType, show: boolean, setShow: (param: boolean) => void }): JSX.Element {
     const dispatch = useAppDispatch();
-    const { roleInfo } = prop
-    const [show, setShow] = useState(false);
+    const { roleInfo, show, setShow } = prop
     const [roleUsers, setRoleUsers] = useState<RoleUserType[]>([]);
     const [remainUsers, setRemainUsers] = useState<RoleUserType[]>([]);
     const [userSelected, setUserSelected] = useState<number | undefined>();
@@ -107,9 +106,7 @@ export function RoleUsers(prop: { roleInfo: RoleType }): JSX.Element {
     }
     return (
         <>
-            <Tooltip title="DS người dùng">
-                <Button type="link" icon={<TeamOutlined />} onClick={() => setShow(true)} />
-            </Tooltip>
+
             <Modal
                 width={600}
                 visible={show}

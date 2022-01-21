@@ -5,19 +5,31 @@ import request from "../../utils/request";
 
 export interface RoleState {
 	roles: RoleType[] | [];
+	roleInfo:RoleType | null;
 	statusCreateRole: "idle" | "loading" | "success" | "error";
 	statusGetRole: "idle" | "loading" | "success" | "error";
+	statusGetRoleInfo: "idle" | "loading" | "success" | "error";
 	statusDeleteRole: "idle" | "loading" | "success" | "error";
 	statusUpdateRole: "idle" | "loading" | "success" | "error";
 }
 
 const initialState: RoleState = {
 	roles: [],
+	roleInfo:null,
+	statusGetRoleInfo:"idle",
 	statusCreateRole: "idle",
 	statusGetRole: "idle",
 	statusDeleteRole: "idle",
 	statusUpdateRole: "idle",
 };
+
+export const actionGetRoleInfo = createAsyncThunk("actionGetRoleInfo", async (id: number) => {
+	const response = await request({
+		url:`/api/roles/${id}`,
+		method: "get",
+	});
+	return response.data;
+});
 
 export const actionGetRoles = createAsyncThunk("actionGetRoles", async (id?: number) => {
 	const response = await request({
@@ -142,7 +154,7 @@ export const slice = createSlice({
 
 	extraReducers: (builder) => {
 		builder
-			//Get Role
+			//Get Roles
 			.addCase(actionGetRoles.fulfilled, (state, action) => {
 				state.roles = action.payload as RoleType[];
 				state.statusGetRole = "success";
@@ -152,6 +164,19 @@ export const slice = createSlice({
 			})
 			.addCase(actionGetRoles.rejected, (state) => {
 				state.statusGetRole = "error";
+				notification.error({ message: "Có lỗi xảy ra" });
+			})
+
+			//Get RoleInfo
+			.addCase(actionGetRoleInfo.fulfilled, (state, action) => {
+				state.roleInfo = action.payload as RoleType;
+				state.statusGetRoleInfo = "success";
+			})
+			.addCase(actionGetRoleInfo.pending, (state) => {
+				state.statusGetRoleInfo = "loading";
+			})
+			.addCase(actionGetRoleInfo.rejected, (state) => {
+				state.statusGetRoleInfo = "error";
 				notification.error({ message: "Có lỗi xảy ra" });
 			})
 
