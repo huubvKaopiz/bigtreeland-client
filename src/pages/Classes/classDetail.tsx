@@ -148,7 +148,7 @@ export default function ClassDetail(): JSX.Element {
 
 	function handleChangeReminder(reminder: string, id: number) {
 		const finder = listComments.find((p) => p.id === `${id}`);
-		if (finder) finder.conduct_point = reminder;
+		if (finder) finder.reminder = reminder;
 		else listComments.push({ id: `${id}`, comment: "", conduct_point: "", reminder });
 	}
 
