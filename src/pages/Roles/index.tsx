@@ -1,5 +1,5 @@
 import { Button, Col, Input, Layout, Modal, Row, Space, Table, Tooltip } from "antd";
-import { DeleteOutlined, UserOutlined, ExclamationCircleOutlined, AuditOutlined } from '@ant-design/icons';
+import { DeleteOutlined, UserOutlined, ExclamationCircleOutlined, AuditOutlined, TeamOutlined } from '@ant-design/icons';
 import { RoleCreateFormType, RoleType, UserType } from "interface";
 import { UpdateRoleDataType } from "interface/api-params-interface";
 import React, { useEffect, useState } from "react";
@@ -25,6 +25,9 @@ const { confirm } = Modal;
 function Roles(): JSX.Element {
 	const dispatch = useAppDispatch();
 	const history = useHistory();
+	const [showAddUsers, setShowAddUsers] = useState(false);
+	const [addUsersIndex, setAddUsersIndex] = useState(-1);
+	//application states
 	const statusCreateRole = useSelector((state: RootState) => state.roleReducer.statusCreateRole);
 	const statusGetRoles = useSelector((state: RootState) => state.roleReducer.statusGetRole);
 	const statusDeleteRoles = useSelector((state: RootState) => state.roleReducer.statusDeleteRole);
@@ -66,6 +69,11 @@ function Roles(): JSX.Element {
 		});
 	}
 
+	function handleAddUsers(index:number){
+		setShowAddUsers(true);
+		setAddUsersIndex(index);
+	}
+
 	const tableColumn = [
 		{
 			title: "Id",
@@ -86,14 +94,11 @@ function Roles(): JSX.Element {
 			dataIndex: "name",
 			render: function UserLink(text: string): JSX.Element {
 				return (
-					<a
-						className="example-link"
-					>
-						<Space>
-							<UserOutlined />
-							{text}({converRoleNameToVN(text as ROLE_NAMES)})
-						</Space>
-					</a>
+
+					<Space>
+						<UserOutlined />
+						<strong>{text}</strong><span style={{ color: "#95a5a6" }}>{converRoleNameToVN(text as ROLE_NAMES)}</span>
+					</Space>
 				);
 			},
 		},
@@ -130,15 +135,17 @@ function Roles(): JSX.Element {
 		{
 			title: "",
 			key: "action",
-			render: function ActionRow(_: string, record: RoleType): JSX.Element {
+			render: function ActionRow(_: string, record: RoleType, index:number): JSX.Element {
 				return (
 					<Space>
 						<Tooltip title="Xoá vai trò">
 							<Button type="link" danger onClick={() => handleDeleteRole(record.id)} icon={<DeleteOutlined />} />
 						</Tooltip>
-						<RoleUsers roleInfo={record} />
+						<Tooltip title="DS người dùng">
+							<Button type="link" icon={<TeamOutlined />} onClick={() => handleAddUsers(index)} />
+						</Tooltip>
 						<Tooltip title="Phân quyền vai trò">
-							<Button type="link" onClick={() => history.push({ pathname: "/roles-set-permissions", state: { roleInfo: record } })} icon={<AuditOutlined />} />
+							<Button type="link" onClick={() => history.push(`/roles-set-permissions/${record.id}`)} icon={<AuditOutlined />} />
 						</Tooltip>
 					</Space>
 
@@ -161,6 +168,8 @@ function Roles(): JSX.Element {
 				pagination={{ pageSize: 20 }}
 				dataSource={listRoles}
 			/>
+			<RoleUsers roleInfo={listRoles[addUsersIndex]} show={showAddUsers} setShow={setShowAddUsers} />
+
 		</Layout.Content>
 	);
 }

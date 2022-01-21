@@ -9,15 +9,14 @@ import {
 	Table,
 	Tag,
 	Tooltip,
-	Modal,
 } from "antd";
-import { DeleteOutlined, ExclamationCircleOutlined, QuestionCircleOutlined } from "@ant-design/icons";
+import { EditOutlined, QuestionCircleOutlined } from "@ant-design/icons";
 import { EmployeeType, User, UserType } from "interface";
 import { debounce, get } from "lodash";
 import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import {
-	actionDeleteEmployee,
+	// actionDeleteEmployee,
 	actionGetEmployees,
 } from "store/employees/slice";
 import { actionGetRoles } from "store/roles/slice";
@@ -27,7 +26,7 @@ import UpdateEmplyeeForm from "./updateEmployee";
 import { ROLE_NAMES } from "utils/const";
 import moment from "moment";
 
-const { confirm } = Modal;
+// const { confirm } = Modal;
 
 function Employees(): JSX.Element {
 	const dispatch = useAppDispatch();
@@ -35,6 +34,8 @@ function Employees(): JSX.Element {
 	const [page, setPage] = useState(0);
 	const [search, setSearch] = useState("");
 	const [role, setRole] = useState(ROLE_NAMES.TEACHER);
+	const [showEdit, setShowEdit] = useState(false);
+	const [editIndex, setEditIndex] = useState(-1);
 
 	const roles = useSelector((state: RootState) => state.roleReducer.roles);
 	const employees = useSelector(
@@ -80,17 +81,22 @@ function Employees(): JSX.Element {
 		// console.log(e.target.value)
 	}
 
-	function handleDelete(emp: EmployeeType) {
-		confirm({
-			title: "Bạn muốn xoá nhân viên này!",
-			icon: <ExclamationCircleOutlined />,
-			onOk() {
-				dispatch(actionDeleteEmployee(emp.id)).finally(() => {
-					dispatch(actionGetEmployees({ per_page: 100, role_name: role }));
-				});
-			},
-		});
+	function handleEdit(index:number){
+		setShowEdit(true);
+		setEditIndex(index);
 	}
+
+	// function handleDelete(emp: EmployeeType) {
+	// 	confirm({
+	// 		title: "Bạn muốn vô hiệu hoá tài khoản nhân viên này!",
+	// 		icon: <ExclamationCircleOutlined />,
+	// 		onOk() {
+	// 			dispatch(actionDeleteEmployee(emp.id)).finally(() => {
+	// 				dispatch(actionGetEmployees({ per_page: 100, role_name: role }));
+	// 			});
+	// 		},
+	// 	});
+	// }
 
 	const columns = [
 		{
@@ -114,7 +120,7 @@ function Employees(): JSX.Element {
 			render: function col(user: UserType): JSX.Element {
 				const birthday = get(user, "profile.birthday", null)
 				const birthdayLabel = birthday ? moment(birthday).format('DD-MM-YYYY') : ''
-				return <span>{ birthdayLabel}</span>;
+				return <span>{birthdayLabel}</span>;
 			},
 		},
 		{
@@ -149,7 +155,7 @@ function Employees(): JSX.Element {
 						{get(user, "roles", []).map(
 							(role: { name: string; id: number }) => {
 								return (
-									<Tag color="blue" key={role.id}>
+									<Tag color="orange" key={role.id}>
 										{role.name}
 									</Tag>
 								);
@@ -165,19 +171,27 @@ function Employees(): JSX.Element {
 			key: "action",
 			render: function ColActionn(
 				text: string,
-				record: EmployeeType
+				record: EmployeeType,
+				index:number
 			): JSX.Element {
 				return (
 					<Space size="middle">
-						<UpdateEmplyeeForm employee={record} roles={roles} />
-						<Tooltip placement="top" title="Xoá nhân viên">
+						<Tooltip placement="top" title="Sửa thông tin">
 							<Button
 								type="link"
-								icon={<DeleteOutlined />}
+								icon={<EditOutlined />}
+								onClick={() => handleEdit(index)}
+							/>
+						</Tooltip>
+						
+						{/* <Tooltip placement="top" title="Vô hiệu hoá tài khoản">
+							<Button
+								type="link"
+								icon={<MinusCircleOutlined />}
 								danger
 								onClick={() => handleDelete(record)}
 							/>
-						</Tooltip>
+						</Tooltip> */}
 					</Space>
 				);
 			},
@@ -200,19 +214,19 @@ function Employees(): JSX.Element {
 			<Space style={{ marginBottom: 20 }}>
 				<Radio.Group onChange={handleChangeRole} value={role}>
 					<Radio value={ROLE_NAMES.TEACHER}>
-						Giáo viên(1) {' '} 	
+						Giáo viên(1) {' '}
 						<Tooltip title="Giáo viên chính thức (lương theo doanh thu học phí)">
 							<QuestionCircleOutlined style={{ color: "#f39c12" }} />
 						</Tooltip>
 					</Radio>
 					<Radio value={ROLE_NAMES.TEACHER2}>
-						Giáo viên(2) {' '} 
+						Giáo viên(2) {' '}
 						<Tooltip title="Giáo viên hợp đồng (lương trên số buổi dạy)">
 							<QuestionCircleOutlined style={{ color: "#f39c12" }} />
 						</Tooltip>
 					</Radio>
 					<Radio value={ROLE_NAMES.SALE}>
-						Sale{' '} 
+						Sale{' '}
 						<Tooltip title="Nhân viên sale">
 							<QuestionCircleOutlined style={{ color: "#f39c12" }} />
 						</Tooltip>
@@ -235,6 +249,7 @@ function Employees(): JSX.Element {
 					},
 				}}
 			/>
+			<UpdateEmplyeeForm employee={get(employees, "data", [])[editIndex]} roles={roles} show={showEdit} setShow={setShowEdit}/>
 		</Layout.Content>
 	);
 }

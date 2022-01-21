@@ -16,7 +16,7 @@ export default function AddStudent(props: { parent_id: number }): JSX.Element {
 
 	useEffect(() => {
 		if (show) {
-			dispatch(actionGetStudents({ per_page: 1000000 }));
+			dispatch(actionGetStudents({ per_page: 10000 }));
 		}
 	}, [show, dispatch]);
 

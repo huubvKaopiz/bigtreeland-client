@@ -31,3 +31,12 @@ export enum ROLE_NAMES {
 	EMPLOYEE = 'employee'
 }
 
+export enum DEFAULT_ROLE_IDS{
+	ADMIM = 1,
+	TEACHER = 2,
+	TEACHER2 = 3,
+	SALE = 3,
+	PARENT = 5,
+	EMPLOYEE = 6
+}
+

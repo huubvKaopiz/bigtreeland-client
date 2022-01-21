@@ -1,14 +1,15 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import React, { useEffect, useState } from "react";
-import { Layout, PageHeader, Table, Checkbox, message, Button } from "antd";
+import { Layout, PageHeader, Table, Checkbox, message, Button, notification } from "antd";
 import { CloseOutlined } from '@ant-design/icons';
 import { RoleType } from "interface";
 import { get } from "lodash";
 import { useSelector } from "react-redux";
-import { useLocation, useHistory } from "react-router-dom";
+import { useParams, useHistory } from "react-router-dom";
 import { actionGetPermissions, actionSetRolePermissions, PermistionType } from "store/permissions/slice";
 import { RootState, useAppDispatch } from "store/store";
 import { getPermissionDes } from "utils/ultil";
+import { actionGetRoleInfo } from "store/roles/slice";
 
 interface RolePermissionType {
 	object: string,
@@ -35,29 +36,31 @@ enum PermissionActions {
 }
 
 export function SetRolePermissions(): JSX.Element {
-	const location = useLocation();
 	const history = useHistory();
 	const dispatch = useAppDispatch();
-	const roleInfo = get(location, "state.roleInfo", null) as RoleType;
+	const params = useParams() as { role_id: string };
+
 
 	const [rolePermissions, setRolePermissions] = useState<RolePermissionType[]>([])
-	const [addPermissions, setAddPermissions] = useState<number[]>([])
-	const [removePermissions, setRemovePermissions] = useState<number[]>([])
+	const [grantedPermissions, setGrantedPermissions] = useState<{ id: number, granted: boolean }[]>([])
 	const [submitting, setSubmitting] = useState(false);
 
 	//Application state
 	const permissions = useSelector((state: RootState) => state.permissionReducer.permissions);
-
+	const roleInfo = useSelector((state:RootState) => state.roleReducer.roleInfo) 
+	const loading = useSelector((state:RootState) => state.roleReducer.statusGetRoleInfo) 
 	useEffect(() => {
 		dispatch(actionGetPermissions())
-	}, [dispatch])
+		dispatch(actionGetRoleInfo(+params.role_id))
+	}, [dispatch, params])
 
 	useEffect(() => {
-		if (permissions) {
+		if (permissions && roleInfo) {
 			let object = '';
 			const per_list: RolePermissionType[] = [];
+			const granted_permissions: { id: number, granted: boolean }[] = [];
 			permissions.forEach((p: PermistionType) => {
-				const granted = get(roleInfo, "permissions", []).findIndex((granted) => granted.name === p.name) >= 0;
+				const granted = get(roleInfo, "permissions", []).findIndex((granted) => granted.name === p.name) >= 0
 				const perArray = p.name.split('.');
 				const isOther = perArray[1] != 'store' && perArray[1] != 'update' && perArray[1] != 'show' && perArray[1] != 'index' && perArray[1] != 'destroy';
 				if (object === '' || object != perArray[0]) {
@@ -98,59 +101,52 @@ export function SetRolePermissions(): JSX.Element {
 					}
 
 				}
+				granted_permissions.push({ id: p.id, granted })
 			})
 			// console.log(per_list)
 			setRolePermissions(per_list)
-
+			setGrantedPermissions(granted_permissions)
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [permissions, roleInfo.permissions])
+	}, [permissions, roleInfo])
 
 
-	function handleCheckboxChange(e: any, record: RolePermissionType, action: PermissionActions, otherIndex: number) {
+	function handleCheckboxChange(granted: boolean, record: RolePermissionType, action: PermissionActions, otherIndex: number) {
 
 		let per_name = record.object + ".";
 		if (otherIndex === -1) {
 			per_name += action;
 		} else per_name += record.granted.other[otherIndex].code;
 		const permission = permissions?.find((per) => per.name === per_name);
+		// console.log(permission?.id, granted)
 		if (permission === undefined) {
-			message.error({ message: `Không thể tìm thấy permission tương ứng với per_name: ${per_name}!` })
-			return;
-		}
-		// console.log(per_name, granted);
-		const granted = get(roleInfo, "permissions", []).find((per) => per.name === per_name)
-		if (e.target.checked) {
-			if (granted === undefined) {
-				addPermissions.push(permission.id);
-				setAddPermissions([...addPermissions])
-			} else {
-				const r_index = removePermissions.findIndex((rm) => rm === permission.id)
-				removePermissions.splice(r_index, 1)
-				setRemovePermissions([...removePermissions]);
-			}
+			notification.error({ message: `Không thể tìm thấy permission tương ứng với per_name: ${per_name}!` })
 		} else {
-			if (granted) {
-				removePermissions.push(permission.id);
-				setRemovePermissions([...removePermissions])
-			} else {
-				const a_index = addPermissions.findIndex((rm) => rm === permission.id)
-				addPermissions.splice(a_index, 1)
-				setAddPermissions([...addPermissions]);
-			}
+			const index = grantedPermissions.findIndex((gr) => gr.id === permission.id);
+			if (index >= 0) grantedPermissions[index].granted = granted;
+			setGrantedPermissions([...grantedPermissions]);
 		}
-	}
-	// console.log(addPermissions, removePermissions)
 
-	function handleSubmit(){
-		if(roleInfo){
+	}
+	// console.log(grantedPermissions)
+
+	function handleSubmit() {
+		const permission_add_ids: number[] = [];
+		const permission_delete_ids: number[] = [];
+		grantedPermissions.forEach((gr) => {
+			const index = get(roleInfo, "permissions", []).findIndex((rp) => rp.id === gr.id);
+			if (index === -1 && gr.granted === true) permission_add_ids.push(gr.id);
+			else if (index >= 0 && gr.granted === false) permission_delete_ids.push(gr.id)
+		})
+		if (roleInfo) {
 			setSubmitting(true);
 			dispatch(actionSetRolePermissions({
-				role_id:roleInfo.id,
-				permission_add_ids:addPermissions,
-				permission_delete_ids:removePermissions,
-			})).finally(()=>{
+				role_id: roleInfo.id,
+				permission_add_ids,
+				permission_delete_ids
+			})).finally(() => {
 				setSubmitting(false);
+				dispatch(actionGetRoleInfo(roleInfo.id))
 			})
 		}
 	}
@@ -181,7 +177,7 @@ export function SetRolePermissions(): JSX.Element {
 							<>
 								<Checkbox
 									defaultChecked={record.granted.show || record.granted.index}
-									onChange={(e) => handleCheckboxChange(e, record, PermissionActions.SHOW, -1)} />
+									onChange={(e) => handleCheckboxChange(e.target.checked, record, PermissionActions.SHOW, -1)} />
 							</>
 						)
 					}
@@ -195,7 +191,7 @@ export function SetRolePermissions(): JSX.Element {
 							<>
 								<Checkbox
 									defaultChecked={record.granted.store}
-									onChange={(e) => handleCheckboxChange(e, record, PermissionActions.STORE, -1)} />
+									onChange={(e) => handleCheckboxChange(e.target.checked, record, PermissionActions.STORE, -1)} />
 							</>
 						)
 					}
@@ -209,7 +205,7 @@ export function SetRolePermissions(): JSX.Element {
 							<>
 								<Checkbox
 									defaultChecked={record.granted.update}
-									onChange={(e) => handleCheckboxChange(e, record, PermissionActions.UPDATE, -1)} />
+									onChange={(e) => handleCheckboxChange(e.target.checked, record, PermissionActions.UPDATE, -1)} />
 							</>
 						)
 					}
@@ -223,7 +219,7 @@ export function SetRolePermissions(): JSX.Element {
 						return (
 							<>
 								<Checkbox defaultChecked={record.granted.destroy}
-									onChange={(e) => handleCheckboxChange(e, record, PermissionActions.DESTROY, -1)} />
+									onChange={(e) => handleCheckboxChange(e.target.checked, record, PermissionActions.DESTROY, -1)} />
 							</>
 						)
 					}
@@ -241,7 +237,7 @@ export function SetRolePermissions(): JSX.Element {
 										<div key={per.code}>
 											<Checkbox key={per.code}
 												defaultChecked={per.granted}
-												onChange={(e) => handleCheckboxChange(e, record, PermissionActions.UPDATE, index)}>
+												onChange={(e) => handleCheckboxChange(e.target.checked, record, PermissionActions.UPDATE, index)}>
 												{getPermissionDes(per.code)}
 											</Checkbox>
 										</div>
@@ -265,12 +261,13 @@ export function SetRolePermissions(): JSX.Element {
 				subTitle=""
 				extra={[
 					<Button key="2">Làm lại</Button>,
-					<Button key="1" type="primary" onClick={()=>handleSubmit()} loading={submitting}>
+					<Button key="1" type="primary" onClick={() => handleSubmit()} loading={submitting}>
 						Lưu thay đổi
 					</Button>,
 				]}
 			/>
 			<Table
+				loading ={loading === "loading" ? true : false}
 				columns={permissions_columns}
 				dataSource={rolePermissions}
 				bordered

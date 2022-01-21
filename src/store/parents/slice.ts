@@ -51,10 +51,10 @@ export const actionAddParent = createAsyncThunk("actionAddParent", async (data: 
 
 export const actionUpdateParent = createAsyncThunk(
 	"actionUpdateParent",
-	async (params: { data: GetParentsPrams; pID: number }) => {
-		const { data, pID } = params;
+	async (params: { data: { name: string, email: string, gender:number }, uID: number }) => {
+		const { data, uID } = params;
 		const response = await request({
-			url: `/api/users/${pID}`,
+			url: `/api/users/${uID}`,
 			method: "put",
 			data,
 		});

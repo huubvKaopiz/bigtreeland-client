@@ -40,7 +40,7 @@ function Routes(): JSX.Element {
 			<Route path="/study-summary-detail/:sumamry_id" component={StudySummaryDetail} />
 			<Route path="/permissions" component={Permissions} />
 			<Route path="/roles" component={Roles} />
-			<Route path="/roles-set-permissions" component={SetRolePermissions} />
+			<Route path="/roles-set-permissions/:role_id" component={SetRolePermissions} />
 			<Route path="/payments/payment-slips" component={Payment} />
 			<Route path="/files" component={Files} />
 			<Route path="/payments/revenue" component={Revenue} />

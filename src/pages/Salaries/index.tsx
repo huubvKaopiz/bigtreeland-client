@@ -17,12 +17,20 @@ const { Panel } = Collapse;
 export default function Salaries(): JSX.Element {
     const dispatch = useAppDispatch();
     const history = useHistory();
+    const [showDetail, setShowDetail] = useState(false);
+    const [showDetailIndex, setShowDetailIndex] = useState(-1)
+
     const salaries = useSelector((state: RootState) => state.salariesReducer.salaries);
     const getSalariesState = useSelector((state: RootState) => state.salariesReducer.getSalaries);
 
     useEffect(() => {
         dispatch(actionGetSalaries())
     }, [dispatch])
+
+    function handleShowDetail(index: number) {
+        setShowDetail(true);
+        setShowDetailIndex(index);
+    }
 
     function handleDeleteSalary(salary: SalaryType) {
         confirm({
@@ -99,10 +107,11 @@ export default function Salaries(): JSX.Element {
             title: "Actions",
             dataIndex: "actions",
             key: "actions",
-            render: function actionsCol(val: string, record: SalaryType) {
+            render: function actionsCol(val: string, record: SalaryType, index: number) {
                 return (
                     <>
-                        <DetailSalary salaryInfo={record} />
+
+                        <Tooltip title="Xem chi tiết"> <Button onClick={() => handleShowDetail(index)} type="link" icon={<ProfileOutlined />} /></Tooltip>
                         {/* <Tooltip title="Sửa bảng lương"> <Button disabled={Number(record.status) === 1 ? true : false} type="link" icon={<EditOutlined />} onClick={() => history.push(`/salaries-edit/${record.id}`)} /></Tooltip> */}
                         <Tooltip title="Đã thanh toán">
                             <Button disabled={Number(record.status) === 1 ? true : false} type="link" icon={<DollarCircleOutlined style={{ color: record.status === 0 ? "#27ae60" : "#bdc3c7" }} />} onClick={() => handlePaymentConfirm(record)} />
@@ -123,15 +132,15 @@ export default function Salaries(): JSX.Element {
                 <Button type="primary" icon={<PlusOutlined />} onClick={() => history.push("/salaries-create")}>Lập bảng lương</Button>
             </Space>
             <Table dataSource={get(salaries, "data", [])} columns={columns} loading={getSalariesState == "loading" ? true : false} />
+            <DetailSalary salaryInfo={get(salaries, "data", [])[showDetailIndex]} show={showDetail} setShow={setShowDetail} />
         </Layout.Content>
     )
 }
 
-function DetailSalary(props: { salaryInfo: SalaryType }): JSX.Element {
-    const { salaryInfo } = props;
+function DetailSalary(props: { salaryInfo: SalaryType, show: boolean, setShow: (param: boolean) => void }): JSX.Element {
+    const { salaryInfo, show, setShow } = props;
     const dispatch = useAppDispatch();
 
-    const [show, setShow] = useState(false)
     const [amount, setAmount] = useState(0);
     const [editing, setEditing] = useState(false);
     const [editPayload, setEditPayload] = useState({
@@ -202,104 +211,107 @@ function DetailSalary(props: { salaryInfo: SalaryType }): JSX.Element {
 
     return (
         <>
-            <Tooltip title="Xem chi tiết"> <Button onClick={() => setShow(true)} type="link" icon={<ProfileOutlined />} /></Tooltip>
-            <Modal
-                visible={show}
-                onCancel={() => { setShow(false); setEditing(false) }}
-                width={1000}
-                footer={[
-                    <Button type={salaryInfo.status === 1 ? "primary" : "default"} key="print">In bảng lương</Button>,
-                    editing === false && salaryInfo.status === 0 ? <Button type="primary" key="edit" onClick={() => setEditing(true)}>Sửa bảng lương</Button> : "",
-                    editing === true ? <Button key="submit" type="primary" onClick={() => handleSubmitEdit()}>Lưu lại</Button> : ""
-                ]}
-            >
-                <Descriptions
-                    title="Chi tiết bảng lương"
-                    bordered
-                    column={{ xxl: 3, xl: 2, lg: 2, md: 2, sm: 2, xs: 1 }}
-                    style={{ marginBottom: 20 }}
+            {
+                salaryInfo &&
+                <Modal
+                    visible={show}
+                    onCancel={() => { setShow(false); setEditing(false) }}
+                    width={1000}
+                    footer={[
+                        <Button type={get(salaryInfo, "status", 0) === 1 ? "primary" : "default"} key="print">In bảng lương</Button>,
+                        editing === false && get(salaryInfo, "status", 0) === 0 ? <Button type="primary" key="edit" onClick={() => setEditing(true)}>Sửa bảng lương</Button> : "",
+                        editing === true ? <Button key="submit" type="primary" onClick={() => handleSubmitEdit()}>Lưu lại</Button> : ""
+                    ]}
                 >
-                    <Descriptions.Item span={3} label="Nhân viên"><strong>{salaryInfo.user.name}</strong></Descriptions.Item>
-                    <Descriptions.Item span={2} label="Ngày tạo">{moment(salaryInfo.created_at).format("YYYY-MM-DD")}</Descriptions.Item>
-                    <Descriptions.Item span={2} label="Chu kỳ">{moment(salaryInfo.from_date).format("YYYY-MM-DD")} - {moment(salaryInfo.to_date).format("YYYY-MM-DD")} </Descriptions.Item>
-                    <Descriptions.Item label="Cơ bản"><strong>{numeral(salaryInfo.basic_salary).format("0,0")}</strong></Descriptions.Item>
-                    <Descriptions.Item label="Doanh thu"><strong>{numeral(salaryInfo.revenue_salary).format("0,0")}</strong></Descriptions.Item>
-                    <Descriptions.Item label="Thưởng">
-                        {
-                            editing === true ?
-                                <InputNumber
-                                    value={editPayload.bonus}
-                                    style={{ width: "90%", color: "#16a085" }}
-                                    formatter={(value) => numeral(value).format("0,0")}
-                                    onChange={(value) => { editPayload.bonus = value; setEditPayload({ ...editPayload }) }}
-                                /> :
-                                <strong>{numeral(salaryInfo.bonus).format("0,0")}</strong>
-                        }
-                    </Descriptions.Item>
-                    <Descriptions.Item label="Phạt">
-                        {
-                            editing === true ?
-                                <InputNumber
-                                    value={editPayload.fines}
-                                    style={{ width: "90%", color: "#e74c3c" }}
-                                    formatter={(value) => numeral(value).format("0,0")}
-                                    onChange={(value) => { editPayload.fines = value; setEditPayload({ ...editPayload })}}
-                                /> :
-                                <strong>{numeral(salaryInfo.fines).format("0,0")}</strong>
-                        }
+                    <Descriptions
+                        title="Chi tiết bảng lương"
+                        bordered
+                        column={{ xxl: 3, xl: 2, lg: 2, md: 2, sm: 2, xs: 1 }}
+                        style={{ marginBottom: 20 }}
+                    >
+                        <Descriptions.Item span={3} label="Nhân viên"><strong>{get(salaryInfo, "user.profile.name", "")}</strong></Descriptions.Item>
+                        <Descriptions.Item span={2} label="Ngày tạo">{moment(get(salaryInfo, "created_at", "")).format("YYYY-MM-DD")}</Descriptions.Item>
+                        <Descriptions.Item span={2} label="Chu kỳ">{moment(get(salaryInfo, "from_date", "")).format("YYYY-MM-DD")} - {moment(salaryInfo.to_date).format("YYYY-MM-DD")} </Descriptions.Item>
+                        <Descriptions.Item label="Cơ bản"><strong>{numeral(get(salaryInfo, "basic_salary", "")).format("0,0")}</strong></Descriptions.Item>
+                        <Descriptions.Item label="Doanh thu"><strong>{numeral(get(salaryInfo, "revenue_salary", "")).format("0,0")}</strong></Descriptions.Item>
+                        <Descriptions.Item label="Thưởng">
+                            {
+                                editing === true ?
+                                    <InputNumber
+                                        value={editPayload.bonus}
+                                        style={{ width: "90%", color: "#16a085" }}
+                                        formatter={(value) => numeral(value).format("0,0")}
+                                        onChange={(value) => { editPayload.bonus = value; setEditPayload({ ...editPayload }) }}
+                                    /> :
+                                    <strong>{numeral(salaryInfo.bonus).format("0,0")}</strong>
+                            }
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Phạt">
+                            {
+                                editing === true ?
+                                    <InputNumber
+                                        value={editPayload.fines}
+                                        style={{ width: "90%", color: "#e74c3c" }}
+                                        formatter={(value) => numeral(value).format("0,0")}
+                                        onChange={(value) => { editPayload.fines = value; setEditPayload({ ...editPayload }) }}
+                                    /> :
+                                    <strong>{numeral(salaryInfo.fines).format("0,0")}</strong>
+                            }
 
-                    </Descriptions.Item>
-                    <Descriptions.Item span={3} label="Tổng"><strong style={{ color: "#2980b9" }}>{numeral(amount).format("0,0")}</strong></Descriptions.Item>
-                    <Descriptions.Item span={3} label="Trạng thái"><strong>{salaryInfo.status === 0 ? <Tag color="volcano">Chưa thanh toán</Tag> : <Tag color="green">Đã thanh toán</Tag>}</strong></Descriptions.Item>
-                    <Descriptions.Item label="Ghi chú">
-                        {
-                            editing === true ? <Input.TextArea value={editPayload.note} style={{ width: '75%' }} onChange={(e) => { editPayload.note = e.target.value; setEditPayload({ ...editPayload }) }} /> : salaryInfo.note
-                        }
+                        </Descriptions.Item>
+                        <Descriptions.Item span={3} label="Tổng"><strong style={{ color: "#2980b9" }}>{numeral(amount).format("0,0")}</strong></Descriptions.Item>
+                        <Descriptions.Item span={3} label="Trạng thái"><strong>{salaryInfo.status === 0 ? <Tag color="volcano">Chưa thanh toán</Tag> : <Tag color="green">Đã thanh toán</Tag>}</strong></Descriptions.Item>
+                        <Descriptions.Item label="Ghi chú">
+                            {
+                                editing === true ? <Input.TextArea value={editPayload.note} style={{ width: '75%' }} onChange={(e) => { editPayload.note = e.target.value; setEditPayload({ ...editPayload }) }} /> : salaryInfo.note
+                            }
 
-                    </Descriptions.Item>
-                </Descriptions>
-                <Collapse accordion>
-                    <Panel header="Chi tiết doanh thu" key="1">
-                        {
-                            salaryInfo.type == 0 ?
-                                <List
-                                    rowKey="id"
-                                    itemLayout="horizontal"
-                                    // header={<div style={{ justifyContent: "space-between", display: "flex" }}><div>Chi tiết doanh thu</div><div>{numeral(0).format("0,0")}</div></div>}
-                                    loading={getReceiptStatus === "loading" ? true : false}
-                                    dataSource={get(receipts, "data", [])}
-                                    renderItem={item => (
-                                        <List.Item>
-                                            <List.Item.Meta
-                                                title={<a href="#">{item.created_at}</a>}
-                                                description={item.note}
-                                            />
-                                            <div style={{ color: "#2980b9" }}>{numeral(item.amount).format("0,0")}</div>
-                                        </List.Item>
-                                    )}
-                                /> : salaryInfo.type === 1 ?
-                                    <List rowKey="id"
+                        </Descriptions.Item>
+                    </Descriptions>
+                    <Collapse accordion>
+                        <Panel header="Chi tiết doanh thu" key="1">
+                            {
+                                salaryInfo.type == 0 ?
+                                    <List
+                                        rowKey="id"
                                         itemLayout="horizontal"
-                                        // header={<div style={{ justifyContent: "end", display: "flex", fontWeight: 600 }}>{numeral(0).format("0,0")}</div>}
-                                        loading={getLessonsStatus === "loading" ? true : false}
-                                        dataSource={get(lessons, "data", [])}
+                                        // header={<div style={{ justifyContent: "space-between", display: "flex" }}><div>Chi tiết doanh thu</div><div>{numeral(0).format("0,0")}</div></div>}
+                                        loading={getReceiptStatus === "loading" ? true : false}
+                                        dataSource={get(receipts, "data", [])}
                                         renderItem={item => (
                                             <List.Item>
                                                 <List.Item.Meta
-                                                    title={<a href="#">{item.tuition_period_id}</a>}
-                                                    description={item.tuition_period_id}
+                                                    title={<a href="#">{item.created_at}</a>}
+                                                    description={item.note}
                                                 />
-                                                <div style={{ color: "#2980b9" }}>{item.date}</div>
-
+                                                <div style={{ color: "#2980b9" }}>{numeral(item.amount).format("0,0")}</div>
                                             </List.Item>
-                                        )} />
-                                    :
-                                    ""
-                        }
-                    </Panel>
-                </Collapse>
+                                        )}
+                                    /> : salaryInfo.type === 1 ?
+                                        <List rowKey="id"
+                                            itemLayout="horizontal"
+                                            // header={<div style={{ justifyContent: "end", display: "flex", fontWeight: 600 }}>{numeral(0).format("0,0")}</div>}
+                                            loading={getLessonsStatus === "loading" ? true : false}
+                                            dataSource={get(lessons, "data", [])}
+                                            renderItem={item => (
+                                                <List.Item>
+                                                    <List.Item.Meta
+                                                        title={<a href="#">{item.tuition_period_id}</a>}
+                                                        description={item.tuition_period_id}
+                                                    />
+                                                    <div style={{ color: "#2980b9" }}>{item.date}</div>
 
-            </Modal>
+                                                </List.Item>
+                                            )} />
+                                        :
+                                        ""
+                            }
+                        </Panel>
+                    </Collapse>
+
+                </Modal>
+            }
+
         </>
     )
 }

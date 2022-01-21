@@ -1,5 +1,5 @@
-import { DeleteOutlined, SearchOutlined } from "@ant-design/icons";
-import { Button, Input, Layout, Space, Spin, Table, Tooltip } from "antd";
+import { MinusCircleOutlined, SearchOutlined } from "@ant-design/icons";
+import { Button, Input, Layout, Radio, Space, Spin, Table, Tag, Tooltip } from "antd";
 import { UserType as User } from "interface";
 import { AddNewUser } from "interface/interfaces";
 import { debounce, get } from "lodash";
@@ -54,6 +54,10 @@ export default function Users(): JSX.Element {
 		debounceSearch(value);
 	}
 
+	function onChangeListFilter(e:any){
+		console.log(e.target.value)
+	}
+
 	function handleChangePass(payload: {
 		new_password: string;
 		user_id: number;
@@ -93,24 +97,34 @@ export default function Users(): JSX.Element {
 		return (
 			<Space size="middle">
 				<ChangePassword userId={+user.id} handleChangePass={handleChangePass} />
+
+				<ChangePermisstion
+					user={user}
+					handleChangePermission={handleSetPermission}
+				/>
 				<Tooltip placement="top" title="Vô hiệu hoá tài khoản">
 					<Button
 						type="link"
-						icon={<DeleteOutlined />}
+						icon={<MinusCircleOutlined />}
 						danger
 						onClick={() => handleDeactive(user)}
 					/>
 				</Tooltip>
-				<ChangePermisstion
-					user={user}
-					handleChangePermission={handleSetPermission}
-				></ChangePermisstion>
 			</Space>
 		);
 	};
 	ColActions.displayName = "ColActions";
 
 	const columns = [
+		{
+			width: "30%",
+			title: "Name",
+			key: "name",
+			// eslint-disable-next-line react/display-name
+			render: (user: User) => {
+				return <strong>{get(user, "profile.name", "")}</strong>;
+			},
+		},
 		{
 			width: "30%",
 			title: "Email",
@@ -120,15 +134,7 @@ export default function Users(): JSX.Element {
 				return <span>{get(user, "profile.email", "")}</span>;
 			},
 		},
-		{
-			width: "30%",
-			title: "Name",
-			key: "name",
-			// eslint-disable-next-line react/display-name
-			render: (user: User) => {
-				return <span>{get(user, "profile.name", "")}</span>;
-			},
-		},
+
 		{
 			width: "20%",
 			title: "Phone",
@@ -143,8 +149,10 @@ export default function Users(): JSX.Element {
 			title: "Role",
 			key: "role",
 			// eslint-disable-next-line react/display-name
-			render: (user: User) => {
-				return <span>{get(user, "roles.0.name", "")}</span>;
+			render: (text: string, record: User) => {
+				return <>
+					{get(record, "roles", []).map((role) => <Tag color="orange" key={role.id}>{role.name}</Tag>)}
+				</>
 			},
 		},
 		{
@@ -174,6 +182,10 @@ export default function Users(): JSX.Element {
 						<AddNewUserForm onAddUser={handleAddNewUser} />
 					</div>
 				</div>
+				<Radio.Group defaultValue={1} onChange={onChangeListFilter} style={{marginBottom:20, marginTop:20}}>
+					<Radio value={1}>Đang kích hoạt</Radio>
+					<Radio value={2}>Vô hiệu hoá</Radio>
+				</Radio.Group>
 				<Table
 					rowKey="id"
 					dataSource={get(users, "data", [])}

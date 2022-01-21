@@ -5,6 +5,7 @@ import { RootState, useAppDispatch } from "store/store";
 import { useSelector } from "react-redux";
 import { actionAddParent, actionGetParents } from "store/parents/slice";
 import Modal from "antd/lib/modal/Modal";
+import { DEFAULT_ROLE_IDS } from "utils/const";
 
 export default function AddParent(): JSX.Element {
 	const dispatch = useAppDispatch();
@@ -14,7 +15,7 @@ export default function AddParent(): JSX.Element {
 	const status = useSelector((state: RootState) => state.parentReducer.addParentStatus);
 
 	const handleSubmit = (values: any) => {
-		dispatch(actionAddParent({ ...values, role_id: 3 })).finally(()=>{
+		dispatch(actionAddParent({ ...values, role_id: DEFAULT_ROLE_IDS.PARENT })).finally(()=>{
 			if(keepShow === false) setShow(false);
 			addFrom.setFieldsValue({
 				name:"",

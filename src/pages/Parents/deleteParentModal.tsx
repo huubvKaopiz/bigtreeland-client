@@ -1,5 +1,5 @@
 import { Button, Tooltip } from "antd";
-import { DeleteOutlined } from "@ant-design/icons";
+import { MinusCircleOutlined } from "@ant-design/icons";
 import { ParentType } from "interface";
 import { useState } from "react";
 import { useAppDispatch } from "store/store";
@@ -13,15 +13,15 @@ export default function DeleteParent(props: { parent: ParentType }): JSX.Element
 
 	return (
 		<div>
-			<Tooltip placement="top" title="Xoá">
+			<Tooltip placement="top" title="Vô hiệu hoá tài khoản">
 				<Button
 					danger
 					type="text"
-					icon={<DeleteOutlined />}
+					icon={<MinusCircleOutlined />}
 					loading={loading}
 					onClick={() => {
 						confirm({
-							title: "Bạn có chắc chắn?",
+							title: "Bạn muốn vô hiệu hoá tài khảon người dùng này!",
 							onOk: function () {
 								setLoading(true);
 								dispatch(actionDeleteParent(parent.id))

@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 import { ClassType, RoleType } from "../../interface";
 import { Button, Col, Input, Layout, Row, Space, Table } from "antd";
-import { UnorderedListOutlined } from "@ant-design/icons";
+import { UnorderedListOutlined, EditOutlined } from "@ant-design/icons";
 import EditClassModal from "./editClassModal";
 import AddClassModal from "./addClassModal";
 import { useHistory } from "react-router-dom";
@@ -11,7 +11,7 @@ import { actionGetClasses } from "store/classes/slice";
 import { get } from "lodash";
 import { actionGetEmployees } from "store/employees/slice";
 import numeral from "numeral";
-import { dayOptions } from "utils/const";
+import { dayOptions, DEFAULT_ROLE_IDS } from "utils/const";
 import useDebouncedCallback from "../../hooks/useDebounceCallback";
 
 function Classes(): JSX.Element {
@@ -24,33 +24,41 @@ function Classes(): JSX.Element {
 	const userStore = useSelector((state: RootState) => state.auth.user);
 	const [page, setPage] = useState(1);
 	const [search, setSearch] = useState('')
-	const [teacher_id, setTeacherId] = useState<number| undefined>(undefined)
+	const [teacher_id, setTeacherId] = useState<number | undefined>(undefined)
+	const [showEdit, setShowEdit] = useState(false);
+	const [editIndex, setEditIndex] = useState(-1);
+
 
 	const searchClass = useDebouncedCallback((searchParam) => {
 		setSearch(searchParam)
-		dispatch(actionGetClasses({page: 1, search: searchParam, teacher_id}))
+		dispatch(actionGetClasses({ page: 1, search: searchParam, teacher_id }))
 	}, 500)
 
 	useEffect(() => {
 		const admin = (get(userStore, 'roles', []) as RoleType[]).find(role => role.id === 1)
-		if(!admin){
+		if (!admin) {
 			setTeacherId(get(userStore, 'id', void 0));
 		}
 	}, [userStore])
 
 	useEffect(() => {
 		dispatch(actionGetClasses({ page: 1, teacher_id }));
-		dispatch(actionGetEmployees({ role_ids:`2,3` })); //role_id of teacher and teacher2
+		dispatch(actionGetEmployees({ role_ids: `${DEFAULT_ROLE_IDS.TEACHER},${DEFAULT_ROLE_IDS.TEACHER2}` })); //role_id of teacher and teacher2
 	}, [dispatch, teacher_id]);
 
 	useEffect(() => {
-		dispatch(actionGetClasses({page, search, teacher_id}))
-	// eslint-disable-next-line react-hooks/exhaustive-deps
-	},[dispatch, page])
+		dispatch(actionGetClasses({ page, search, teacher_id }))
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [dispatch, page])
 
 	const searchTeacher = (search: string) => {
-		if (search.length >= 3 || search.length === 0) dispatch(actionGetEmployees({role_ids:`2,3`, search }));
+		if (search.length >= 3 || search.length === 0) dispatch(actionGetEmployees({ role_ids: `${DEFAULT_ROLE_IDS.TEACHER},${DEFAULT_ROLE_IDS.TEACHER2}`, search }));
 	};
+
+	function handleEdit(index: number) {
+		setShowEdit(true);
+		setEditIndex(index);
+	}
 
 	const columns = [
 		{
@@ -100,7 +108,7 @@ function Classes(): JSX.Element {
 			width: "15%",
 			title: "Action",
 			key: "action",
-			render: function ActionCol(record: ClassType): JSX.Element {
+			render: function ActionCol(text:string, record: ClassType, index:number): JSX.Element {
 				return (
 					<Space size="middle">
 						<Button
@@ -108,12 +116,8 @@ function Classes(): JSX.Element {
 							icon={<UnorderedListOutlined />}
 							onClick={() => history.push({ pathname: `/classes-detail/${record.id}`, state: { classInfo: record } })}
 						/>
-						<EditClassModal
-							classInfo={record}
-							teachers={teachers}
-							searchTeacher={searchTeacher}
-							searchStatus={seachStatus}
-						/>
+						<Button type="link" icon={<EditOutlined />} onClick={() => handleEdit(index)}/>
+
 					</Space>
 				);
 			},
@@ -124,7 +128,7 @@ function Classes(): JSX.Element {
 		<Layout.Content>
 			<Row style={{ marginBottom: 20, marginTop: 20 }} justify="start">
 				<Col span={10}>
-					<Input.Search allowClear onChange={ ({ target: { value } }) => searchClass(value)}/>
+					<Input.Search allowClear onChange={({ target: { value } }) => searchClass(value)} />
 				</Col>
 				<Col span={6} style={{ marginLeft: 20 }}>
 					<AddClassModal teachers={teachers} />
@@ -144,6 +148,14 @@ function Classes(): JSX.Element {
 						setPage(page);
 					},
 				}}
+			/>
+			<EditClassModal
+				classInfo={get(classes, "data", [])[editIndex]}
+				teachers={teachers}
+				searchTeacher={searchTeacher}
+				searchStatus={seachStatus}
+				show={showEdit}
+				setShow={setShowEdit}
 			/>
 		</Layout.Content>
 	);
