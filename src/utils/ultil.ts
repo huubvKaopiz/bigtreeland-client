@@ -66,7 +66,7 @@ export function converRoleNameToVN(role: ROLE_NAMES): string {
 }
 
 export function getPermissionDes(name: string): string {
-	let res = '';
+	let res = name;
 	switch (name) {
 		case 'users':
 			res = 'Người dùng';
@@ -79,6 +79,9 @@ export function getPermissionDes(name: string): string {
 			break;
 		case 'add-teacher':
 			res = 'Thêm giáo viên';
+			break;
+		case 'restore-user':
+			res = 'Khôi phục tài khoản';
 			break;
 		case 'tuition-fees':
 			res = 'Học phí'
