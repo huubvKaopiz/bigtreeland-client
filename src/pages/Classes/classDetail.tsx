@@ -1,4 +1,13 @@
-import { ExclamationCircleOutlined, InboxOutlined, LikeOutlined, MessageOutlined, NotificationOutlined, SearchOutlined, TeamOutlined, UploadOutlined } from "@ant-design/icons";
+import {
+	ExclamationCircleOutlined,
+	InboxOutlined,
+	LikeOutlined,
+	MessageOutlined,
+	NotificationOutlined,
+	SearchOutlined,
+	TeamOutlined,
+	UploadOutlined,
+} from "@ant-design/icons";
 import {
 	Button,
 	Col,
@@ -17,7 +26,7 @@ import {
 	Space,
 	Spin,
 	Table,
-	Tabs
+	Tabs,
 } from "antd";
 import Checkbox, { CheckboxChangeEvent } from "antd/lib/checkbox/Checkbox";
 import TextArea from "antd/lib/input/TextArea";
@@ -34,7 +43,7 @@ import {
 	actionGetAttendances,
 	actionResetAddAttendanceStatus,
 	actionResetGetAttendancesStatus,
-	AttendanceStudentComment
+	AttendanceStudentComment,
 } from "store/attendances/slice";
 import { actionGetClass, actionUpdateClass } from "store/classes/slice";
 import { actionUploadFile } from "store/files/slice";
@@ -56,18 +65,31 @@ export default function ClassDetail(): JSX.Element {
 	const [today, setToday] = useState(moment(new Date()).format(dateFormat));
 	const [attendantList, setAttendantList] = useState<number[]>([]);
 	const [checkAll, setCheckAll] = useState(false);
-	const [listComments, setListComments] = useState<AttendanceStudentComment[]>([]);
-	const [lessonTime, setlessonTime] = useState<string[]>(['',''])
-	const [classActiveTab, setClassActiveTab] = useState<string>('1')
+	const [listComments, setListComments] = useState<AttendanceStudentComment[]>(
+		[]
+	);
+	const [lessonTime, setlessonTime] = useState<string[]>(["", ""]);
+	const [classActiveTab, setClassActiveTab] = useState<string>("1");
 	// const classInfo = location.state.classInfo as ClassType;
-	const attendances = useSelector((state: RootState) => state.attendanceReducer.attendances);
-	const classInfo = useSelector((state: RootState) => state.classReducer.classInfo);
+	const attendances = useSelector(
+		(state: RootState) => state.attendanceReducer.attendances
+	);
+	const classInfo = useSelector(
+		(state: RootState) => state.classReducer.classInfo
+	);
 	const testList = useSelector((state: RootState) => state.testReducer.testes);
-	const addStudentsStatus = useSelector((state: RootState) => state.classReducer.addStudentsStatus);
-	const getAttendancesStatus = useSelector((state: RootState) => state.attendanceReducer.getAttendancesStatus);
-	const statusAddAttendanceStatus = useSelector((state: RootState) => state.attendanceReducer.addAttendanceStatus);
+	const addStudentsStatus = useSelector(
+		(state: RootState) => state.classReducer.addStudentsStatus
+	);
+	const getAttendancesStatus = useSelector(
+		(state: RootState) => state.attendanceReducer.getAttendancesStatus
+	);
+	const statusAddAttendanceStatus = useSelector(
+		(state: RootState) => state.attendanceReducer.addAttendanceStatus
+	);
 
-	const inputRef = useRef<any>(null)
+	const inputRef = useRef<any>(null);
+	const [resetAttendance, setResetAttendance] = useState(1);
 
 	const modalConfirmConfig: ModalFuncProps = {
 		title: "",
@@ -77,13 +99,7 @@ export default function ClassDetail(): JSX.Element {
 		cancelText: "Ở lại",
 		onOk: () => {
 			setClassActiveTab("3");
-			//Clear value: @a Huu. fix cho e nhe
-			const listInput: NodeListOf<HTMLInputElement> =
-				document.querySelectorAll("._input_");
-			listInput.forEach((input) => {
-				console.log(input.value);
-				input.value = "";
-			});
+			setResetAttendance(resetAttendance + 1);
 			setCheckAll(false);
 			setAttendantList([]);
 		},
@@ -106,7 +122,7 @@ export default function ClassDetail(): JSX.Element {
 		if (params.class_id) {
 			dispatch(actionGetAttendances({ class_id: parseInt(params.class_id) }));
 			dispatch(actionGetClass({ class_id: parseInt(params.class_id) }));
-			dispatch(actionGetTestes({ class_id: +params.class_id }))
+			dispatch(actionGetTestes({ class_id: +params.class_id }));
 		}
 	}, [dispatch, params]);
 
@@ -118,11 +134,15 @@ export default function ClassDetail(): JSX.Element {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [statusAddAttendanceStatus]);
 
-	const studentList = useMemo(() => get(attendances, "students", []), [attendances]);
+	const studentList = useMemo(
+		() => get(attendances, "students", []),
+		[attendances]
+	);
 
 	function isAttendant(sID: number, atKey: string) {
 		const atList = attendances?.attendances[atKey];
-		const found = atList && atList.find((element) => element.student_id === sID);
+		const found =
+			atList && atList.find((element) => element.student_id === sID);
 		if (found !== undefined) return true;
 		else return false;
 	}
@@ -170,16 +190,31 @@ export default function ClassDetail(): JSX.Element {
 		}
 	}
 
-	function handleChangeCoductPoint(e: React.ChangeEvent<HTMLInputElement>, id: number) {
+	function handleChangeCoductPoint(
+		e: React.ChangeEvent<HTMLInputElement>,
+		id: number
+	) {
 		const finder = listComments.find((p) => p.id === `${id}`);
 		if (finder) finder.conduct_point = e.target.value;
-		else listComments.push({ id: `${id}`, comment: "",  conduct_point: parseFloat(e.target.value).toString(), reminder: "" });
+		else
+			listComments.push({
+				id: `${id}`,
+				comment: "",
+				conduct_point: parseFloat(e.target.value).toString(),
+				reminder: "",
+			});
 	}
 
 	function handleChangeReminder(reminder: string, id: number) {
 		const finder = listComments.find((p) => p.id === `${id}`);
 		if (finder) finder.reminder = reminder;
-		else listComments.push({ id: `${id}`, comment: "", conduct_point: "", reminder });
+		else
+			listComments.push({
+				id: `${id}`,
+				comment: "",
+				conduct_point: "",
+				reminder,
+			});
 	}
 
 	function handleNotityToParent() {
@@ -187,16 +222,21 @@ export default function ClassDetail(): JSX.Element {
 	}
 
 	function handleSubmit() {
-		const teacher_id = get(classInfo, "user.id", null)
-		if(!teacher_id) {
-			notification.warn({message: "Chưa có thông tin giáo viên!"})
-		}
-		else if (attendantList.length > 0 && classInfo) {
+		const teacher_id = get(classInfo, "user.id", null);
+		if (!teacher_id) {
+			notification.warn({ message: "Chưa có thông tin giáo viên!" });
+		} else if (attendantList.length > 0 && classInfo) {
 			const studentAttendanceList: AttendanceStudentComment[] = [];
 			attendantList.forEach((at) => {
 				const student = listComments.find((p) => +p.id === at);
 				if (student) studentAttendanceList.push(student);
-				else studentAttendanceList.push({ id: `${at}`, comment: "", conduct_point: "", reminder: "" });
+				else
+					studentAttendanceList.push({
+						id: `${at}`,
+						comment: "",
+						conduct_point: "",
+						reminder: "",
+					});
 			});
 			const params = {
 				class_id: classInfo.id,
@@ -206,20 +246,21 @@ export default function ClassDetail(): JSX.Element {
 				date: moment(today, "DD-MM-YYYY").format("YYYY-MM-DD"),
 			};
 			dispatch(actionAddAttendance(params));
-		}
-		else {
-			notification.warn({message: "Danh sách điểm danh trống"})
+		} else {
+			notification.warn({ message: "Danh sách điểm danh trống" });
 		}
 	}
 
-	function handleChangeLessonRange(_: any, dateString: string[]){
-		setlessonTime(dateString)
+	function handleChangeLessonRange(_: any, dateString: string[]) {
+		setlessonTime(dateString);
 	}
 
-	function handleSearchLessonInRange(){
-		const from_date = lessonTime[0] || void 0
-		const to_date = lessonTime[1] || void 0
-		dispatch(actionGetAttendances({class_id: +params.class_id, from_date, to_date}))
+	function handleSearchLessonInRange() {
+		const from_date = lessonTime[0] || void 0;
+		const to_date = lessonTime[1] || void 0;
+		dispatch(
+			actionGetAttendances({ class_id: +params.class_id, from_date, to_date })
+		);
 	}
 
 	const attendance_columns: any[] = [
@@ -307,7 +348,7 @@ export default function ClassDetail(): JSX.Element {
 					<TextArea
 						className="_input_"
 						style={{ width: "100%" }}
-						autoSize={{minRows: 1, maxRows: 3}}
+						autoSize={{ minRows: 1, maxRows: 3 }}
 						placeholder="Nhận xét"
 						onChange={({ target: { value } }) =>
 							handleChangeComment(value, st.id)
@@ -344,31 +385,28 @@ export default function ClassDetail(): JSX.Element {
 		render: function col(value: string): JSX.Element {
 			return <strong>{value}</strong>;
 		},
-	})
+	});
 
 	for (const key in get(attendances, "attendances", [])) {
 		lessonCols.push({
 			title: `${moment(key).format("DD/MM/YYYY")}`,
 			dataIndex: "",
 			key: `${key}`,
-			width:20,
+			width: 20,
 			render: function col(st: { id: number; name: string }): JSX.Element {
 				return (
 					<>
-					<Checkbox checked={isAttendant(st.id, key)} disabled />
+						<Checkbox checked={isAttendant(st.id, key)} disabled />
 					</>
 				);
 			},
 		});
 	}
-	lessonCols.push({
-		
-	})
-
+	lessonCols.push({});
 
 	/* For Test */
 	function handleChangePageOfTest(page: number) {
-		dispatch(actionGetTestes({ class_id: +params.class_id, page }))
+		dispatch(actionGetTestes({ class_id: +params.class_id, page }));
 	}
 
 	return (
@@ -384,34 +422,43 @@ export default function ClassDetail(): JSX.Element {
 				]}
 				footer={
 					<Tabs activeKey={classActiveTab} onChange={setClassActiveTab}>
-						<TabPane tab="Điểm danh" key="1" >
-							<Space style={{ paddingTop: 20, marginBottom: 20 }}>
-								Ngày:
-								<DatePicker
-									disabledDate={(current) => current && current > moment().endOf('day')}
-									defaultValue={moment(new Date(), dateFormat)}
-									format={dateFormat}
-									onChange={(e) => setToday(moment(e).format("DD/MM/YYYY"))}
-								/>
-								<Button type="primary" onClick={handleSubmit}>
-									Lưu lại
-								</Button>
-							</Space>
+						<TabPane tab="Điểm danh" key="1">
+							<div key={resetAttendance}>
+								<Space style={{ paddingTop: 20, marginBottom: 20 }}>
+									Ngày:
+									<DatePicker
+										disabledDate={(current) =>
+											current && current > moment().endOf("day")
+										}
+										defaultValue={moment(new Date(), dateFormat)}
+										format={dateFormat}
+										onChange={(e) => setToday(moment(e).format("DD/MM/YYYY"))}
+									/>
+									<Button type="primary" onClick={handleSubmit}>
+										Lưu lại
+									</Button>
+								</Space>
 
-							<Row>
-								<Col span={24}>
-									<Spin spinning={getAttendancesStatus === "loading" || statusAddAttendanceStatus==="loading"}>
-										<Table
-											dataSource={studentList}
-											columns={attendance_columns}
-											bordered
-											rowKey="id"
-											size="small"
-											pagination={false}
-										/>
-									</Spin>
-								</Col>
-							</Row>
+								<Row>
+									<Col span={24}>
+										<Spin
+											spinning={
+												getAttendancesStatus === "loading" ||
+												statusAddAttendanceStatus === "loading"
+											}
+										>
+											<Table
+												dataSource={studentList}
+												columns={attendance_columns}
+												bordered
+												rowKey="id"
+												size="small"
+												pagination={false}
+											/>
+										</Spin>
+									</Col>
+								</Row>
+							</div>
 						</TabPane>
 						<TabPane tab="Bài tập" key="2">
 							<Space
@@ -508,7 +555,7 @@ export default function ClassDetail(): JSX.Element {
 							</Space>
 							<Table
 								loading={getAttendancesStatus === "loading"}
-								dataSource={get(attendances, 'students', [])}
+								dataSource={get(attendances, "students", [])}
 								columns={lessonCols}
 								bordered
 								rowKey="id"
@@ -518,7 +565,7 @@ export default function ClassDetail(): JSX.Element {
 						</TabPane>
 						<TabPane tab="Album ảnh" key="4">
 							<Space style={{ paddingTop: 20, marginBottom: 20 }}>
-								<ClassPhotoAlbum class_id={+params.class_id}/>
+								<ClassPhotoAlbum class_id={+params.class_id} />
 							</Space>
 							<div></div>
 							<Space
@@ -526,16 +573,22 @@ export default function ClassDetail(): JSX.Element {
 								size={[10, 10]}
 								wrap
 							>
-								{get(classInfo, "albums", []).map((file: any, index: number) => (
-									<Image
-										key={index}
-										width={240}
-										height={240}
-										style={{ objectFit: "cover" }}
-										alt="logo"
-										src={get(file, "url", "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png")}
-									/>
-								))}
+								{get(classInfo, "albums", []).map(
+									(file: any, index: number) => (
+										<Image
+											key={index}
+											width={240}
+											height={240}
+											style={{ objectFit: "cover" }}
+											alt="logo"
+											src={get(
+												file,
+												"url",
+												"https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
+											)}
+										/>
+									)
+								)}
 							</Space>
 						</TabPane>
 					</Tabs>
@@ -582,40 +635,43 @@ export default function ClassDetail(): JSX.Element {
 	);
 }
 
-function ClassPhotoAlbum(props: { class_id: number}): JSX.Element {
+function ClassPhotoAlbum(props: { class_id: number }): JSX.Element {
 	const dispatch = useAppDispatch();
 	const [show, setShow] = useState(false);
 	const [fileList, setFileList] = useState<UploadFile[]>([]);
 	const [form] = Form.useForm();
-	const [isLoading, setIsLoading] = useState(false)
+	const [isLoading, setIsLoading] = useState(false);
 
 	useEffect(() => {
-		if(show)
-			setFileList([])
+		if (show) setFileList([]);
 	}, [show]);
 
 	function handleUploadFile() {
 		if (fileList.length > 0) {
-			setIsLoading(true)
+			setIsLoading(true);
 			const listFileUpload = fileList.map((file) => {
 				return file.originFileObj as File;
 			});
 			//Todo dispatch action to upload file then reset
-			const fileIdUploaded: number[] = []
-			dispatch(actionUploadFile(listFileUpload)).then((data) => {
-				(get(data, "payload", [])as FileType[]).forEach(file => {
-				fileIdUploaded.push(file.id)})
-				return fileIdUploaded
-			}).then((fileIdList) => {
-				const data = {albums: fileIdList}
-				dispatch(actionUpdateClass({data, cID: props.class_id})).then(()  => {
-					dispatch(actionGetClass({ class_id: props.class_id}));
-				}).finally(() => {
-					setIsLoading(false)
-					setShow(false)
+			const fileIdUploaded: number[] = [];
+			dispatch(actionUploadFile(listFileUpload))
+				.then((data) => {
+					(get(data, "payload", []) as FileType[]).forEach((file) => {
+						fileIdUploaded.push(file.id);
+					});
+					return fileIdUploaded;
 				})
-			})
-			
+				.then((fileIdList) => {
+					const data = { albums: fileIdList };
+					dispatch(actionUpdateClass({ data, cID: props.class_id }))
+						.then(() => {
+							dispatch(actionGetClass({ class_id: props.class_id }));
+						})
+						.finally(() => {
+							setIsLoading(false);
+							setShow(false);
+						});
+				});
 		}
 	}
 
@@ -657,7 +713,7 @@ function ClassPhotoAlbum(props: { class_id: number}): JSX.Element {
 								onChange={({ fileList }) => {
 									setFileList(fileList);
 								}}
-							// className="upload-list-inline"
+								// className="upload-list-inline"
 							>
 								<p className="ant-upload-drag-icon">
 									<InboxOutlined />
