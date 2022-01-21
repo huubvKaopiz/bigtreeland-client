@@ -39,7 +39,7 @@ export function downloadFile(urlFile: string, fileName: string): void {
 
 
 export function converRoleNameToVN(role: ROLE_NAMES): string {
-	let res = "";
+	let res = role as string;
 	switch (role) {
 		case ROLE_NAMES.ADMIM:
 			res = 'Quản trị hệ thống';

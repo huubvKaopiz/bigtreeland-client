@@ -15,10 +15,11 @@ export default function EditClassModal(props: {
 	teachers: ListEmployeeType | null;
 	searchTeacher: (search: string) => void;
 	searchStatus: string;
+	show:boolean;
+	setShow:(param:boolean) => void;
 }): JSX.Element {
-	const { classInfo, teachers, searchTeacher, searchStatus } = props;
+	const { classInfo, teachers, show, setShow } = props;
 	const [uFrom] = Form.useForm();
-	const [show, setShow] = useState(false);
 	const dispatch = useAppDispatch();
 	const [submiting, setSubmiting] = useState(false);
 
@@ -55,20 +56,20 @@ export default function EditClassModal(props: {
 
 	return (
 		<div>
-			<Button type="link" icon={<EditOutlined />} onClick={() => setShow(true)} />
+			
 			<Modal
 				visible={show}
 				title="Thay đổi thông tin lớp học"
 				onCancel={() => setShow(false)}
 				footer={[
-					<Button loading={submiting} key="btnsubmit" type="primary" htmlType="submit" form={`uclassForm${classInfo.id}`}>
+					<Button loading={submiting} key="btnsubmit" type="primary" htmlType="submit" form={`uclassForm`}>
 						Lưu lại
 					</Button>,
 				]}
 				width={800}
 			>
 				<Form
-					id={`uclassForm${classInfo.id}`}
+					id={`uclassForm`}
 					form={uFrom}
 					labelCol={{ span: 5 }}
 					wrapperCol={{ span: 17 }}

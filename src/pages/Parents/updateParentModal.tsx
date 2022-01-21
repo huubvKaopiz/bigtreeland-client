@@ -30,7 +30,8 @@ export default function UpdateParent(props: { parent: ParentType }): JSX.Element
 	}, [distpatch, status]);
 
 	const handleSubmit = (values: any) => {
-		distpatch(actionUpdateParent({ data: values, pID: parent.id }));
+		console.log(values)
+		// distpatch(actionUpdateParent({ data: values, pID: parent.id }));
 	};
 	return (
 		<div>

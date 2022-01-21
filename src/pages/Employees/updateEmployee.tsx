@@ -7,11 +7,10 @@ import {
 	DatePicker,
 	Divider,
 	Upload,
-	Tooltip,
 } from "antd";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import moment from "moment";
-import { EditOutlined, UploadOutlined } from "@ant-design/icons";
+import { UploadOutlined } from "@ant-design/icons";
 import { EmployeeType, RoleType } from "interface";
 import {
 	actionResetUpdateEmployeeSatus,
@@ -28,10 +27,11 @@ const dateFormat = "DD/MM/YYYY";
 export default function UpdateEmplyeeForm(props: {
 	employee: EmployeeType;
 	roles: RoleType[];
+	show:boolean;
+	setShow: (param:boolean) => void
 }): JSX.Element {
-	const { employee, roles } = props;
+	const { employee, roles, show, setShow } = props;
 	const [uFrom] = Form.useForm();
-	const [show, setShow] = useState(false);
 	const dispatch = useAppDispatch();
 	const status = useSelector(
 		(state: RootState) => state.employeeReducer.updateEmployeeStatus
@@ -57,13 +57,6 @@ export default function UpdateEmplyeeForm(props: {
 		}
 	}, [employee, uFrom]);
 
-	useEffect(() => {
-		if (status === "success" && show) {
-			setShow(false);
-			dispatch(actionResetUpdateEmployeeSatus());
-		}
-	}, [status, dispatch, show]);
-
 	const handleSubmit = (values: any) => {
 		const data = {
 			...values,
@@ -74,7 +67,10 @@ export default function UpdateEmplyeeForm(props: {
 			data,
 			eID: employee.id,
 		};
-		dispatch(actionUpdateEmployee(params));
+		dispatch(actionUpdateEmployee(params)).finally(()=>{
+			setShow(false)
+			dispatch(actionResetUpdateEmployeeSatus());
+		});
 	};
 
 	const IsNumeric = {
@@ -83,13 +79,6 @@ export default function UpdateEmplyeeForm(props: {
 	};
 	return (
 		<div>
-			<Tooltip placement="top" title="Sửa thông tin">
-				<Button
-					type="link"
-					icon={<EditOutlined />}
-					onClick={() => setShow(true)}
-				/>
-			</Tooltip>
 			<Modal
 				width={800}
 				style={{ marginTop: "-80px" }}

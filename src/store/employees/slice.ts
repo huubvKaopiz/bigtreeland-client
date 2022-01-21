@@ -179,7 +179,7 @@ export const employeeSlice = createSlice({
 			})
 			.addCase(actionDeleteEmployee.fulfilled, (state) => {
 				state.deleteEmployeeStatus = "success";
-				notification.success({ message: "Xoá nhân viên thành công" });
+				notification.success({ message: "Vô hiệu hoá tài khoản viên thành công" });
 			})
 			.addCase(actionDeleteEmployee.rejected, (state) => {
 				state.deleteEmployeeStatus = "error";

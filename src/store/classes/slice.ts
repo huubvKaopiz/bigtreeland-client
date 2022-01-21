@@ -17,7 +17,7 @@ export interface ClassReducerState {
 export interface GetClassesPrams {
 	search?: string;
 	page?: number;
-	teacher_id?: number;
+	teacher_id?: number | undefined;
 }
 
 export interface ClassParams {
