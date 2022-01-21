@@ -112,6 +112,7 @@ export default function ClassDetail(): JSX.Element {
 
 	useEffect(() => {
 		if (statusAddAttendanceStatus === "success") {
+			dispatch(actionGetAttendances({ class_id: parseInt(params.class_id) }));
 			Modal.confirm(modalConfirmConfig);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
