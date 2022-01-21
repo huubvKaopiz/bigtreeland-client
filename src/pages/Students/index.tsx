@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Col, Input, Layout, Row, Space, Table } from "antd";
+import { Button, Col, Input, Layout, Row, Space, Table } from "antd";
+import {EditOutlined} from '@ant-design/icons';
 import AddStudentModal from "./addStudentModal";
 import { StudentType } from "../../interface";
 import { useSelector } from "react-redux";
@@ -16,6 +17,11 @@ import moment from "moment";
 
 export default function Students(): JSX.Element {
 	const dispatch = useAppDispatch();
+	const [page, setPage] = useState(1);
+	const [searchInput, setSearchInput] = useState("");
+	const [showEdit, setShowEdit] = useState(false);
+	const [editIndex, setEditIndex] = useState(-1);
+	//application states
 	const loadListStatus = useSelector((state: RootState) => state.studentReducer.getStudentsStatus);
 	const students = useSelector((state: RootState) => state.studentReducer.students);
 	const parents = useSelector((state: RootState) => state.parentReducer.parents);
@@ -24,8 +30,8 @@ export default function Students(): JSX.Element {
 	const searchClassStatus = useSelector((state: RootState) => state.classReducer.getClassesStatus);
 	const updateStudentStatus = useSelector((state: RootState) => state.studentReducer.updateStudentStatus);
 
-	const [page, setPage] = useState(1);
-	const [searchInput, setSearchInput] = useState("");
+
+
 
 	useEffect(() => {
 		dispatch(actionGetStudents({ page: 1 }));
@@ -38,7 +44,7 @@ export default function Students(): JSX.Element {
 	}, [dispatch, loadListStatus]);
 
 	useEffect(() => {
-		dispatch(actionGetParents({}));
+		dispatch(actionGetParents({per_page:100}));
 		dispatch(actionGetClasses({}));
 	}, [dispatch]);
 
@@ -122,7 +128,7 @@ export default function Students(): JSX.Element {
 		{
 			width: "15%",
 			title: "Action",
-			render: function ActionCol(student: StudentType): JSX.Element {
+			render: function ActionCol(text:string, student: StudentType, index:number): JSX.Element {
 				return (
 					<Space key={student.id}>
 						{student.class === null ? (
@@ -136,12 +142,11 @@ export default function Students(): JSX.Element {
 							""
 						)}
 						<Profile student={student} />
-						<EditStudentModal
-							student={student}
-							parents={parents}
-							searchParent={debounceSearchParent}
-							searchStatus={searchParentStatus}
-						/>
+						<Button type="link" icon={<EditOutlined />} onClick={() => {
+							setShowEdit(true);
+							setEditIndex(index)
+						}} />
+
 						<LeaveModal studen_id={student.id} />
 					</Space>
 				);
@@ -173,6 +178,14 @@ export default function Students(): JSX.Element {
 						setPage(page);
 					},
 				}}
+			/>
+			<EditStudentModal
+				student={get(students, "data", [])[editIndex]}
+				parents={parents}
+				searchParent={debounceSearchParent}
+				searchStatus={searchParentStatus}
+				show={showEdit}
+				setShow={setShowEdit}
 			/>
 		</Layout.Content>
 	);

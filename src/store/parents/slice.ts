@@ -15,6 +15,7 @@ export interface ParentReducerState {
 export interface GetParentsPrams {
 	search?: string;
 	page?: number;
+	per_page?:number;
 }
 
 export interface ParentParams {

@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { Button, Modal, Form, Input, Select, DatePicker, InputNumber, Switch, Spin } from "antd";
-import { EditOutlined } from "@ant-design/icons";
+import React, { useEffect } from "react";
+import { Button, Modal, Form, Input, Select, DatePicker, InputNumber, Switch } from "antd";
 import { ListParentType, ParentType, StudentType } from "interface";
 import { get } from "lodash";
 import { RootState, useAppDispatch } from "store/store";
-import { actionResetUpdateStudent, actionUpdateStudent } from "store/students/slice";
+import { actionGetStudents, actionUpdateStudent } from "store/students/slice";
 import moment from "moment";
 import { useSelector } from "react-redux";
 
@@ -15,9 +14,10 @@ export default function EditStudentModal(props: {
 	parents: ListParentType | null;
 	searchParent: (search: string) => void;
 	searchStatus: string;
+	show:boolean;
+	setShow:(param:boolean) => void;
 }): JSX.Element {
-	const { student, parents, searchParent, searchStatus } = props;
-	const [show, setShow] = useState(false);
+	const { student, parents, show, setShow } = props;
 	const dispatch = useAppDispatch();
 	const [uForm] = Form.useForm();
 	const status = useSelector((state: RootState) => state.studentReducer.updateStudentStatus);
@@ -42,15 +42,6 @@ export default function EditStudentModal(props: {
 		}
 	}, [student, uForm]);
 
-	useEffect(() => {
-		if (status === "success") {
-			setShow(false);
-		}
-		if (status === "success" || status === "error") {
-			dispatch(actionResetUpdateStudent());
-		}
-	}, [status, dispatch]);
-
 	const handleSubmit = (values: any) => {
 		dispatch(
 			actionUpdateStudent({
@@ -63,12 +54,14 @@ export default function EditStudentModal(props: {
 				},
 				sID: student.id,
 			})
-		);
+		).finally(()=>{
+			setShow(false);
+			dispatch(actionGetStudents({}))
+		});
 	};
 
 	return (
 		<div>
-			<Button type="link" icon={<EditOutlined />} onClick={() => setShow(true)} />
 			<Modal
 				visible={show}
 				title="Sửa thông tin học sinh"
