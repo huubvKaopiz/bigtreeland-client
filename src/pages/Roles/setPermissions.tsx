@@ -1,8 +1,6 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import React, { useEffect, useState } from "react";
 import { Layout, PageHeader, Table, Checkbox, message, Button, notification } from "antd";
-import { CloseOutlined } from '@ant-design/icons';
-import { RoleType } from "interface";
 import { get } from "lodash";
 import { useSelector } from "react-redux";
 import { useParams, useHistory } from "react-router-dom";
@@ -47,19 +45,19 @@ export function SetRolePermissions(): JSX.Element {
 
 	//Application state
 	const permissions = useSelector((state: RootState) => state.permissionReducer.permissions);
-	const roleInfo = useSelector((state:RootState) => state.roleReducer.roleInfo) 
-	const loading = useSelector((state:RootState) => state.roleReducer.statusGetRoleInfo) 
+	const roleInfo = useSelector((state: RootState) => state.roleReducer.roleInfo)
+	const loading = useSelector((state: RootState) => state.roleReducer.statusGetRoleInfo)
 	useEffect(() => {
 		dispatch(actionGetPermissions())
 		dispatch(actionGetRoleInfo(+params.role_id))
 	}, [dispatch, params])
 
 	useEffect(() => {
-		if (permissions && roleInfo) {
+		if (get(roleInfo, "id", 0) === +params.role_id) {
 			let object = '';
 			const per_list: RolePermissionType[] = [];
 			const granted_permissions: { id: number, granted: boolean }[] = [];
-			permissions.forEach((p: PermistionType) => {
+			permissions && permissions.forEach((p: PermistionType) => {
 				const granted = get(roleInfo, "permissions", []).findIndex((granted) => granted.name === p.name) >= 0
 				const perArray = p.name.split('.');
 				const isOther = perArray[1] != 'store' && perArray[1] != 'update' && perArray[1] != 'show' && perArray[1] != 'index' && perArray[1] != 'destroy';
@@ -176,12 +174,27 @@ export function SetRolePermissions(): JSX.Element {
 						return (
 							<>
 								<Checkbox
-									defaultChecked={record.granted.show || record.granted.index}
+									defaultChecked={record.granted.show}
 									onChange={(e) => handleCheckboxChange(e.target.checked, record, PermissionActions.SHOW, -1)} />
 							</>
 						)
 					}
 				},
+				{
+                    title: 'Xem DS',
+                    dataIndex: 'index',
+                    key: 'index',
+                    width: 50,
+                    render: function showCol(text: string, record: RolePermissionType): JSX.Element {
+                        return (
+                            <>
+                                <Checkbox
+                                    defaultChecked={record.granted.index}
+                                    onChange={(e) => handleCheckboxChange(e.target.checked, record, PermissionActions.INDEX, -1)} />
+                            </>
+                        )
+                    }
+                },
 				{
 					title: 'Thêm',
 					key: 'add',
@@ -260,15 +273,15 @@ export function SetRolePermissions(): JSX.Element {
 				title={<>Phân quyền cho <span style={{ color: "#d35400" }}> {get(roleInfo, "name", "")}</span></>}
 				subTitle=""
 				extra={[
-					<Button key="2">Làm lại</Button>,
+					// <Button key="2">Làm lại</Button>,
 					<Button key="1" type="primary" onClick={() => handleSubmit()} loading={submitting}>
 						Lưu thay đổi
 					</Button>,
 				]}
 			/>
 			<Table
-			    scroll={{ y:600 }}
-				loading ={loading === "loading" ? true : false}
+				scroll={{ y: 600 }}
+				loading={loading === "loading" ? true : false}
 				columns={permissions_columns}
 				dataSource={rolePermissions}
 				bordered

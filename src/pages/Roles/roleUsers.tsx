@@ -116,7 +116,7 @@ export function RoleUsers(prop: { roleInfo: RoleType, show: boolean, setShow: (p
                 okText="Lưu lại"
                 cancelText="Huỳ bỏ"
                 footer={[
-                    <Button key="btncancel" onClick={() => setShow(false)}>Lưu lại</Button>,
+                    <Button key="btncancel" onClick={() => setShow(false)}>Huỷ bỏ</Button>,
                     <Button loading={submitting} key="btnsubmit" type="primary" onClick={() => handleSubmit()}>Lưu lại</Button>,
 
                 ]}

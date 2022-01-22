@@ -60,7 +60,7 @@ export const actionCreateRole = createAsyncThunk("actionCreateRole", async (data
 		await request({
 			url: "/api/roles/set-role-for-list-user",
 			method: "post",
-			data: { role_id: role_id.id, user_ids: data.user_ids },
+			data: { role_id: role_id.id, add_user_ids: data.user_ids, remove_user_ids:[] },
 		});
 	}
 	if (data.permission_ids.length > 0) {
@@ -193,10 +193,10 @@ export const slice = createSlice({
 				notification.error({ message: "Có lỗi xảy ra" });
 			})
 
-			// update Row
+			// Delete Row
 			.addCase(actionDeleteRoles.fulfilled, (state) => {
 				state.statusDeleteRole = "success";
-				notification.success({ message: "Cập nhật vai trò thành công!" });
+				notification.success({ message: "Xoá vai trò thành công!" });
 			})
 			.addCase(actionDeleteRoles.pending, (state) => {
 				state.statusDeleteRole = "loading";
@@ -218,7 +218,7 @@ export const slice = createSlice({
 				notification.error({ message: "Có lỗi xảy ra" });
 			})
 
-			// Delete Row
+			// updte Row
 			.addCase(actionUpdateRole.fulfilled, (state) => {
 				state.statusUpdateRole = "success";
 				notification.success({ message: "Cập nhật danh sách quyền thành công!" });

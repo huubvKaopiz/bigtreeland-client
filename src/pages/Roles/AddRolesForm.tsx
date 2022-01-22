@@ -4,22 +4,12 @@ import { OptionType, RoleCreateFormType } from "interface";
 import { get } from "lodash";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { actionGetPermissions, PermistionType } from "store/permissions/slice";
+import { actionGetPermissions } from "store/permissions/slice";
 import { actionResetStatusCreateRole } from "store/roles/slice";
 import { RootState, useAppDispatch } from "store/store";
-import { actionGetUsers } from "store/users/slice";
+// import { actionGetUsers } from "store/users/slice";
 
-const permisionColumns = [
-	{
-		title: "ID",
-		dataIndex: "id",
-	},
-	{
-		title: "Tên quyền",
-		dataIndex: "name",
-	},
-];
-
+const { Option } = Select;
 function AddRolesForm({
 	onHandleSubmit,
 }: {
@@ -32,12 +22,9 @@ function AddRolesForm({
 
 	// Select user
 	const users = useSelector((state: RootState) => state.userReducer.users);
-	const [userOptions, setUserOptions] = useState<OptionType[]>([]);
 	const [userSelected, setUserSelected] = useState<OptionType[]>([]);
 
 	// permisson
-	const permissions = useSelector((state: RootState) => state.permissionReducer.permissions);
-	const [permissionsOptions, setPermissionsOptions] = useState<PermistionType[]>([]);
 	const [permissionsSelected, setPermissionsSelected] = useState<React.Key[]>([]);
 
 	useEffect(() => {
@@ -55,41 +42,10 @@ function AddRolesForm({
 		dispatch(actionGetPermissions());
 	}, [dispatch]);
 
-	useEffect(() => {
-		users?.data &&
-			setUserOptions(
-				users.data.map((user) => ({
-					label: get(user, "profile.name", ""),
-					value: user.id,
-				}))
-			);
 
-		permissions &&
-			setPermissionsOptions(
-				permissions.map((p) => ({
-					...p,
-					key: p.id,
-				}))
-			);
-	}, [users, permissions]);
 
 	function handleUserChange(value: OptionType[]) {
 		setUserSelected(value);
-	}
-
-	function selectRow(record: PermistionType) {
-		if (record.key) {
-			const selectedRowKeys: React.Key[] = [...permissionsSelected];
-			if (selectedRowKeys.indexOf(record.key) >= 0) {
-				selectedRowKeys.splice(selectedRowKeys.indexOf(record.key), 1);
-			} else {
-				selectedRowKeys.push(record.key);
-			}
-			setPermissionsSelected(selectedRowKeys);
-		}
-	}
-	function handlePermissionChange(value: React.Key[]) {
-		setPermissionsSelected(value);
 	}
 
 	return (
@@ -99,7 +55,7 @@ function AddRolesForm({
 			</Button>
 			<Modal
 				title="Thêm vai trò mới"
-				width={800}
+				width={600}
 				visible={show}
 				closable={true}
 				onCancel={() => setShow(false)}
@@ -134,7 +90,7 @@ function AddRolesForm({
 								showArrow
 								style={{ width: "100%" }}
 								listHeight={600}
-								options={userOptions}
+								// options={userOptions}
 								value={userSelected}
 								onChange={(value: OptionType[]) => handleUserChange(value)}
 								tagRender={(selectProps) => (
@@ -151,9 +107,14 @@ function AddRolesForm({
 										{selectProps.label}
 									</Tag>
 								)}
-							/>
+							>
+								{
+									get(users,"data",[]).map((u) => <Option value={u.id} key={u.id}><a>{get(u,"profile.name","")}</a> {u.phone}</Option>)
+								}
+
+								</Select>
 						</Form.Item>
-						<Form.Item label="Thêm quyền" name="permission_ids">
+						{/* <Form.Item label="Thêm quyền" name="permission_ids">
 							<Table
 								rowSelection={{
 									type: "checkbox",
@@ -168,7 +129,7 @@ function AddRolesForm({
 									onClick: () => selectRow(record),
 								})}
 							/>
-						</Form.Item>
+						</Form.Item> */}
 					</Form>
 				</Spin>
 			</Modal>

@@ -20,7 +20,7 @@ export interface UserType {
 	id: number;
 	name: "admin";
 	parent: null;
-	permissions: [];
+	permissions:PermistionType [];
 	roles: RoleType[];
 	updated_at: "2021-11-02T00:50:17.000000Z";
 	key?: React.Key;

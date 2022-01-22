@@ -1,10 +1,11 @@
-import { MinusCircleOutlined, SearchOutlined, RedoOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
+import { MinusCircleOutlined, SearchOutlined, RedoOutlined, ExclamationCircleOutlined, SafetyCertificateOutlined } from "@ant-design/icons";
 import { Button, Input, Layout, Radio, Space, Spin, Table, Tag, Tooltip, Modal } from "antd";
 import { UserType as User } from "interface";
 import { AddNewUser } from "interface/interfaces";
 import { debounce, get } from "lodash";
 import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
+import { useHistory } from "react-router-dom";
 import { RootState, useAppDispatch } from "store/store";
 import {
 	actionAddUser,
@@ -17,12 +18,13 @@ import {
 } from "store/users/slice";
 import AddNewUserForm from "./AddNewUserForm";
 import ChangePassword from "./ChangePassword";
-import ChangePermisstion from "./ChangePermisstion";
+// import ChangePermisstion from "./ChangePermisstion";
 
 const { confirm } = Modal;
 
 export default function Users(): JSX.Element {
 	const dispatch = useAppDispatch();
+	const history = useHistory();
 	const users = useSelector((state: RootState) => state.userReducer.users);
 	const [search, setSearch] = useState("");
 	const [page, setPage] = useState(1);
@@ -124,10 +126,17 @@ export default function Users(): JSX.Element {
 				{user.deleted_at === null ?
 					<Space>
 						<ChangePassword userId={+user.id} handleChangePass={handleChangePass} />
-						<ChangePermisstion
+						{/* <ChangePermisstion
 							user={user}
 							handleChangePermission={handleSetPermission}
-						/>
+						/> */}
+						<Tooltip placement="top" title="Phân quyền cho tài khoản">
+							<Button
+								type="link"
+								icon={<SafetyCertificateOutlined />}
+								onClick={() => history.push(`/user-set-permissions/${user.id}`)}
+							/>
+						</Tooltip>
 						<Tooltip placement="top" title="Vô hiệu hoá tài khoản">
 							<Button
 								type="link"
