@@ -51,7 +51,7 @@ export default function AddClassModal(props: {
 				title="Thêm lớp học"
 				onCancel={() => setShow(false)}
 				footer={[
-					<Checkbox key="keepShow" onChange={(e: any) => setKeepShow(e.target.checked)}>Giữ cửa sổ</Checkbox>,
+					<Checkbox key="keepShow" onChange={(e) => setKeepShow(e.target.checked)}>Giữ cửa sổ</Checkbox>,
 					<Button loading={addStatus === 'loading' ? true : false} key="btnsubmit" type="primary" htmlType="submit" form="aForm">
 						Lưu lại
 					</Button>,
@@ -85,7 +85,7 @@ export default function AddClassModal(props: {
 										<Select.Option value={tc.id} key={tc.id} label={`${get(tc, "profile.name", "")} (${tc.phone})`}>
 											<Space>
 											{get(tc,"roles",[]).map((role:{id:number, name:string}) => <Tag color="orange" key={role.id}>{converRoleNameToVN(role.name as ROLE_NAMES)}</Tag>)}
-											<a>{get(tc, "profile.name", "")}</a> ({tc.phone})
+											<a>{get(tc, "profile.name", "")}</a>{tc.phone}
 											</Space>
 										</Select.Option>
 									);

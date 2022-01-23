@@ -51,7 +51,7 @@ export const actionCreateRole = createAsyncThunk("actionCreateRole", async (data
 	const createRoleResponse = await request({
 		url: "/api/roles",
 		method: "post",
-		data: { name: data.name },
+		data: { name: data.name, description:data.description },
 	});
 
 	const role_id = createRoleResponse.data as { id: number };
@@ -60,14 +60,22 @@ export const actionCreateRole = createAsyncThunk("actionCreateRole", async (data
 		await request({
 			url: "/api/roles/set-role-for-list-user",
 			method: "post",
-			data: { role_id: role_id.id, add_user_ids: data.user_ids, remove_user_ids:[] },
+			data: { 
+				role_id: role_id.id, 
+				add_user_ids: data.user_ids, 
+				remove_user_ids:[] 
+			},
 		});
 	}
 	if (data.permission_ids.length > 0) {
 		await request({
 			url: "/api/permissions/set-permission-for-role",
 			method: "post",
-			data: { role_id: role_id.id, permission_add_ids: data.permission_ids, permission_delete_ids: [] },
+			data: { 
+				role_id: role_id.id, 
+				permission_add_ids: data.permission_ids, 
+				permission_delete_ids: [] 
+			},
 		});
 	}
 	return createRoleResponse.data;
@@ -86,7 +94,7 @@ export const actionSetRoleForUsers = createAsyncThunk("actionSetRoleForUsers", a
 	return response.data;
 });
 
-export const actionUpdateRole = createAsyncThunk("actionUpdateRole", async (data: any) => {
+export const actionUpdateRole = createAsyncThunk("actionUpdateRole", async (data:any) => {
 	let actionUpdateRole;
 	if (data.role_name)
 		actionUpdateRole = await request({

@@ -79,8 +79,16 @@ function AddRolesForm({
 					>
 						<Form.Item
 							name="name"
-							label="Tên vai trò mới"
+							label={<>Tên vai trò(
+								<span style={{ color: "#e74c3c" }}>viết liền, không dấu, không trùng với vai trò khác</span>
+								)</>}
 							rules={[{ required: true, message: "Tên vai trò không được để trống!" }]}
+						>
+							<Input autoComplete="off" />
+						</Form.Item>
+						<Form.Item
+							name="description"
+							label="Mô tả"
 						>
 							<Input autoComplete="off" />
 						</Form.Item>
@@ -109,10 +117,10 @@ function AddRolesForm({
 								)}
 							>
 								{
-									get(users,"data",[]).map((u) => <Option value={u.id} key={u.id}><a>{get(u,"profile.name","")}</a> {u.phone}</Option>)
+									get(users, "data", []).map((u) => <Option value={u.id} key={u.id}><a>{get(u, "profile.name", "")}</a> {u.phone}</Option>)
 								}
 
-								</Select>
+							</Select>
 						</Form.Item>
 						{/* <Form.Item label="Thêm quyền" name="permission_ids">
 							<Table

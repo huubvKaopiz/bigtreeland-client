@@ -302,6 +302,7 @@ export interface OptionType {
 
 export interface RoleCreateFormType {
 	name: string;
+	description:string;
 	permission_ids: React.Key[];
 	user_ids: React.Key[];
 }
