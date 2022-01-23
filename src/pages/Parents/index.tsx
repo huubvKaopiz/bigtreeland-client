@@ -12,7 +12,7 @@ import {
 	Form,
 	Popconfirm,
 } from "antd";
-import { CheckCircleOutlined, EditOutlined } from "@ant-design/icons";
+import { CheckCircleOutlined, EditOutlined, UsergroupAddOutlined } from "@ant-design/icons";
 import { ParentType } from "interface";
 import { useSelector } from "react-redux";
 import { actionGetParents, actionUpdateParent } from "store/parents/slice";
@@ -21,6 +21,7 @@ import AddParent from "./addParentModal";
 import { get } from "lodash";
 import AddStudent from "./addStudents";
 import useDebouncedCallback from "hooks/useDebounceCallback";
+import { actionGetStudents } from "store/students/slice";
 
 interface EditPayloadType {
 	user_id: number,
@@ -33,6 +34,9 @@ export default function Parents(): JSX.Element {
 	const [page, setPage] = useState(1);
 	const [search, setSearch] = useState('')
 	const [editIndex, setEditIndex] = useState(-1);
+	const [showAddStudent, setShowAddStudent] = useState(false);
+	const [parentAddStudentIndex, setShowAddStudentIndex] = useState(-1);
+
 	const [editPayload, setEditPayload] = useState<EditPayloadType | null>(null)
 	const [form] = Form.useForm();
 
@@ -43,9 +47,18 @@ export default function Parents(): JSX.Element {
 		(state: RootState) => state.parentReducer.parents
 	);
 
+	const students = useSelector(
+		(state: RootState) => state.studentReducer.students
+	);
+
 	const searchParent = useDebouncedCallback(search => {
 		setSearch(search)
 		dispatch(actionGetParents({ page: 1, search }))
+	}, 500)
+
+	const searchStudent = useDebouncedCallback(search => {
+		setSearch(search)
+		dispatch(actionGetStudents({ page: 1, search }))
 	}, 500)
 
 	useEffect(() => {
@@ -72,11 +85,16 @@ export default function Parents(): JSX.Element {
 			dispatch(actionUpdateParent({
 				data: { name: editPayload.name, email: editPayload.email, gender: 0 },
 				uID: editPayload.user_id
-			})).finally(() =>{
+			})).finally(() => {
 				handleSetEdit(-1, null);
 				dispatch(actionGetParents({ page: 1, search }))
 			})
 		}
+	}
+
+	function handleShowAddStudent(index:number){
+		setShowAddStudentIndex(index);
+		setShowAddStudent(true);
 	}
 	const columns = [
 		{
@@ -131,25 +149,25 @@ export default function Parents(): JSX.Element {
 				);
 			},
 		},
-		{
-			width: "15%",
-			title: "Học sinh",
-			dataIndex: "students",
-			key: "students",
-			editable: false,
-			render: function StudentsCol(
-				students: { id: number; name: string }[]
-			): JSX.Element {
-				return (
-					<div>
-						{students &&
-							students.map((student) => {
-								<a key={student.id}>{student.name}</a>;
-							})}
-					</div>
-				);
-			},
-		},
+		// {
+		// 	width: "15%",
+		// 	title: "Học sinh",
+		// 	dataIndex: "students",
+		// 	key: "students",
+		// 	editable: false,
+		// 	render: function StudentsCol(
+		// 		students: { id: number; name: string }[]
+		// 	): JSX.Element {
+		// 		return (
+		// 			<div>
+		// 				{students &&
+		// 					students.map((student) => {
+		// 						<a key={student.id}>{student.name}</a>;
+		// 					})}
+		// 			</div>
+		// 		);
+		// 	},
+		// },
 		{
 			width: "15%",
 			title: "Action",
@@ -179,7 +197,14 @@ export default function Parents(): JSX.Element {
 						) : (
 							""
 						)}
-						<AddStudent parent_id={record.id} />
+						<Tooltip placement="top" title="Thêm học sinh">
+							<Button
+								icon={<UsergroupAddOutlined />}
+								type="link"
+								onClick={() => handleShowAddStudent(index)}
+							/>
+						</Tooltip>
+
 						<Button type="link" icon={<EditOutlined />} disabled={editIndex !== -1} onClick={() => handleSetEdit(index, record)} />
 					</Space>
 				);
@@ -212,6 +237,12 @@ export default function Parents(): JSX.Element {
 					}}
 				/>
 			</Form>
+			<AddStudent
+				parentInfo={get(parents, "data", [])[parentAddStudentIndex]}
+				students={get(students,"data",[])}
+				searchStudent={searchStudent}
+				show={showAddStudent}
+				setShow={setShowAddStudent} />
 		</Layout.Content>
 	);
 }

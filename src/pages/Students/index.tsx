@@ -84,15 +84,15 @@ export default function Students(): JSX.Element {
 			},
 		},
 
-		// {
-		// 	width: "15%",
-		// 	title: "Phụ huynh",
-		// 	dataIndex: "parent",
-		// 	key: "parent",
-		// 	render: function parentCol(value?: { email: string; id: number; name: string }): JSX.Element {
-		// 		return <a>{get(value, "profile.name", "")}</a>;
-		// 	},
-		// },
+		{
+			width: "15%",
+			title: "Phụ huynh",
+			dataIndex: "parent",
+			key: "parent",
+			render: function parentCol(value?: { email: string; id: number; name: string }): JSX.Element {
+				return <a>{get(value, "profile.name", "")}</a>;
+			},
+		},
 		{
 			width: "15%",
 			title: "Lớp",
@@ -109,15 +109,15 @@ export default function Students(): JSX.Element {
 		// 	key: "school",
 		// },
 
-		{
-			width: "10%",
-			title: "Gới tính",
-			dataIndex: "gender",
-			key: "gender",
-			render: function genderCol(value: number): JSX.Element {
-				return <span>{value === 0 ? "Nữ" : "Nam"}</span>;
-			},
-		},
+		// {
+		// 	width: "10%",
+		// 	title: "Gới tính",
+		// 	dataIndex: "gender",
+		// 	key: "gender",
+		// 	render: function genderCol(value: number): JSX.Element {
+		// 		return <span>{value === 0 ? "Nữ" : "Nam"}</span>;
+		// 	},
+		// },
 		{
 			width: "15%",
 			title: "Action",

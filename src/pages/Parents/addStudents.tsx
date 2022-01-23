@@ -1,45 +1,46 @@
-import { Button, Select, Space, Tooltip } from "antd";
-import React, { useEffect, useRef, useState } from "react";
-import { UsergroupAddOutlined } from "@ant-design/icons";
+import { Button, Select, Space } from "antd";
+import React, { useEffect, useState } from "react";
 import Modal from "antd/lib/modal/Modal";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "store/store";
+import { useDispatch } from "react-redux";
 import { get } from "lodash";
-import { actionGetStudents, actionUpdateStudent } from "store/students/slice";
+import { ParentType, StudentType } from "interface";
+import { actionUpdateStudent } from "store/students/slice";
 
-export default function AddStudent(props: { parent_id: number }): JSX.Element {
-	const { parent_id } = props;
+export default function AddStudent(props: {
+	parentInfo: ParentType,
+	students: StudentType[],
+	searchStudent: (search: string) => void,
+	show:boolean,
+	setShow:(param:boolean) => void,
+}): JSX.Element {
+	const { parentInfo, searchStudent, students, show, setShow } = props;
 	const dispatch = useDispatch()
-	const [show, setShow] = useState(false);
 	const [studentSelected, setStudentSelected] = useState<number[]>([])
-	const storeListStudent = useSelector((state: RootState) => state.studentReducer.students)
 
 	useEffect(() => {
 		if (show) {
-			dispatch(actionGetStudents({ per_page: 10000 }));
+			searchStudent('');
 		}
-	}, [show, dispatch]);
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [show]);
 
 	const handlSubmit = () => {
-		studentSelected.map(sID => {
-			dispatch(actionUpdateStudent({data: {parent_id}, sID}))
-		})
-		setShow(false)
+		if(parentInfo){
+			studentSelected.map(sID => {
+				dispatch(actionUpdateStudent({ data: {parent_id:parentInfo.id }, sID }))
+			})
+			setShow(false)
+		}
+		
 	};
 
-	function handleSelectStudent(value:any){
+	function handleSelectStudent(value: any) {
 		setStudentSelected(value)
 	}
 
 	return (
 		<>
-			<Tooltip placement="top" title="Thêm học sinh">
-				<Button
-					icon={<UsergroupAddOutlined />}
-					type="link"
-					onClick={() => setShow(true)}
-				/>
-			</Tooltip>
+			
 			<Modal
 				title="Thêm học sinh"
 				visible={show}
@@ -53,25 +54,24 @@ export default function AddStudent(props: { parent_id: number }): JSX.Element {
 				]}
 			>
 				<Space direction="vertical" style={{ width: "100%" }}>
-					<Select 
+					<Select
 						mode="multiple"
-						style= {{ width: "100%" }}
+						style={{ width: "100%" }}
 						placeholder="Chọn học sinh..."
 						showSearch
+						onSearch={(e) => searchStudent(e)}
 						allowClear
-						filterOption={(input, option) =>
-							(option?.label as string)?.toLowerCase().indexOf(input.toLowerCase()) >= 0
-						}
+						filterOption={false}
 						onChange={handleSelectStudent}
 					>
-					
-						{get(storeListStudent, "data", []).filter(student => !student.parent).map((student) => (
+
+						{students && students.filter(student => !student.parent).map((student) => (
 							<Select.Option
 								value={student.id}
 								key={student.id}
 								label={`${get(student, "name", "")}`}
 							>
-								<a>{get(student, "name", "")}</a>
+								<a>{get(student, "name", "")}</a> {get(student,"birthday","")}
 							</Select.Option>
 						))}
 					</Select>
