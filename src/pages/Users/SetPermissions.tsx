@@ -48,6 +48,8 @@ export function SetUserPermissions(): JSX.Element {
     const permissions = useSelector((state: RootState) => state.permissionReducer.permissions);
     const userPermissions = useSelector((state: RootState) => state.permissionReducer.userPermissions);
     const loading = useSelector((state: RootState) => state.permissionReducer.getUserPermissionsState);
+
+    
     useEffect(() => {
         dispatch(actionGetPermissions())
         dispatch(actionGetUserPermissions(+params.user_id))

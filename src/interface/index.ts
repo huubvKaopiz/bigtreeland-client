@@ -4,6 +4,7 @@ import { PermistionType } from "store/permissions/slice";
 export interface RoleType {
 	created_at: "2021-11-02T00:50:17.000000Z";
 	guard_name: "api";
+	description:string;
 	id: number;
 	name: string;
 	updated_at: "2021-11-02T00:50:17.000000Z";

@@ -92,12 +92,12 @@ function Roles(): JSX.Element {
 			title: "Tên",
 			key: "name",
 			dataIndex: "name",
-			render: function UserLink(text: string): JSX.Element {
+			render: function UserLink(text: string, record:{id:number, name:string, description:string}): JSX.Element {
 				return (
 
 					<Space>
 						<UserOutlined />
-						<strong>{text}</strong><span style={{ color: "#95a5a6" }}>{converRoleNameToVN(text as ROLE_NAMES)}</span>
+						<strong>{text}</strong><span style={{ color: "#95a5a6" }}>{ record.description === null ?  converRoleNameToVN(text as ROLE_NAMES) : record.description}</span>
 					</Space>
 				);
 			},

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Modal, Form, Input, Select, DatePicker, InputNumber, Switch, Checkbox } from "antd";
+import { Button, Modal, Form, Input, Select, DatePicker, InputNumber, Switch, Checkbox, Spin } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { RootState, useAppDispatch } from "store/store";
 import { useSelector } from "react-redux";
@@ -13,7 +13,7 @@ export default function AddStudentModal(props: {
 	searchStatus: string,
 	searchParent: (search: string) => void;
 }): JSX.Element {
-	const { parents } = props;
+	const { parents, searchParent, searchStatus } = props;
 	const [aForm] = Form.useForm();
 	const [show, setShow] = useState(false);
 	const [keepShow, setKeepShow] = useState(false);
@@ -22,6 +22,12 @@ export default function AddStudentModal(props: {
 
 	const listParents: ParentType[] = get(parents, "data", []);
 
+	useEffect(()=>{
+		if(show){
+			searchParent('');
+		}
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	},[show])
 	const handleSubmit = (values: any) => {
 		console.log("submit form:", values);
 		const data = {
@@ -94,9 +100,9 @@ export default function AddStudentModal(props: {
 						<Select
 							showSearch
 							allowClear
-							filterOption={(input, option) =>
-								(option?.label as string)?.toLowerCase().indexOf(input.toLowerCase()) >= 0
-							}
+							onSearch={(e) => searchParent(e)}
+							filterOption={false}
+							notFoundContent={searchStatus === "loading" ? <Spin size="small" /> : null}
 						>
 							{listParents.map((parent: ParentType) => {
 								return (

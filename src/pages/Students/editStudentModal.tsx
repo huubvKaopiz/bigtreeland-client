@@ -8,6 +8,7 @@ import {
 	DatePicker,
 	InputNumber,
 	Switch,
+	Spin,
 } from "antd";
 import { ListParentType, ParentType, StudentType } from "interface";
 import { get } from "lodash";
@@ -26,7 +27,7 @@ export default function EditStudentModal(props: {
 	show: boolean;
 	setShow: (param: boolean) => void;
 }): JSX.Element {
-	const { student, parents, show, setShow } = props;
+	const { student, parents, show, setShow, searchParent, searchStatus } = props;
 	const dispatch = useAppDispatch();
 	const [uForm] = Form.useForm();
 	const status = useSelector(
@@ -50,7 +51,9 @@ export default function EditStudentModal(props: {
 				knowledge_status: student.knowledge_status,
 				is_special: student.is_special,
 			});
+			searchParent('');
 		}
+	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [student, uForm]);
 
 	const handleSubmit = (values: any) => {
@@ -111,11 +114,9 @@ export default function EditStudentModal(props: {
 						<Select
 							showSearch
 							allowClear
-							filterOption={(input, option) =>
-								(option?.label as string)
-									?.toLowerCase()
-									.indexOf(input.toLowerCase()) >= 0
-							}
+							onSearch={(e) => searchParent(e)}
+							notFoundContent={searchStatus === "loading" ? <Spin size="small" /> : null}
+							filterOption={false}
 						>
 							{get(parents, "data", []).map((parent: ParentType) => {
 								return (
@@ -174,7 +175,6 @@ export default function EditStudentModal(props: {
 					</Form.Item>
 				</Form>
 			</Modal>
-			)
 		</div>
 	);
 }
