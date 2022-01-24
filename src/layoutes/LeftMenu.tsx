@@ -131,18 +131,23 @@ function LeftMenu(): JSX.Element {
 
 	useEffect(() => {
 		const menuItem: number[] = [];
-		get(userStore, "roles", []).map(({ id }: RoleType) => {
-			const roleList = leftMenu.filter(({ id: menuId }) => id === menuId);
-			roleList.forEach((role) => {
-				menuItem.push(...role.menuItem);
-			});
+		console.log(userStore);
+		get(userStore, "roles", []).map(({ id, menues }: RoleType) => {
+			// admin === 1
+			if (id === 1) {
+				if (menues && menues.length > 0) {
+					menuItem.push(...menues);
+				} else menuItem.push(...[...Array(100)].map((_, index) => index));
+			} else {
+				if (menues) menuItem.push(...menues);
+			}
 		});
 		setMenuItemGranted([...new Set(menuItem)]);
 	}, [userStore]);
 
 	useEffect(() => {
 		// console.log(menuItemGranted)
-	})
+	});
 
 	return (
 		<Menu
@@ -191,75 +196,78 @@ function LeftMenu(): JSX.Element {
 			{(menuItemGranted.includes(5) ||
 				menuItemGranted.includes(6) ||
 				menuItemGranted.includes(7) ||
-				menuItemGranted.includes(15)) && (
-					<SubMenu
-						onTitleClick={() => setOpenKeys(["classes"])}
-						key="classes"
-						icon={<ReadOutlined />}
-						title="QL học tập"
-					>
-						{menuItemGranted.includes(5) && (
-							<Menu.Item key="5" onClick={() => history.push("/classes")}>
-								Lớp học
-							</Menu.Item>
-						)}
-						{menuItemGranted.includes(6) && (
-							<Menu.Item key="6" onClick={() => history.push("/students")}>
-								Học sinh
-							</Menu.Item>
-						)}
-						{menuItemGranted.includes(7) && (
-							<Menu.Item key="7" onClick={() => history.push("/parents")}>
-								Phụ huynh
-							</Menu.Item>
-						)}
-						{menuItemGranted.includes(15) && (
-							<Menu.Item key="15" onClick={() => history.push("/study-summary")}>
-								Bảng tổng kết
-							</Menu.Item>
-						)}
-					</SubMenu>
-				)}
+				menuItemGranted.includes(11)) && (
+				<SubMenu
+					onTitleClick={() => setOpenKeys(["classes"])}
+					key="classes"
+					icon={<ReadOutlined />}
+					title="QL học tập"
+				>
+					{menuItemGranted.includes(5) && (
+						<Menu.Item key="5" onClick={() => history.push("/classes")}>
+							Lớp học
+						</Menu.Item>
+					)}
+					{menuItemGranted.includes(6) && (
+						<Menu.Item key="6" onClick={() => history.push("/students")}>
+							Học sinh
+						</Menu.Item>
+					)}
+					{menuItemGranted.includes(7) && (
+						<Menu.Item key="7" onClick={() => history.push("/parents")}>
+							Phụ huynh
+						</Menu.Item>
+					)}
+					{menuItemGranted.includes(11) && (
+						<Menu.Item key="11" onClick={() => history.push("/study-summary")}>
+							Bảng tổng kết
+						</Menu.Item>
+					)}
+				</SubMenu>
+			)}
 			{(menuItemGranted.includes(8) ||
 				menuItemGranted.includes(9) ||
 				menuItemGranted.includes(10)) && (
-					<SubMenu
-						onTitleClick={() => setOpenKeys(["payments"])}
-						key="payments"
-						icon={<DollarOutlined />}
-						title="Thu Chi"
-					>
-						{menuItemGranted.includes(8) && (
-							<Menu.Item
-								key="8"
-								onClick={() => history.push("/payments/payment-slips")}
-							>
-								QL Chi tiêu
-							</Menu.Item>
-						)}
-						{menuItemGranted.includes(9) && (
-							<Menu.Item
-								key="9"
-								onClick={() => history.push("/payments/revenue")}
-							>
-								QL doanh thu
-							</Menu.Item>
-						)}
-						{menuItemGranted.includes(10) && (
-							<Menu.Item
-								key="10"
-								onClick={() => history.push("/payments/tuition")}
-							>
-								QL học phí
-							</Menu.Item>
-						)}
-					</SubMenu>
-				)}
-			{(menuItemGranted.includes(11) || menuItemGranted.includes(12)) && (
-				<Menu.Item key="12" icon={<ApartmentOutlined />} onClick={() => history.push("/roles")}>
+				<SubMenu
+					onTitleClick={() => setOpenKeys(["payments"])}
+					key="payments"
+					icon={<DollarOutlined />}
+					title="Thu Chi"
+				>
+					{menuItemGranted.includes(8) && (
+						<Menu.Item
+							key="8"
+							onClick={() => history.push("/payments/payment-slips")}
+						>
+							QL Chi tiêu
+						</Menu.Item>
+					)}
+					{menuItemGranted.includes(9) && (
+						<Menu.Item
+							key="9"
+							onClick={() => history.push("/payments/revenue")}
+						>
+							QL doanh thu
+						</Menu.Item>
+					)}
+					{menuItemGranted.includes(10) && (
+						<Menu.Item
+							key="10"
+							onClick={() => history.push("/payments/tuition")}
+						>
+							QL học phí
+						</Menu.Item>
+					)}
+				</SubMenu>
+			)}
+			{menuItemGranted.includes(12) && (
+				<Menu.Item
+					key="12"
+					icon={<ApartmentOutlined />}
+					onClick={() => history.push("/roles")}
+				>
 					Vai trò
 				</Menu.Item>
-
 			)}
 			{menuItemGranted.includes(13) && (
 				<Menu.Item
@@ -271,12 +279,14 @@ function LeftMenu(): JSX.Element {
 				</Menu.Item>
 			)}
 			{menuItemGranted.includes(14) && (
-				<Menu.Item key="14" icon={<SettingOutlined />} onClick={() => history.push("/settings")}>
+				<Menu.Item
+					key="14"
+					icon={<SettingOutlined />}
+					onClick={() => history.push("/settings")}
+				>
 					Hệ thống
 				</Menu.Item>
-
 			)}
-
 		</Menu>
 	);
 }

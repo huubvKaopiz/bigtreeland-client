@@ -10,6 +10,7 @@ export interface RoleType {
 	updated_at: "2021-11-02T00:50:17.000000Z";
 	users: UserType[];
 	permissions: PermistionType[];
+	menues?: number[];
 }
 
 export interface UserType {
