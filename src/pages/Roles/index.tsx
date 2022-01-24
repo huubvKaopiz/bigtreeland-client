@@ -1,5 +1,5 @@
 import { Button, Col, Input, Layout, Modal, Row, Space, Table, Tooltip } from "antd";
-import { DeleteOutlined, UserOutlined, ExclamationCircleOutlined, AuditOutlined, TeamOutlined } from '@ant-design/icons';
+import { DeleteOutlined, UserOutlined, ExclamationCircleOutlined, AuditOutlined, TeamOutlined, WindowsOutlined } from '@ant-design/icons';
 import { RoleCreateFormType, RoleType, UserType } from "interface";
 import { UpdateRoleDataType } from "interface/api-params-interface";
 import React, { useEffect, useState } from "react";
@@ -155,7 +155,7 @@ function Roles(): JSX.Element {
 							<Button type="link" onClick={() => history.push(`/roles-set-permissions/${record.id}`)} icon={<AuditOutlined />} />
 						</Tooltip>
 						<Tooltip title="Cài đặt menu hiển thị">
-							<Button type="link" onClick={() => handleOpenSettingMenu(index)} icon={<AuditOutlined />} />
+							<Button type="link" onClick={() => handleOpenSettingMenu(index)} icon={<WindowsOutlined />} />
 						</Tooltip>
 					</Space>
 
