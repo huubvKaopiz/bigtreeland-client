@@ -150,7 +150,7 @@ function LeftMenu(): JSX.Element {
 				if (id === 1) {
 					if (menues.length > 0) {
 						menuItem.push(...menues);
-					} else menuItem.push(...[...Array(100)].map((_, index) => index));
+					} else menuItem.push(...MenuList.map((menu) => menu.value));
 				} else {
 					if (menues) menuItem.push(...menues);
 				}
@@ -160,7 +160,7 @@ function LeftMenu(): JSX.Element {
 	}, [userStore]);
 
 	useEffect(() => {
-		console.log(menuItemGranted)
+		// console.log(menuItemGranted)
 	});
 
 	return (
