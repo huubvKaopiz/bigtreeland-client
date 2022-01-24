@@ -134,24 +134,16 @@ function LeftMenu(): JSX.Element {
 		console.log(userStore);
 		get(userStore, "roles", []).map(({ id, menues }: RoleType) => {
 			// admin === 1
-			if (isString(menues)) {
-				const menuList = `${menues}`
-					.substring(1, `${menues}`?.length - 1)
-					.split(",")
-					.map((menu) => +menu);
-				if (id === 1) {
-					if (menuList.length > 0) {
-						menuItem.push(...menuList);
-					} else menuItem.push(...MenuList.map((menu) => menu.value));
-				} else {
-					if (menues) menuItem.push(...menuList);
-				}
-			} else if (isArray(menues)) {
-				if (id === 1) {
-					if (menues.length > 0) {
-						menuItem.push(...menues);
-					} else menuItem.push(...MenuList.map((menu) => menu.value));
-				} else {
+			if (id === 1) {
+				menuItem.push(...MenuList.map((menu) => menu.value));
+			} else {
+				if (isString(menues) && menues.length > 2) {
+					const menuList = `${menues}`
+						.substring(1, `${menues}`?.length - 1)
+						.split(",")
+						.map((menu) => +menu);
+					menuItem.push(...menuList);
+				} else if (isArray(menues)) {
 					if (menues) menuItem.push(...menues);
 				}
 			}
