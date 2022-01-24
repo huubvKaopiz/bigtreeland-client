@@ -31,7 +31,7 @@ export default function EditClassModal(props: {
 			}
 			uFrom.setFieldsValue({
 				name: classInfo.name,
-				employee_id: get(classInfo, "user.id", ""),
+				employee_id: get(classInfo, "user.id", 0),
 				fee_per_session: classInfo.fee_per_session,
 				schedule: classInfo.schedule,
 				schedule_time: scheduleTime.length > 0 ? [moment(scheduleTime[0], "HH:mm:ss"), moment(scheduleTime[1], "HH:mm:ss")] : null
@@ -81,11 +81,11 @@ export default function EditClassModal(props: {
 					</Form.Item>
 					<Form.Item label="Giáo viên" name="employee_id">
 						<Select
-						// showSearch
-						// allowClear
-						// filterOption={(input, option) =>
-						// 	(option?.label as string)?.toLowerCase().indexOf(input.toLowerCase()) >= 0
-						// }
+						showSearch
+						allowClear
+						filterOption={(input, option) =>
+							(option?.label as string)?.toLowerCase().indexOf(input.toLowerCase()) >= 0
+						}
 						>
 							<Select.Option value={0} label="Chọn sau">Chọn sau</Select.Option>
 							{teachers &&

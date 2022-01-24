@@ -1,4 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { notification } from "antd";
 import { AxiosError } from "axios";
 import { get, merge } from "lodash";
 import request from "../../utils/request";
@@ -18,6 +19,8 @@ export interface User {
 export interface AuthState {
 	user: User | null;
 	statusUserVerified: "idle" | "waiting";
+	statusChangePassword: "idle" | "loading" | "success" | "error";
+
 }
 
 export interface PayloadLogin {
@@ -28,6 +31,7 @@ export interface PayloadLogin {
 const initialState: AuthState = {
 	user: null,
 	statusUserVerified: "idle",
+	statusChangePassword:"idle",
 };
 
 export const actionLogin = createAsyncThunk("auth/actionLogin", async (data: PayloadLogin, { rejectWithValue }) => {
@@ -73,6 +77,15 @@ export const actionVerifyAccount = createAsyncThunk("verifyAccount", async (data
 	return response;
 });
 
+export const actionChangePassword = createAsyncThunk("changePassword", async (data: {current_password:string, new_password:string}) => {
+	const response = await request({
+		url: "/api/auth/change-password",
+		method: "POST",
+		data,
+	});
+	return response;
+});
+
 export const slice = createSlice({
 	name: "auth",
 	initialState,
@@ -92,6 +105,19 @@ export const slice = createSlice({
 			.addCase(actionLogin.rejected, (state, action) => {
 				const error = action.payload as AxiosError;
 				if (error.response?.status === 400) state.statusUserVerified = "waiting";
+			})
+
+			.addCase(actionChangePassword.pending, (state) => {
+				state.statusChangePassword="loading";
+			})
+			.addCase(actionChangePassword.fulfilled, (state) => {
+				state.statusChangePassword="success";
+				notification.success({message:"Thay đổi mật khẩu thành công!"})
+			})
+			.addCase(actionChangePassword.rejected, (state, action) => {
+				state.statusChangePassword="error";
+				const error = action.payload as AxiosError;
+				notification.error({message:get(error,"message","Có lỗi xảy ra!")})
 			});
 	},
 });

@@ -1,10 +1,11 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { notification } from "antd";
-import { ListStudentType } from "interface";
+import { ListStudentType, StudentType } from "interface";
 import request from "utils/request";
 
 export interface StudentReducerState {
 	students: ListStudentType | null;
+	studentProfile:StudentParams | null;
 	getStudentsStatus: "idle" | "loading" | "success" | "error";
 	getStudentStatus: "idle" | "loading" | "success" | "error";
 	addStudentStatus: "idle" | "loading" | "success" | "error";
@@ -43,12 +44,22 @@ export interface StudentParams {
 
 const initialState: StudentReducerState = {
 	students: null,
+	studentProfile:null,
 	getStudentsStatus: "idle",
 	getStudentStatus: "idle",
 	addStudentStatus: "idle",
 	updateStudentStatus: "idle",
 	updateStudentStatusStatus: "idle",
 };
+
+export const actionGetStudentProfile = createAsyncThunk("actionGetStudentProfile", async (sID:number) => {
+	const response = await request({
+		url: `/api/students/${sID}`,
+		method: "get",
+	});
+	return response.data;
+});
+
 
 export const actionGetStudents = createAsyncThunk("actionGetStudents", async (params: GetStudentPrams = {}) => {
 	const response = await request({
@@ -137,6 +148,10 @@ export const studentSlice = createSlice({
 		actionSetStudentsStateNull(state) {
 			state.students = null;
 		},
+		actionGetStudentProfile(state){
+			state.studentProfile = null;
+			state.getStudentStatus = "idle";
+		}
 	},
 	extraReducers: (builder) => {
 		//Het list of students
@@ -149,7 +164,19 @@ export const studentSlice = createSlice({
 				state.getStudentsStatus = "success";
 			})
 			.addCase(actionGetStudents.rejected, (state) => {
-				state.getStudentsStatus = "error";
+				state.getStudentStatus = "error";
+				notification.error({ message: "Lấy danh sách học sinh bị lỗi!" });
+			})
+			// get student profile
+			.addCase(actionGetStudentProfile.pending, (state) => {
+				state.getStudentStatus = "loading";
+			})
+			.addCase(actionGetStudentProfile.fulfilled, (state, action) => {
+				state.studentProfile = action.payload as StudentType;
+				state.getStudentsStatus = "success";
+			})
+			.addCase(actionGetStudentProfile.rejected, (state) => {
+				state.getStudentStatus = "error";
 				notification.error({ message: "Lấy danh sách học sinh bị lỗi!" });
 			})
 
