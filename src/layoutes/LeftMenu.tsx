@@ -10,12 +10,12 @@ import {
 } from "@ant-design/icons";
 import { Menu } from "antd";
 import { RoleType } from "interface";
-import { get } from "lodash";
+import { get, isArray, isString } from "lodash";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useHistory, useLocation } from "react-router-dom";
 import { RootState } from "store/store";
-import { leftMenu } from "utils/leftMenu";
+import { leftMenu, MenuList } from "utils/leftMenu";
 
 const { SubMenu } = Menu;
 
@@ -134,19 +134,33 @@ function LeftMenu(): JSX.Element {
 		console.log(userStore);
 		get(userStore, "roles", []).map(({ id, menues }: RoleType) => {
 			// admin === 1
-			if (id === 1) {
-				if (menues && menues.length > 0) {
-					menuItem.push(...menues);
-				} else menuItem.push(...[...Array(100)].map((_, index) => index));
-			} else {
-				if (menues) menuItem.push(...menues);
+			if (isString(menues)) {
+				const menuList = `${menues}`
+					.substring(1, `${menues}`?.length - 1)
+					.split(",")
+					.map((menu) => +menu);
+				if (id === 1) {
+					if (menuList.length > 0) {
+						menuItem.push(...menuList);
+					} else menuItem.push(...MenuList.map((menu) => menu.value));
+				} else {
+					if (menues) menuItem.push(...menuList);
+				}
+			} else if (isArray(menues)) {
+				if (id === 1) {
+					if (menues.length > 0) {
+						menuItem.push(...menues);
+					} else menuItem.push(...[...Array(100)].map((_, index) => index));
+				} else {
+					if (menues) menuItem.push(...menues);
+				}
 			}
 		});
 		setMenuItemGranted([...new Set(menuItem)]);
 	}, [userStore]);
 
 	useEffect(() => {
-		// console.log(menuItemGranted)
+		console.log(menuItemGranted)
 	});
 
 	return (
