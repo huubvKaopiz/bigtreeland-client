@@ -141,7 +141,7 @@ export default function Parents(): JSX.Element {
 					<Space>
 						{record.phone}{" "}
 						{record.phone_verified_at == null ? (
-							<Tag color="volcano">Chưa xác thực</Tag>
+							<Tag color="red">Chưa xác thực</Tag>
 						) : (
 							""
 						)}

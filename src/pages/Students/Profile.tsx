@@ -14,7 +14,6 @@ export default function Profile(props: { student: StudentType }): JSX.Element {
 
     return (
         <>
-            <Tooltip placement="top" title="Hồ sơ học tập"> <Button icon={<SnippetsOutlined onClick={() => setShow(true)} />} type="link" /></Tooltip>
             <Modal
                 title="Thông tin học sinh"
                 visible={show}

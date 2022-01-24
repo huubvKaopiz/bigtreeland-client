@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Button, Col, Input, Layout, Row, Space, Table } from "antd";
-import {EditOutlined} from '@ant-design/icons';
+import { Button, Col, Input, Layout, Row, Space, Table, Tooltip } from "antd";
+import { EditOutlined, SnippetsOutlined } from '@ant-design/icons';
 import AddStudentModal from "./addStudentModal";
 import { StudentType } from "../../interface";
 import { useSelector } from "react-redux";
@@ -12,11 +12,12 @@ import LeaveModal from "./leaveModal";
 import EditStudentModal from "./editStudentModal";
 import { actionGetParents } from "store/parents/slice";
 import { actionGetClasses } from "store/classes/slice";
-import Profile from "./Profile";
 import moment from "moment";
+import { useHistory } from "react-router-dom";
 
 export default function Students(): JSX.Element {
 	const dispatch = useAppDispatch();
+	const history = useHistory();
 	const [page, setPage] = useState(1);
 	const [searchInput, setSearchInput] = useState("");
 	const [showEdit, setShowEdit] = useState(false);
@@ -37,7 +38,7 @@ export default function Students(): JSX.Element {
 	}, [dispatch, loadListStatus]);
 
 	useEffect(() => {
-		dispatch(actionGetParents({per_page:100}));
+		dispatch(actionGetParents({ per_page: 100 }));
 		dispatch(actionGetClasses({}));
 	}, [dispatch]);
 
@@ -121,7 +122,7 @@ export default function Students(): JSX.Element {
 		{
 			width: "15%",
 			title: "Action",
-			render: function ActionCol(text:string, student: StudentType, index:number): JSX.Element {
+			render: function ActionCol(text: string, student: StudentType, index: number): JSX.Element {
 				return (
 					<Space key={student.id}>
 						{student.class === null ? (
@@ -134,7 +135,11 @@ export default function Students(): JSX.Element {
 						) : (
 							""
 						)}
-						<Profile student={student} />
+						{/* <Profile student={student} /> */}
+						<Tooltip placement="top" title="Hồ sơ học tập">
+							<Button icon={<SnippetsOutlined onClick={() => history.push(`/students-study-profile/${student.id}`)} />} type="link" />
+						</Tooltip>
+
 						<Button type="link" icon={<EditOutlined />} onClick={() => {
 							setShowEdit(true);
 							setEditIndex(index)

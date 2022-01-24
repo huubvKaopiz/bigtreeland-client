@@ -22,6 +22,7 @@ import { StudySumaryBoard } from "pages/StudySummary";
 import { StudySummaryDetail } from "pages/StudySummary/studySummaryDetail";
 import { SetRolePermissions } from "pages/Roles/setPermissions";
 import { SetUserPermissions } from "pages/Users/SetPermissions";
+import { StudyProfile } from "pages/Students/studyProfile";
 
 function Routes(): JSX.Element {
 	return (
@@ -33,6 +34,7 @@ function Routes(): JSX.Element {
 			<Route path="/classes-detail/:class_id" component={ClassDetail} />
 			<Route path="/tests/:test_id/:class_id" component={ListTestResults} />
 			<Route path="/students" component={Students} />
+			<Route path="/students-study-profile/:student_id" component={StudyProfile} />
 			<Route path="/payments/tuition" component={Tuition} />
 			<Route path="/payments/tuition-detail/:tuition_id" component={TuitionDetail} />
 			<Route path="/payments/tuition-create" component={CreateTuitionPeriod} />

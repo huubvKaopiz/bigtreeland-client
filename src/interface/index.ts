@@ -16,7 +16,7 @@ export interface UserType {
 	created_at: "2021-11-02T00:50:17.000000Z";
 	deleted_at: null;
 	email: "admin@gmail.com";
-	email_verified_at: null;
+	phone_verified_at: null;
 	employee: null;
 	id: number;
 	name: "admin";
