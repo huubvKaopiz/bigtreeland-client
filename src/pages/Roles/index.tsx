@@ -1,5 +1,5 @@
 import { Button, Col, Input, Layout, Modal, Row, Space, Table, Tooltip } from "antd";
-import { DeleteOutlined, UserOutlined, ExclamationCircleOutlined, AuditOutlined, TeamOutlined } from '@ant-design/icons';
+import { DeleteOutlined, UserOutlined, ExclamationCircleOutlined, AuditOutlined, TeamOutlined, WindowsOutlined } from '@ant-design/icons';
 import { RoleCreateFormType, RoleType, UserType } from "interface";
 import { UpdateRoleDataType } from "interface/api-params-interface";
 import React, { useEffect, useState } from "react";
@@ -19,6 +19,7 @@ import { converRoleNameToVN } from "utils/ultil";
 import AddRolesForm from "./AddRolesForm";
 import { useHistory } from "react-router-dom";
 import { RoleUsers } from "./roleUsers";
+import SetMenuView from "./SetMenuView";
 
 const { confirm } = Modal;
 
@@ -26,6 +27,7 @@ function Roles(): JSX.Element {
 	const dispatch = useAppDispatch();
 	const history = useHistory();
 	const [showAddUsers, setShowAddUsers] = useState(false);
+	const [showSettingMenu, setShowSettingMenu] = useState(false);
 	const [addUsersIndex, setAddUsersIndex] = useState(-1);
 	//application states
 	const statusCreateRole = useSelector((state: RootState) => state.roleReducer.statusCreateRole);
@@ -71,6 +73,11 @@ function Roles(): JSX.Element {
 
 	function handleAddUsers(index:number){
 		setShowAddUsers(true);
+		setAddUsersIndex(index);
+	}
+
+	function handleOpenSettingMenu(index: number){
+		setShowSettingMenu(true)
 		setAddUsersIndex(index);
 	}
 
@@ -147,6 +154,9 @@ function Roles(): JSX.Element {
 						<Tooltip title="Phân quyền vai trò">
 							<Button type="link" onClick={() => history.push(`/roles-set-permissions/${record.id}`)} icon={<AuditOutlined />} />
 						</Tooltip>
+						<Tooltip title="Cài đặt menu hiển thị">
+							<Button type="link" onClick={() => handleOpenSettingMenu(index)} icon={<WindowsOutlined />} />
+						</Tooltip>
 					</Space>
 
 				);
@@ -169,7 +179,7 @@ function Roles(): JSX.Element {
 				dataSource={listRoles}
 			/>
 			<RoleUsers roleInfo={listRoles[addUsersIndex]} show={showAddUsers} setShow={setShowAddUsers} />
-
+			<SetMenuView roleInfo={listRoles[addUsersIndex]} show={showSettingMenu} setShow={setShowSettingMenu}/>
 		</Layout.Content>
 	);
 }

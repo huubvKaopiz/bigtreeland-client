@@ -1,10 +1,12 @@
-import { DownOutlined, MenuOutlined, UserOutlined } from "@ant-design/icons";
-import { Avatar, Button, Dropdown, Layout, Menu } from "antd";
-import userService from "api/user.service";
+import { DownOutlined, MenuOutlined } from "@ant-design/icons";
+import {Button, Dropdown, Layout, Menu } from "antd";
+// import userService from "api/user.service";
 import { get } from "lodash";
+import { ChangePasswordForm } from "pages/Login/changePasswordForm";
+// import ChangePassForm from "pages/Users/changePassForm";
 // import { PasswordFormProps } from "interface/interfaces";
 // import ChangePassForm from "pages/Users/ChangePassword";
-import React, { useEffect } from "react";
+import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { actionLogout } from "store/auth/slice";
 import { RootState } from "store/store";
@@ -53,19 +55,19 @@ function TopHeader(props: TopHeaderType): JSX.Element {
 					<Dropdown
 						overlay={
 							<Menu>
-								{/* <Menu.Item key="setting">Thay đổi cài đặt</Menu.Item> */}
+								<Menu.Item key="setting"><Button type="link">Thông tin cá nhân</Button></Menu.Item>
 								<Menu.Item key="change-password">
-									{/* <ChangePassForm handleChangePass={handleChangePass} /> */}
+									<ChangePasswordForm />
 								</Menu.Item>
 								<Menu.Item key="logout" onClick={handleLogout}>
-									<span>Logout</span>
+									<Button type="link">Đăng xuất</Button>
 								</Menu.Item>
 							</Menu>
 						}
 						className="mr-2"
 					>
-						<Button type="link">
-							<span>{get(user, "profile.name", "")}</span>
+						<Button type="text">
+							<strong style={{color:"#e67e22"}}>{get(user, "profile.name", "")}</strong>
 							<DownOutlined />
 						</Button>
 					</Dropdown>

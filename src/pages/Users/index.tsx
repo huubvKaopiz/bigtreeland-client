@@ -187,7 +187,7 @@ export default function Users(): JSX.Element {
 			key: "phone",
 			// eslint-disable-next-line react/display-name
 			render: (user: User) => {
-				return <span>{user.phone}</span>;
+			return <span>{user.phone} {user.phone_verified_at === null ? <Tag color="red">Chưa xác thực</Tag> : ""}</span>;
 			},
 		},
 		{

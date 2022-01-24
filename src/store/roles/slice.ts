@@ -129,15 +129,15 @@ export const actionUpdateRole = createAsyncThunk("actionUpdateRole", async (data
 	return actionUpdateRole?.data;
 });
 
-// export const actionUpdateRole = createAsyncThunk("actionUpdateRole", async (data: any) => {
-// 	const actionUpdateRole = await request({
-// 		url: `/api/roles/${data.role_id}`,
-// 		method: "put",
-// 		data: { name: data.role_name },
-// 	});
+export const actionUpdateSettingMenuOfRole = createAsyncThunk("actionUpdateSettingMenuOfRole", async (data: {role_id: number, menues: number[]}) => {
+	const actionUpdateRole = await request({
+		url: `/api/roles/${data.role_id}`,
+		method: "put",
+		data: { menues: data.menues },
+	});
 
-// 	return actionUpdateRole.data;
-// });
+	return actionUpdateRole.data;
+});
 
 export const slice = createSlice({
 	name: "roles",
@@ -237,7 +237,20 @@ export const slice = createSlice({
 			.addCase(actionUpdateRole.rejected, (state) => {
 				state.statusUpdateRole = "error";
 				notification.error({ message: "Có lỗi xảy ra" });
-			});
+			})
+
+			.addCase(actionUpdateSettingMenuOfRole.fulfilled, (state) => {
+				state.statusUpdateRole = "success";
+				notification.success({ message: "Cập nhật setting menu thành công!" });
+			})
+			.addCase(actionUpdateSettingMenuOfRole.pending, (state) => {
+				state.statusUpdateRole = "loading";
+			})
+			.addCase(actionUpdateSettingMenuOfRole.rejected, (state) => {
+				state.statusUpdateRole = "error";
+				notification.error({ message: "Có lỗi xảy ra" });
+			})
+			
 	},
 });
 export const {
