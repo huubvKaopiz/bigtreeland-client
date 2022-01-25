@@ -68,7 +68,7 @@ function Employees(): JSX.Element {
 	}, [dispatch, statusUpdateEmployee, role]);
 
 	useEffect(() => {
-		dispatch(actionGetRoles());
+		dispatch(actionGetRoles(0));
 	}, [dispatch]);
 
 	const handleSearch = (search: string) => {

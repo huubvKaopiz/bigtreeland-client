@@ -1,7 +1,9 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { notification } from "antd";
+import { AxiosError } from "axios";
 import { ListUserType } from "interface";
 import { AddNewUser } from "interface/interfaces";
+import { get } from "lodash";
 import request from "../../utils/request";
 
 export interface UserReducerState {
@@ -17,7 +19,7 @@ export interface ParamGetUsers {
 	search?: string;
 	page?: number;
 	per_page?: number;
-	status?:string;
+	status?: string;
 }
 
 const initialState: UserReducerState = {
@@ -29,63 +31,109 @@ const initialState: UserReducerState = {
 	statusAddUser: "idle",
 };
 
-export const actionGetUsers = createAsyncThunk("actionGetUsers", async (params?: ParamGetUsers) => {
-	const response = await request({
-		url: "/api/users",
-		method: "get",
-		params: params,
-	});
-	return response.data;
-});
+export const actionGetUsers = createAsyncThunk(
+	"actionGetUsers",
+	async (params: ParamGetUsers, { rejectWithValue }) => {
+		try {
+			const response = await request({
+				url: "/api/users",
+				method: "get",
+				params: params,
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
+	}
+);
 
 export const actionChangePassworfOfUser = createAsyncThunk(
 	"actionChangePassworfOfUser",
-	async (data: { new_password: string; user_id: number }) => {
-		const response = await request({
-			url: "/api/users/change-password-of-user",
-			method: "post",
-			data,
-		});
-		return response.data;
+	async (
+		data: { new_password: string; user_id: number },
+		{ rejectWithValue }
+	) => {
+		try {
+			const response = await request({
+				url: "/api/users/change-password-of-user",
+				method: "post",
+				data,
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
 	}
 );
 
-export const actionDeactiveUser = createAsyncThunk("actionDeactiveUser", async (userId: number) => {
-	const response = await request({
-		url: `/api/users/${userId}`,
-		method: "delete",
-	});
-	return response.data;
-});
+export const actionDeactiveUser = createAsyncThunk(
+	"actionDeactiveUser",
+	async (userId: number, { rejectWithValue }) => {
+		try {
+			const response = await request({
+				url: `/api/users/${userId}`,
+				method: "delete",
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
+	}
+);
 
-export const actionRestoreUser =  createAsyncThunk("actionRestoreUser", async (userId: number) => {
-	const response = await request({
-		url: `/api/users/${userId}/restore`,
-		method: "post",
-	});
-	return response.data;
-});
+export const actionRestoreUser = createAsyncThunk(
+	"actionRestoreUser",
+	async (userId: number, { rejectWithValue }) => {
+		try {
+			const response = await request({
+				url: `/api/users/${userId}/restore`,
+				method: "post",
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
+	}
+);
 
 export const actionSetPermissionsForUser = createAsyncThunk(
 	"actionSetPermissionsForUser",
-	async (data: { user_id: number; permission_add_ids: number[]; permission_delete_ids: number[] }) => {
-		const response = await request({
-			url: "/api/permissions/set-permission-for-user",
-			method: "post",
-			data,
-		});
-		return response.data;
+	async (
+		data: {
+			user_id: number;
+			permission_add_ids: number[];
+			permission_delete_ids: number[];
+		},
+		{ rejectWithValue }
+	) => {
+		try {
+			const response = await request({
+				url: "/api/permissions/set-permission-for-user",
+				method: "post",
+				data,
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
 	}
 );
 
-export const actionAddUser = createAsyncThunk("actionAddUser", async (data: AddNewUser) => {
-	const response = await request({
-		url: "/api/users",
-		method: "post",
-		data,
-	});
-	return response.data;
-});
+export const actionAddUser = createAsyncThunk(
+	"actionAddUser",
+	async (data: AddNewUser, { rejectWithValue }) => {
+		try {
+			const response = await request({
+				url: "/api/users",
+				method: "post",
+				data,
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
+	}
+);
 
 export const slice = createSlice({
 	name: "users",
@@ -115,9 +163,13 @@ export const slice = createSlice({
 				state.users = action.payload as ListUserType;
 				state.statusGetUser = "success";
 			})
-			.addCase(actionGetUsers.rejected, (state) => {
+			.addCase(actionGetUsers.rejected, (state, action) => {
 				state.statusGetUser = "error";
 				state.users = null;
+				const error = action.payload as AxiosError;
+				notification.error({
+					message: get(error, "response.data", "Có lỗi xảy ra!"),
+				});
 			})
 
 			// CHANGE PASSWORD FOR USER
@@ -128,9 +180,12 @@ export const slice = createSlice({
 				state.statusChangePassword = "success";
 				notification.success({ message: "Đổi mật khẩu thành công" });
 			})
-			.addCase(actionChangePassworfOfUser.rejected, (state) => {
+			.addCase(actionChangePassworfOfUser.rejected, (state, action) => {
 				state.statusChangePassword = "error";
-				notification.error({ message: "Có lỗi xảy ra" });
+				const error = action.payload as AxiosError;
+				notification.error({
+					message: get(error, "response.data", "Có lỗi xảy ra!"),
+				});
 			})
 
 			//  DEACTIVE USER
@@ -141,9 +196,12 @@ export const slice = createSlice({
 				state.statusUpdateUserState = "success";
 				notification.success({ message: "Vô hiệu hoá tài khoản thành công" });
 			})
-			.addCase(actionDeactiveUser.rejected, (state) => {
+			.addCase(actionDeactiveUser.rejected, (state, action) => {
 				state.statusUpdateUserState = "error";
-				notification.error({ message: "Có lỗi xảy ra" });
+				const error = action.payload as AxiosError;
+				notification.error({
+					message: get(error, "response.data", "Có lỗi xảy ra!"),
+				});
 			})
 
 			//  RESTORE USER
@@ -154,9 +212,12 @@ export const slice = createSlice({
 				state.statusUpdateUserState = "success";
 				notification.success({ message: "Khôi phục tài khoản thành công" });
 			})
-			.addCase(actionRestoreUser.rejected, (state) => {
+			.addCase(actionRestoreUser.rejected, (state, action) => {
 				state.statusUpdateUserState = "error";
-				notification.error({ message: "Có lỗi xảy ra" });
+				const error = action.payload as AxiosError;
+				notification.error({
+					message: get(error, "response.data", "Có lỗi xảy ra!"),
+				});
 			})
 
 			// SET PERMISSIONS FOR USER
@@ -165,11 +226,16 @@ export const slice = createSlice({
 			})
 			.addCase(actionSetPermissionsForUser.fulfilled, (state) => {
 				state.statusSetPermissionsForUser = "success";
-				notification.success({ message: "Cập nhật quyền cho tài khoản thành công" });
+				notification.success({
+					message: "Cập nhật quyền cho tài khoản thành công",
+				});
 			})
-			.addCase(actionSetPermissionsForUser.rejected, (state) => {
+			.addCase(actionSetPermissionsForUser.rejected, (state, action) => {
 				state.statusSetPermissionsForUser = "error";
-				notification.error({ message: "Có lỗi xảy ra" });
+				const error = action.payload as AxiosError;
+				notification.error({
+					message: get(error, "response.data", "Có lỗi xảy ra!"),
+				});
 			})
 
 			// ADD USER
@@ -180,14 +246,20 @@ export const slice = createSlice({
 				state.statusAddUser = "success";
 				notification.success({ message: "Thêm user thành công" });
 			})
-			.addCase(actionAddUser.rejected, (state) => {
+			.addCase(actionAddUser.rejected, (state, action) => {
 				state.statusAddUser = "error";
-				notification.error({ message: "Có lỗi xảy ra" });
+				const error = action.payload as AxiosError;
+				notification.error({
+					message: get(error, "response.data", "Có lỗi xảy ra!"),
+				});
 			});
 	},
 });
 
-export const { actionResetStatusAddUser, actionResetStatusDeactiveUser, actionResetStatusChangePassword } =
-	slice.actions;
+export const {
+	actionResetStatusAddUser,
+	actionResetStatusDeactiveUser,
+	actionResetStatusChangePassword,
+} = slice.actions;
 
 export default slice.reducer;

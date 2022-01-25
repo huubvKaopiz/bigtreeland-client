@@ -77,13 +77,17 @@ export const actionVerifyAccount = createAsyncThunk("verifyAccount", async (data
 	return response;
 });
 
-export const actionChangePassword = createAsyncThunk("changePassword", async (data: {current_password:string, new_password:string}) => {
-	const response = await request({
-		url: "/api/auth/change-password",
-		method: "POST",
-		data,
-	});
-	return response;
+export const actionChangePassword = createAsyncThunk("changePassword", async (data: {current_password:string, new_password:string}, { rejectWithValue }) => {
+	try {
+		const response = await request({
+			url: "/api/auth/change-password",
+			method: "POST",
+			data,
+		});
+		return response;
+	} catch (err) {
+		return rejectWithValue(err)
+	}
 });
 
 export const slice = createSlice({
@@ -117,7 +121,7 @@ export const slice = createSlice({
 			.addCase(actionChangePassword.rejected, (state, action) => {
 				state.statusChangePassword="error";
 				const error = action.payload as AxiosError;
-				notification.error({message:get(error,"message","Có lỗi xảy ra!")})
+				notification.error({message:get(error,"response.data","Có lỗi xảy ra!")})
 			});
 	},
 });

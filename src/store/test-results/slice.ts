@@ -1,7 +1,9 @@
 import { async } from "@firebase/util";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { notification } from "antd";
+import { AxiosError } from "axios";
 import { FileType, GetResponseType } from "interface";
+import { get } from "lodash";
 import request from "utils/request";
 
 export interface TestResultsType {
@@ -40,26 +42,34 @@ export interface UpdateTestResultsParam {
 
 export const actionGetTestResults = createAsyncThunk(
 	"actionGetTestResults",
-	async (params: GetTestResultsParam) => {
-		const response = await request({
-			url: "api/test-results",
-			method: "get",
-			params,
-		});
-		return response.data;
+	async (params: GetTestResultsParam, { rejectWithValue }) => {
+		try {
+			const response = await request({
+				url: "api/test-results",
+				method: "get",
+				params,
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
 	}
 );
 
 export const actionUpdateTestResults = createAsyncThunk(
 	"actionUpdateTestResults",
-	async (params: UpdateTestResultsParam) => {
-        const {id, ...data} = params
-		const response = await request({
-			url: `api/test-results/${id}`,
-			method: "put",
-			data,
-		});
-		return response.data;
+	async (params: UpdateTestResultsParam, { rejectWithValue }) => {
+		try {
+			const { id, ...data } = params;
+			const response = await request({
+				url: `api/test-results/${id}`,
+				method: "put",
+				data,
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
 	}
 );
 
@@ -93,17 +103,21 @@ export const testResults = createSlice({
 			.addCase(actionGetTestResults.pending, (state) => {
 				state.getTestResultsStatus = "loading";
 			})
-			.addCase(actionGetTestResults.rejected, (state) => {
+			.addCase(actionGetTestResults.rejected, (state, action) => {
 				state.getTestResultsStatus = "error";
-				notification.error({ message: "Lấy kết quả bài kiểm tra bị lỗi!" });
+				const error = action.payload as AxiosError;
+				notification.error({
+					message: get(error, "response.data", "Có lỗi xảy ra!"),
+				});
 			})
 			//
 			.addCase(actionUpdateTestResults.pending, (state) => {
 				state.updateTestResultsStatus = "loading";
 			})
-			.addCase(actionUpdateTestResults.rejected, (state) => {
+			.addCase(actionUpdateTestResults.rejected, (state, action) => {
 				state.updateTestResultsStatus = "error";
-				notification.error({ message: "Cập nhật bài kiểm tra bị lỗi!" });
+				const error = action.payload as AxiosError;
+				notification.error({message:get(error,"response.data","Có lỗi xảy ra!")})
 			})
 			.addCase(actionUpdateTestResults.fulfilled, (state) => {
 				state.updateTestResultsStatus = "success";

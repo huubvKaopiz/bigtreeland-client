@@ -38,18 +38,18 @@ function Roles(): JSX.Element {
 
 	//Get roles for mounted
 	useEffect(() => {
-		dispatch(actionGetRoles());
+		dispatch(actionGetRoles(0));
 	}, [dispatch]);
 
 	useEffect(() => {
-		if (statusCreateRole === "success") dispatch(actionGetRoles());
+		if (statusCreateRole === "success") dispatch(actionGetRoles(0));
 		if (statusGetRoles === "success") dispatch(actionResetStatusGetRole());
 		if (statusUpdateRole === "success") {
-			dispatch(actionGetRoles());
+			dispatch(actionGetRoles(0));
 			dispatch(actionResetStatusUpdateRole());
 		}
 		if (statusDeleteRoles === "success") {
-			dispatch(actionGetRoles());
+			dispatch(actionGetRoles(0));
 			dispatch(actionResetStatusDeleteRole());
 		}
 	}, [dispatch, statusCreateRole, statusDeleteRoles, statusGetRoles, statusUpdateRole]);
@@ -65,7 +65,7 @@ function Roles(): JSX.Element {
 			content: "Lưu ý khi xoá vai trò, tất cả quyền của nhân viên có vai trò này sẽ bị xoá!",
 			onOk() {
 				dispatch(actionDeleteRoles(roleID)).finally(() => {
-					dispatch(actionGetRoles());
+					dispatch(actionGetRoles(0));
 				});
 			},
 		});

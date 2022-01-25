@@ -92,7 +92,7 @@ function Permissions(): JSX.Element {
 	useEffect(() => {
 		if (listPermission && listPermission.length === 0) {
 			setIsLoading(true)
-			dispatch(actionGetPermissions()).then(() => {
+			dispatch(actionGetPermissions({})).then(() => {
 				setTableItem(listPermission)
 			}).finally(() => {
 				setIsLoading(false)

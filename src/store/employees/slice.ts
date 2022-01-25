@@ -1,6 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { notification } from "antd";
+import { AxiosError } from "axios";
 import { EmployeeType, ListEmployeeType } from "interface";
+import { get } from "lodash";
 import request from "../../utils/request";
 
 export interface UserReducerState {
@@ -18,7 +20,7 @@ export interface ParamGetUsers {
 	per_page?: number;
 	class_id?: number;
 	role_name?: string;
-	role_ids?:string;
+	role_ids?: string;
 }
 
 export interface EmployeeParams {
@@ -40,59 +42,94 @@ export interface EmployeeParams {
 const initialState: UserReducerState = {
 	employeeInfo: null,
 	employees: null,
-	getEmployeeInfoStatus:'idle',
+	getEmployeeInfoStatus: "idle",
 	getEmployeesStatus: "idle",
 	addEmployeeStatus: "idle",
 	updateEmployeeStatus: "idle",
 	deleteEmployeeStatus: "idle",
 };
 
-export const actionGetEmployeeInfo = createAsyncThunk("actionGetEmployeeInfo", async (eID: number) => {
-	const response = await request({
-		url: `/api/users/${eID}`,
-		method: "get",
-	});
-	return response.data;
-});
-
-export const actionGetEmployees = createAsyncThunk("actionGetEmployees", async (params?: ParamGetUsers) => {
-	const response = await request({
-		url: "/api/users",
-		method: "get",
-		params,
-	});
-	return response.data;
-});
-
-export const actionAddEmployee = createAsyncThunk("actionAddEmployee", async (data: EmployeeParams) => {
-	const response = await request({
-		url: "/api/users",
-		method: "post",
-		data,
-	});
-	return response.data;
-});
-
-export const actionUpdateEmployee = createAsyncThunk(
-	"actionUpdateEmployee",
-	async (params: { data: EmployeeParams; eID: number }) => {
-		const { data, eID } = params;
-		const response = await request({
-			url: `/api/users/${eID}`,
-			method: "put",
-			data,
-		});
-		return response.data;
+export const actionGetEmployeeInfo = createAsyncThunk(
+	"actionGetEmployeeInfo",
+	async (eID: number, { rejectWithValue }) => {
+		try {
+			const response = await request({
+				url: `/api/users/${eID}`,
+				method: "get",
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
 	}
 );
 
-export const actionDeleteEmployee = createAsyncThunk("actionDeleteEmployee", async (eID: number) => {
-	const response = await request({
-		url: `/api/users/${eID}`,
-		method: "delete",
-	});
-	return response.data;
-});
+export const actionGetEmployees = createAsyncThunk(
+	"actionGetEmployees",
+	async (params: ParamGetUsers, { rejectWithValue }) => {
+		try {
+			const response = await request({
+				url: "/api/users",
+				method: "get",
+				params,
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
+	}
+);
+
+export const actionAddEmployee = createAsyncThunk(
+	"actionAddEmployee",
+	async (data: EmployeeParams, { rejectWithValue }) => {
+		try {
+			const response = await request({
+				url: "/api/users",
+				method: "post",
+				data,
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
+	}
+);
+
+export const actionUpdateEmployee = createAsyncThunk(
+	"actionUpdateEmployee",
+	async (
+		params: { data: EmployeeParams; eID: number },
+		{ rejectWithValue }
+	) => {
+		try {
+			const { data, eID } = params;
+			const response = await request({
+				url: `/api/users/${eID}`,
+				method: "put",
+				data,
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
+	}
+);
+
+export const actionDeleteEmployee = createAsyncThunk(
+	"actionDeleteEmployee",
+	async (eID: number, { rejectWithValue }) => {
+		try {
+			const response = await request({
+				url: `/api/users/${eID}`,
+				method: "delete",
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
+	}
+);
 
 export const employeeSlice = createSlice({
 	name: "employee",
@@ -116,10 +153,10 @@ export const employeeSlice = createSlice({
 		actionResetDeeleteEmployeeSatus(state) {
 			state.deleteEmployeeStatus = "idle";
 		},
-		actionSetListEmployeesNull(state){
+		actionSetListEmployeesNull(state) {
 			state.getEmployeesStatus = "idle";
 			state.employees = null;
-		}
+		},
 	},
 
 	extraReducers: (builder) => {
@@ -131,9 +168,11 @@ export const employeeSlice = createSlice({
 				state.employeeInfo = action.payload as EmployeeType;
 				state.getEmployeeInfoStatus = "success";
 			})
-			.addCase(actionGetEmployeeInfo.rejected, (state) => {
+			.addCase(actionGetEmployeeInfo.rejected, (state, action) => {
 				state.getEmployeeInfoStatus = "error";
 				state.employeeInfo = null;
+				const error = action.payload as AxiosError;
+				notification.error({message:get(error,"response.data","Có lỗi xảy ra!")})
 			})
 			//get employees
 			.addCase(actionGetEmployees.pending, (state) => {
@@ -143,9 +182,11 @@ export const employeeSlice = createSlice({
 				state.employees = action.payload as ListEmployeeType;
 				state.getEmployeesStatus = "success";
 			})
-			.addCase(actionGetEmployees.rejected, (state) => {
+			.addCase(actionGetEmployees.rejected, (state, action) => {
 				state.getEmployeesStatus = "error";
 				state.employees = null;
+				const error = action.payload as AxiosError;
+				notification.error({message:get(error,"response.data","Có lỗi xảy ra!")})
 			})
 			//add employee
 			.addCase(actionAddEmployee.pending, (state) => {
@@ -155,9 +196,10 @@ export const employeeSlice = createSlice({
 				state.addEmployeeStatus = "success";
 				notification.success({ message: "Thêm nhân viên thành công" });
 			})
-			.addCase(actionAddEmployee.rejected, (state) => {
+			.addCase(actionAddEmployee.rejected, (state, action) => {
 				state.addEmployeeStatus = "error";
-				notification.error({ message: "Có lỗi xảy ra" });
+				const error = action.payload as AxiosError;
+				notification.error({message:get(error,"response.data","Có lỗi xảy ra!")})
 			})
 
 			//update employee
@@ -166,11 +208,14 @@ export const employeeSlice = createSlice({
 			})
 			.addCase(actionUpdateEmployee.fulfilled, (state) => {
 				state.updateEmployeeStatus = "success";
-				notification.success({ message: "Cập nhật thông tin nhân viên thành công" });
+				notification.success({
+					message: "Cập nhật thông tin nhân viên thành công",
+				});
 			})
-			.addCase(actionUpdateEmployee.rejected, (state) => {
+			.addCase(actionUpdateEmployee.rejected, (state, action) => {
 				state.updateEmployeeStatus = "error";
-				notification.error({ message: "Có lỗi xảy ra" });
+				const error = action.payload as AxiosError;
+				notification.error({message:get(error,"response.data","Có lỗi xảy ra!")})
 			})
 
 			//delete employee
@@ -179,15 +224,22 @@ export const employeeSlice = createSlice({
 			})
 			.addCase(actionDeleteEmployee.fulfilled, (state) => {
 				state.deleteEmployeeStatus = "success";
-				notification.success({ message: "Vô hiệu hoá tài khoản viên thành công" });
+				notification.success({
+					message: "Vô hiệu hoá tài khoản viên thành công",
+				});
 			})
-			.addCase(actionDeleteEmployee.rejected, (state) => {
+			.addCase(actionDeleteEmployee.rejected, (state, action) => {
 				state.deleteEmployeeStatus = "error";
-				notification.error({ message: "Có lỗi xảy ra" });
+				const error = action.payload as AxiosError;
+				notification.error({message:get(error,"response.data","Có lỗi xảy ra!")})
 			});
 	},
 });
-export const { actionResetAddEmployeeStatus, actionResetDeeleteEmployeeSatus, actionResetUpdateEmployeeSatus, actionSetListEmployeesNull } =
-	employeeSlice.actions;
+export const {
+	actionResetAddEmployeeStatus,
+	actionResetDeeleteEmployeeSatus,
+	actionResetUpdateEmployeeSatus,
+	actionSetListEmployeesNull,
+} = employeeSlice.actions;
 
 export default employeeSlice.reducer;

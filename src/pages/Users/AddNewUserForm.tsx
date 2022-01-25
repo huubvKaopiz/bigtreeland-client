@@ -27,7 +27,7 @@ function AddNewUserForm({
 	);
 
 	useEffect(() => {
-		dispatch(actionGetRoles());
+		dispatch(actionGetRoles(0));
 	}, [dispatch]);
 
 	useEffect(() => {

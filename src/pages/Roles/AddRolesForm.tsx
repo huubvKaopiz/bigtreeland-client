@@ -39,7 +39,7 @@ function AddRolesForm({
 
 	useEffect(() => {
 		// dispatch(actionGetUsers());
-		dispatch(actionGetPermissions());
+		dispatch(actionGetPermissions({}));
 	}, [dispatch]);
 
 

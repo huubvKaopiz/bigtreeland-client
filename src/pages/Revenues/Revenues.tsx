@@ -98,12 +98,12 @@ function Revenues(): JSX.Element {
 			dispatch(resetGetRevenuesStatus());
 		} else if (statusAddRevenues === "success" || statusAddRevenues === "error") {
 			if (statusAddRevenues === "success") {
-				dispatch(actionGetRevenues());
+				dispatch(actionGetRevenues({}));
 			}
 			dispatch(resetAddRevenuesStatus());
 		} else if (statusUpdateRevenues === "success" || statusUpdateRevenues === "error") {
 			if (statusUpdateRevenues === "success") {
-				dispatch(actionGetRevenues());
+				dispatch(actionGetRevenues({}));
 			}
 			dispatch(resetUpdateRevenuesStatus());
 		}

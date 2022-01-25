@@ -1,6 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { notification } from "antd";
+import { AxiosError } from "axios";
 import { GetResponseType, PeriodTuitionType } from "interface";
+import { get } from "lodash";
 import request from "utils/request";
 
 export interface PeriodTuitionReducerState {
@@ -11,7 +13,6 @@ export interface PeriodTuitionReducerState {
 	addPeriodTuitionStatus: "idle" | "loading" | "success" | "error";
 	updatePeriodTuitionStatus: "idle" | "loading" | "success" | "error";
 	deletePeriodTuitionStatus: "idle" | "loading" | "success" | "error";
-
 }
 
 export interface GetPeriodTuionsPrams {
@@ -27,7 +28,7 @@ export interface AddPeriodTuionParms {
 	to_date: string;
 	est_session_num: number;
 	fee_per_session: number;
-	dayoffs:string[];
+	dayoffs: string[];
 	tuition_fees: {
 		student_id: number;
 		residual: string;
@@ -37,8 +38,8 @@ export interface AddPeriodTuionParms {
 		note: string;
 		from_date: string;
 		to_date: string;
-		status:0;
-		dayoffs:string[];
+		status: 0;
+		dayoffs: string[];
 	}[];
 	draft: boolean;
 }
@@ -62,52 +63,84 @@ const initialState: PeriodTuitionReducerState = {
 	deletePeriodTuitionStatus: "idle",
 };
 
-export const actionGetPeriodTuion = createAsyncThunk("actionGetPeriodTuion", async (period_tuition_id: number) => {
-	const response = await request({
-		url: `/api/period-tuitions/${period_tuition_id}`,
-		method: "get",
-	});
-	return response.data;
-});
+export const actionGetPeriodTuion = createAsyncThunk(
+	"actionGetPeriodTuion",
+	async (period_tuition_id: number, { rejectWithValue }) => {
+		try {
+			const response = await request({
+				url: `/api/period-tuitions/${period_tuition_id}`,
+				method: "get",
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
+	}
+);
 
-export const actionGetPeriodTuions = createAsyncThunk("actionGetPeriodTuions", async (params: GetPeriodTuionsPrams = {}) => {
-	const response = await request({
-		url: `/api/period-tuitions`,
-		method: "get",
-		params
-	})
-	return response.data;
-})
+export const actionGetPeriodTuions = createAsyncThunk(
+	"actionGetPeriodTuions",
+	async (params: GetPeriodTuionsPrams, { rejectWithValue }) => {
+		try {
+			const response = await request({
+				url: `/api/period-tuitions`,
+				method: "get",
+				params,
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
+	}
+);
 
-export const actionAddPeriodTuion = createAsyncThunk("actionAddPeriodTuion", async (data: AddPeriodTuionParms) => {
-	const response = await request({
-		url: `/api/period-tuitions`,
-		method: "post",
-		data,
-	});
-	return response.data;
-});
+export const actionAddPeriodTuion = createAsyncThunk(
+	"actionAddPeriodTuion",
+	async (data: AddPeriodTuionParms, { rejectWithValue }) => {
+		try {
+			const response = await request({
+				url: `/api/period-tuitions`,
+				method: "post",
+				data,
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
+	}
+);
 
 export const actionUpdatePeriodTuion = createAsyncThunk(
 	"actionUpdatePeriodTuion",
-	async (params: { data: UpdatePeriodTuitionParams; pID: number }) => {
-		const response = await request({
-			url: `/api/period-tuitions/${params.pID}`,
-			method: "put",
-			data: params.data,
-		});
-		return response.data;
+	async (
+		params: { data: UpdatePeriodTuitionParams; pID: number },
+		{ rejectWithValue }
+	) => {
+		try {
+			const response = await request({
+				url: `/api/period-tuitions/${params.pID}`,
+				method: "put",
+				data: params.data,
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
 	}
 );
 
 export const actionDeletePeriodTuion = createAsyncThunk(
 	"actionDeletePeriodTuion",
-	async (pID: number) => {
-		const response = await request({
-			url: `/api/period-tuitions/${pID}`,
-			method: "delete",
-		});
-		return response.data;
+	async (pID: number, { rejectWithValue }) => {
+		try {
+			const response = await request({
+				url: `/api/period-tuitions/${pID}`,
+				method: "delete",
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
 	}
 );
 
@@ -130,10 +163,9 @@ export const periodTuitionSlice = createSlice({
 		actionSetAddPeriodtuitionStateIdle(state) {
 			state.addPeriodTuitionStatus = "idle";
 		},
-		actionDeletePeriodTuion(state){
+		actionDeletePeriodTuion(state) {
 			state.deletePeriodTuitionStatus = "idle";
-		}
-
+		},
 	},
 	extraReducers: (builder) => {
 		builder
@@ -144,9 +176,12 @@ export const periodTuitionSlice = createSlice({
 				state.getPeriodTuitionStatus = "success";
 				state.periodTuition = action.payload as PeriodTuitionType;
 			})
-			.addCase(actionGetPeriodTuion.rejected, (state) => {
+			.addCase(actionGetPeriodTuion.rejected, (state, action) => {
 				state.getPeriodTuitionStatus = "error";
-				notification.error({ message: "Lấy thông tin chu kỳ học phí thất bại!" });
+				const error = action.payload as AxiosError;
+				notification.error({
+					message: get(error, "response.data", "Có lỗi xảy ra!"),
+				});
 			})
 
 			.addCase(actionGetPeriodTuions.pending, (state) => {
@@ -154,11 +189,15 @@ export const periodTuitionSlice = createSlice({
 			})
 			.addCase(actionGetPeriodTuions.fulfilled, (state, action) => {
 				state.getPeriodTuitionsStatus = "success";
-				state.periodTuitions = action.payload as GetResponseType<PeriodTuitionType>;
+				state.periodTuitions =
+					action.payload as GetResponseType<PeriodTuitionType>;
 			})
-			.addCase(actionGetPeriodTuions.rejected, (state) => {
+			.addCase(actionGetPeriodTuions.rejected, (state, action) => {
 				state.getPeriodTuitionsStatus = "error";
-				notification.error({ message: "Lấy DS chu kỳ học phí thất bại!" });
+				const error = action.payload as AxiosError;
+				notification.error({
+					message: get(error, "response.data", "Có lỗi xảy ra!"),
+				});
 			})
 
 			.addCase(actionAddPeriodTuion.pending, (state) => {
@@ -168,9 +207,12 @@ export const periodTuitionSlice = createSlice({
 				state.addPeriodTuitionStatus = "success";
 				notification.success({ message: "Thêm chu kỳ học phí thành công!" });
 			})
-			.addCase(actionAddPeriodTuion.rejected, (state) => {
+			.addCase(actionAddPeriodTuion.rejected, (state, action) => {
 				state.addPeriodTuitionStatus = "error";
-				notification.error({ message: "Thêm chu kỳ học phí thất bại!" });
+				const error = action.payload as AxiosError;
+				notification.error({
+					message: get(error, "response.data", "Có lỗi xảy ra!"),
+				});
 			})
 
 			.addCase(actionUpdatePeriodTuion.pending, (state) => {
@@ -178,11 +220,16 @@ export const periodTuitionSlice = createSlice({
 			})
 			.addCase(actionUpdatePeriodTuion.fulfilled, (state) => {
 				state.updatePeriodTuitionStatus = "success";
-				notification.success({ message: "Cập nhật chu kỳ học phí thành công!" });
+				notification.success({
+					message: "Cập nhật chu kỳ học phí thành công!",
+				});
 			})
-			.addCase(actionUpdatePeriodTuion.rejected, (state) => {
+			.addCase(actionUpdatePeriodTuion.rejected, (state, action) => {
 				state.updatePeriodTuitionStatus = "error";
-				notification.error({ message: "Cập nhật chu kỳ học phí thất bại!" });
+				const error = action.payload as AxiosError;
+				notification.error({
+					message: get(error, "response.data", "Có lỗi xảy ra!"),
+				});
 			})
 
 			.addCase(actionDeletePeriodTuion.pending, (state) => {
@@ -192,13 +239,19 @@ export const periodTuitionSlice = createSlice({
 				state.deletePeriodTuitionStatus = "success";
 				notification.success({ message: "Đã xoá chu kỳ học phí" });
 			})
-			.addCase(actionDeletePeriodTuion.rejected, (state) => {
+			.addCase(actionDeletePeriodTuion.rejected, (state, action) => {
 				state.deletePeriodTuitionStatus = "error";
-				notification.error({ message: "Xoá chu kỳ học phí thất bại!" });
+				const error = action.payload as AxiosError;
+				notification.error({
+					message: get(error, "response.data", "Có lỗi xảy ra!"),
+				});
 			});
 	},
 });
 
-export const { actionSetAddPeriodtuitionStateIdle, actionResetUpdatePeriodTuion } = periodTuitionSlice.actions;
+export const {
+	actionSetAddPeriodtuitionStateIdle,
+	actionResetUpdatePeriodTuion,
+} = periodTuitionSlice.actions;
 
 export default periodTuitionSlice.reducer;

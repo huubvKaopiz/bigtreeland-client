@@ -131,7 +131,6 @@ function LeftMenu(): JSX.Element {
 
 	useEffect(() => {
 		const menuItem: number[] = [];
-		console.log(userStore);
 		get(userStore, "roles", []).map(({ id, menues }: RoleType) => {
 			// admin === 1
 			if (id === 1) {

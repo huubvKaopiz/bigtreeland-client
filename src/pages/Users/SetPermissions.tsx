@@ -51,7 +51,7 @@ export function SetUserPermissions(): JSX.Element {
 
     
     useEffect(() => {
-        dispatch(actionGetPermissions())
+        dispatch(actionGetPermissions({}))
         dispatch(actionGetUserPermissions(+params.user_id))
     }, [dispatch, params])
 

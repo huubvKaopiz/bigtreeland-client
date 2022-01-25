@@ -116,7 +116,7 @@ export default function Tuition(): JSX.Element {
 				<span>Lưu ý tại một thời điểm một lớp chỉ có duy nhất một chu kỳ học phí được kích hoạt. Nếu muốn kích hoạt chu kỳ mới thì phải bỏ kích hoạt chu kỳ cũ trước!</span>,
 			onOk() {
 				dispatch(actionUpdatePeriodTuion({ data: { active: period.active === 1 ? 0 : 1 }, pID: period.id })).finally(() => {
-					dispatch(actionGetPeriodTuions())
+					dispatch(actionGetPeriodTuions({}))
 				})
 			}
 		})
@@ -130,7 +130,7 @@ export default function Tuition(): JSX.Element {
 			content: "Lưu ý bạn chỉ xoá được chu kỳ học phí khi chưa học được buổi nào và chưa có học sinh nào đóng học phí!",
 			onOk() {
 				dispatch(actionDeletePeriodTuion(periodID)).finally(() => {
-					dispatch(actionGetPeriodTuions())
+					dispatch(actionGetPeriodTuions({}))
 				})
 			}
 		})
