@@ -50,6 +50,7 @@ export default function EditStudentModal(props: {
 				hope: student.hope,
 				knowledge_status: student.knowledge_status,
 				is_special: student.is_special,
+				type:student.type,
 			});
 			searchParent('');
 		}
@@ -130,6 +131,12 @@ export default function EditStudentModal(props: {
 									</Select.Option>
 								);
 							})}
+						</Select>
+					</Form.Item>
+					<Form.Item name="type" label="Loại" wrapperCol={{ span: 2 }} required>
+						<Select style={{width:120}}>
+							<Select.Option value={1}>Online</Select.Option>
+							<Select.Option value={0}>Offline</Select.Option>
 						</Select>
 					</Form.Item>
 					<Form.Item name="gender" label="Giới tính" wrapperCol={{ span: 2 }}>

@@ -57,7 +57,8 @@ export default function AddStudentModal(props: {
 			personality: "",
 			interests: "",
 			dislikes: "",
-			hope: ""
+			hope: "",
+			type:0,
 		})
 	}
 
@@ -93,7 +94,7 @@ export default function AddStudentModal(props: {
 					form={aForm}
 					onFinish={handleSubmit}
 				>
-					<Form.Item label="Họ và tên" name="name">
+					<Form.Item label="Họ và tên" name="name" required>
 						<Input />
 					</Form.Item>
 					<Form.Item name="parent_id" label="Phụ huynh">
@@ -113,6 +114,12 @@ export default function AddStudentModal(props: {
 							})}
 						</Select>
 					</Form.Item>
+					<Form.Item name="type" label="Loại" wrapperCol={{ span: 2 }} required>
+						<Select style={{width:120}}>
+							<Select.Option value={1}>Online</Select.Option>
+							<Select.Option value={0}>Offline</Select.Option>
+						</Select>
+					</Form.Item>
 					<Form.Item name="gender" label="Giới tính" wrapperCol={{ span: 2 }}>
 						<Select>
 							<Select.Option value={1}>Nam</Select.Option>
@@ -129,7 +136,7 @@ export default function AddStudentModal(props: {
 					<Form.Item name="address" label="Địa chỉ">
 						<Input />
 					</Form.Item>
-					<Form.Item name="admission_date" label="Ngày nhập học">
+					<Form.Item name="admission_date" label="Ngày nhập học" required>
 						<DatePicker />
 					</Form.Item>
 					<Form.Item name="knowledge_status" label="Tình trạng đầu vào">

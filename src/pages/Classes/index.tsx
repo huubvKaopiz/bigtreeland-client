@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 import { ClassType, RoleType } from "../../interface";
-import { Button, Col, Input, Layout, Row, Space, Table } from "antd";
+import { Button, Col, Input, Layout, Row, Space, Table, Tag } from "antd";
 import { UnorderedListOutlined, EditOutlined } from "@ant-design/icons";
 import EditClassModal from "./editClassModal";
 import AddClassModal from "./addClassModal";
@@ -35,8 +35,8 @@ function Classes(): JSX.Element {
 	}, 500)
 
 	useEffect(() => {
-		const admin = (get(userStore, 'roles', []) as RoleType[]).find(role => role.id === 1)
-		if (!admin) {
+		const teacher = (get(userStore, 'roles', []) as RoleType[]).find(role => role.id === DEFAULT_ROLE_IDS.TEACHER || role.id === DEFAULT_ROLE_IDS.TEACHER2)
+		if (teacher) {
 			setTeacherId(get(userStore, 'id', void 0));
 		}
 	}, [userStore])
@@ -68,6 +68,15 @@ function Classes(): JSX.Element {
 			key: "name",
 			render: function nameCol(name: string): JSX.Element {
 				return <strong>{name}</strong>;
+			},
+		},
+		{
+			width: "15%",
+			title: "Loại",
+			dataIndex: "type",
+			key: "type",
+			render: function nameCol(type: number): JSX.Element {
+				return <Tag color={type === 0 ? "red" : "green"}>{type === 0 ? "Offline" : "Online"}</Tag>;
 			},
 		},
 		{
@@ -108,7 +117,7 @@ function Classes(): JSX.Element {
 			width: "15%",
 			title: "Action",
 			key: "action",
-			render: function ActionCol(text:string, record: ClassType, index:number): JSX.Element {
+			render: function ActionCol(text: string, record: ClassType, index: number): JSX.Element {
 				return (
 					<Space size="middle">
 						<Button
@@ -116,7 +125,7 @@ function Classes(): JSX.Element {
 							icon={<UnorderedListOutlined />}
 							onClick={() => history.push({ pathname: `/classes-detail/${record.id}`, state: { classInfo: record } })}
 						/>
-						<Button type="link" icon={<EditOutlined />} onClick={() => handleEdit(index)}/>
+						<Button type="link" icon={<EditOutlined />} onClick={() => handleEdit(index)} />
 
 					</Space>
 				);

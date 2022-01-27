@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux';
 import { RootState, useAppDispatch } from 'store/store';
 import { actionAddDayoff, actionDeleteDayoff, actionGetDayoffs, actionSetAddDayoffStateIdle, actionSetDeleteDayoffStateIdle } from 'store/settings/dayoff';
 import { get } from 'lodash';
+import { actionGetSystemSettingInfo, actionUpdateSystemSetting } from 'store/settings/system';
 const { Panel } = Collapse;
 
 const layout = {
@@ -17,14 +18,19 @@ export default function Settings(): JSX.Element {
     const dispatch = useAppDispatch();
     const [daySelected, setDaySelected] = useState(moment(new Date()));
     const [calandarValue, setCalendarValue] = useState(moment("2021-12-01"));
+    const [systemInfoForm] = Form.useForm();
     // const [setCollapeKey] = useState('1');
 
     const dayoffs = useSelector((state: RootState) => state.dayoffReducer.dayoffs);
     const addDayoffState = useSelector((state: RootState) => state.dayoffReducer.addDayoffState);
     const deleteDayoffState = useSelector((state: RootState) => state.dayoffReducer.deleteDayoffState);
+    const systemInfo = useSelector((state:RootState) => state.systemSettingReducer.systemSettingInfo);
+    const updateSystemInfoState = useSelector((state:RootState) => state.systemSettingReducer.updateSystemSettingState);
+
 
     useEffect(() => {
         dispatch(actionGetDayoffs({}));
+        dispatch(actionGetSystemSettingInfo({}));
     }, [dispatch])
 
     useEffect(() => {
@@ -34,6 +40,12 @@ export default function Settings(): JSX.Element {
             dispatch(actionSetDeleteDayoffStateIdle());
         }
     }, [dispatch, addDayoffState, deleteDayoffState])
+
+    useEffect(()=>{
+        if(systemInfo){
+            systemInfoForm.setFieldsValue(systemInfo)
+        }
+    })
 
 
     function dateCellRender(value: Moment) {
@@ -97,24 +109,25 @@ export default function Settings(): JSX.Element {
     }
 
     function handleUpdateSystemtInfo(values: any) {
-        console.log(values);
+        console.log(values)
+        dispatch(actionUpdateSystemSetting(values));
     }
 
     return (
         <Layout.Content>
             <Collapse defaultActiveKey={['1']} >
                 <Panel header="Thông tin trung tâm" key="1">
-                    <Form {...layout} name="nest-messages" onFinish={handleUpdateSystemtInfo} >
+                    <Form {...layout} name="nest-messages" onFinish={handleUpdateSystemtInfo}  form={systemInfoForm}>
                         <Form.Item name='name' label="Tên trung tâm" >
                             <Input />
                         </Form.Item>
                         <Form.Item name='email' label="Email" rules={[{ type: 'email' }]}>
                             <Input />
                         </Form.Item>
-                        <Form.Item name='phone' label="Điện thoại" >
-                            <InputNumber />
+                        <Form.Item name='phone' label="Điện thoại"  >
+                            <Input />
                         </Form.Item>
-                        <Form.Item name='addresss' label="Địa chỉ">
+                        <Form.Item name='address' label="Địa chỉ">
                             <Input />
                         </Form.Item>
                         <Form.Item name='logo' label="Logo file">
@@ -129,7 +142,7 @@ export default function Settings(): JSX.Element {
                         </Form.Item>
 
                         <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 3 }}>
-                            <Button type="primary" htmlType="submit">
+                            <Button type="primary" htmlType="submit" loading={updateSystemInfoState === 'loading' ? true : false}>
                                 Cập nhật
                             </Button>
                         </Form.Item>
