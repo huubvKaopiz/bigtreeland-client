@@ -84,21 +84,17 @@ export const systemSettingSlice = createSlice({
 				notification.error({message:get(error,"response.data","Có lỗi xảy ra!")})
 			})
 
-			.addCase(actionUpdateSystemSetting.pending, (state) => {
-				state.updateSystemSettingState = "loading";
-			})
-			.addCase(actionUpdateSystemSetting.fulfilled, (state) => {
-				state.updateSystemSettingState = "success";
-				notification.success({
-					message: "Cập nhật thông tin hệ thống thành công",
-				});
-			})
-			.addCase(actionUpdateSystemSetting.rejected, (state, action) => {
-				state.updateSystemSettingState = "error";
-				const error = action.payload as AxiosError;
-				notification.error({message:get(error,"response.data","Có lỗi xảy ra!")})
-			});
-	},
-});
+            .addCase(actionUpdateSystemSetting.pending, state => {
+                state.updateSystemSettingState = "loading";
+            }).addCase(actionUpdateSystemSetting.fulfilled, (state, action) => {
+                state.updateSystemSettingState = "success";
+                state.systemSettingInfo = action.payload as SystemSettingsType;
+                notification.success({ message: "Cập nhật thông tin hệ thống thành công" });
+            }).addCase(actionUpdateSystemSetting.rejected, state => {
+                state.updateSystemSettingState = "error";
+                notification.error({ message: "Cập nhật thông tin hệ thống bị lỗi!" });
+            })
+    }
+})
 
 export default systemSettingSlice.reducer;

@@ -33,6 +33,7 @@ export default function EditClassModal(props: {
 				name: classInfo.name,
 				employee_id: get(classInfo, "user.id", 0),
 				fee_per_session: classInfo.fee_per_session,
+				type:classInfo.type,
 				schedule: classInfo.schedule,
 				schedule_time: scheduleTime.length > 0 ? [moment(scheduleTime[0], "HH:mm:ss"), moment(scheduleTime[1], "HH:mm:ss")] : null
 			});
@@ -102,9 +103,12 @@ export default function EditClassModal(props: {
 						</Select>
 					</Form.Item>
 
-					{/* <Form.Item label="Số buổi học" name="sessions_num">
-						<Input />
-					</Form.Item> */}
+					<Form.Item name="type" label="Loại" wrapperCol={{ span: 2 }} required>
+						<Select style={{width:120}}>
+							<Select.Option value={1}>Online</Select.Option>
+							<Select.Option value={0}>Offline</Select.Option>
+						</Select>
+					</Form.Item>
 					<Form.Item label="Học phí/buổi" name="fee_per_session" required>
 						<InputNumber formatter={(value) => numeral(value).format()} style={{ width: "100%" }} />
 					</Form.Item>

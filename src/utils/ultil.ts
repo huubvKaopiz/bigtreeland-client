@@ -37,6 +37,15 @@ export function downloadFile(urlFile: string, fileName: string): void {
 	});
 }
 
+export function isRoleDefault(role:string):boolean {
+	return  role === ROLE_NAMES.ADMIM || 
+			role === ROLE_NAMES.TEACHER || 
+			role === ROLE_NAMES.TEACHER2 || 
+			role === ROLE_NAMES.PARENT || 
+			role === ROLE_NAMES.SALE || 
+			role === ROLE_NAMES.ON_MANAGER
+}	
+
 
 export function converRoleNameToVN(role: ROLE_NAMES): string {
 	let res = role as string;
@@ -58,6 +67,9 @@ export function converRoleNameToVN(role: ROLE_NAMES): string {
 			break;
 		case ROLE_NAMES.PARENT:
 			res = "Phụ huynh";
+			break;
+		case ROLE_NAMES.ON_MANAGER:
+			res = "Quản lý HS online";
 			break;
 		default:
 			break;

@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { notification } from "antd";
-import { AxiosError } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import { get, merge } from "lodash";
 import request from "../../utils/request";
 export interface User {
@@ -77,7 +77,7 @@ export const actionVerifyAccount = createAsyncThunk("verifyAccount", async (data
 	return response;
 });
 
-export const actionChangePassword = createAsyncThunk("changePassword", async (data: {current_password:string, new_password:string}, { rejectWithValue }) => {
+export const actionChangePassword = createAsyncThunk("changePassword", async (data: {current_password:string, new_password:string},{rejectWithValue}) => {
 	try {
 		const response = await request({
 			url: "/api/auth/change-password",
@@ -85,8 +85,8 @@ export const actionChangePassword = createAsyncThunk("changePassword", async (da
 			data,
 		});
 		return response;
-	} catch (err) {
-		return rejectWithValue(err)
+	} catch (error) {
+		return rejectWithValue(error);
 	}
 });
 
@@ -120,8 +120,9 @@ export const slice = createSlice({
 			})
 			.addCase(actionChangePassword.rejected, (state, action) => {
 				state.statusChangePassword="error";
-				const error = action.payload as AxiosError;
-				notification.error({message:get(error,"response.data","Có lỗi xảy ra!")})
+				const error = action.payload as AxiosError<AxiosResponse>;
+				console.log(error.response);
+				notification.error({message:get(error,"response.data.message","Có lỗi xảy ra!")})
 			});
 	},
 });

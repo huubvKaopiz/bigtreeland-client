@@ -2,6 +2,7 @@ import { DownOutlined, MenuOutlined } from "@ant-design/icons";
 import {Button, Dropdown, Layout, Menu } from "antd";
 // import userService from "api/user.service";
 import { get } from "lodash";
+import { EmpProfile } from "pages/Employees/profile";
 import { ChangePasswordForm } from "pages/Login/changePasswordForm";
 // import ChangePassForm from "pages/Users/changePassForm";
 // import { PasswordFormProps } from "interface/interfaces";
@@ -30,6 +31,7 @@ interface TopHeaderType {
 function TopHeader(props: TopHeaderType): JSX.Element {
 	const { onClickMenu } = props;
 	const dispatch = useDispatch();
+
 	const user = useSelector((state: RootState) => state.auth.user);
 
 	// useEffect(() => {
@@ -55,7 +57,9 @@ function TopHeader(props: TopHeaderType): JSX.Element {
 					<Dropdown
 						overlay={
 							<Menu>
-								<Menu.Item key="setting"><Button type="link">Thông tin cá nhân</Button></Menu.Item>
+								<Menu.Item key="setting">
+									<EmpProfile />
+								</Menu.Item>
 								<Menu.Item key="change-password">
 									<ChangePasswordForm />
 								</Menu.Item>

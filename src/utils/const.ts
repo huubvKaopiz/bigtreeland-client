@@ -28,7 +28,8 @@ export enum ROLE_NAMES {
 	TEACHER2 = 'teacher2',
 	SALE = 'sale',
 	PARENT = 'parent',
-	EMPLOYEE = 'employee'
+	EMPLOYEE = 'employee',
+	ON_MANAGER = 'on_manager'
 }
 
 export enum DEFAULT_ROLE_IDS{
@@ -37,6 +38,7 @@ export enum DEFAULT_ROLE_IDS{
 	TEACHER2 = 3,
 	SALE = 3,
 	PARENT = 5,
-	EMPLOYEE = 6
+	ON_MANAGER = 6,
+	EMPLOYEE = 7
 }
 

@@ -15,7 +15,7 @@ import {
 import { RootState, useAppDispatch } from "store/store";
 import { ROLE_NAMES } from "utils/const";
 import { DatePattern, dateSort, formatDate } from "utils/dateUltils";
-import { converRoleNameToVN } from "utils/ultil";
+import { converRoleNameToVN, isRoleDefault } from "utils/ultil";
 import AddRolesForm from "./AddRolesForm";
 import { useHistory } from "react-router-dom";
 import { RoleUsers } from "./roleUsers";
@@ -146,7 +146,7 @@ function Roles(): JSX.Element {
 				return (
 					<Space>
 						<Tooltip title="Xoá vai trò">
-							<Button type="link" danger onClick={() => handleDeleteRole(record.id)} icon={<DeleteOutlined />} />
+							<Button type="link" danger disabled={isRoleDefault(record.name)} onClick={() => handleDeleteRole(record.id)} icon={<DeleteOutlined />} />
 						</Tooltip>
 						<Tooltip title="DS người dùng">
 							<Button type="link" icon={<TeamOutlined />} onClick={() => handleAddUsers(index)} />
