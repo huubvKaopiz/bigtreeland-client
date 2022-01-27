@@ -227,7 +227,6 @@ export default function CreateTuitionPeriod(): JSX.Element {
 		});
 		setTuitionFees([...tuitionFees]);
 		fixedDeductionTypeList.forEach((v, idx) => (fixedDeductionTypeList[idx] = fixedDeductionAllType));
-		console.log(fixedDeductionTypeList);
 		handleChangeSetAllFixedDeductionSate(false);
 		setFixedDeductionAlState(true);
 		setFixedDeductionAlAmount("");

@@ -31,7 +31,6 @@ function AddNewUserForm({
 	}, [dispatch]);
 
 	useEffect(() => {
-		console.log(storeListRoles);
 		setListRole(
 			storeListRoles.map((role) => ({
 				label: role.name,

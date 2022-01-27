@@ -167,6 +167,7 @@ export default function Students(): JSX.Element {
 				dataSource={get(students, "data", [])}
 				size="small"
 				bordered
+				rowKey="id"
 				loading={loadListStatus === "loading" ? true : false}
 				pagination={{
 					showSizeChanger: false,

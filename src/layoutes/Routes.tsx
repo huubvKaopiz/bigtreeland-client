@@ -23,6 +23,7 @@ import { StudySummaryDetail } from "pages/StudySummary/studySummaryDetail";
 import { SetRolePermissions } from "pages/Roles/setPermissions";
 import { SetUserPermissions } from "pages/Users/SetPermissions";
 import { StudyProfile } from "pages/Students/studyProfile";
+import AttendanceDetails from "pages/Classes/attendanceDetails";
 
 function Routes(): JSX.Element {
 	return (
@@ -31,7 +32,9 @@ function Routes(): JSX.Element {
 			<Route path="/users" component={Users} />
 			<Route path="/employees" component={Employees} />
 			<Route path="/classes" component={Classes} />
-			<Route path="/classes-detail/:class_id" component={ClassDetail} />
+			<Route exact path="/classes-detail/:class_id" component={ClassDetail} />
+			<Route path="/classes-detail/:class_id/attendace/:date" component={AttendanceDetails} />
+			<Route path="/classes-detail/:class_id/edit-attendace/:date" component={AttendanceDetails} />
 			<Route path="/tests/:test_id/:class_id" component={ListTestResults} />
 			<Route path="/students" component={Students} />
 			<Route path="/students-study-profile/:student_id" component={StudyProfile} />

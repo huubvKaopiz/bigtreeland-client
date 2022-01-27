@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { notification } from "antd";
 import { AxiosError } from "axios";
 import { ListAttendancesType } from "interface";
-import { get } from "lodash";
+import { get, isPlainObject } from "lodash";
 import request from "utils/request";
 
 export interface AttendanceReducerState {
@@ -20,14 +20,14 @@ export interface GetAttendancesPrams {
 }
 
 export interface AttendanceStudentComment {
-	id: string;
+	id: string | number;
 	comment: string;
 	conduct_point: string;
 	reminder: string;
 }
 export interface AddAttendenceParams {
 	class_id: number;
-	teacher_id: number;
+	teacher_id?: number;
 	students: AttendanceStudentComment[];
 	date: string;
 }
@@ -66,7 +66,23 @@ export const actionAddAttendance = createAsyncThunk(
 			});
 			return response.data;
 		} catch (error) {
-			return rejectWithValue(error)	
+			return rejectWithValue(error);
+		}
+	}
+);
+
+export const actionUpdateAttendance = createAsyncThunk(
+	"actionUpdateAttendance",
+	async (data: AddAttendenceParams, { rejectWithValue }) => {
+		try {
+			const response = await request({
+				url: "/api/attendances",
+				method: "put",
+				data,
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
 		}
 	}
 );
@@ -98,7 +114,9 @@ export const attendanceSlice = createSlice({
 			.addCase(actionGetAttendances.rejected, (state, action) => {
 				state.getAttendancesStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({message:get(error,"response.data","Có lỗi xảy ra!")})
+				notification.error({
+					message: get(error, "response.data", "Có lỗi xảy ra!"),
+				});
 			})
 			// add attendance
 			.addCase(actionAddAttendance.pending, (state) => {
@@ -111,7 +129,31 @@ export const attendanceSlice = createSlice({
 			.addCase(actionAddAttendance.rejected, (state, action) => {
 				state.addAttendanceStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({message:get(error,"response.data","Có lỗi xảy ra!")})
+				notification.error({
+					message: get(error, "response.data", "Có lỗi xảy ra!"),
+				});
+			})
+			// update attendance
+			.addCase(actionUpdateAttendance.pending, (state) => {
+				state.updateAttendanceStatus = "loading";
+			})
+			.addCase(actionUpdateAttendance.fulfilled, (state) => {
+				state.updateAttendanceStatus = "success";
+				notification.success({
+					message: "Cập nhật danh sách điểm danh thành công!",
+				});
+			})
+			.addCase(actionUpdateAttendance.rejected, (state, action) => {
+				state.updateAttendanceStatus = "error";
+				const error = action.payload as AxiosError;
+				const err_message = get(error, "response.data", "Có lỗi xảy ra!");
+				if (isPlainObject(err_message)) {
+					notification.error({ message: "Có lỗi xảy ra!" });
+				} else {
+					notification.error({
+						message: err_message,
+					});
+				}
 			});
 	},
 });

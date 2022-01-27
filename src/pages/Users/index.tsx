@@ -61,7 +61,6 @@ export default function Users(): JSX.Element {
 	}
 
 	function onChangeListFilter(e: any) {
-		console.log(e.target.value)
 		setStatusFilter(e.target.value)
 	}
 

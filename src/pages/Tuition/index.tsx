@@ -65,7 +65,6 @@ export default function Tuition(): JSX.Element {
 				amount += cal_fee;
 				if (tuition.status === 1) paidCount++;
 			})
-			console.log(paidCount)
 			if (paidCount > 0) deleteAble = false
 			return {
 				key: period.id,
@@ -135,7 +134,6 @@ export default function Tuition(): JSX.Element {
 			}
 		})
 	}
-	console.log(periodTableData)
 
 	return (
 		<Layout.Content>

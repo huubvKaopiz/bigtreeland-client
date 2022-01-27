@@ -177,6 +177,7 @@ function Roles(): JSX.Element {
 				loading={statusGetRoles === "loading" || statusDeleteRoles === "loading"}
 				pagination={{ pageSize: 20 }}
 				dataSource={listRoles}
+				rowKey="id"
 			/>
 			<RoleUsers roleInfo={listRoles[addUsersIndex]} show={showAddUsers} setShow={setShowAddUsers} />
 			<SetMenuView roleInfo={listRoles[addUsersIndex]} show={showSettingMenu} setShow={setShowSettingMenu}/>

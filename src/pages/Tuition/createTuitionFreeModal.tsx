@@ -59,7 +59,6 @@ export function CreateTuitionFeeModal(prop: { periodInfo: PeriodTuitionType | nu
 
 	function handleValuesChange(changeValue: any, allValues: any) {
 		if (changeValue.note) return;
-		console.log(allValues)
 		uFrom.setFieldsValue({
 			amount: +allValues.est_fee - +allValues.fixed_deduction - +(allValues.est_fee * allValues.flexible_deduction / 100)
 		})

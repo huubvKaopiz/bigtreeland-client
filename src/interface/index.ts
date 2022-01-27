@@ -230,10 +230,12 @@ export interface ListAttendancesType {
 		[key: string]: {
 			comment: string;
 			conduct_point: number;
+			reminder: string;
 			student_id: number;
 			student_name: string;
 		}[];
 	};
+	students_num?: number;
 }
 
 export interface TestType {
