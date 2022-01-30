@@ -5,3 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile
     image: buivanhuu2017/bigtreeland-client:latest
+    deploy:
+      replicas: 1
+    ports:
+      - 80:80
