@@ -1,6 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { notification } from "antd";
+import { AxiosError } from "axios";
 import { GetResponseType } from "interface";
+import { get } from "lodash";
 import { removeEmpty } from "utils/objectUtils";
 import request from "utils/request";
 export interface RevenueType {
@@ -45,7 +47,7 @@ export interface RevenuesSearchParam {
 	fromDate?: string;
 	toDate?: string;
 	page?: number;
-	employee_id?:number;
+	employee_id?: number;
 }
 
 export const RevenuesStatusList = ["Chưa xử lý", "Đã xử lý"];
@@ -66,34 +68,52 @@ const initialState: RevenuesState = {
 	updateRevenuesStatus: "idle",
 };
 
-export const actionGetRevenues = createAsyncThunk("actionGetRevenues", async (params: RevenuesSearchParam = {}) => {
-	const searchParam = removeEmpty(params);
-	const response = await request({
-		url: "/api/receipts",
-		method: "get",
-		params: searchParam,
-	});
-	return response.data;
-});
+export const actionGetRevenues = createAsyncThunk(
+	"actionGetRevenues",
+	async (params: RevenuesSearchParam, { rejectWithValue }) => {
+		try {
+			const searchParam = removeEmpty(params);
+			const response = await request({
+				url: "/api/receipts",
+				method: "get",
+				params: searchParam,
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
+	}
+);
 
-export const actionAddNewRevenues = createAsyncThunk("actionAddNewRevenues", async (data: RevenuesRequestAddType) => {
-	const response = await request({
-		url: "/api/receipts",
-		method: "post",
-		data,
-	});
-	return response.data;
-});
+export const actionAddNewRevenues = createAsyncThunk(
+	"actionAddNewRevenues",
+	async (data: RevenuesRequestAddType, { rejectWithValue }) => {
+		try {
+			const response = await request({
+				url: "/api/receipts",
+				method: "post",
+				data,
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
+	}
+);
 
 export const actionUpdateRevenues = createAsyncThunk(
 	"actionUpdateRevenues",
-	async (data: RevenuesRequestUpdateType) => {
-		const response = await request({
-			url: `/api/receipts/${data.id}`,
-			method: "put",
-			data,
-		});
-		return response.data;
+	async (data: RevenuesRequestUpdateType, { rejectWithValue }) => {
+		try {
+			const response = await request({
+				url: `/api/receipts/${data.id}`,
+				method: "put",
+				data,
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
 	}
 );
 
@@ -110,10 +130,10 @@ export const slice = createSlice({
 		resetUpdateRevenuesStatus(state) {
 			state.updateRevenuesStatus = "idle";
 		},
-		actionSetListRevenuesNull(state){
+		actionSetListRevenuesNull(state) {
 			state.getRevenuesStatus = "idle";
 			state.revenues = null;
-		}
+		},
 	},
 
 	extraReducers: (builder) => {
@@ -126,9 +146,12 @@ export const slice = createSlice({
 			.addCase(actionGetRevenues.pending, (state) => {
 				state.getRevenuesStatus = "loading";
 			})
-			.addCase(actionGetRevenues.rejected, (state) => {
+			.addCase(actionGetRevenues.rejected, (state, action) => {
 				state.getRevenuesStatus = "error";
-				notification.error({ message: "Có lỗi xảy ra!" });
+				const error = action.payload as AxiosError;
+				notification.error({
+					message: get(error, "response.data", "Có lỗi xảy ra!"),
+				});
 			})
 			// add
 			.addCase(actionAddNewRevenues.fulfilled, (state) => {
@@ -138,9 +161,12 @@ export const slice = createSlice({
 			.addCase(actionAddNewRevenues.pending, (state) => {
 				state.addRevenuesStatus = "loading";
 			})
-			.addCase(actionAddNewRevenues.rejected, (state) => {
+			.addCase(actionAddNewRevenues.rejected, (state, action) => {
 				state.addRevenuesStatus = "error";
-				notification.error({ message: "Có lỗi xảy ra!" });
+				const error = action.payload as AxiosError;
+				notification.error({
+					message: get(error, "response.data", "Có lỗi xảy ra!"),
+				});
 			})
 			// update
 			.addCase(actionUpdateRevenues.fulfilled, (state) => {
@@ -150,12 +176,20 @@ export const slice = createSlice({
 			.addCase(actionUpdateRevenues.pending, (state) => {
 				state.updateRevenuesStatus = "loading";
 			})
-			.addCase(actionUpdateRevenues.rejected, (state) => {
+			.addCase(actionUpdateRevenues.rejected, (state, action) => {
 				state.updateRevenuesStatus = "error";
-				notification.error({ message: "Có lỗi xảy ra!" });
+				const error = action.payload as AxiosError;
+				notification.error({
+					message: get(error, "response.data", "Có lỗi xảy ra!"),
+				});
 			});
 	},
 });
 
-export const { resetGetRevenuesStatus, resetAddRevenuesStatus, resetUpdateRevenuesStatus, actionSetListRevenuesNull } = slice.actions;
+export const {
+	resetGetRevenuesStatus,
+	resetAddRevenuesStatus,
+	resetUpdateRevenuesStatus,
+	actionSetListRevenuesNull,
+} = slice.actions;
 export default slice.reducer;

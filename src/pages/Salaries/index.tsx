@@ -24,7 +24,7 @@ export default function Salaries(): JSX.Element {
     const getSalariesState = useSelector((state: RootState) => state.salariesReducer.getSalaries);
 
     useEffect(() => {
-        dispatch(actionGetSalaries())
+        dispatch(actionGetSalaries({}))
     }, [dispatch])
 
     function handleShowDetail(index: number) {
@@ -38,7 +38,7 @@ export default function Salaries(): JSX.Element {
             icon: <ExclamationCircleOutlined />,
             onOk() {
                 dispatch(actionDeleteSalary(salary.id)).finally(() => {
-                    dispatch(actionGetSalaries())
+                    dispatch(actionGetSalaries({}))
                 })
             }
         })
@@ -51,7 +51,7 @@ export default function Salaries(): JSX.Element {
             icon: <ExclamationCircleOutlined />,
             onOk() {
                 dispatch(actionSalaryPaymentConfirmed(salary.id)).finally(() => {
-                    dispatch(actionGetSalaries())
+                    dispatch(actionGetSalaries({}))
                 })
             }
         })
@@ -199,7 +199,7 @@ function DetailSalary(props: { salaryInfo: SalaryType, show: boolean, setShow: (
                 dispatch(actionUpdateSalary({ sID: salaryInfo.id, data: editPayload })).finally(() => {
                     if (updateSalaryStutus === 'success') {
                         setEditing(false)
-                        dispatch(actionGetSalaries())
+                        dispatch(actionGetSalaries({}))
                         // setShow(false)
                     }
                 })

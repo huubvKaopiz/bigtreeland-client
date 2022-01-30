@@ -1,7 +1,9 @@
 import { async } from "@firebase/util";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { notification } from "antd";
+import { AxiosError } from "axios";
 import { GetResponseType, TestType } from "interface";
+import { get } from "lodash";
 import request from "utils/request";
 
 export interface TestReducerState {
@@ -15,8 +17,8 @@ export interface TestReducerState {
 
 export interface GetTestsPrams {
 	class_id?: number;
-	from_date?:string;
-	to_date?:string;
+	from_date?: string;
+	to_date?: string;
 	page?: number;
 }
 
@@ -54,49 +56,65 @@ const initialState: TestReducerState = {
 
 export const actionGetTest = createAsyncThunk(
 	"actionGetTest",
-	async (test_id: number) => {
-		const response = await request({
-			url: `/api/tests/${test_id}`,
-			method: "get",
-		});
-		return response.data;
+	async (test_id: number, { rejectWithValue }) => {
+		try {
+			const response = await request({
+				url: `/api/tests/${test_id}`,
+				method: "get",
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
 	}
 );
 
 export const actionGetTestes = createAsyncThunk(
 	"actionGetTestes",
-	async (params: GetTestsPrams = {}) => {
-		const response = await request({
-			url: "/api/tests",
-			method: "get",
-			params,
-		});
-		return response.data;
+	async (params: GetTestsPrams, { rejectWithValue }) => {
+		try {
+			const response = await request({
+				url: "/api/tests",
+				method: "get",
+				params,
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
 	}
 );
 
 export const actionAddTest = createAsyncThunk(
 	"actionAddTest",
-	async (data: AddTestParms) => {
-		const response = await request({
-			url: `/api/tests`,
-			method: "post",
-			data,
-		});
-		return response.data;
+	async (data: AddTestParms, { rejectWithValue }) => {
+		try {
+			const response = await request({
+				url: `/api/tests`,
+				method: "post",
+				data,
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
 	}
 );
 
 export const actionUpdateTest = createAsyncThunk(
 	"actionUpdateTest",
-	async (updateData: UpdateTestParams) => {
-		const { id, ...data } = updateData;
-		const response = await request({
-			url: `/api/tests/${id}`,
-			method: "put",
-			data,
-		});
-		return response.data;
+	async (updateData: UpdateTestParams, { rejectWithValue }) => {
+		try {
+			const { id, ...data } = updateData;
+			const response = await request({
+				url: `/api/tests/${id}`,
+				method: "put",
+				data,
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
 	}
 );
 
@@ -130,9 +148,10 @@ export const testSlice = createSlice({
 				state.testInfo = action.payload as TestType;
 				state.getTestStatus = "success";
 			})
-			.addCase(actionGetTest.rejected, (state) => {
+			.addCase(actionGetTest.rejected, (state, action) => {
 				state.getTestStatus = "error";
-				notification.error({ message: "Lấy thông tin bài test bị lỗi" });
+				const error = action.payload as AxiosError;
+				notification.error({message:get(error,"response.data","Có lỗi xảy ra!")})
 			})
 			//get class infomation
 			.addCase(actionGetTestes.pending, (state) => {
@@ -142,9 +161,10 @@ export const testSlice = createSlice({
 				state.testes = action.payload as GetResponseType<TestType>;
 				state.getTestesStatus = "success";
 			})
-			.addCase(actionGetTestes.rejected, (state) => {
+			.addCase(actionGetTestes.rejected, (state, action) => {
 				state.getTestesStatus = "error";
-				notification.error({ message: "Lấy danh sách lớp học bị lỗi" });
+				const error = action.payload as AxiosError;
+				notification.error({message:get(error,"response.data","Có lỗi xảy ra!")})
 			})
 
 			// add test
@@ -155,17 +175,19 @@ export const testSlice = createSlice({
 				state.addTestStatus = "success";
 				notification.success({ message: "Tạo bài test thành công!" });
 			})
-			.addCase(actionAddTest.rejected, (state) => {
+			.addCase(actionAddTest.rejected, (state, action) => {
 				state.addTestStatus = "error";
-				notification.error({ message: "Có lỗi xảy ra!" });
+				const error = action.payload as AxiosError;
+				notification.error({message:get(error,"response.data","Có lỗi xảy ra!")})
 			})
 			//
 			.addCase(actionUpdateTest.pending, (state) => {
 				state.updateTestStatus = "loading";
 			})
-			.addCase(actionUpdateTest.rejected, (state) => {
+			.addCase(actionUpdateTest.rejected, (state, action) => {
 				state.updateTestStatus = "error";
-				notification.error({ message: "Cập nhật bài test bị lỗi!" });
+				const error = action.payload as AxiosError;
+				notification.error({message:get(error,"response.data","Có lỗi xảy ra!")})
 			})
 			.addCase(actionUpdateTest.fulfilled, (state) => {
 				state.updateTestStatus = "success";

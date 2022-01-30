@@ -227,6 +227,7 @@ export default function Parents(): JSX.Element {
 					bordered
 					loading={getParentsStatus === "loading"}
 					columns={columns}
+					rowKey="id"
 					dataSource={get(parents, "data", [])}
 					pagination={{
 						pageSize: 20,

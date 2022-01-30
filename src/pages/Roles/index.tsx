@@ -15,7 +15,7 @@ import {
 import { RootState, useAppDispatch } from "store/store";
 import { ROLE_NAMES } from "utils/const";
 import { DatePattern, dateSort, formatDate } from "utils/dateUltils";
-import { converRoleNameToVN } from "utils/ultil";
+import { converRoleNameToVN, isRoleDefault } from "utils/ultil";
 import AddRolesForm from "./AddRolesForm";
 import { useHistory } from "react-router-dom";
 import { RoleUsers } from "./roleUsers";
@@ -38,18 +38,18 @@ function Roles(): JSX.Element {
 
 	//Get roles for mounted
 	useEffect(() => {
-		dispatch(actionGetRoles());
+		dispatch(actionGetRoles(0));
 	}, [dispatch]);
 
 	useEffect(() => {
-		if (statusCreateRole === "success") dispatch(actionGetRoles());
+		if (statusCreateRole === "success") dispatch(actionGetRoles(0));
 		if (statusGetRoles === "success") dispatch(actionResetStatusGetRole());
 		if (statusUpdateRole === "success") {
-			dispatch(actionGetRoles());
+			dispatch(actionGetRoles(0));
 			dispatch(actionResetStatusUpdateRole());
 		}
 		if (statusDeleteRoles === "success") {
-			dispatch(actionGetRoles());
+			dispatch(actionGetRoles(0));
 			dispatch(actionResetStatusDeleteRole());
 		}
 	}, [dispatch, statusCreateRole, statusDeleteRoles, statusGetRoles, statusUpdateRole]);
@@ -65,7 +65,7 @@ function Roles(): JSX.Element {
 			content: "Lưu ý khi xoá vai trò, tất cả quyền của nhân viên có vai trò này sẽ bị xoá!",
 			onOk() {
 				dispatch(actionDeleteRoles(roleID)).finally(() => {
-					dispatch(actionGetRoles());
+					dispatch(actionGetRoles(0));
 				});
 			},
 		});
@@ -146,7 +146,7 @@ function Roles(): JSX.Element {
 				return (
 					<Space>
 						<Tooltip title="Xoá vai trò">
-							<Button type="link" danger onClick={() => handleDeleteRole(record.id)} icon={<DeleteOutlined />} />
+							<Button type="link" danger disabled={isRoleDefault(record.name)} onClick={() => handleDeleteRole(record.id)} icon={<DeleteOutlined />} />
 						</Tooltip>
 						<Tooltip title="DS người dùng">
 							<Button type="link" icon={<TeamOutlined />} onClick={() => handleAddUsers(index)} />
@@ -177,6 +177,7 @@ function Roles(): JSX.Element {
 				loading={statusGetRoles === "loading" || statusDeleteRoles === "loading"}
 				pagination={{ pageSize: 20 }}
 				dataSource={listRoles}
+				rowKey="id"
 			/>
 			<RoleUsers roleInfo={listRoles[addUsersIndex]} show={showAddUsers} setShow={setShowAddUsers} />
 			<SetMenuView roleInfo={listRoles[addUsersIndex]} show={showSettingMenu} setShow={setShowSettingMenu}/>

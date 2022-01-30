@@ -7,6 +7,8 @@ import {
 	SearchOutlined,
 	TeamOutlined,
 	UploadOutlined,
+	UnorderedListOutlined,
+	EditOutlined,
 } from "@ant-design/icons";
 import {
 	Button,
@@ -45,6 +47,7 @@ import {
 	actionResetGetAttendancesStatus,
 	AttendanceStudentComment,
 } from "store/attendances/slice";
+import { actionGetLessons } from "store/lesson/slice";
 import { actionGetClass, actionUpdateClass } from "store/classes/slice";
 import { actionUploadFile } from "store/files/slice";
 import { RootState, useAppDispatch } from "store/store";
@@ -107,7 +110,7 @@ export default function ClassDetail(): JSX.Element {
 	useEffect(() => {
 		if (addStudentsStatus === "success") {
 			dispatch(actionGetAttendances({ class_id: parseInt(params.class_id) }));
-			dispatch(actionResetAddAttendanceStatus());
+			// dispatch(actionResetAddAttendanceStatus());
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [addStudentsStatus, dispatch]);
@@ -122,13 +125,16 @@ export default function ClassDetail(): JSX.Element {
 			dispatch(actionGetAttendances({ class_id: parseInt(params.class_id) }));
 			dispatch(actionGetClass({ class_id: parseInt(params.class_id) }));
 			dispatch(actionGetTestes({ class_id: +params.class_id }));
+			dispatch(actionGetLessons({ class_id: +params.class_id }));
 		}
 	}, [dispatch, params]);
 
 	useEffect(() => {
 		if (statusAddAttendanceStatus === "success") {
-			dispatch(actionGetAttendances({ class_id: parseInt(params.class_id) }));
 			Modal.confirm(modalConfirmConfig);
+			dispatch(actionGetAttendances({ class_id: parseInt(params.class_id) }));
+			dispatch(actionResetAddAttendanceStatus());
+			dispatch(actionGetLessons({ class_id: +params.class_id }));
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [statusAddAttendanceStatus]);
@@ -239,7 +245,6 @@ export default function ClassDetail(): JSX.Element {
 			});
 			const params = {
 				class_id: classInfo.id,
-				// Todo teacher_id is null becaues user is null
 				teacher_id: teacher_id,
 				students: studentAttendanceList,
 				date: moment(today, "DD-MM-YYYY").format("YYYY-MM-DD"),
@@ -367,7 +372,7 @@ export default function ClassDetail(): JSX.Element {
 						<Button
 							icon={<NotificationOutlined />}
 							type="link"
-							onClick={(e) => handleNotityToParent()}
+							onClick={() => handleNotityToParent()}
 						/>
 					</Space>
 				);
@@ -538,6 +543,22 @@ export default function ClassDetail(): JSX.Element {
 							,
 						</TabPane>
 						<TabPane tab="DS buổi học" key="3">
+							<Space>
+								<RangePicker
+									style={{ marginTop: 20, marginBottom: 20 }}
+									onChange={handleChangeLessonRange}
+								/>
+								<Button
+									icon={<SearchOutlined />}
+									type="primary"
+									onClick={handleSearchLessonInRange}
+								>
+									Tìm tiếm
+								</Button>
+							</Space>
+							<LessonList />
+						</TabPane>
+						<TabPane tab="DS điểm danh theo buổi học" key="5">
 							<Space>
 								<RangePicker
 									style={{ marginTop: 20, marginBottom: 20 }}
@@ -738,5 +759,88 @@ function ClassPhotoAlbum(props: { class_id: number }): JSX.Element {
 				</Spin>
 			</Modal>
 		</>
+	);
+}
+
+interface AttendaceListType {
+	date: string;
+	numberAttendant: string;
+	key: number;
+}
+function LessonList(): JSX.Element {
+	const [attendanceList, setAttendanceList] = useState<AttendaceListType[]>([]);
+	const params = useParams() as { class_id: string };
+	const history = useHistory();
+	const attendances = useSelector(
+		(state: RootState) => state.attendanceReducer.attendances
+	);
+
+	useEffect(() => {
+		if (attendances?.attendances) {
+			setAttendanceList(
+				Object.keys(attendances.attendances).map((key, index) => ({
+					key: index,
+					date: key,
+					numberAttendant: `${attendances.attendances[key].length}/${attendances.students_num}`,
+				}))
+			);
+		}
+	}, [attendances]);
+
+	return (
+		<div>
+			<List
+				size="large"
+				dataSource={attendanceList}
+				renderItem={(item: AttendaceListType) => (
+					<List.Item
+						key={item.key}
+						actions={[
+							<Space
+								key="act1"
+								onClick={(e) => {
+									e.stopPropagation();
+								}}
+							>
+								<Button
+									type="link"
+									icon={<UnorderedListOutlined />}
+									onClick={() => {
+										history.push({
+											pathname: `/classes-detail/${params.class_id}/attendace/${item.date}`,
+										});
+									}}
+								/>
+							</Space>,
+							<Space
+								key="act2"
+								onClick={(e) => {
+									e.stopPropagation();
+								}}
+							>
+								<Button
+									type="link"
+									icon={<EditOutlined />}
+									onClick={() => {
+										history.push({
+											pathname: `/classes-detail/${params.class_id}/edit-attendace/${item.date}`,
+										});
+									}}
+								/>
+							</Space>,
+						]}
+					>
+						<List.Item.Meta
+							title={<strong>{item.date}</strong>}
+							description={
+								<a>
+									<TeamOutlined /> {item.numberAttendant}
+								</a>
+							}
+						/>
+					</List.Item>
+				)}
+			/>
+		</div>
 	);
 }

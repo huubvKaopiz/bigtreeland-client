@@ -79,11 +79,11 @@ function FileSelectModal(props: PropsWithChildren<FileSelectModalProps>): JSX.El
 	}, [dispatch, statusGetFiles]);
 
 	useEffect(() => {
-		if (statusUploadStatus === "success") dispatch(actionGetListFile());
+		if (statusUploadStatus === "success") dispatch(actionGetListFile({}));
 	}, [dispatch, statusUploadStatus]);
 
 	useEffect(()=> {
-		dispatch(actionGetListFile());		
+		dispatch(actionGetListFile({}));		
 	}, [dispatch])
 
 	useEffect(() => {

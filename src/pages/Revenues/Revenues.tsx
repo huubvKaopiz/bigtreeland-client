@@ -61,7 +61,6 @@ function Revenues(): JSX.Element {
 	const [currentDrawerData, setCurrentDrawerData] = useState<RevenueType | null>(null);
 	const [showDrawer, setShowDrawer] = useState(false);
 	const [searchObj, setSearchObj] = useState(() => {
-		console.log("init");
 		const startOfMonth = moment().startOf("month").format("YYYY-MM-DD");
 		const endOfMonth = moment().endOf("month").format("YYYY-MM-DD");
 		return { search: "", searchRange: [startOfMonth, endOfMonth] };
@@ -77,8 +76,6 @@ function Revenues(): JSX.Element {
 	const debounceSearch = useRef(
 		debounce((nextValue, fromDate, toDate) => setSearchObj({ searchRange: [fromDate, toDate], search: nextValue }), 500)
 	).current;
-
-	console.log("revenues re-render");
 
 	useEffect(() => {
 		const [fromDate, toDate] = searchObj.searchRange;
@@ -98,12 +95,12 @@ function Revenues(): JSX.Element {
 			dispatch(resetGetRevenuesStatus());
 		} else if (statusAddRevenues === "success" || statusAddRevenues === "error") {
 			if (statusAddRevenues === "success") {
-				dispatch(actionGetRevenues());
+				dispatch(actionGetRevenues({}));
 			}
 			dispatch(resetAddRevenuesStatus());
 		} else if (statusUpdateRevenues === "success" || statusUpdateRevenues === "error") {
 			if (statusUpdateRevenues === "success") {
-				dispatch(actionGetRevenues());
+				dispatch(actionGetRevenues({}));
 			}
 			dispatch(resetUpdateRevenuesStatus());
 		}
@@ -122,7 +119,6 @@ function Revenues(): JSX.Element {
 	}
 
 	function handleUpdateRowData() {
-		console.log(rowValueChange)
 		dispatch(
 			actionUpdateRevenues(
 				pick(rowValueChange, [

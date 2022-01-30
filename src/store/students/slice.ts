@@ -1,11 +1,13 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { notification } from "antd";
+import { AxiosError } from "axios";
 import { ListStudentType, StudentType } from "interface";
+import { get } from "lodash";
 import request from "utils/request";
 
 export interface StudentReducerState {
 	students: ListStudentType | null;
-	studentProfile:StudentParams | null;
+	studentProfile: StudentParams | null;
 	getStudentsStatus: "idle" | "loading" | "success" | "error";
 	getStudentStatus: "idle" | "loading" | "success" | "error";
 	addStudentStatus: "idle" | "loading" | "success" | "error";
@@ -44,7 +46,7 @@ export interface StudentParams {
 
 const initialState: StudentReducerState = {
 	students: null,
-	studentProfile:null,
+	studentProfile: null,
 	getStudentsStatus: "idle",
 	getStudentStatus: "idle",
 	addStudentStatus: "idle",
@@ -52,32 +54,52 @@ const initialState: StudentReducerState = {
 	updateStudentStatusStatus: "idle",
 };
 
-export const actionGetStudentProfile = createAsyncThunk("actionGetStudentProfile", async (sID:number) => {
-	const response = await request({
-		url: `/api/students/${sID}`,
-		method: "get",
-	});
-	return response.data;
-});
+export const actionGetStudentProfile = createAsyncThunk(
+	"actionGetStudentProfile",
+	async (sID: number, { rejectWithValue }) => {
+		try {
+			const response = await request({
+				url: `/api/students/${sID}`,
+				method: "get",
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
+	}
+);
 
+export const actionGetStudents = createAsyncThunk(
+	"actionGetStudents",
+	async (params: GetStudentPrams, { rejectWithValue }) => {
+		try {
+			const response = await request({
+				url: "/api/students",
+				method: "get",
+				params,
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
+	}
+);
 
-export const actionGetStudents = createAsyncThunk("actionGetStudents", async (params: GetStudentPrams = {}) => {
-	const response = await request({
-		url: "/api/students",
-		method: "get",
-		params,
-	});
-	return response.data;
-});
-
-export const actionAddStudent = createAsyncThunk("actionAddStudent", async (data: StudentParams) => {
-	const response = await request({
-		url: "/api/students",
-		method: "post",
-		data,
-	});
-	return response.data;
-});
+export const actionAddStudent = createAsyncThunk(
+	"actionAddStudent",
+	async (data: StudentParams, { rejectWithValue }) => {
+		try {
+			const response = await request({
+				url: "/api/students",
+				method: "post",
+				data,
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
+	}
+);
 
 export const actionUpdateStudent = createAsyncThunk(
 	"actionUpdateStudent",
@@ -148,10 +170,10 @@ export const studentSlice = createSlice({
 		actionSetStudentsStateNull(state) {
 			state.students = null;
 		},
-		actionGetStudentProfile(state){
+		actionGetStudentProfile(state) {
 			state.studentProfile = null;
 			state.getStudentStatus = "idle";
-		}
+		},
 	},
 	extraReducers: (builder) => {
 		//Het list of students
@@ -163,9 +185,12 @@ export const studentSlice = createSlice({
 				state.students = action.payload as ListStudentType;
 				state.getStudentsStatus = "success";
 			})
-			.addCase(actionGetStudents.rejected, (state) => {
+			.addCase(actionGetStudents.rejected, (state, action) => {
 				state.getStudentStatus = "error";
-				notification.error({ message: "Lấy danh sách học sinh bị lỗi!" });
+				const error = action.payload as AxiosError;
+				notification.error({
+					message: get(error, "response.data", "Có lỗi xảy ra!"),
+				});
 			})
 			// get student profile
 			.addCase(actionGetStudentProfile.pending, (state) => {
@@ -175,9 +200,12 @@ export const studentSlice = createSlice({
 				state.studentProfile = action.payload as StudentType;
 				state.getStudentsStatus = "success";
 			})
-			.addCase(actionGetStudentProfile.rejected, (state) => {
+			.addCase(actionGetStudentProfile.rejected, (state, action) => {
 				state.getStudentStatus = "error";
-				notification.error({ message: "Lấy danh sách học sinh bị lỗi!" });
+				const error = action.payload as AxiosError;
+				notification.error({
+					message: get(error, "response.data", "Có lỗi xảy ra!"),
+				});
 			})
 
 			//Add new Student
@@ -186,11 +214,16 @@ export const studentSlice = createSlice({
 			})
 			.addCase(actionAddStudent.fulfilled, (state) => {
 				state.addStudentStatus = "success";
-				notification.success({ message: "Thêm thông tin học sinh thành công!" });
+				notification.success({
+					message: "Thêm thông tin học sinh thành công!",
+				});
 			})
-			.addCase(actionAddStudent.rejected, (state) => {
+			.addCase(actionAddStudent.rejected, (state, action) => {
 				state.addStudentStatus = "error";
-				notification.error({ message: "Có lỗi xảy ra!" });
+				const error = action.payload as AxiosError;
+				notification.error({
+					message: get(error, "response.data", "Có lỗi xảy ra!"),
+				});
 			})
 
 			//Update Student infromation
@@ -201,9 +234,12 @@ export const studentSlice = createSlice({
 				state.updateStudentStatus = "success";
 				notification.success({ message: "Sửa thông tin học sinh thành công!" });
 			})
-			.addCase(actionUpdateStudent.rejected, (state) => {
+			.addCase(actionUpdateStudent.rejected, (state, action) => {
 				state.updateStudentStatus = "error";
-				notification.error({ message: "Có lỗi xảy ra!" });
+				const error = action.payload as AxiosError;
+				notification.error({
+					message: get(error, "response.data", "Có lỗi xảy ra!"),
+				});
 			})
 
 			//Update Student status
@@ -214,13 +250,20 @@ export const studentSlice = createSlice({
 				state.updateStudentStatusStatus = "success";
 				notification.success({ message: "Cập nhật trạng thái thành công!" });
 			})
-			.addCase(updateStudentStatus.rejected, (state) => {
+			.addCase(updateStudentStatus.rejected, (state, action) => {
 				state.updateStudentStatusStatus = "error";
-				notification.error({ message: "Có lỗi xảy ra!" });
+				const error = action.payload as AxiosError;
+				notification.error({
+					message: get(error, "response.data", "Có lỗi xảy ra!"),
+				});
 			});
 	},
 });
 
-export const { actionSetStudentsStateNull, actionResetUpdateStudent, actionResetGetStudents } = studentSlice.actions;
+export const {
+	actionSetStudentsStateNull,
+	actionResetUpdateStudent,
+	actionResetGetStudents,
+} = studentSlice.actions;
 
 export default studentSlice.reducer;

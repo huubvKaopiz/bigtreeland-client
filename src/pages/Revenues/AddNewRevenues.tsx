@@ -40,8 +40,6 @@ function AddNewRevenues(): JSX.Element {
 		(state: RootState) => state.revenuesReducer.addRevenuesStatus
 	);
 
-	console.log("add receive re-render");
-
 	useEffect(() => {
 		if (statusAddRevenues === "success") {
 			revenuesForm.resetFields();

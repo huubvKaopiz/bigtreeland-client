@@ -129,10 +129,10 @@ function Payment(): JSX.Element {
 			setLoading(false);
 		} else if (statusUpdatePayment === "success") {
 			dispatch(resetUpdatePaymentStatus());
-			dispatch(actionGetPayments());
+			dispatch(actionGetPayments({}));
 		} else if (statusAddNewPayment === "success") {
 			dispatch(resetAddPaymentStatus());
-			dispatch(actionGetPayments());
+			dispatch(actionGetPayments({}));
 		} else if (
 			statusGetPayment === "error" ||
 			statusUpdatePayment === "error"

@@ -27,11 +27,10 @@ function AddNewUserForm({
 	);
 
 	useEffect(() => {
-		dispatch(actionGetRoles());
+		dispatch(actionGetRoles(0));
 	}, [dispatch]);
 
 	useEffect(() => {
-		console.log(storeListRoles);
 		setListRole(
 			storeListRoles.map((role) => ({
 				label: role.name,

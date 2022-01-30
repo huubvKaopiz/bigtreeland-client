@@ -1,6 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { notification } from "antd";
+import { AxiosError } from "axios";
 import { GetResponseType, LessonType } from "interface";
+import { get } from "lodash";
 import request from "utils/request";
 
 interface LessionReducerState {
@@ -9,21 +11,28 @@ interface LessionReducerState {
 }
 
 interface GetLessonsParmasType {
-    period_tion_id?:number,
-    employee_id?:number, 
-    class_id?:number,
-    from_date?:string, 
-    to_date?:string
+	period_tion_id?: number;
+	employee_id?: number;
+	class_id?: number;
+	from_date?: string;
+	to_date?: string;
 }
 
-export const actionGetLessons = createAsyncThunk("actionGetLessions", async (params:GetLessonsParmasType) => {
-    const response = await request({
-        url: `/api/lessons/`,
-        method: "get",
-        params
-    })
-    return response.data;
-})
+export const actionGetLessons = createAsyncThunk(
+	"actionGetLessions",
+	async (params: GetLessonsParmasType, { rejectWithValue }) => {
+		try {
+			const response = await request({
+				url: `/api/lessons/`,
+				method: "get",
+				params,
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
+	}
+);
 
 const initialState: LessionReducerState = {
 	lessons: null,
@@ -50,9 +59,12 @@ export const lessonSlice = createSlice({
 				state.getLessonsState = "success";
 				state.lessons = action.payload as GetResponseType<LessonType>;
 			})
-			.addCase(actionGetLessons.rejected, (state) => {
+			.addCase(actionGetLessons.rejected, (state, action) => {
 				state.getLessonsState = "error";
-				notification.error({ message: "Lấy danh sách buổi học bị lỗi!" });
+				const error = action.payload as AxiosError;
+				notification.error({
+					message: get(error, "response.data", "Có lỗi xảy ra!"),
+				});
 			});
 	},
 });

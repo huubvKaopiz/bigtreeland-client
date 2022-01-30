@@ -59,6 +59,7 @@ export interface ParentType {
 export interface ClassType {
 	id: 1;
 	name: "Lớp tiếng Anh 3";
+	type:number; // 0 offline, 1 online
 	user: { id: number; phone: string; profile: { name: string } };
 	employee_id?: number;
 	students_num: 0;
@@ -149,6 +150,7 @@ export interface StudentType {
 		id: number;
 		name: string;
 	};
+	type:number; // 0 offline, 1 online
 	school: null;
 	address: null;
 	interests: null;
@@ -230,10 +232,12 @@ export interface ListAttendancesType {
 		[key: string]: {
 			comment: string;
 			conduct_point: number;
+			reminder: string;
 			student_id: number;
 			student_name: string;
 		}[];
 	};
+	students_num?: number;
 }
 
 export interface TestType {

@@ -51,7 +51,7 @@ export function SetUserPermissions(): JSX.Element {
 
     
     useEffect(() => {
-        dispatch(actionGetPermissions())
+        dispatch(actionGetPermissions({}))
         dispatch(actionGetUserPermissions(+params.user_id))
     }, [dispatch, params])
 
@@ -114,7 +114,6 @@ export function SetUserPermissions(): JSX.Element {
                 }
                 user_granted_permissions.push({ id: p.id, granted:u_granted })
             })
-            // console.log(per_list)
             setGrantedPermissions(per_list)
             setGrantedUserPermissions(user_granted_permissions)
         }
@@ -129,7 +128,7 @@ export function SetUserPermissions(): JSX.Element {
             per_name += action;
         } else per_name += record.granted.other[otherIndex].code;
         const permission = permissions?.find((per) => per.name === per_name);
-        // console.log(permission?.id, granted)
+
         if (permission === undefined) {
             notification.error({ message: `Không thể tìm thấy permission tương ứng với per_name: ${per_name}!` })
         } else {
@@ -139,7 +138,6 @@ export function SetUserPermissions(): JSX.Element {
         }
 
     }
-    // console.log(grantedPermissions)
 
     function handleSubmit() {
         const permission_add_ids: number[] = [];

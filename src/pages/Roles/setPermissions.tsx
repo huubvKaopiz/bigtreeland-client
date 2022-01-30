@@ -48,7 +48,7 @@ export function SetRolePermissions(): JSX.Element {
 	const roleInfo = useSelector((state: RootState) => state.roleReducer.roleInfo)
 	const loading = useSelector((state: RootState) => state.roleReducer.statusGetRoleInfo)
 	useEffect(() => {
-		dispatch(actionGetPermissions())
+		dispatch(actionGetPermissions({}))
 		dispatch(actionGetRoleInfo(+params.role_id))
 	}, [dispatch, params])
 

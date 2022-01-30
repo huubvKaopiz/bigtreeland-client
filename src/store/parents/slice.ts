@@ -1,6 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { notification } from "antd";
+import { AxiosError } from "axios";
 import { ListParentType } from "interface";
+import { get } from "lodash";
 import { ROLE_NAMES } from "utils/const";
 import request from "utils/request";
 
@@ -15,7 +17,7 @@ export interface ParentReducerState {
 export interface GetParentsPrams {
 	search?: string;
 	page?: number;
-	per_page?:number;
+	per_page?: number;
 }
 
 export interface ParentParams {
@@ -32,34 +34,58 @@ const initialState: ParentReducerState = {
 	deleteParentStatus: "idle",
 };
 
-export const actionGetParents = createAsyncThunk("actionGetParents", async (params: GetParentsPrams) => {
-	const response = await request({
-		url: `/api/users?role_name=${ROLE_NAMES.PARENT}`,
-		method: "get",
-		params,
-	});
-	return response.data;
-});
+export const actionGetParents = createAsyncThunk(
+	"actionGetParents",
+	async (params: GetParentsPrams, { rejectWithValue }) => {
+		try {
+			const response = await request({
+				url: `/api/users?role_name=${ROLE_NAMES.PARENT}`,
+				method: "get",
+				params,
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
+	}
+);
 
-export const actionAddParent = createAsyncThunk("actionAddParent", async (data: ParentParams) => {
-	const response = await request({
-		url: "/api/users",
-		method: "post",
-		data,
-	});
-	return response.data;
-});
+export const actionAddParent = createAsyncThunk(
+	"actionAddParent",
+	async (data: ParentParams, { rejectWithValue }) => {
+		try {
+			const response = await request({
+				url: "/api/users",
+				method: "post",
+				data,
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
+	}
+);
 
 export const actionUpdateParent = createAsyncThunk(
 	"actionUpdateParent",
-	async (params: { data: { name: string, email: string, gender:number }, uID: number }) => {
-		const { data, uID } = params;
-		const response = await request({
-			url: `/api/users/${uID}`,
-			method: "put",
-			data,
-		});
-		return response.data;
+	async (
+		params: {
+			data: { name: string; email: string; gender: number };
+			uID: number;
+		},
+		{ rejectWithValue }
+	) => {
+		try {
+			const { data, uID } = params;
+			const response = await request({
+				url: `/api/users/${uID}`,
+				method: "put",
+				data,
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
 	}
 );
 
@@ -96,9 +122,12 @@ export const parentSlice = createSlice({
 				state.parents = action.payload as ListParentType;
 				state.getParentsStatus = "success";
 			})
-			.addCase(actionGetParents.rejected, (state) => {
+			.addCase(actionGetParents.rejected, (state, action) => {
 				state.getParentsStatus = "error";
-				notification.error({ message: "Lấy danh sách phụ huynh bị lỗi" });
+				const error = action.payload as AxiosError;
+				notification.error({
+					message: get(error, "response.data", "Có lỗi xảy ra!"),
+				});
 			})
 
 			// add parent
@@ -109,9 +138,12 @@ export const parentSlice = createSlice({
 				state.addParentStatus = "success";
 				notification.success({ message: "Thêm phụ huynh thành công!" });
 			})
-			.addCase(actionAddParent.rejected, (state) => {
+			.addCase(actionAddParent.rejected, (state, action) => {
 				state.addParentStatus = "error";
-				notification.error({ message: "Có lỗi xảy ra!" });
+				const error = action.payload as AxiosError;
+				notification.error({
+					message: get(error, "response.data", "Có lỗi xảy ra!"),
+				});
 			})
 
 			//update parent infomation
@@ -120,11 +152,16 @@ export const parentSlice = createSlice({
 			})
 			.addCase(actionUpdateParent.fulfilled, (state) => {
 				state.updateParentStatus = "success";
-				notification.success({ message: "Sửa thông tin phụ huynh thành công!" });
+				notification.success({
+					message: "Sửa thông tin phụ huynh thành công!",
+				});
 			})
-			.addCase(actionUpdateParent.rejected, (state) => {
+			.addCase(actionUpdateParent.rejected, (state, action) => {
 				state.updateParentStatus = "error";
-				notification.error({ message: "Có lỗi xảy ra!" });
+				const error = action.payload as AxiosError;
+				notification.error({
+					message: get(error, "response.data", "Có lỗi xảy ra!"),
+				});
 			})
 
 			.addCase(actionDeleteParent.pending, (state) => {
@@ -134,9 +171,12 @@ export const parentSlice = createSlice({
 				state.deleteParentStatus = "success";
 				notification.success({ message: "Xoá phụ huynh thành công!" });
 			})
-			.addCase(actionDeleteParent.rejected, (state) => {
+			.addCase(actionDeleteParent.rejected, (state, action) => {
 				state.deleteParentStatus = "error";
-				notification.error({ message: "Có lỗi xảy ra!" });
+				const error = action.payload as AxiosError;
+				notification.error({
+					message: get(error, "response.data", "Có lỗi xảy ra!"),
+				});
 			});
 	},
 });

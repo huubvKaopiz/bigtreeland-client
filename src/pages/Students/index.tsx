@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Button, Col, Input, Layout, Row, Space, Table, Tooltip } from "antd";
+import { Button, Col, Input, Layout, Row, Space, Table, Tag, Tooltip } from "antd";
 import { EditOutlined, SnippetsOutlined } from '@ant-design/icons';
 import AddStudentModal from "./addStudentModal";
 import { StudentType } from "../../interface";
@@ -73,6 +73,15 @@ export default function Students(): JSX.Element {
 			key: "name",
 			render: function nameCol(value: string): JSX.Element {
 				return <strong>{value}</strong>;
+			},
+		},
+		{
+			width: "15%",
+			title: "Loại",
+			dataIndex: "type",
+			key: "type",
+			render: function nameCol(type: number): JSX.Element {
+				return <Tag color={type === 0 ? "red" : "green"}>{type === 0 ? "Offline" : "Online"}</Tag>;
 			},
 		},
 		{
@@ -167,6 +176,7 @@ export default function Students(): JSX.Element {
 				dataSource={get(students, "data", [])}
 				size="small"
 				bordered
+				rowKey="id"
 				loading={loadListStatus === "loading" ? true : false}
 				pagination={{
 					showSizeChanger: false,

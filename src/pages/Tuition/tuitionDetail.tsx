@@ -368,7 +368,6 @@ function SendNotiModal(prop: { tuition: TuitionFeeType }): JSX.Element {
 	}, [deleteStatus, dispatch])
 
 	function handleSendNotification() {
-		console.log("Send notification", tuition.id)
 		setShow(false);
 	}
 

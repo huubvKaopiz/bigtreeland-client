@@ -1,6 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { notification } from "antd";
+import { AxiosError } from "axios";
 import { ClassType, FileType, GetResponseType } from "interface";
+import { get } from "lodash";
 import request from "utils/request";
 
 export interface ClassReducerState {
@@ -25,9 +27,9 @@ export interface ClassParams {
 	sessions_num?: 24;
 	fee_per_session?: number;
 	employee_id?: 1;
-	schedule?:number[];
-	schedule_time?:string;
-	albums ?: number[];
+	schedule?: number[];
+	schedule_time?: string;
+	albums?: number[];
 }
 
 export interface AddTestParms {
@@ -48,57 +50,95 @@ const initialState: ClassReducerState = {
 	addStudentsStatus: "idle",
 };
 
-export const actionGetClass = createAsyncThunk("actionGetClass", async (payload:{class_id: number, params?:{active_periodinfo:boolean,students:boolean } }) => {
-	const {class_id, params} = payload;
-	const response = await request({
-		url: `/api/classes/${class_id}`,
-		method: "get",
-		params
-	});
-	return response.data;
-});
+export const actionGetClass = createAsyncThunk(
+	"actionGetClass",
+	async (
+		payload: {
+			class_id: number;
+			params?: { active_periodinfo: boolean; students: boolean };
+		},
+		{ rejectWithValue }
+	) => {
+		const { class_id, params } = payload;
+		try {
+			const response = await request({
+				url: `/api/classes/${class_id}`,
+				method: "get",
+				params,
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
+	}
+);
 
-export const actionGetClasses = createAsyncThunk("actionGetClasses", async (params: GetClassesPrams) => {
-	const response = await request({
-		url: "/api/classes",
-		method: "get",
-		params,
-	});
-	return response.data;
-});
+export const actionGetClasses = createAsyncThunk(
+	"actionGetClasses",
+	async (params: GetClassesPrams, { rejectWithValue }) => {
+		try {
+			const response = await request({
+				url: "/api/classes",
+				method: "get",
+				params,
+			});
+			return response.data;
+		} catch (err) {
+			return rejectWithValue(err);
+		}
+	}
+);
 
-export const actionAddClass = createAsyncThunk("actionAddClass", async (data: ClassParams) => {
-	const response = await request({
-		url: "/api/classes",
-		method: "post",
-		data,
-	});
-	return response.data;
-});
+export const actionAddClass = createAsyncThunk(
+	"actionAddClass",
+	async (data: ClassParams, { rejectWithValue }) => {
+		try {
+			const response = await request({
+				url: "/api/classes",
+				method: "post",
+				data,
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
+	}
+);
 
 export const actionUpdateClass = createAsyncThunk(
 	"actionUdpateClass",
-	async (params: { data: ClassParams; cID: number }) => {
-		const { data, cID } = params;
-		const response = await request({
-			url: `/api/classes/${cID}`,
-			method: "put",
-			data,
-		});
-		return response.data;
+	async (params: { data: ClassParams; cID: number }, { rejectWithValue }) => {
+		try {
+			const { data, cID } = params;
+			const response = await request({
+				url: `/api/classes/${cID}`,
+				method: "put",
+				data,
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
 	}
 );
 
 export const actionAddStudents = createAsyncThunk(
 	"actionAddStudents",
-	async (params: { data: { students: number[] }; cID: number }) => {
-		const { data, cID } = params;
-		const response = await request({
-			url: `/api/classes/add-students/${cID}`,
-			method: "post",
-			data,
-		});
-		return response.data;
+	async (
+		params: { data: { students: number[] }; cID: number },
+		{ rejectWithValue }
+	) => {
+		try {
+			const { data, cID } = params;
+			const response = await request({
+				url: `/api/classes/add-students/${cID}`,
+				method: "post",
+				data,
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
 	}
 );
 
@@ -132,9 +172,12 @@ export const classSlice = createSlice({
 				state.classes = action.payload as GetResponseType<ClassType>;
 				state.getClassesStatus = "success";
 			})
-			.addCase(actionGetClasses.rejected, (state) => {
+			.addCase(actionGetClasses.rejected, (state, action) => {
 				state.getClassesStatus = "error";
-				notification.error({ message: "Lấy danh sách lớp học bị lỗi" });
+				const error = action.payload as AxiosError;
+				notification.error({
+					message: get(error, "response.data", "Có lỗi xảy ra!"),
+				});
 			})
 			//get class infomation
 			.addCase(actionGetClass.pending, (state) => {
@@ -144,9 +187,12 @@ export const classSlice = createSlice({
 				state.classInfo = action.payload as ClassType;
 				state.getClassStatus = "success";
 			})
-			.addCase(actionGetClass.rejected, (state) => {
+			.addCase(actionGetClass.rejected, (state, action) => {
 				state.getClassStatus = "error";
-				notification.error({ message: "Lấy danh sách lớp học bị lỗi" });
+				const error = action.payload as AxiosError;
+				notification.error({
+					message: get(error, "response.data", "Có lỗi xảy ra!"),
+				});
 			})
 
 			// add Class
@@ -157,9 +203,12 @@ export const classSlice = createSlice({
 				state.addClassStatus = "success";
 				notification.success({ message: "Thêm lớp học thành công!" });
 			})
-			.addCase(actionAddClass.rejected, (state) => {
+			.addCase(actionAddClass.rejected, (state, action) => {
 				state.addClassStatus = "error";
-				notification.error({ message: "Có lỗi xảy ra!" });
+				const error = action.payload as AxiosError;
+				notification.error({
+					message: get(error, "response.data", "Có lỗi xảy ra!"),
+				});
 			})
 
 			//update Class infomation
@@ -170,9 +219,12 @@ export const classSlice = createSlice({
 				state.updateClassStatus = "success";
 				notification.success({ message: "Sửa thông tin lớp học thành công!" });
 			})
-			.addCase(actionUpdateClass.rejected, (state) => {
+			.addCase(actionUpdateClass.rejected, (state, action) => {
 				state.updateClassStatus = "error";
-				notification.error({ message: "Có lỗi xảy ra!" });
+				const error = action.payload as AxiosError;
+				notification.error({
+					message: get(error, "response.data", "Có lỗi xảy ra!"),
+				});
 			})
 
 			// add students
@@ -183,11 +235,15 @@ export const classSlice = createSlice({
 				state.addStudentsStatus = "success";
 				notification.success({ message: "Thêm học sinh thành công!" });
 			})
-			.addCase(actionAddStudents.rejected, (state) => {
+			.addCase(actionAddStudents.rejected, (state, action) => {
 				state.addStudentsStatus = "error";
-				notification.error({ message: "Có lỗi xảy ra!" });
+				const error = action.payload as AxiosError;
+				notification.error({
+					message: get(error, "response.data", "Có lỗi xảy ra!"),
+				});
 			});
 	},
 });
-export const { actionSetClassStateNull, actionResetAddStudent } = classSlice.actions;
+export const { actionSetClassStateNull, actionResetAddStudent } =
+	classSlice.actions;
 export default classSlice.reducer;
