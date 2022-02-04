@@ -1,7 +1,7 @@
 import { QuestionCircleOutlined, NotificationOutlined, CreditCardOutlined, TransactionOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
 import { Alert, Button, Descriptions, Input, Layout, Modal, PageHeader, Space, Statistic, Table, Tabs, Tag, Tooltip } from "antd";
 import Column from "antd/lib/table/Column";
-import { StudentType, TuitionFeeType } from "interface";
+import { PeriodTuitionType, StudentType, TuitionFeeType } from "interface";
 import { get } from "lodash";
 import moment from "moment";
 import numeral from "numeral";
@@ -48,6 +48,8 @@ export default function TuitionDetail(): JSX.Element {
 	const [estTuitionFee, setEstTuitionFee] = useState<number>(0);
 	const [feesPerStudent, setFeesPerStudent] = useState<number[]>([]);
 	const [paymentCount, setPaymentCount] = useState<number>(0);
+	const [showNotiForm, setShowNotiForm] = useState(false);
+	const [notiIndex, setNotiIndex] = useState(-1);
 
 	//get period information 
 	useEffect(() => {
@@ -105,7 +107,7 @@ export default function TuitionDetail(): JSX.Element {
 			if (get(students, "data", []).length > get(tuitionPeriodInfo, "tuition_fees", []).length) {
 				get(students, "data", []).forEach((st) => {
 					const index = get(tuitionPeriodInfo, "tuition_fees", []).findIndex((tuition) => tuition.student_id === st.id);
-					if (index === -1 && moment(st.admission_date).isSameOrAfter(moment(get(tuitionPeriodInfo,"from_date","")))) newList.push(st);
+					if (index === -1 && moment(st.admission_date).isSameOrAfter(moment(get(tuitionPeriodInfo, "from_date", "")))) newList.push(st);
 				})
 			}
 			setNewStudentList(newList);
@@ -141,9 +143,17 @@ export default function TuitionDetail(): JSX.Element {
 		})
 	}
 
+	function handleSendNotification(index:number){
+		setShowNotiForm(true);
+		setNotiIndex(index);
+	}
+
 	//render ui
 	const renderContent = (column = 2) => (
-		<Descriptions size="middle" column={column}>
+		<Descriptions
+			size="middle"
+			column={column}
+		>
 			<Descriptions.Item label="Lớp học"><a>{get(tuitionPeriodInfo, "class.name", "")}</a></Descriptions.Item>
 			<Descriptions.Item label="Chu kỳ">
 				<strong>{moment(get(tuitionPeriodInfo, "from_date", "")).format(dateFormat)} - {" "}
@@ -246,14 +256,20 @@ export default function TuitionDetail(): JSX.Element {
 			width: "5%",
 			title: "Action",
 			key: "action",
-			render: function ActionCol(record: TuitionFeeType): JSX.Element {
+			render: function ActionCol(text:string, record: TuitionFeeType, index:number): JSX.Element {
 				return (
 					<>
 						<Space>
 							<Tooltip title="Chỉnh sửa">
 								<EditTuitionFeeModal tuitionFeeInfo={record} periodInfo={tuitionPeriodInfo} stName={studentList.find((st) => st.id === record.student_id)?.name} />
 							</Tooltip>
-							<SendNotiModal tuition={record} />
+							<Tooltip title="Gửi thông báo cho phụ huynh">
+								<Button
+									type="link"
+									onClick={() => handleSendNotification(index)}
+									icon={<NotificationOutlined />}
+								/>
+							</Tooltip>
 							{
 								get(tuitionPeriodInfo, "active", 0) === 0 ?
 									<Tooltip title="Chuyển nợ">
@@ -297,6 +313,7 @@ export default function TuitionDetail(): JSX.Element {
 				className="site-page-header-responsive"
 				title="Chi tiết chu kỳ học phí"
 				style={{ backgroundColor: "white" }}
+				extra={<Button type="primary" icon={<NotificationOutlined />}>Gửi thông báo</Button>}
 				footer={
 					<Tabs defaultActiveKey="1" >
 						<TabPane tab="Học phí mỗi học sinh" key="stdTuition">
@@ -347,6 +364,7 @@ export default function TuitionDetail(): JSX.Element {
 				}
 			>
 				<Content extra={extraContent}>{renderContent()}</Content>
+				{/* <SendNotiModal tuitionIndex={notiIndex} periodTuitionInfo={tuitionPeriodInfo} */}
 			</PageHeader>
 		</Layout.Content>
 	);
@@ -354,33 +372,28 @@ export default function TuitionDetail(): JSX.Element {
 
 
 // SendNotiModal component
-function SendNotiModal(prop: { tuition: TuitionFeeType }): JSX.Element {
-	const { tuition } = prop;
+function SendNotiModal(prop: {
+	tuitionIndex: number,
+	isToAll: boolean,
+	periodTuitionInfo: PeriodTuitionType
+	show: boolean,
+	setShow: (param: boolean) => void
+}): JSX.Element {
+	const { tuitionIndex, periodTuitionInfo, isToAll, show, setShow } = prop;
 
 	const dispatch = useAppDispatch();
-	const [show, setShow] = useState(false);
+
 	const deleteStatus = useSelector((state: RootState) => state.periodTuitionReducer.deletePeriodTuitionStatus);
 
-	useEffect(() => {
-		if (deleteStatus === 'success') {
-			setShow(false);
-		}
-	}, [deleteStatus, dispatch])
 
 	function handleSendNotification() {
+		console.log("Send notification", tuitionIndex)
 		setShow(false);
 	}
 
 	return (
 		<>
-			<Tooltip title="Gửi thông báo cho phụ huynh">
-				<Button
-					type="link"
-					onClick={() => setShow(true)}
-					icon={<NotificationOutlined />}
-				// disabled={tuition.status === 1 ? true : false}
-				/>
-			</Tooltip>
+
 			<Modal title="Gửi thông báo nhắc nhở cho phụ huynh!"
 				visible={show}
 				onCancel={() => setShow(false)}
@@ -393,3 +406,5 @@ function SendNotiModal(prop: { tuition: TuitionFeeType }): JSX.Element {
 		</>
 	)
 }
+
+
