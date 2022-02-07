@@ -10,8 +10,13 @@ import { Redirect } from "react-router-dom";
 import logo from "../../assets/image/mainlogo.png";
 import useIsMounted from "../../hooks/useIsMounted";
 import validateMessage from "../../lib/validateMessage";
-import { actionLogin, actionResetStatusUserVerified, actionVerifyAccount, PayloadLogin } from "../../store/auth/slice";
-import { RootState, useAppDispatch } from "../../store/store";
+import {
+	actionLogin,
+	actionResetStatusUserVerified,
+	actionVerifyAccount,
+	PayloadLogin,
+} from "../../store/auth/slice";
+import { RootState, useAppDispatch, store } from "../../store/store";
 
 const { Content } = Layout;
 
@@ -21,12 +26,11 @@ function LoginForm(): JSX.Element {
 	const dispatch = useAppDispatch();
 	const [loading, setLoading] = useState(false);
 	const userLogin = useSelector((state: RootState) => state.auth.user);
-	const statusUserVerify = useSelector((state: RootState) => state.auth.statusUserVerified);
+	const statusUserVerify = useSelector(
+		(state: RootState) => state.auth.statusUserVerified
+	);
 	const isMounted = useIsMounted();
 
-	useEffect(() => {
-		initializeFirebase();
-	}, []);
 	const onFinish = (values: PayloadLogin) => {
 		setLoading(true);
 		dispatch(actionLogin(values)).then((res) => {
@@ -42,7 +46,11 @@ function LoginForm(): JSX.Element {
 						const phoneField: string = form.getFieldValue("phone");
 						const phone = phoneField.split("");
 						phone[0] = "+84";
-						signInWithPhoneNumber(auth(), phone.join(""), window.recaptchaVerifier)
+						signInWithPhoneNumber(
+							auth(),
+							phone.join(""),
+							window.recaptchaVerifier
+						)
 							.then((confirmationResult) => {
 								window.confirmationResult = confirmationResult;
 							})
@@ -153,19 +161,31 @@ function LoginForm(): JSX.Element {
 						>
 							{statusUserVerify !== "waiting" && (
 								<>
-									<Form.Item label="Phone" name="phone" rules={[{ required: true, message: validateMessage.REQUIRE }]}>
+									<Form.Item
+										label="Phone"
+										name="phone"
+										rules={[
+											{ required: true, message: validateMessage.REQUIRE },
+										]}
+									>
 										<Input />
 									</Form.Item>
 
 									<Form.Item
 										label="Password"
 										name="password"
-										rules={[{ required: true, message: validateMessage.REQUIRE }]}
+										rules={[
+											{ required: true, message: validateMessage.REQUIRE },
+										]}
 									>
 										<Input.Password />
 									</Form.Item>
 
-									<Form.Item name="remember" valuePropName="checked" wrapperCol={{ offset: 0, span: 16 }}>
+									<Form.Item
+										name="remember"
+										valuePropName="checked"
+										wrapperCol={{ offset: 0, span: 16 }}
+									>
 										<Checkbox>Remember me</Checkbox>
 									</Form.Item>
 
@@ -186,7 +206,9 @@ function LoginForm(): JSX.Element {
 									<Form.Item
 										label="Mã xác minh"
 										name="code"
-										rules={[{ required: true, message: validateMessage.REQUIRE }]}
+										rules={[
+											{ required: true, message: validateMessage.REQUIRE },
+										]}
 									>
 										<Input />
 									</Form.Item>
@@ -204,7 +226,11 @@ function LoginForm(): JSX.Element {
 							)}
 						</Form>
 					</div>
-					<img style={{ maxWidth: "50%", margin: "auto 0", paddingRight: 200 }} src={logo} alt="" />
+					<img
+						style={{ maxWidth: "50%", margin: "auto 0", paddingRight: 200 }}
+						src={logo}
+						alt=""
+					/>
 					<div id="sign-in-button"></div>
 				</section>
 			</Content>

@@ -13,8 +13,12 @@ import { persistor, RootState, store } from "./store/store";
 import { get } from "lodash";
 import { actionLogout } from "store/auth/slice";
 import "./i18n";
+import { getFireBaseListApp, initializeFirebase } from "lib/fire-base";
 
 initLib();
+if(getFireBaseListApp()){
+	initializeFirebase()
+}
 
 function Root() {
 	const access_token = useSelector((state: RootState) => state.auth.user?.access_token ?? "");
