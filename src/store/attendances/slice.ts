@@ -76,7 +76,7 @@ export const actionUpdateAttendance = createAsyncThunk(
 	async (data: AddAttendenceParams, { rejectWithValue }) => {
 		try {
 			const response = await request({
-				url: "/api/attendances",
+				url: "/api/attendances/many-updates",
 				method: "put",
 				data,
 			});
