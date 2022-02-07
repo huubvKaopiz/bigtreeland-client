@@ -13,20 +13,22 @@ import {
 	RecaptchaVerifier,
 	signInWithPhoneNumber,
 } from "firebase/auth";
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApps, FirebaseApp } from "firebase/app";
+import { store } from "store/store";
 
 const firebaseConfig = {
-	apiKey: process.env.REACT_APP_APIKEY,
-	authDomain: process.env.REACT_APP_AUTHDOMAIN,
-	projectId: process.env.REACT_APP_PROJECTID,
-	storageBucket: process.env.REACT_APP_STORAGEBUCKET,
-	messagingSenderId: process.env.REACT_APP_MESSAGINGSENDERID,
-	appId: process.env.REACT_APP_APPID,
-	measurementId: process.env.REACT_APP_MEASUREMENTID,
+	apiKey: import.meta.env.VITE_APIKEY,
+	authDomain: import.meta.env.VITE_AUTHDOMAIN,
+	projectId: import.meta.env.VITE_PROJECTID,
+	storageBucket: import.meta.env.VITE_STORAGEBUCKET,
+	messagingSenderId: import.meta.env.VITE_MESSAGINGSENDERID,
+	appId: import.meta.env.VITE_APPID,
+	measurementId: import.meta.env.VITE_MEASUREMENTID,
 };
 
 export const initializeFirebase = (): void => {
-	initializeApp(firebaseConfig);
+	if(getApps().length > 0) return 
+	const firebaseApp = initializeApp(firebaseConfig);
 	window.recaptchaVerifier = new RecaptchaVerifier(
 		"sign-in-button",
 		{
@@ -40,7 +42,14 @@ export const initializeFirebase = (): void => {
 	);
 };
 export const auth = (): Auth => getAuth();
+export const getFireBaseListApp = (): boolean => getApps().length > 0
 
-export const firebaseVerifyPhone = (phoneNumber: string): Promise<ConfirmationResult> => {
-	return signInWithPhoneNumber(getAuth(), phoneNumber, window.recaptchaVerifier);
+export const firebaseVerifyPhone = (
+	phoneNumber: string
+): Promise<ConfirmationResult> => {
+	return signInWithPhoneNumber(
+		getAuth(),
+		phoneNumber,
+		window.recaptchaVerifier
+	);
 };

@@ -19,8 +19,8 @@ import { useSelector } from "react-redux";
 import { get } from "lodash";
 import moment, { Moment } from "moment";
 const { RangePicker } = DatePicker;
-if (process.env.REACT_APP_SOCKET) {
-	window.socket = io(process.env.REACT_APP_SOCKET);
+if (import.meta.env.VITE_SOCKET) {
+	window.socket = io(import.meta.env.VITE_SOCKET);
 }
 
 function Home(): JSX.Element {
@@ -81,7 +81,6 @@ function Home(): JSX.Element {
 				isDayoff = true;
 			}
 		});
-		console.log(isDayoff);
 		if (isDayoff) {
 			return (
 				<>
