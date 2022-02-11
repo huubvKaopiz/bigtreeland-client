@@ -1,0 +1,91 @@
+import { Button, Input, Layout, List, Skeleton, Space, Modal } from 'antd';
+import { SearchOutlined, ExclamationCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { get } from 'lodash';
+import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { actionDeleteNews, actionGetNewsList } from 'store/news/slice';
+import { RootState, useAppDispatch } from 'store/store';
+import { AddNewsModal } from './addNewsModal';
+import { NewsType } from 'interface/interfaces';
+const { confirm } = Modal;
+
+export function News(): JSX.Element {
+
+    const dispatch = useAppDispatch();
+    const [editting, setEditting] = useState(false);
+    const [show, setShow] = useState(false);
+    const [newEditting, setNewEditting] = useState<NewsType | null>(null);
+    const newsList = useSelector((state: RootState) => state.newsReducer.newsList);
+    const getNewsListState = useSelector((state: RootState) => state.newsReducer.getNewsListStatus);
+
+
+    useEffect(() => {
+        dispatch(actionGetNewsList({ per_page: 20 }));
+    }, [dispatch])
+
+    function handleAddNew(){
+        setShow(true);
+        setEditting(false);
+        setNewEditting(null);
+    }
+
+
+    function handleEdit(newInfo: NewsType) {
+        setShow(true);
+        setEditting(true);
+        setNewEditting(newInfo);
+    }
+
+    function handleDelete(newID: number) {
+        confirm({
+            title: "Xác nhận xoá tin bài?",
+            icon: <ExclamationCircleOutlined />,
+            onOk() {
+                dispatch(actionDeleteNews(newID)).finally(() => {
+                    dispatch(actionGetNewsList({ per_page: 20 }))
+                })
+            }
+        })
+    }
+
+    return (
+        <Layout.Content>
+            <AddNewsModal editting={editting} setEditting={setEditting} newInfo={newEditting} show={show} setShow={setShow} />
+            <Space style={{ padding: 20 }}>
+                <Input suffix={<SearchOutlined />} style={{ width: 500 }} placeholder="Tìm theo tiêu đề" />
+                <Button type="primary" onClick={() => handleAddNew()} icon={<PlusOutlined />}>Thêm tin bài</Button>
+            </Space>
+            <List
+                style={{ padding: 20 }}
+                className="demo-loadmore-list"
+                // loading={getNewsListState === "loading" ? true : false}
+                itemLayout="vertical"
+                dataSource={get(newsList, "data", [])}
+                renderItem={item => (
+                    <List.Item
+                        actions={[
+                            <Button type="link" key="list-loadmore-edit" onClick={() => handleEdit(item)}>Sửa</Button>,
+                            <Button type="link" danger key="list-loadmore-more" onClick={() => handleDelete(item.id)}>Xoá</Button>
+                        ]}
+                    >
+                        <Skeleton avatar title={false} loading={getNewsListState === "loading" ? true : false} active>
+                            <List.Item.Meta
+                                // avatar={<ProfileOutlined />}
+                                title={<a href="https://ant.design">{item.title}</a>}
+                                description={item.created_at}
+                            />
+                            <p
+                                style={{
+                                    textOverflow: "ellipsis",
+                                    whiteSpace: "nowrap",
+                                    overflow: "hidden",
+                                }}>{
+                                    item.content}
+                            </p>
+                        </Skeleton>
+                    </List.Item>
+                )}
+            />
+        </Layout.Content>
+    )
+}

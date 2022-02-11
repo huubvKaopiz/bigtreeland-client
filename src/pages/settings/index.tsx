@@ -7,6 +7,8 @@ import { RootState, useAppDispatch } from 'store/store';
 import { actionAddDayoff, actionDeleteDayoff, actionGetDayoffs, actionSetAddDayoffStateIdle, actionSetDeleteDayoffStateIdle } from 'store/settings/dayoff';
 import { get } from 'lodash';
 import { actionGetSystemSettingInfo, actionUpdateSystemSetting } from 'store/settings/system';
+import FileSelectModal from 'components/FileSelectModal';
+import { FileType } from 'interface';
 const { Panel } = Collapse;
 
 const layout = {
@@ -18,14 +20,19 @@ export default function Settings(): JSX.Element {
     const dispatch = useAppDispatch();
     const [daySelected, setDaySelected] = useState(moment(new Date()));
     const [calandarValue, setCalendarValue] = useState(moment("2021-12-01"));
+    const [resultFilesModal, setResultFilesModal] = useState(false);
+    const [fileSelected, setFileSelected] = useState<Array<FileType>>([]);
+    const [resultFiles, setResultFiles] = useState<Array<FileType>>([]);
+    const [showSelect, setShowSelect] = useState(false);
+
     const [systemInfoForm] = Form.useForm();
     // const [setCollapeKey] = useState('1');
 
     const dayoffs = useSelector((state: RootState) => state.dayoffReducer.dayoffs);
     const addDayoffState = useSelector((state: RootState) => state.dayoffReducer.addDayoffState);
     const deleteDayoffState = useSelector((state: RootState) => state.dayoffReducer.deleteDayoffState);
-    const systemInfo = useSelector((state:RootState) => state.systemSettingReducer.systemSettingInfo);
-    const updateSystemInfoState = useSelector((state:RootState) => state.systemSettingReducer.updateSystemSettingState);
+    const systemInfo = useSelector((state: RootState) => state.systemSettingReducer.systemSettingInfo);
+    const updateSystemInfoState = useSelector((state: RootState) => state.systemSettingReducer.updateSystemSettingState);
 
 
     useEffect(() => {
@@ -41,8 +48,8 @@ export default function Settings(): JSX.Element {
         }
     }, [dispatch, addDayoffState, deleteDayoffState])
 
-    useEffect(()=>{
-        if(systemInfo){
+    useEffect(() => {
+        if (systemInfo) {
             systemInfoForm.setFieldsValue(systemInfo)
         }
     })
@@ -93,6 +100,10 @@ export default function Settings(): JSX.Element {
         }
     }
 
+    function handleFileSelected(filesSelected: Array<FileType>) {
+        setFileSelected(filesSelected);
+    }
+
     function handleSubmitDeleteDayoff() {
         let d_id = -1;
         get(dayoffs, "data", []).forEach((element: { id: number, from_date: string, to_date: string }) => {
@@ -117,7 +128,7 @@ export default function Settings(): JSX.Element {
         <Layout.Content>
             <Collapse defaultActiveKey={['1']} >
                 <Panel header="Thông tin trung tâm" key="1">
-                    <Form {...layout} name="nest-messages" onFinish={handleUpdateSystemtInfo}  form={systemInfoForm}>
+                    <Form {...layout} name="nest-messages" onFinish={handleUpdateSystemtInfo} form={systemInfoForm}>
                         <Form.Item name='name' label="Tên trung tâm" >
                             <Input />
                         </Form.Item>
@@ -139,6 +150,24 @@ export default function Settings(): JSX.Element {
                             <Upload>
                                 <Button icon={<UploadOutlined />}>Click to Upload</Button>
                             </Upload>
+                        </Form.Item>
+                        <Form.Item name="slide_files" label="App slide images">
+                            <FileSelectModal
+                                defaultSelected={fileSelected}
+                                isShow={showSelect}
+                                okFunction={handleFileSelected}
+                                closeFunction={() => setShowSelect(false)}
+                                showSelectedList
+                            >
+                                <Button
+                                    onClick={() => setShowSelect(true)}
+                                    type="default"
+                                    size="middle"
+                                    icon={<UploadOutlined />}
+                                >
+                                    Chọn files
+                                </Button>
+                            </FileSelectModal>
                         </Form.Item>
 
                         <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 3 }}>

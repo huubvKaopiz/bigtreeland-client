@@ -9,6 +9,7 @@ export interface ClassReducerState {
 	classes: GetResponseType<ClassType> | null;
 	classInfo: ClassType | null;
 	recentTestAdded: FileType | null;
+	classDetailTabKey:string;
 	getClassStatus: "idle" | "loading" | "success" | "error";
 	getClassesStatus: "idle" | "loading" | "success" | "error";
 	addClassStatus: "idle" | "loading" | "success" | "error";
@@ -42,6 +43,7 @@ export interface AddTestParms {
 const initialState: ClassReducerState = {
 	classes: null,
 	classInfo: null,
+	classDetailTabKey:"1",
 	recentTestAdded: null,
 	getClassStatus: "idle",
 	getClassesStatus: "idle",
@@ -161,6 +163,9 @@ export const classSlice = createSlice({
 		actionResetAddStudent(state) {
 			state.addStudentsStatus = "idle";
 		},
+		actionSetClassDetailTabKey(state,action){
+			state.classDetailTabKey = action.payload;
+		}
 	},
 	extraReducers: (builder) => {
 		//get parents
@@ -244,6 +249,6 @@ export const classSlice = createSlice({
 			});
 	},
 });
-export const { actionSetClassStateNull, actionResetAddStudent } =
+export const { actionSetClassStateNull, actionResetAddStudent, actionSetClassDetailTabKey} =
 	classSlice.actions;
 export default classSlice.reducer;

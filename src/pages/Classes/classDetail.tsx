@@ -9,10 +9,13 @@ import {
 	UploadOutlined,
 	UnorderedListOutlined,
 	EditOutlined,
+	PlusOutlined,
+	CaretRightOutlined
 } from "@ant-design/icons";
 import {
 	Button,
 	Col,
+	Collapse,
 	DatePicker,
 	Descriptions,
 	Form,
@@ -29,15 +32,17 @@ import {
 	Spin,
 	Table,
 	Tabs,
+	Tooltip,
+	Comment
 } from "antd";
 import Checkbox, { CheckboxChangeEvent } from "antd/lib/checkbox/Checkbox";
 import TextArea from "antd/lib/input/TextArea";
 import Dragger from "antd/lib/upload/Dragger";
 import { UploadFile } from "antd/lib/upload/interface";
-import { FileType, TestType } from "interface";
+import { FileType, StudentType, TestType } from "interface";
 import { get } from "lodash";
 import moment from "moment";
-import { useEffect, useMemo, useReducer, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import {
@@ -48,17 +53,19 @@ import {
 	AttendanceStudentComment,
 } from "store/attendances/slice";
 import { actionGetLessons } from "store/lesson/slice";
-import { actionGetClass, actionUpdateClass } from "store/classes/slice";
+import { actionGetClass, actionSetClassDetailTabKey, actionUpdateClass } from "store/classes/slice";
 import { actionUploadFile } from "store/files/slice";
 import { RootState, useAppDispatch } from "store/store";
 import { actionGetTestes } from "store/testes/slice";
-import { dayOptions, imageExtensionsList } from "utils/const";
+import { dayOptions, imageExtensionsList, NOTIFI_URIS } from "utils/const";
 import { dummyRequest } from "utils/ultil";
 import AddStudentsModal from "./addStudentsModal";
 import AddTest from "./addTestModal";
+import { actionAddNotification } from "store/notifications/slice";
 
 const dateFormat = "DD-MM-YYYY";
 const { RangePicker } = DatePicker;
+const { Panel } = Collapse;
 
 export default function ClassDetail(): JSX.Element {
 	const params = useParams() as { class_id: string };
@@ -68,12 +75,17 @@ export default function ClassDetail(): JSX.Element {
 	const [today, setToday] = useState(moment(new Date()).format(dateFormat));
 	const [attendantList, setAttendantList] = useState<number[]>([]);
 	const [checkAll, setCheckAll] = useState(false);
-	const [listComments, setListComments] = useState<AttendanceStudentComment[]>(
-		[]
-	);
+	const [listComments, setListComments] = useState<AttendanceStudentComment[]>([]);
 	const [lessonTime, setlessonTime] = useState<string[]>(["", ""]);
-	const [classActiveTab, setClassActiveTab] = useState<string>("1");
-	// const classInfo = location.state.classInfo as ClassType;
+	const [resetAttendance, setResetAttendance] = useState(1);
+	const [createAttendance, setCreateAttedance] = useState(false);
+	const [showNotiForm, setShowNotiForm] = useState(false);
+	const [notiIndex, setNotiIndex] = useState(-1);
+
+	// application states
+	const activeTab = useSelector(
+		(state: RootState) => state.classReducer.classDetailTabKey
+	);
 	const attendances = useSelector(
 		(state: RootState) => state.attendanceReducer.attendances
 	);
@@ -91,7 +103,7 @@ export default function ClassDetail(): JSX.Element {
 		(state: RootState) => state.attendanceReducer.addAttendanceStatus
 	);
 
-	const [resetAttendance, setResetAttendance] = useState(1);
+
 
 	const modalConfirmConfig: ModalFuncProps = {
 		title: "",
@@ -100,7 +112,6 @@ export default function ClassDetail(): JSX.Element {
 		okText: "Ok",
 		cancelText: "Ở lại",
 		onOk: () => {
-			setClassActiveTab("3");
 			setResetAttendance(resetAttendance + 1);
 			setCheckAll(false);
 			setAttendantList([]);
@@ -222,8 +233,10 @@ export default function ClassDetail(): JSX.Element {
 			});
 	}
 
-	function handleNotityToParent() {
+	function handleNotityToParent(index: number) {
 		//Todo
+		setNotiIndex(index);
+		setShowNotiForm(true);
 	}
 
 	function handleSubmit() {
@@ -249,23 +262,31 @@ export default function ClassDetail(): JSX.Element {
 				students: studentAttendanceList,
 				date: moment(today, "DD-MM-YYYY").format("YYYY-MM-DD"),
 			};
-			dispatch(actionAddAttendance(params));
+			dispatch(actionAddAttendance(params)).finally(() => {
+				dispatch(actionSetClassDetailTabKey("3"));
+			}
+			);
 		} else {
 			notification.warn({ message: "Danh sách điểm danh trống" });
 		}
 	}
 
 	function handleChangeLessonRange(_: any, dateString: string[]) {
-		setlessonTime(dateString);
-	}
-
-	function handleSearchLessonInRange() {
-		const from_date = lessonTime[0] || void 0;
-		const to_date = lessonTime[1] || void 0;
+		// setlessonTime(dateString);
+		const from_date = dateString[0] || void 0;
+		const to_date = dateString[1] || void 0;
 		dispatch(
 			actionGetAttendances({ class_id: +params.class_id, from_date, to_date })
 		);
 	}
+
+	// function handleSearchLessonInRange() {
+	// 	const from_date = lessonTime[0] || void 0;
+	// 	const to_date = lessonTime[1] || void 0;
+	// 	dispatch(
+	// 		actionGetAttendances({ class_id: +params.class_id, from_date, to_date })
+	// 	);
+	// }
 
 	const attendance_columns: any[] = [
 		{
@@ -365,15 +386,17 @@ export default function ClassDetail(): JSX.Element {
 			key: "action",
 			dataIndex: "",
 			width: 80,
-			render: function col(st: { id: number }): JSX.Element {
+			render: function col(text: string, record: { id: number }, index: number): JSX.Element {
 				return (
 					<Space>
-						{" "}
-						<Button
-							icon={<NotificationOutlined />}
-							type="link"
-							onClick={() => handleNotityToParent()}
-						/>
+
+						<Tooltip title="Gửi thông báo">
+							<Button
+								icon={<NotificationOutlined />}
+								type="link"
+								onClick={() => handleNotityToParent(index)}
+							/>
+						</Tooltip>
 					</Space>
 				);
 			},
@@ -424,52 +447,84 @@ export default function ClassDetail(): JSX.Element {
 					<Button key="2">In danh sách</Button>,
 				]}
 				footer={
-					<Tabs activeKey={classActiveTab} onChange={setClassActiveTab}>
+					<Tabs activeKey={activeTab} onChange={(activeKey) => dispatch(actionSetClassDetailTabKey(activeKey))}>
 						<TabPane tab="Điểm danh" key="1">
-							<div key={resetAttendance}>
-								<Space style={{ paddingTop: 20, marginBottom: 20 }}>
-									Ngày:
-									<DatePicker
-										disabledDate={(current) =>
-											current && current > moment().endOf("day")
-										}
-										defaultValue={moment(new Date(), dateFormat)}
-										format={dateFormat}
-										onChange={(e) => setToday(moment(e).format("DD/MM/YYYY"))}
-									/>
-									<Button type="primary" onClick={handleSubmit}>
-										Lưu lại
-									</Button>
-								</Space>
-
-								<Row>
-									<Col span={24}>
-										<Spin
-											spinning={
-												getAttendancesStatus === "loading" ||
-												statusAddAttendanceStatus === "loading"
-											}
-										>
-											<Table
-												dataSource={studentList}
-												columns={attendance_columns}
-												bordered
-												rowKey="id"
-												size="small"
-												pagination={false}
+							{
+								createAttendance === true
+									?
+									<div key={resetAttendance}>
+										<Space style={{ paddingTop: 20, marginBottom: 20 }}>
+											Ngày học:
+											<DatePicker
+												disabledDate={(current) =>
+													current && current > moment().endOf("day")
+												}
+												defaultValue={moment(new Date(), dateFormat)}
+												format={dateFormat}
+												onChange={(e) => setToday(moment(e).format("DD/MM/YYYY"))}
 											/>
-										</Spin>
-									</Col>
-								</Row>
-							</div>
+											<Button type="primary" onClick={handleSubmit}>
+												Lưu lại
+											</Button>
+											<Button type="primary" danger onClick={() => setCreateAttedance(false)}>Huỷ bỏ</Button>
+										</Space>
+
+										<Row>
+											<Col span={24}>
+												<Spin
+													spinning={
+														getAttendancesStatus === "loading" ||
+														statusAddAttendanceStatus === "loading"
+													}
+												>
+													<Table
+														dataSource={studentList}
+														columns={attendance_columns}
+														bordered
+														rowKey="id"
+														size="small"
+														pagination={false}
+													/>
+												</Spin>
+											</Col>
+										</Row>
+									</div>
+									:
+									<>
+										<Space>
+											<RangePicker
+												style={{ marginTop: 20, marginBottom: 20 }}
+												onChange={handleChangeLessonRange}
+											/>
+											{/* <Button
+												icon={<FilterOutlined />}
+												type="primary"
+												ghost
+												onClick={handleSearchLessonInRange}
+											/> */}
+											<Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateAttedance(true)}>Tạo mới</Button>
+
+										</Space>
+										<Table
+											loading={getAttendancesStatus === "loading"}
+											dataSource={get(attendances, "students", [])}
+											columns={lessonCols}
+											bordered
+											rowKey="id"
+											size="small"
+											pagination={false}
+										/>
+									</>
+							}
+
 						</TabPane>
 						<TabPane tab="Bài tập" key="2">
 							<Space
 								style={{
 									paddingTop: 20,
 									marginBottom: 20,
-									display: "flex",
-									justifyContent: "flex-end",
+									// display: "flex",
+									// justifyContent: "flex-end",
 								}}
 							>
 								<AddTest classInfo={classInfo} />
@@ -548,39 +603,15 @@ export default function ClassDetail(): JSX.Element {
 									style={{ marginTop: 20, marginBottom: 20 }}
 									onChange={handleChangeLessonRange}
 								/>
-								<Button
+								{/* <Button
 									icon={<SearchOutlined />}
 									type="primary"
-									onClick={handleSearchLessonInRange}
+									// onClick={handleSearchLessonInRange}
 								>
 									Tìm tiếm
-								</Button>
+								</Button> */}
 							</Space>
 							<LessonList />
-						</TabPane>
-						<TabPane tab="DS điểm danh theo buổi học" key="5">
-							<Space>
-								<RangePicker
-									style={{ marginTop: 20, marginBottom: 20 }}
-									onChange={handleChangeLessonRange}
-								/>
-								<Button
-									icon={<SearchOutlined />}
-									type="primary"
-									onClick={handleSearchLessonInRange}
-								>
-									Tìm tiếm
-								</Button>
-							</Space>
-							<Table
-								loading={getAttendancesStatus === "loading"}
-								dataSource={get(attendances, "students", [])}
-								columns={lessonCols}
-								bordered
-								rowKey="id"
-								size="small"
-								pagination={false}
-							/>
 						</TabPane>
 						<TabPane tab="Album ảnh" key="4">
 							<Space style={{ paddingTop: 20, marginBottom: 20 }}>
@@ -650,6 +681,7 @@ export default function ClassDetail(): JSX.Element {
 					</Descriptions.Item>
 				</Descriptions>
 			</PageHeader>
+			<SendNotiModal studentInfo={studentList[notiIndex]} show={showNotiForm} setShow={setShowNotiForm} />
 		</Layout.Content>
 	);
 }
@@ -732,7 +764,7 @@ function ClassPhotoAlbum(props: { class_id: number }): JSX.Element {
 								onChange={({ fileList }) => {
 									setFileList(fileList);
 								}}
-								// className="upload-list-inline"
+							// className="upload-list-inline"
 							>
 								<p className="ant-upload-drag-icon">
 									<InboxOutlined />
@@ -766,6 +798,11 @@ interface AttendaceListType {
 	date: string;
 	numberAttendant: string;
 	key: number;
+	feedBack: {
+		id: number;
+		parent_id: number;
+		feedback: string;
+	}[];
 }
 function LessonList(): JSX.Element {
 	const [attendanceList, setAttendanceList] = useState<AttendaceListType[]>([]);
@@ -774,6 +811,7 @@ function LessonList(): JSX.Element {
 	const attendances = useSelector(
 		(state: RootState) => state.attendanceReducer.attendances
 	);
+	const lessons = useSelector((state: RootState) => state.lessonReducer.lessons);
 
 	useEffect(() => {
 		if (attendances?.attendances) {
@@ -782,65 +820,126 @@ function LessonList(): JSX.Element {
 					key: index,
 					date: key,
 					numberAttendant: `${attendances.attendances[key].length}/${attendances.students_num}`,
+					feedBack: get(get(lessons, "data", []).find(ls => moment(ls.date).isSame(key)), "lesson_feedback", [])
 				}))
 			);
 		}
 	}, [attendances]);
 
+	const cols: any[] = [
+		{ title: 'Ngày học', dataIndex: 'date', key: 'name' },
+		{ title: 'HS tham gia', dataIndex: 'numberAttendant', key: 'name' },
+		Table.EXPAND_COLUMN,
+		{
+			title: 'Phản hồi',
+			dataIndex: '',
+			key: 'feedBack',
+			render: function col(text: string, record: AttendaceListType): JSX.Element {
+				return (
+					<>
+						<strong>{get(record, "feedBack", []).length}</strong> phản hồi
+					</>
+				)
+			}
+		},
+		{
+			title: 'Actions',
+			dataIndex: '',
+			key: 'action',
+			render: function col(text: string, record: AttendaceListType): JSX.Element {
+				return (
+					<Space>
+						<Tooltip title="Chi tiết">
+							<Button type="link" icon={<UnorderedListOutlined onClick={() => history.push(`/classes-detail/${params.class_id}/attendace/${record.date}`)}/>} />
+						</Tooltip>
+					</Space>
+				)
+			}
+		},
+	]
+
 	return (
 		<div>
-			<List
-				size="large"
+			<Table
+				columns={cols}
+				expandable={{
+					expandedRowRender: record =>
+						<List
+							className="comment-list"
+							// header={`${data.length} replies`}
+							itemLayout="horizontal"
+							dataSource={record.feedBack}
+							renderItem={item => (
+								<li>
+									<Comment
+										author={'Parent name'}
+										avatar={'https://joeschmoe.io/api/v1/random'}
+										content={item.feedback}
+										datetime={new Date()}
+									/>
+								</li>
+							)}
+						/>,
+				}}
 				dataSource={attendanceList}
-				renderItem={(item: AttendaceListType) => (
-					<List.Item
-						key={item.key}
-						actions={[
-							<Space
-								key="act1"
-								onClick={(e) => {
-									e.stopPropagation();
-								}}
-							>
-								<Button
-									type="link"
-									icon={<UnorderedListOutlined />}
-									onClick={() => {
-										history.push({
-											pathname: `/classes-detail/${params.class_id}/attendace/${item.date}`,
-										});
-									}}
-								/>
-							</Space>,
-							<Space
-								key="act2"
-								onClick={(e) => {
-									e.stopPropagation();
-								}}
-							>
-								<Button
-									type="link"
-									icon={<EditOutlined />}
-									onClick={() => {
-										history.push({
-											pathname: `/classes-detail/${params.class_id}/edit-attendace/${item.date}`,
-										});
-									}}
-								/>
-							</Space>,
-						]}
-					>
-						<List.Item.Meta
-							title={<strong>{item.date}</strong>}
-							description={
-								<a>
-									<TeamOutlined /> {item.numberAttendant}
-								</a>
-							}
-						/>
-					</List.Item>
-				)}
-			/>
+			/>,
+
 		</div>
 	);
+}
+
+// SendNotiModal component
+function SendNotiModal(prop: {
+	studentInfo: { id: number; name: string; birthday: string, parent: { id: number, name: string } },
+	show: boolean,
+	setShow: (param: boolean) => void
+}): JSX.Element {
+	const { studentInfo, show, setShow } = prop;
+	const dispatch = useAppDispatch();
+	const [message, setMessage] = useState("");
+
+	const sending = useSelector((state: RootState) => state.notificationReducer.addNotificationStatus);
+
+	function handleSendNotification() {
+		setShow(false);
+		const user_ids: number[] = [];
+		console.log(studentInfo)
+		const userID = get(studentInfo, "parent.id", 0);
+		if (userID > 0) user_ids.push(userID)
+		const payload = {
+			user_ids,
+			message,
+			uri: NOTIFI_URIS.ATTENDANCE_REMIND
+		}
+		dispatch(actionAddNotification(payload)).finally(() => {
+			setShow(false);
+		})
+	}
+
+	return (
+		<>
+			<Modal title="Gửi thông báo cho phụ huynh!"
+				visible={show}
+				onCancel={() => setShow(false)}
+				onOk={handleSendNotification}
+				footer={[
+					<Button key="btncancel" onClick={() => setShow(false)}>Huỷ bỏ</Button>,
+					<Button
+						key="btnsubmit"
+						type="primary"
+						onClick={() => handleSendNotification()}
+						loading={sending === 'loading' ? true : false}>Gửi đi
+					</Button>
+
+				]}
+			>
+				<Input.TextArea
+					placeholder="Write something here!"
+					style={{ marginBottom: 20 }}
+					value={message}
+					onChange={(e) => setMessage(e.target.value)} />
+			</Modal>
+
+		</>
+	)
 }

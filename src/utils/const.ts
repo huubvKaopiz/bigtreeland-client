@@ -42,3 +42,8 @@ export enum DEFAULT_ROLE_IDS{
 	EMPLOYEE = 7
 }
 
+export enum NOTIFI_URIS {
+	TUITION_FEE = 'student/tuition-fee',
+	ATTENDANCE_REMIND = 'study/attendance/remind',
+	CHANGE_PASSWORD = 'ChangePassword'
+}

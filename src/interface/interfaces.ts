@@ -37,3 +37,21 @@ export interface Employee {
 	dislikes: string;
 }
 
+export interface NewsType {
+	id:number;
+	employee_id:number;
+	title:string;
+	content:string;
+	created_at:"2022-02-09 15:57:42",
+	creator:{
+		id:number;
+		phone:string;
+		name:string;
+	}
+}
+
+export interface NotificationType{
+	user_ids:number[],
+	uri:string,
+	message:string
+}

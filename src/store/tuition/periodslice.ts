@@ -13,6 +13,8 @@ export interface PeriodTuitionReducerState {
 	addPeriodTuitionStatus: "idle" | "loading" | "success" | "error";
 	updatePeriodTuitionStatus: "idle" | "loading" | "success" | "error";
 	deletePeriodTuitionStatus: "idle" | "loading" | "success" | "error";
+	sendNotificationsStatus: "idle" | "loading" | "success" | "error";
+
 }
 
 export interface GetPeriodTuionsPrams {
@@ -61,6 +63,7 @@ const initialState: PeriodTuitionReducerState = {
 	addPeriodTuitionStatus: "idle",
 	updatePeriodTuitionStatus: "idle",
 	deletePeriodTuitionStatus: "idle",
+	sendNotificationsStatus:"idle",
 };
 
 export const actionGetPeriodTuion = createAsyncThunk(

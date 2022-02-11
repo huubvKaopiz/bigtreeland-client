@@ -16,8 +16,9 @@ import {
 	Form,
 	DatePicker,
 	Select,
+	Divider,
 } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
+import { UploadOutlined, FormOutlined } from "@ant-design/icons";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
@@ -123,37 +124,6 @@ export function ListTestResults(): JSX.Element {
 		}
 	}, [storeTestResultInfo, storeAttendancesInfo]);
 
-	//Todo remove listRs, instead by listResults
-	// const listRs = [
-	// 	{
-	// 		id: 1,
-	// 		name: "Nguyen Van A",
-	// 		result_file: "",
-	// 		date: "2021-11-21 09:20",
-	// 		point: "9",
-	// 		teacher_comment: "abc",
-	// 		correct_files: [1,2]
-	// 	},
-	// 	{
-	// 		id: 2,
-	// 		name: "Nguyen Van B",
-	// 		result_file: "",
-	// 		date: "2021-11-21 10:12",
-	// 		point: "7",
-	// 		teacher_comment: "abcd",
-	// 		correct_files: [1]
-	// 	},
-	// 	{
-	// 		id: 3,
-	// 		name: "Nguyen Van C",
-	// 		result_file: "",
-	// 		date: "2021-11-21 11:11",
-	// 		point: "8",
-	// 		teacher_comment: "abcfeasdf",
-	// 		correct_files: [2]
-	// 	},
-	// ];
-
 	return (
 		<Layout.Content>
 			<Spin
@@ -183,7 +153,7 @@ export function ListTestResults(): JSX.Element {
 						/>,
 					]}
 				>
-					<Descriptions size="small" column={2}>
+					<Descriptions size="small" column={2} bordered>
 						<Descriptions.Item label="Giáo viên">
 							<a>{storeClassInfo?.user?.profile?.name ?? "Tên giáo viên"}</a>
 						</Descriptions.Item>
@@ -210,11 +180,11 @@ export function ListTestResults(): JSX.Element {
 					</Descriptions>
 				</PageHeader>
 				<div style={{ padding: "0 24px" }}>
-					<Title style={{ marginTop: 20 }} level={4}>
+					<Title style={{ marginTop: 20 }} level={5}>
 						Đề bài
 					</Title>
 					<Space
-						style={{ backgroundColor: "white", padding: 10 }}
+						style={{ backgroundColor: "white", marginBottom:10 }}
 						size={[10, 10]}
 						wrap
 					>
@@ -227,6 +197,7 @@ export function ListTestResults(): JSX.Element {
 							{storeTestInfo?.content_link}
 						</a>
 					</Space>
+					
 					<div style={{ padding: 10 }}>
 						<Space style={{ backgroundColor: "white" }} size={[10, 10]} wrap>
 							{storeTestInfo?.content_files.map((file, index) => (
@@ -244,10 +215,10 @@ export function ListTestResults(): JSX.Element {
 												isImageType(file.type || "")
 													? file.url
 													: fileIconList[
-															Object.keys(fileIconList).find(
-																(k) => k === file.type
-															) as keyof typeof fileIconList
-													  ]
+													Object.keys(fileIconList).find(
+														(k) => k === file.type
+													) as keyof typeof fileIconList
+													]
 											}
 										/>
 									}
@@ -264,11 +235,11 @@ export function ListTestResults(): JSX.Element {
 							))}
 						</Space>
 					</div>
-					<Title style={{ marginTop: 20 }} level={4}>
+					<Title style={{ marginTop: 20 }} level={5}>
 						Đáp án
 					</Title>
 					<Space
-						style={{ backgroundColor: "white", padding: 10 }}
+						style={{ backgroundColor: "white", marginBottom:10 }}
 						size={[10, 10]}
 						wrap
 					>
@@ -302,10 +273,10 @@ export function ListTestResults(): JSX.Element {
 												isImageType(file.type || "")
 													? file.url
 													: fileIconList[
-															Object.keys(fileIconList).find(
-																(k) => k === file.type
-															) as keyof typeof fileIconList
-													  ]
+													Object.keys(fileIconList).find(
+														(k) => k === file.type
+													) as keyof typeof fileIconList
+													]
 											}
 										/>
 									}
@@ -321,13 +292,10 @@ export function ListTestResults(): JSX.Element {
 							))}
 						</Space>
 					</div>
-					<Space
-						style={{ backgroundColor: "white", padding: 10 }}
-						size={[10, 10]}
-						wrap
-					>
-						Danh sách học sinh nộp bài:
-					</Space>
+					<Divider />
+					<Title style={{ marginTop: 20 }} level={5}>
+						Danh sách học sinh nộp bài
+					</Title>
 					<List
 						rowKey="id"
 						className="demo-loadmore-list"
@@ -515,7 +483,7 @@ function UploadTestResultModal(props: {
 	content_files: FileType[];
 	result_link: string;
 	result_files: FileType[];
-	lesson_id: number| undefined
+	lesson_id: number | undefined
 }): JSX.Element {
 	const {
 		id,
@@ -589,8 +557,8 @@ function UploadTestResultModal(props: {
 
 	return (
 		<>
-			<Button type="primary" onClick={() => setShow(true)}>
-				Cập nhật bài kiểm tra và đáp án
+			<Button type="primary" icon={<FormOutlined />} onClick={() => setShow(true)}>
+				Cập nhật
 			</Button>
 			<Modal
 				title="Cập nhật bài kiểm tra và đáp án"

@@ -227,7 +227,7 @@ export interface ListParentType {
 export interface ListAttendancesType {
 	class_id: number;
 	class_name: string;
-	students: { id: number; name: string; birthday: string }[];
+	students: { id: number; name: string; birthday: string, parent:{id:number, name:string} }[];
 	attendances: {
 		[key: string]: {
 			comment: string;
@@ -392,6 +392,11 @@ export interface LessonType {
 			name: string;
 		};
 	};
+	lesson_feedback:{
+		id:number;
+		parent_id:number;
+		feedback:string;
+	}[];
 }
 
 export interface SalaryType {

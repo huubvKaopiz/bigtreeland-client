@@ -1,4 +1,4 @@
-import DeleteOutlined from "@ant-design/icons/lib/icons/DeleteOutlined";
+import {CloseOutlined} from "@ant-design/icons";
 import { Button, Card, Checkbox, List, Modal, Pagination, Spin, Tabs } from "antd";
 import Meta from "antd/lib/card/Meta";
 import { FileType } from "interface";
@@ -56,7 +56,7 @@ export function FileSelectedListRender(props: FileSelectRenderProps): JSX.Elemen
 			renderItem={(item) => (
 				<a style={{ display: "block" }}>
 					{item.name}
-					<Button type={"text"} icon={<DeleteOutlined />} onClick={() => handleRemoveFileSelected(item.id)} />
+					<Button type={"link"} icon={<CloseOutlined style={{color:"red"}}/>} onClick={() => handleRemoveFileSelected(item.id)} />
 				</a>
 			)}
 		/>

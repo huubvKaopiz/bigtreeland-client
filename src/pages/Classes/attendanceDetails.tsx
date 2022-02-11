@@ -16,7 +16,7 @@ import TextArea from "antd/lib/input/TextArea";
 import { get } from "lodash";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { useHistory, useLocation, useParams } from "react-router-dom";
 import {
 	actionGetAttendances,
@@ -24,7 +24,8 @@ import {
 	AttendanceStudentComment,
 } from "store/attendances/slice";
 import { actionGetClass } from "store/classes/slice";
-import { RootState } from "store/store";
+import { RootState, useAppDispatch } from "store/store";
+import { updateStudentStatus } from "store/students/slice";
 import { dayOptions } from "utils/const";
 
 interface AttendanceDetailType {
@@ -45,7 +46,7 @@ function AttendanceDetails(): JSX.Element {
 	const { pathname } = useLocation();
 	const [editMode, setEditMode] = useState(false);
 	const history = useHistory();
-	const dispatch = useDispatch();
+	const dispatch = useAppDispatch();
 	//state
 	const [checkAll, setCheckAll] = useState(false);
 	const [studentList, setStudentList] = useState<AttendanceDetailType[]>([]);
@@ -158,6 +159,11 @@ function AttendanceDetails(): JSX.Element {
 		studentList[index].comment = comment;
 	}
 
+	function handleCancelEdit(){
+		dispatch(actionGetAttendances({ class_id: parseInt(class_id) }));
+		setEditMode(false);
+	}
+
 	function handleSubmit() {
 		if (!storeClassInfo) {
 			notification.warn({
@@ -185,7 +191,11 @@ function AttendanceDetails(): JSX.Element {
 				students,
 				date: attendanceDate,
 			};
-			dispatch(actionUpdateAttendance(params));
+			dispatch(actionUpdateAttendance(params)).finally(()=>{
+				if(storeUpdateAttendanceStatus === "success"){
+					setEditMode(false)
+				}
+			})
 		} else {
 			notification.warn({ message: "Danh sách điểm danh trống" });
 		}
@@ -350,6 +360,9 @@ function AttendanceDetails(): JSX.Element {
 									Lưu lại
 								</Button>
 							)}
+							{
+								editMode ?  <Button type="primary" danger onClick={()=>handleCancelEdit()}>Huỷ bỏ cập nhật</Button> : <Button type="primary" onClick={()=>setEditMode(true)}>Cập nhật</Button>
+							}
 						</Space>
 						<div>
 							<Spin

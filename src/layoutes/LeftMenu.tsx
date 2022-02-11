@@ -1,12 +1,13 @@
 import {
 	ReadOutlined,
-	HomeOutlined,
+	LineChartOutlined,
 	IdcardOutlined,
 	DollarOutlined,
 	TeamOutlined,
 	ApartmentOutlined,
 	FileOutlined,
 	SettingOutlined,
+	SnippetsOutlined
 } from "@ant-design/icons";
 import { Menu } from "antd";
 import { RoleType } from "interface";
@@ -32,6 +33,11 @@ function LeftMenu(): JSX.Element {
 		if (pathname.includes("/tests")) {
 			setOpenKeys(["classes"]);
 			setSelectedKeys(["5"]);
+			return;
+		}
+		
+		if (pathname.includes("/news")) {
+			setSelectedKeys(["15"]);
 			return;
 		}
 
@@ -164,7 +170,7 @@ function LeftMenu(): JSX.Element {
 			{menuItemGranted.includes(1) && (
 				<Menu.Item
 					key="1"
-					icon={<HomeOutlined />}
+					icon={<LineChartOutlined />}
 					onClick={() => history.push("/")}
 				>
 					Trang chủ
@@ -202,68 +208,77 @@ function LeftMenu(): JSX.Element {
 				menuItemGranted.includes(6) ||
 				menuItemGranted.includes(7) ||
 				menuItemGranted.includes(11)) && (
-				<SubMenu
-					onTitleClick={() => setOpenKeys(["classes"])}
-					key="classes"
-					icon={<ReadOutlined />}
-					title="QL học tập"
-				>
-					{menuItemGranted.includes(5) && (
-						<Menu.Item key="5" onClick={() => history.push("/classes")}>
-							Lớp học
-						</Menu.Item>
-					)}
-					{menuItemGranted.includes(6) && (
-						<Menu.Item key="6" onClick={() => history.push("/students")}>
-							Học sinh
-						</Menu.Item>
-					)}
-					{menuItemGranted.includes(7) && (
-						<Menu.Item key="7" onClick={() => history.push("/parents")}>
-							Phụ huynh
-						</Menu.Item>
-					)}
-					{menuItemGranted.includes(11) && (
-						<Menu.Item key="11" onClick={() => history.push("/study-summary")}>
-							Bảng tổng kết
-						</Menu.Item>
-					)}
-				</SubMenu>
-			)}
+					<SubMenu
+						onTitleClick={() => setOpenKeys(["classes"])}
+						key="classes"
+						icon={<ReadOutlined />}
+						title="QL học tập"
+					>
+						{menuItemGranted.includes(5) && (
+							<Menu.Item key="5" onClick={() => history.push("/classes")}>
+								Lớp học
+							</Menu.Item>
+						)}
+						{menuItemGranted.includes(6) && (
+							<Menu.Item key="6" onClick={() => history.push("/students")}>
+								Học sinh
+							</Menu.Item>
+						)}
+						{menuItemGranted.includes(7) && (
+							<Menu.Item key="7" onClick={() => history.push("/parents")}>
+								Phụ huynh
+							</Menu.Item>
+						)}
+						{menuItemGranted.includes(11) && (
+							<Menu.Item key="11" onClick={() => history.push("/study-summary")}>
+								Bảng tổng kết
+							</Menu.Item>
+						)}
+					</SubMenu>
+				)}
 			{(menuItemGranted.includes(8) ||
 				menuItemGranted.includes(9) ||
 				menuItemGranted.includes(10)) && (
-				<SubMenu
-					onTitleClick={() => setOpenKeys(["payments"])}
-					key="payments"
-					icon={<DollarOutlined />}
-					title="Thu Chi"
+					<SubMenu
+						onTitleClick={() => setOpenKeys(["payments"])}
+						key="payments"
+						icon={<DollarOutlined />}
+						title="Thu Chi"
+					>
+						{menuItemGranted.includes(8) && (
+							<Menu.Item
+								key="8"
+								onClick={() => history.push("/payments/payment-slips")}
+							>
+								QL Chi tiêu
+							</Menu.Item>
+						)}
+						{menuItemGranted.includes(9) && (
+							<Menu.Item
+								key="9"
+								onClick={() => history.push("/payments/revenue")}
+							>
+								QL doanh thu
+							</Menu.Item>
+						)}
+						{menuItemGranted.includes(10) && (
+							<Menu.Item
+								key="10"
+								onClick={() => history.push("/payments/tuition")}
+							>
+								QL học phí
+							</Menu.Item>
+						)}
+					</SubMenu>
+				)}
+			{menuItemGranted.includes(15) && (
+				<Menu.Item
+					key="15"
+					icon={<SnippetsOutlined />}
+					onClick={() => history.push("/news")}
 				>
-					{menuItemGranted.includes(8) && (
-						<Menu.Item
-							key="8"
-							onClick={() => history.push("/payments/payment-slips")}
-						>
-							QL Chi tiêu
-						</Menu.Item>
-					)}
-					{menuItemGranted.includes(9) && (
-						<Menu.Item
-							key="9"
-							onClick={() => history.push("/payments/revenue")}
-						>
-							QL doanh thu
-						</Menu.Item>
-					)}
-					{menuItemGranted.includes(10) && (
-						<Menu.Item
-							key="10"
-							onClick={() => history.push("/payments/tuition")}
-						>
-							QL học phí
-						</Menu.Item>
-					)}
-				</SubMenu>
+					Tin bài
+				</Menu.Item>
 			)}
 			{menuItemGranted.includes(12) && (
 				<Menu.Item
@@ -292,6 +307,7 @@ function LeftMenu(): JSX.Element {
 					Hệ thống
 				</Menu.Item>
 			)}
+
 		</Menu>
 	);
 }

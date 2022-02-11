@@ -14,7 +14,7 @@ import Revenue from "pages/Revenues/Revenues";
 import { ListTestResults } from "pages/Classes/listTestResult";
 import Tuition from "pages/Tuition";
 import TuitionDetail from "pages/Tuition/tuitionDetail";
-import Settings from "pages/settings";
+import Settings from "pages/Settings";
 import Salaries from "pages/Salaries";
 import AddSalary from "pages/Salaries/addSalary";
 import CreateTuitionPeriod from "pages/Tuition/createTuitionPeriod";
@@ -24,6 +24,7 @@ import { SetRolePermissions } from "pages/Roles/setPermissions";
 import { SetUserPermissions } from "pages/Users/SetPermissions";
 import { StudyProfile } from "pages/Students/studyProfile";
 import AttendanceDetails from "pages/Classes/attendanceDetails";
+import { News } from "pages/News";
 
 function Routes(): JSX.Element {
 	return (
@@ -54,6 +55,7 @@ function Routes(): JSX.Element {
 			<Route path="/settings" component={Settings} />
 			<Route path="/salaries" component={Salaries} />
 			<Route path="/salaries-create" component={AddSalary} />
+			<Route path="/news" component={News} />
 		</>
 	);
 }

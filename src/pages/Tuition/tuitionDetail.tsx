@@ -1,5 +1,5 @@
 import { QuestionCircleOutlined, NotificationOutlined, CreditCardOutlined, TransactionOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
-import { Alert, Button, Descriptions, Input, Layout, Modal, PageHeader, Space, Statistic, Table, Tabs, Tag, Tooltip } from "antd";
+import { Alert, Button, Checkbox, Descriptions, Input, Layout, Modal, PageHeader, Space, Statistic, Table, Tabs, Tag, Tooltip } from "antd";
 import Column from "antd/lib/table/Column";
 import { PeriodTuitionType, StudentType, TuitionFeeType } from "interface";
 import { get } from "lodash";
@@ -8,10 +8,12 @@ import numeral from "numeral";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
+import { actionAddNotification } from "store/notifications/slice";
 import { RootState, useAppDispatch } from "store/store";
 import { actionGetStudents } from "store/students/slice";
 import { actionGetPeriodTuion } from "store/tuition/periodslice";
 import { actionTuitionFeeTranferDebt, actionUpdateTuitionFee } from "store/tuition/tuition";
+import { NOTIFI_URIS } from "utils/const";
 import { formatCurrency } from "utils/ultil";
 import { CreateTuitionFeeModal } from "./createTuitionFreeModal";
 import { EditTuitionFeeModal } from "./editTuitionFeeModal";
@@ -143,7 +145,7 @@ export default function TuitionDetail(): JSX.Element {
 		})
 	}
 
-	function handleSendNotification(index:number){
+	function handleSendNotification(index: number) {
 		setShowNotiForm(true);
 		setNotiIndex(index);
 	}
@@ -256,7 +258,7 @@ export default function TuitionDetail(): JSX.Element {
 			width: "5%",
 			title: "Action",
 			key: "action",
-			render: function ActionCol(text:string, record: TuitionFeeType, index:number): JSX.Element {
+			render: function ActionCol(text: string, record: TuitionFeeType, index: number): JSX.Element {
 				return (
 					<>
 						<Space>
@@ -266,7 +268,10 @@ export default function TuitionDetail(): JSX.Element {
 							<Tooltip title="Gửi thông báo cho phụ huynh">
 								<Button
 									type="link"
-									onClick={() => handleSendNotification(index)}
+									onClick={() => {
+										setShowNotiForm(true);
+										setNotiIndex(index);
+									}}
 									icon={<NotificationOutlined />}
 								/>
 							</Tooltip>
@@ -313,7 +318,10 @@ export default function TuitionDetail(): JSX.Element {
 				className="site-page-header-responsive"
 				title="Chi tiết chu kỳ học phí"
 				style={{ backgroundColor: "white" }}
-				extra={<Button type="primary" icon={<NotificationOutlined />}>Gửi thông báo</Button>}
+				extra={<Button type="primary" icon={<NotificationOutlined />} onClick={() => {
+					setShowNotiForm(true);
+					setNotiIndex(-1)
+				}}>Gửi thông báo</Button>}
 				footer={
 					<Tabs defaultActiveKey="1" >
 						<TabPane tab="Học phí mỗi học sinh" key="stdTuition">
@@ -364,7 +372,7 @@ export default function TuitionDetail(): JSX.Element {
 				}
 			>
 				<Content extra={extraContent}>{renderContent()}</Content>
-				{/* <SendNotiModal tuitionIndex={notiIndex} periodTuitionInfo={tuitionPeriodInfo} */}
+				<SendNotiModal tuitionIndex={notiIndex} periodTuitionInfo={tuitionPeriodInfo} show={showNotiForm} setShow={setShowNotiForm} students={studentList} />
 			</PageHeader>
 		</Layout.Content>
 	);
@@ -374,33 +382,77 @@ export default function TuitionDetail(): JSX.Element {
 // SendNotiModal component
 function SendNotiModal(prop: {
 	tuitionIndex: number,
-	isToAll: boolean,
-	periodTuitionInfo: PeriodTuitionType
+	periodTuitionInfo: PeriodTuitionType | null,
+	students: StudentType[],
 	show: boolean,
 	setShow: (param: boolean) => void
 }): JSX.Element {
-	const { tuitionIndex, periodTuitionInfo, isToAll, show, setShow } = prop;
-
+	const { tuitionIndex, periodTuitionInfo, show, setShow, students } = prop;
 	const dispatch = useAppDispatch();
+	const [onlyUnpaid, setOnlyUnpaid] = useState(false);
+	const [message, setMessage] = useState("");
 
-	const deleteStatus = useSelector((state: RootState) => state.periodTuitionReducer.deletePeriodTuitionStatus);
-
+	const sending = useSelector((state: RootState) => state.notificationReducer.addNotificationStatus);
 
 	function handleSendNotification() {
 		console.log("Send notification", tuitionIndex)
 		setShow(false);
+		const user_ids: number[] = [];
+		if (tuitionIndex === -1) {
+			get(periodTuitionInfo, "tuition_fees", []).forEach((tuition) => {
+				if (onlyUnpaid) {
+					if (tuition.status !== 1) {
+						const student = students.find((st) => st.id === tuition.student_id);
+						const userID = get(student,"parent.id",0);
+						if (userID > 0) user_ids.push(userID)
+					}
+				} else {
+					const student = students.find((st) => st.id === tuition.student_id);
+					const userID = get(student,"parent.id",0);
+					if (userID > 0) user_ids.push(userID)
+				}
+			})
+		} else {
+			const student = students.find((st) => st.id === get(periodTuitionInfo, "tuition_fees", [])[tuitionIndex].student_id);
+			const userID = get(student,"parent.id",0);
+			if (userID > 0) user_ids.push(userID)
+		}
+
+		const payload = {
+			user_ids,
+			message,
+			uri: NOTIFI_URIS.TUITION_FEE
+		}
+		dispatch(actionAddNotification(payload)).finally(() => {
+			setShow(false);
+		})
 	}
 
 	return (
 		<>
-
-			<Modal title="Gửi thông báo nhắc nhở cho phụ huynh!"
+			<Modal title="Gửi thông báo cho phụ huynh!"
 				visible={show}
 				onCancel={() => setShow(false)}
 				onOk={handleSendNotification}
-			>
-				<Input.TextArea placeholder="Write something here!" />
+				footer={[
+					<Button key="btncancel" onClick={() => setShow(false)}>Huỷ bỏ</Button>,
+					<Button 
+						key="btnsubmit" 
+						type="primary" 
+						onClick={() => handleSendNotification()} 
+						loading={sending === 'loading' ? true : false}>Gửi đi
+					</Button>
 
+				]}
+			>
+				<Input.TextArea
+					placeholder="Write something here!"
+					style={{ marginBottom: 20 }}
+					value={message}
+					onChange={(e) => setMessage(e.target.value)} />
+				{
+					tuitionIndex === -1 ? <Checkbox onChange={(e) => setOnlyUnpaid(e.target.checked)}>Chỉ những học sinh chưa nộp</Checkbox> : ""
+				}
 			</Modal>
 
 		</>
