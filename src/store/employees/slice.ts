@@ -1,13 +1,13 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { notification } from "antd";
 import { AxiosError } from "axios";
-import { EmployeeType, ListEmployeeType } from "interface";
+import { EmployeeType, GetResponseType } from "interface";
 import { get } from "lodash";
 import request from "../../utils/request";
 
 export interface UserReducerState {
 	employeeInfo: EmployeeType | null;
-	employees: ListEmployeeType | null;
+	employees: GetResponseType<EmployeeType> | null;
 	getEmployeeInfoStatus: "idle" | "loading" | "success" | "error";
 	getEmployeesStatus: "idle" | "loading" | "success" | "error";
 	addEmployeeStatus: "idle" | "loading" | "success" | "error";
@@ -179,7 +179,7 @@ export const employeeSlice = createSlice({
 				state.getEmployeesStatus = "loading";
 			})
 			.addCase(actionGetEmployees.fulfilled, (state, action) => {
-				state.employees = action.payload as ListEmployeeType;
+				state.employees = action.payload as GetResponseType<EmployeeType>;
 				state.getEmployeesStatus = "success";
 			})
 			.addCase(actionGetEmployees.rejected, (state, action) => {

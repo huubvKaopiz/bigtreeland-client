@@ -7,7 +7,8 @@ import {
 	ApartmentOutlined,
 	FileOutlined,
 	SettingOutlined,
-	SnippetsOutlined
+	SnippetsOutlined,
+	GiftOutlined
 } from "@ant-design/icons";
 import { Menu } from "antd";
 import { RoleType } from "interface";
@@ -38,6 +39,10 @@ function LeftMenu(): JSX.Element {
 		
 		if (pathname.includes("/news")) {
 			setSelectedKeys(["15"]);
+			return;
+		}
+		if (pathname.includes("/Gifts")) {
+			setSelectedKeys(["16"]);
 			return;
 		}
 
@@ -278,6 +283,15 @@ function LeftMenu(): JSX.Element {
 					onClick={() => history.push("/news")}
 				>
 					Tin bài
+				</Menu.Item>
+			)}
+			{menuItemGranted.includes(16) && (
+				<Menu.Item
+					key="16"
+					icon={<GiftOutlined />}
+					onClick={() => history.push("/gifts")}
+				>
+					Quà tặng
 				</Menu.Item>
 			)}
 			{menuItemGranted.includes(12) && (

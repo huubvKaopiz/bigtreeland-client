@@ -67,5 +67,9 @@ export const MenuList = [
 		value: 15,
 		label: 'Quản lý tin bài'
 	},
+	{
+		value: 16,
+		label: 'Quản lý quà tặng'
+	},
 	
 ]

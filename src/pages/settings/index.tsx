@@ -21,7 +21,7 @@ export default function Settings(): JSX.Element {
     const [daySelected, setDaySelected] = useState(moment(new Date()));
     const [calandarValue, setCalendarValue] = useState(moment("2021-12-01"));
     const [resultFilesModal, setResultFilesModal] = useState(false);
-    const [fileSelected, setFileSelected] = useState<Array<FileType>>([]);
+    const [slideFilesSelected, setSlideFilesSelected] = useState<Array<FileType>>([]);
     const [resultFiles, setResultFiles] = useState<Array<FileType>>([]);
     const [showSelect, setShowSelect] = useState(false);
 
@@ -50,9 +50,10 @@ export default function Settings(): JSX.Element {
 
     useEffect(() => {
         if (systemInfo) {
-            systemInfoForm.setFieldsValue(systemInfo)
+            systemInfoForm.setFieldsValue(systemInfo);
+            setSlideFilesSelected(get(systemInfo, "app_slide_files", []))
         }
-    })
+    },[systemInfo])
 
 
     function dateCellRender(value: Moment) {
@@ -100,8 +101,8 @@ export default function Settings(): JSX.Element {
         }
     }
 
-    function handleFileSelected(filesSelected: Array<FileType>) {
-        setFileSelected(filesSelected);
+    function handleSlideFilesSelected(filesSelected: Array<FileType>) {
+        setSlideFilesSelected(filesSelected);
     }
 
     function handleSubmitDeleteDayoff() {
@@ -120,15 +121,24 @@ export default function Settings(): JSX.Element {
     }
 
     function handleUpdateSystemtInfo(values: any) {
-        console.log(values)
-        dispatch(actionUpdateSystemSetting(values));
+        // console.log(values)
+        const app_slide_files: number[] = [];
+        slideFilesSelected.forEach((file) => app_slide_files.push(file.id));
+        dispatch(actionUpdateSystemSetting({ ...values, app_slide_files }));
     }
 
     return (
         <Layout.Content>
             <Collapse defaultActiveKey={['1']} >
-                <Panel header="Thông tin trung tâm" key="1">
-                    <Form {...layout} name="nest-messages" onFinish={handleUpdateSystemtInfo} form={systemInfoForm}>
+                <Panel header={
+                    <Space style={{width:"100%", display: "flex", justifyContent: "space-between", alignItems:"center" }}>
+                        <span>Thông tin trung tâm</span>
+                        <Button type="primary" htmlType="submit" form="setting-form" loading={updateSystemInfoState === 'loading' ? true : false}>
+                            Cập nhật
+                        </Button>
+                    </Space>
+                } key="1">
+                    <Form {...layout} id="setting-form" onFinish={handleUpdateSystemtInfo} form={systemInfoForm}>
                         <Form.Item name='name' label="Tên trung tâm" >
                             <Input />
                         </Form.Item>
@@ -153,11 +163,12 @@ export default function Settings(): JSX.Element {
                         </Form.Item>
                         <Form.Item name="slide_files" label="App slide images">
                             <FileSelectModal
-                                defaultSelected={fileSelected}
+                                defaultSelected={slideFilesSelected}
                                 isShow={showSelect}
-                                okFunction={handleFileSelected}
+                                okFunction={handleSlideFilesSelected}
                                 closeFunction={() => setShowSelect(false)}
                                 showSelectedList
+                                review={true}
                             >
                                 <Button
                                     onClick={() => setShowSelect(true)}
@@ -170,11 +181,11 @@ export default function Settings(): JSX.Element {
                             </FileSelectModal>
                         </Form.Item>
 
-                        <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 3 }}>
+                        {/* <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 3 }}>
                             <Button type="primary" htmlType="submit" loading={updateSystemInfoState === 'loading' ? true : false}>
                                 Cập nhật
                             </Button>
-                        </Form.Item>
+                        </Form.Item> */}
                     </Form>
                 </Panel>
                 <Panel header="Lịch trung tâm" key="2">

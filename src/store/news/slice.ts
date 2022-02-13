@@ -1,8 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { notification } from "antd";
 import { AxiosError } from "axios";
-import { GetResponseType } from "interface";
-import { NewsType } from "interface/interfaces";
+import { GetResponseType, NewsType } from "interface";
 import { get } from "lodash";
 import request from "utils/request";
 

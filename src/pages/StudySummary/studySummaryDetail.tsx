@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Descriptions, Typography, Layout, Table } from 'antd';
+import { Descriptions, Typography, Layout, Table, Button, Tag, Space, Image } from 'antd';
+import { GiftOutlined } from '@ant-design/icons';
 import { StudentType, StudySummaryType } from 'interface';
 import { RootState, useAppDispatch } from 'store/store';
 import { actionGetAttendances } from 'store/attendances/slice';
@@ -9,6 +10,9 @@ import { get } from 'lodash';
 import { useLocation } from 'react-router-dom';
 import moment from 'moment';
 import { actionGetLessons } from 'store/lesson/slice';
+import Modal from 'antd/lib/modal/Modal';
+import { actionGetStudyGifts } from 'store/study-summary/slice';
+import { StudentGiftType } from 'interface';
 
 const { Title } = Typography;
 
@@ -172,7 +176,10 @@ export function StudySummaryDetail(): JSX.Element {
 
     return (
         <Layout.Content>
-            <Descriptions title="Chi tiết bảng tổng kết" bordered>
+            <Descriptions
+                title="Chi tiết bảng tổng kết"
+                extra={<StudentGiftsModal summaryInfo={summaryInfo} />}
+                bordered>
                 <Descriptions.Item label="Lớp"><a>{get(summaryInfo, "class.name", "")}</a></Descriptions.Item>
                 <Descriptions.Item label="Giáo viên">Hangzhou, Zhejiang</Descriptions.Item>
                 <Descriptions.Item label="Số học sinh">{get(summaryInfo, "class.students_num", 0)}</Descriptions.Item>
@@ -194,5 +201,88 @@ export function StudySummaryDetail(): JSX.Element {
                 scroll={{ x: 'calc(700px + 50%)' }}
             />
         </Layout.Content>
+    )
+}
+
+function StudentGiftsModal(props: { summaryInfo: StudySummaryType }): JSX.Element {
+
+    const { summaryInfo } = props;
+    const dispatch = useAppDispatch();
+    const [show, setShow] = useState(false);
+
+    //application state
+    const studentGifts = useSelector((state: RootState) => state.studySummaryReducer.studentGifts)
+    const getStudentGiftsStatus = useSelector((state: RootState) => state.studySummaryReducer.getStudyGiftsState)
+
+    useEffect(() => {
+        if (summaryInfo) {
+            dispatch(actionGetStudyGifts({ study_summary_board_id: summaryInfo.id }));
+        }
+    }, [dispatch, summaryInfo])
+
+    const cols: any[] = [
+        {
+            title: "Học sinh",
+            key: "student",
+            dataIndex: "",
+            render: function StudentCol(text: string, record: StudentGiftType): JSX.Element {
+                return (<strong>{get(record, "student.name", "")}</strong>)
+            }
+
+        },
+        {
+            title: "Quà chọn",
+            key: "gift",
+            dataIndex: "",
+            render: function GiftCol(text: string, record: StudentGiftType): JSX.Element {
+                return (
+                    <Space>
+                        <Image width={60} src={get(record, "gift.url", "error")} style={{marginRight:10}}/>
+                        <span>{get(record, "gift.name", "")}</span>
+                    </Space>
+                )
+            }
+        },
+        {
+            title: "Loại",
+            key: "type",
+            dataIndex: "",
+            render: function StatusCol(text: string, record: StudentGiftType): JSX.Element {
+                return (
+                    <>{get(record, "gift.type", "")}</>
+                )
+            }
+
+        },
+        {
+            title: "Trạng thái",
+            key: "status",
+            dataIndex: "status",
+            render: function statusCol(status: number): JSX.Element {
+                return (
+                    <Tag color={status === 1 ? "green" : "orange"}>{status === 1 ? "Đã trao" : "Chưa trao"}</Tag>
+                )
+            }
+
+        }
+    ]
+
+    return (
+        <>
+            <Button icon={<GiftOutlined />} type="primary" onClick={() => setShow(true)}>DS chọn quà tặng</Button>
+            <Modal
+                visible={show}
+                width={1000}
+                title="Danh sách chọn quà tặng"
+                onCancel={() => setShow(false)}
+                onOk={() => setShow(false)}
+            >
+                <Table 
+                    columns={cols} 
+                    dataSource={get(studentGifts, "data", [])} 
+                    loading={getStudentGiftsStatus === "loading" ? true : false}/>
+
+            </Modal>
+        </>
     )
 }

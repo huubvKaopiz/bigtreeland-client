@@ -1,6 +1,21 @@
 import React from "react";
 import { PermistionType } from "store/permissions/slice";
 
+export interface GetResponseType<T = unknown> {
+	current_page?: number;
+	data?: T[];
+	first_page_url?: string;
+	from?: number;
+	last_page?: number;
+	last_page_url?: string;
+	next_page_url?: string;
+	path?: string;
+	per_page?: number;
+	prev_page_url?: string;
+	to?: number;
+	total?: number;
+}
+
 export interface RoleType {
 	created_at: "2021-11-02T00:50:17.000000Z";
 	guard_name: "api";
@@ -164,66 +179,6 @@ export interface StudentType {
 	created_at: " 2021-11-06T05:06:35.000000Z";
 }
 
-export interface ListUserType {
-	current_page: 1;
-	data: UserType[];
-	first_page_url: "http://45.32.101.219:8000/api/users?page=1";
-	from: 1;
-	last_page: 1;
-	last_page_url: "http://45.32.101.219:8000/api/users?page=1";
-	next_page_url: null;
-	path: "http://45.32.101.219:8000/api/users";
-	per_page: 20;
-	prev_page_url: null;
-	to: 3;
-	total: 3;
-}
-
-export interface ListEmployeeType {
-	current_page: 1;
-	data: EmployeeType[];
-	first_page_url: "http://45.32.101.219:8000/api/users?page=1";
-	from: 1;
-	last_page: 1;
-	last_page_url: "http://45.32.101.219:8000/api/users?page=1";
-	next_page_url: null;
-	path: "http://45.32.101.219:8000/api/users";
-	per_page: 20;
-	prev_page_url: null;
-	to: 3;
-	total: 3;
-}
-
-export interface ListStudentType {
-	current_page: 1;
-	data: StudentType[];
-	first_page_url: "http://45.32.101.219:8000/api/students?page=1";
-	from: 1;
-	last_page: 1;
-	last_page_url: "http://45.32.101.219:8000/api/students?page=1";
-	next_page_url: null;
-	path: " http://45.32.101.219:8000/api/students";
-	per_page: 20;
-	prev_page_url: null;
-	to: 1;
-	total: 0;
-}
-
-export interface ListParentType {
-	current_page: 1;
-	data: ParentType[];
-	first_page_url: "http://45.32.101.219:8000/api/parents?page=1";
-	from: 1;
-	last_page: 1;
-	last_page_url: "http://45.32.101.219:8000/api/parents?page=1";
-	next_page_url: null;
-	path: "http://45.32.101.219:8000/api/parents?page=1";
-	per_page: 20;
-	prev_page_url: null;
-	to: 1;
-	total: 0;
-}
-
 export interface ListAttendancesType {
 	class_id: number;
 	class_name: string;
@@ -257,21 +212,6 @@ export interface TestType {
 		student_id: number;
 		point: number;
 	}[];
-}
-
-export interface ListTestType {
-	current_page: 1;
-	data: TestType[];
-	first_page_url: "http://45.32.101.219:8000/api/parents?page=1";
-	from: 1;
-	last_page: 1;
-	last_page_url: "http://45.32.101.219:8000/api/parents?page=1";
-	next_page_url: null;
-	path: "http://45.32.101.219:8000/api/parents?page=1";
-	per_page: 20;
-	prev_page_url: null;
-	to: 1;
-	total: 0;
 }
 
 export interface FileType {
@@ -313,20 +253,7 @@ export interface RoleCreateFormType {
 	user_ids: React.Key[];
 }
 
-export interface GetResponseType<T = unknown> {
-	current_page?: number;
-	data?: T[];
-	first_page_url?: string;
-	from?: number;
-	last_page?: number;
-	last_page_url?: string;
-	next_page_url?: string;
-	path?: string;
-	per_page?: number;
-	prev_page_url?: string;
-	to?: number;
-	total?: number;
-}
+
 
 export interface PeriodTuitionType {
 	id: 1;
@@ -446,4 +373,72 @@ export interface SystemSettingsType {
 		id:number,
 		url:string,
 	}
+}
+export interface User {
+	email: string;
+	phone: string;
+	role: string;
+}
+
+export interface Permission {
+	id: number;
+	name: string;
+	guard_name: string;
+	created_at: string;
+	updated_at: string;
+	description?: string | null;
+}
+
+export interface AddNewUser {
+	email: string;
+	phone: string;
+	password: string;
+	role?: string;
+	name?: string;
+	address?: string;
+}
+
+export interface NewsType {
+	id: number;
+	employee_id: number;
+	title: string;
+	content: string;
+	created_at: "2022-02-09 15:57:42",
+	creator: {
+		id: number;
+		phone: string;
+		name: string;
+	}
+}
+
+export interface NotificationType {
+	user_ids: number[],
+	data:{
+		title:string;
+		body:string;
+		to:string
+	}[];
+}
+
+export interface GiftType {
+	id: number;
+	name: string;
+	type: number;
+	photo: FileType;
+	description: string;
+	status: number;
+	quantity: number;
+}
+
+export interface StudentGiftType {
+	study_summary_board_id:number;
+	student_id:number;
+	gift_id:number;
+	status:number;
+	student:{
+		id:number;
+		name:number;
+		birtday:string;
+	};
+	gift:GiftType;
 }

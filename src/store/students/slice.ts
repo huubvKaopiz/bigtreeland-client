@@ -1,12 +1,12 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { notification } from "antd";
 import { AxiosError } from "axios";
-import { ListStudentType, StudentType } from "interface";
+import { GetResponseType, StudentType } from "interface";
 import { get } from "lodash";
 import request from "utils/request";
 
 export interface StudentReducerState {
-	students: ListStudentType | null;
+	students: GetResponseType<StudentType> | null;
 	studentProfile: StudentParams | null;
 	getStudentsStatus: "idle" | "loading" | "success" | "error";
 	getStudentStatus: "idle" | "loading" | "success" | "error";
@@ -182,7 +182,7 @@ export const studentSlice = createSlice({
 				state.getStudentsStatus = "loading";
 			})
 			.addCase(actionGetStudents.fulfilled, (state, action) => {
-				state.students = action.payload as ListStudentType;
+				state.students = action.payload as GetResponseType<StudentType>;
 				state.getStudentsStatus = "success";
 			})
 			.addCase(actionGetStudents.rejected, (state, action) => {

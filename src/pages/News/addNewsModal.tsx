@@ -5,9 +5,9 @@ import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import React, { useEffect, useState } from 'react';
 import { RootState, useAppDispatch } from 'store/store';
 import { actionUploadFile } from 'store/files/slice';
-import { actionAddNews, actionGetNewsList } from 'store/news/slice';
+import { actionAddNews, actionGetNewsList, actionUpdateNews } from 'store/news/slice';
 import { useSelector } from 'react-redux';
-import { NewsType } from 'interface/interfaces';
+import { NewsType } from 'interface';
 
 
 export function AddNewsModal(props: {
@@ -22,6 +22,8 @@ export function AddNewsModal(props: {
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
     const submitting = useSelector((state: RootState) => state.newsReducer.addNewsStatus)
+    const updateting = useSelector((state: RootState) => state.newsReducer.updateNewsStatus)
+
 
     useEffect(() => {
         if (editting && newInfo) {
@@ -42,12 +44,23 @@ export function AddNewsModal(props: {
             title,
             content
         }
-        dispatch(actionAddNews(payload)).finally(() => {
-            if (submitting === "success") {
-                dispatch(actionGetNewsList({ per_page: 20 }))
+        if (editting) {
+            if (newInfo) {
+                dispatch(actionUpdateNews({ newId: newInfo.id, data: payload })).finally(() => {
+                    if (updateting === "success") {
+                        dispatch(actionGetNewsList({ per_page: 20 }))
+                    }
+                    setShow(false);
+                })
             }
-            setShow(false);
-        })
+        } else {
+            dispatch(actionAddNews(payload)).finally(() => {
+                if (submitting === "success") {
+                    dispatch(actionGetNewsList({ per_page: 20 }))
+                }
+                setShow(false);
+            })
+        }
     }
 
     return (
@@ -66,7 +79,13 @@ export function AddNewsModal(props: {
                         setShow(false);
                         setEditting(false);
                     }}>Huỷ bỏ</Button>,
-                    <Button key="btn-submit" type="primary" onClick={() => handleSubmit()} loading={submitting === "loading" ? true : false}>Lưu lại</Button>
+                    <Button 
+                        key="btn-submit" 
+                        type="primary" 
+                        onClick={() => handleSubmit()} 
+                        loading={submitting === "loading" ? true : false }>
+                            {editting ? "Cập nhật" : "Lưu lại"}
+                    </Button>
 
                 ]}
             >

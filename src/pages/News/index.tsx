@@ -6,7 +6,7 @@ import { useSelector } from 'react-redux';
 import { actionDeleteNews, actionGetNewsList } from 'store/news/slice';
 import { RootState, useAppDispatch } from 'store/store';
 import { AddNewsModal } from './addNewsModal';
-import { NewsType } from 'interface/interfaces';
+import { NewsType } from 'interface';
 const { confirm } = Modal;
 
 export function News(): JSX.Element {
@@ -23,7 +23,7 @@ export function News(): JSX.Element {
         dispatch(actionGetNewsList({ per_page: 20 }));
     }, [dispatch])
 
-    function handleAddNew(){
+    function handleAddNew() {
         setShow(true);
         setEditting(false);
         setNewEditting(null);
@@ -59,13 +59,13 @@ export function News(): JSX.Element {
                 style={{ padding: 20 }}
                 className="demo-loadmore-list"
                 // loading={getNewsListState === "loading" ? true : false}
-                itemLayout="vertical"
+                itemLayout="horizontal"
                 dataSource={get(newsList, "data", [])}
                 renderItem={item => (
                     <List.Item
                         actions={[
-                            <Button type="link" key="list-loadmore-edit" onClick={() => handleEdit(item)}>Sửa</Button>,
-                            <Button type="link" danger key="list-loadmore-more" onClick={() => handleDelete(item.id)}>Xoá</Button>
+                            <Button type="link" danger key="list-loadmore-more" onClick={() => handleDelete(item.id)}>Xoá</Button>,
+                            <Button type="link" key="list-loadmore-edit" onClick={() => handleEdit(item)}>Chi tiết</Button>,
                         ]}
                     >
                         <Skeleton avatar title={false} loading={getNewsListState === "loading" ? true : false} active>
@@ -74,14 +74,14 @@ export function News(): JSX.Element {
                                 title={<a href="https://ant.design">{item.title}</a>}
                                 description={item.created_at}
                             />
-                            <p
+                            {/* <div
+                                dangerouslySetInnerHTML={{ __html: item.content }}
                                 style={{
                                     textOverflow: "ellipsis",
-                                    whiteSpace: "nowrap",
+                                    whiteSpace: "normal",
                                     overflow: "hidden",
-                                }}>{
-                                    item.content}
-                            </p>
+                                }}>
+                            </div> */}
                         </Skeleton>
                     </List.Item>
                 )}

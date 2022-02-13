@@ -1,13 +1,12 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { notification } from "antd";
 import { AxiosError } from "axios";
-import { ListUserType } from "interface";
-import { AddNewUser } from "interface/interfaces";
+import { AddNewUser, GetResponseType, UserType } from "interface";
 import { get } from "lodash";
 import request from "../../utils/request";
 
 export interface UserReducerState {
-	users: ListUserType | null;
+	users: GetResponseType<UserType> | null;
 	statusGetUser: "idle" | "loading" | "success" | "error";
 	statusChangePassword: "idle" | "loading" | "success" | "error";
 	statusUpdateUserState: "idle" | "loading" | "success" | "error";
@@ -160,7 +159,7 @@ export const slice = createSlice({
 				state.statusGetUser = "loading";
 			})
 			.addCase(actionGetUsers.fulfilled, (state, action) => {
-				state.users = action.payload as ListUserType;
+				state.users = action.payload as GetResponseType<UserType>;
 				state.statusGetUser = "success";
 			})
 			.addCase(actionGetUsers.rejected, (state, action) => {

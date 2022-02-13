@@ -2,12 +2,15 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { notification } from "antd";
 import { AxiosError } from "axios";
 import { StudySummaryType, GetResponseType } from "interface";
+import { StudentGiftType } from "interface";
 import { get } from "lodash";
 import request from "utils/request";
 
 interface StudySummaryReducerState {
 	studySummaryList: GetResponseType<StudySummaryType> | null;
+	studentGifts: GetResponseType<StudentGiftType> | null;
 	getStudySummaryListState: "idle" | "loading" | "success" | "error";
+	getStudyGiftsState: "idle" | "loading" | "success" | "error";
 	addStudySummaryState: "idle" | "loading" | "success" | "error";
 	updateStudySummaryState: "idle" | "loading" | "success" | "error";
 	deleteStudySummaryState: "idle" | "loading" | "success" | "error";
@@ -28,6 +31,25 @@ export const actionGetStudySummaryList = createAsyncThunk(
 		try {
 			const response = await request({
 				url: `/api/study-summary-boards/`,
+				method: "get",
+				params,
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
+	}
+);
+
+export const actionGetStudyGifts = createAsyncThunk(
+	"actionGetStudyGifts",
+	async (
+		params: { study_summary_board_id: number },
+		{ rejectWithValue }
+	) => {
+		try {
+			const response = await request({
+				url: `/api/student-gifts/`,
 				method: "get",
 				params,
 			});
@@ -86,7 +108,9 @@ export const actionDeleteStudySummary = createAsyncThunk(
 
 const initialState: StudySummaryReducerState = {
 	studySummaryList: null,
+	studentGifts: null,
 	getStudySummaryListState: "idle",
+	getStudyGiftsState: "idle",
 	addStudySummaryState: "idle",
 	updateStudySummaryState: "idle",
 	deleteStudySummaryState: "idle",
@@ -121,6 +145,22 @@ export const studySummarySlice = createSlice({
 			})
 			.addCase(actionGetStudySummaryList.rejected, (state, action) => {
 				state.getStudySummaryListState = "error";
+				const error = action.payload as AxiosError;
+				notification.error({
+					message: get(error, "response.data", "Có lỗi xảy ra!"),
+				});
+			})
+
+			.addCase(actionGetStudyGifts.pending, (state) => {
+				state.getStudyGiftsState = "loading";
+			})
+			.addCase(actionGetStudyGifts.fulfilled, (state, action) => {
+				state.getStudyGiftsState = "success";
+				state.studentGifts =
+					action.payload as GetResponseType<StudentGiftType>;
+			})
+			.addCase(actionGetStudyGifts.rejected, (state, action) => {
+				state.getStudyGiftsState = "error";
 				const error = action.payload as AxiosError;
 				notification.error({
 					message: get(error, "response.data", "Có lỗi xảy ra!"),

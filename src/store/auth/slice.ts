@@ -20,7 +20,6 @@ export interface AuthState {
 	user: User | null;
 	statusUserVerified: "idle" | "waiting";
 	statusChangePassword: "idle" | "loading" | "success" | "error";
-
 }
 
 export interface PayloadLogin {

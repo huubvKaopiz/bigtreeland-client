@@ -29,6 +29,7 @@ import studySummaryReducer from "./study-summary/slice";
 import systemSettingReducer from './settings/system';
 import newsReducer from './news/slice';
 import notificationReducer from './notifications/slice';
+import giftReducer from './gifts/slice';
 
 const rootReducer = combineReducers({
 	auth,
@@ -54,6 +55,7 @@ const rootReducer = combineReducers({
 	systemSettingReducer,
 	newsReducer,
 	notificationReducer,
+	giftReducer,
 });
 
 const persistConfig = {

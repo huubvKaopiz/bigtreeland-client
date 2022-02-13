@@ -1,13 +1,13 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { notification } from "antd";
 import { AxiosError } from "axios";
-import { ListParentType } from "interface";
+import { GetResponseType, UserType } from "interface";
 import { get } from "lodash";
 import { ROLE_NAMES } from "utils/const";
 import request from "utils/request";
 
 export interface ParentReducerState {
-	parents: ListParentType | null;
+	parents: GetResponseType<UserType> | null;
 	getParentsStatus: "idle" | "loading" | "success" | "error";
 	addParentStatus: "idle" | "loading" | "success" | "error";
 	updateParentStatus: "idle" | "loading" | "success" | "error";
@@ -119,7 +119,7 @@ export const parentSlice = createSlice({
 				state.getParentsStatus = "loading";
 			})
 			.addCase(actionGetParents.fulfilled, (state, action) => {
-				state.parents = action.payload as ListParentType;
+				state.parents = action.payload as GetResponseType<UserType>;
 				state.getParentsStatus = "success";
 			})
 			.addCase(actionGetParents.rejected, (state, action) => {

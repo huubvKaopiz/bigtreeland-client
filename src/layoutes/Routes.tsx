@@ -25,6 +25,7 @@ import { SetUserPermissions } from "pages/Users/SetPermissions";
 import { StudyProfile } from "pages/Students/studyProfile";
 import AttendanceDetails from "pages/Classes/attendanceDetails";
 import { News } from "pages/News";
+import { Gifts } from "pages/Gifts";
 
 function Routes(): JSX.Element {
 	return (
@@ -56,6 +57,7 @@ function Routes(): JSX.Element {
 			<Route path="/salaries" component={Salaries} />
 			<Route path="/salaries-create" component={AddSalary} />
 			<Route path="/news" component={News} />
+			<Route path="/gifts" component={Gifts} />
 		</>
 	);
 }

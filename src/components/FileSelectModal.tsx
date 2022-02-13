@@ -1,5 +1,5 @@
-import {CloseOutlined} from "@ant-design/icons";
-import { Button, Card, Checkbox, List, Modal, Pagination, Spin, Tabs } from "antd";
+import { CloseOutlined } from "@ant-design/icons";
+import { Button, Card, Checkbox, Image, List, Modal, Pagination, Space, Spin, Tabs } from "antd";
 import Meta from "antd/lib/card/Meta";
 import { FileType } from "interface";
 import { get } from "lodash";
@@ -18,11 +18,13 @@ interface FileSelectModalProps {
 	closeFunction: () => void;
 	showSelectedList?: boolean;
 	defaultSelected: Array<FileType>;
+	review?: boolean;
 }
 
 interface FileSelectRenderProps {
 	listFileSelected: Array<FileType>;
 	handleRemoveFileSelected: (id: number) => void;
+	review?: boolean
 }
 
 const gridStyle = {
@@ -48,16 +50,20 @@ const okFunction = (filesSelect: Array<FileType>) => {
 */
 
 export function FileSelectedListRender(props: FileSelectRenderProps): JSX.Element {
-	const { listFileSelected: data, handleRemoveFileSelected } = props;
+	const { listFileSelected: data, handleRemoveFileSelected, review } = props;
 	return data.length > 0 ? (
 		<List
+			style={{ marginTop: 20 }}
 			itemLayout="horizontal"
 			dataSource={data}
 			renderItem={(item) => (
-				<a style={{ display: "block" }}>
-					{item.name}
-					<Button type={"link"} icon={<CloseOutlined style={{color:"red"}}/>} onClick={() => handleRemoveFileSelected(item.id)} />
-				</a>
+				<Space style={{ marginRight: 20, marginBottom:10 }}>
+					{review ? <Image width={60} src={item.url} /> : ""}
+					<span style={{ display: "block" }}>
+						{item.name}
+						<Button type={"link"} icon={<CloseOutlined style={{ color: "red" }} />} onClick={() => handleRemoveFileSelected(item.id)} />
+					</span>
+				</Space>
 			)}
 		/>
 	) : (
@@ -66,7 +72,7 @@ export function FileSelectedListRender(props: FileSelectRenderProps): JSX.Elemen
 }
 
 function FileSelectModal(props: PropsWithChildren<FileSelectModalProps>): JSX.Element {
-	const { isShow, closeFunction, okFunction, showSelectedList, defaultSelected } = props;
+	const { isShow, closeFunction, okFunction, showSelectedList, defaultSelected, review } = props;
 	const dispatch = useAppDispatch();
 	const [fileSelected, setFileSelected] = useState<Array<FileType>>([...defaultSelected]);
 	const listFile = useSelector((state: RootState) => state.filesReducer.files);
@@ -82,8 +88,8 @@ function FileSelectModal(props: PropsWithChildren<FileSelectModalProps>): JSX.El
 		if (statusUploadStatus === "success") dispatch(actionGetListFile({}));
 	}, [dispatch, statusUploadStatus]);
 
-	useEffect(()=> {
-		dispatch(actionGetListFile({}));		
+	useEffect(() => {
+		dispatch(actionGetListFile({}));
 	}, [dispatch])
 
 	useEffect(() => {
@@ -100,12 +106,12 @@ function FileSelectModal(props: PropsWithChildren<FileSelectModalProps>): JSX.El
 			const newFileSelectedList = [...fileSelected];
 			newFileSelectedList.splice(fileIndexRemoved, 1);
 			setFileSelected(newFileSelectedList);
-			if(removeInList)
+			if (removeInList)
 				okFunction(newFileSelectedList);
 		} else {
 			setFileSelected([...fileSelected, listFile.data?.find((f) => f.id === id) as FileType]);
 		}
-		
+
 	}
 
 	function handleCloseModal() {
@@ -158,7 +164,7 @@ function FileSelectModal(props: PropsWithChildren<FileSelectModalProps>): JSX.El
 														className="img-center"
 														src={
 															fileIconList[
-																Object.keys(fileIconList).find((k) => k === file.type) as keyof typeof fileIconList
+															Object.keys(fileIconList).find((k) => k === file.type) as keyof typeof fileIconList
 															]
 														}
 														style={imageStyle as React.CSSProperties}
@@ -191,7 +197,7 @@ function FileSelectModal(props: PropsWithChildren<FileSelectModalProps>): JSX.El
 				</Tabs>
 			</Modal>
 			{showSelectedList && (
-				<FileSelectedListRender handleRemoveFileSelected={(id) => checkboxChangeValue(id, true)} listFileSelected={fileSelected} />
+				<FileSelectedListRender review={review} handleRemoveFileSelected={(id) => checkboxChangeValue(id, true)} listFileSelected={fileSelected} />
 			)}
 		</>
 	);
