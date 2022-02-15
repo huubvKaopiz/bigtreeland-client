@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import ReactDOM from "react-dom";
 import { Provider, useSelector } from "react-redux";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
@@ -16,9 +16,7 @@ import "./i18n";
 import { getFireBaseListApp, initializeFirebase } from "lib/fire-base";
 
 initLib();
-if(getFireBaseListApp()){
-	initializeFirebase()
-}
+
 
 function Root() {
 	const access_token = useSelector((state: RootState) => state.auth.user?.access_token ?? "");
@@ -36,6 +34,12 @@ function Root() {
 		}
 	);
 
+	useEffect(() => {
+		if(!getFireBaseListApp()){
+			console.log("init firebase")
+			initializeFirebase()
+		}
+	},[])
 	return (
 		<Router>
 			<Switch>
