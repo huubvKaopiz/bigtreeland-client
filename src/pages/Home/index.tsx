@@ -8,10 +8,10 @@ import {
 	Timeline,
 	DatePicker,
 } from "antd";
-import { ClockCircleOutlined } from '@ant-design/icons';
+import { ClockCircleOutlined } from "@ant-design/icons";
 import { Line } from "@ant-design/charts";
 import { useEffect } from "react";
-import io from "socket.io-client";
+// import io from "socket.io-client";
 // import { useTranslation } from "react-i18next";
 import { RootState, useAppDispatch } from "store/store";
 import { actionGetDayoffs } from "store/settings/dayoff";
@@ -19,9 +19,9 @@ import { useSelector } from "react-redux";
 import { get } from "lodash";
 import moment, { Moment } from "moment";
 const { RangePicker } = DatePicker;
-if (import.meta.env.VITE_SOCKET) {
-	window.socket = io(import.meta.env.VITE_SOCKET);
-}
+// if (import.meta.env.VITE_SOCKET) {
+// 	window.socket = io(import.meta.env.VITE_SOCKET);
+// }
 
 function Home(): JSX.Element {
 	const dispatch = useAppDispatch();
@@ -33,19 +33,19 @@ function Home(): JSX.Element {
 		dispatch(actionGetDayoffs({}));
 	}, [dispatch]);
 
-	useEffect(() => {
-		const socket = window.socket;
-		if (!socket) return;
-		socket.on("message", (res: string) => console.log(res));
+	// useEffect(() => {
+	// 	const socket = window.socket;
+	// 	if (!socket) return;
+	// 	socket.on("message", (res: string) => console.log(res));
 
-		socket.on("connect", () => {
-			console.log("socket connected");
-		});
+	// 	socket.on("connect", () => {
+	// 		console.log("socket connected");
+	// 	});
 
-		socket.on("disconnect", () => {
-			console.log("socket disconnect");
-		});
-	}, []);
+	// 	socket.on("disconnect", () => {
+	// 		console.log("socket disconnect");
+	// 	});
+	// }, []);
 
 	const data = [
 		{ month: "06/2021", value: 210 },
@@ -75,12 +75,14 @@ function Home(): JSX.Element {
 	function scheduleCellRender(value: Moment) {
 		let isDayoff = false;
 		// console.log(value,dayoffs);
-		const dateValue = moment(value).format("YYYY-MM-DD")
-		get(dayoffs, "data", []).forEach((element: { from_date: string, to_date: string }) => {
-			if (moment(dateValue).isSame(moment(element.from_date))) {
-				isDayoff = true;
+		const dateValue = moment(value).format("YYYY-MM-DD");
+		get(dayoffs, "data", []).forEach(
+			(element: { from_date: string; to_date: string }) => {
+				if (moment(dateValue).isSame(moment(element.from_date))) {
+					isDayoff = true;
+				}
 			}
-		});
+		);
 		if (isDayoff) {
 			return (
 				<>
