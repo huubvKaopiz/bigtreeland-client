@@ -31,7 +31,7 @@ export interface EmployeeParams {
 	birthday: string;
 	address: string;
 	interests: string;
-	disklikes: string;
+	dislikes: string;
 	identifier: number;
 	basic_salary: string;
 	sales_salary: string;

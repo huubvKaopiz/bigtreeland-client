@@ -49,7 +49,7 @@ export default function AddEmplyeeForm(props: { roles: RoleType[], selectedRole:
 			birthday: "",
 			address: "",
 			interests: "",
-			disklikes: "",
+			dislikes: "",
 			identifier: "",
 			basic_salary: "",
 			sales_salary: "",
@@ -129,7 +129,7 @@ export default function AddEmplyeeForm(props: { roles: RoleType[], selectedRole:
 					<Form.Item name="interests" label="Sở thích">
 						<Input.TextArea />
 					</Form.Item>
-					<Form.Item name="disklikes" label="Sở ghét">
+					<Form.Item name="dislikes" label="Sở ghét">
 						<Input.TextArea />
 					</Form.Item>
 					<Divider>Thông tin hợp đồng</Divider>
