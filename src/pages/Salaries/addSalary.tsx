@@ -6,7 +6,7 @@ import { useSelector } from 'react-redux';
 import { actionGetEmployeeInfo, actionGetEmployees, actionSetListEmployeesNull } from 'store/employees/slice';
 import { findIndex, get } from 'lodash';
 import moment from 'moment';
-import { actionGetRevenues, actionSetListRevenuesNull } from 'store/revenues/slice';
+import { actionGetRevenues, actionSetListRevenuesNull, RevenueType } from 'store/revenues/slice';
 import numeral from 'numeral';
 import { actionAddSalary, AddSalaryData } from 'store/salaries/slice';
 import { actionGetLessons, actionSetLessionsStateNull } from 'store/lesson/slice';
@@ -428,7 +428,7 @@ export default function AddSalary(): JSX.Element {
                         // header={<div style={{ justifyContent: "end", display: "flex" }}>{numeral(amountRevenue).format("0,0")}</div>}
                         loading={revenueLoading}
                         dataSource={get(receipts, "data", [])}
-                        renderItem={item => (
+                        renderItem={(item:RevenueType) => (
                             <List.Item>
                                 <List.Item.Meta
                                     title={<a href="#">{item.created_at}</a>}
@@ -443,7 +443,7 @@ export default function AddSalary(): JSX.Element {
                             // header={<div style={{ justifyContent: "end", display: "flex", fontWeight: 600 }}>{numeral(amountRevenue).format("0,0")}</div>}
                             loading={revenueLoading}
                             dataSource={get(lessons, "data", [])}
-                            renderItem={item => (
+                            renderItem={(item:LessonType) => (
                                 <List.Item>
                                     <List.Item.Meta
                                         title={<a href="#">{item.tuition_period_id}</a>}
@@ -594,7 +594,7 @@ function TeacherRevenueTable(prop: {
                         itemLayout="horizontal"
                         loading={revenueLoading}
                         dataSource={lessons}
-                        renderItem={item => (
+                        renderItem={(item:LessonType) => (
                             <List.Item>
                                 <List.Item.Meta
                                     title={<a href="#">Lớp: {get(item, "tuition_period.class.name", "")}</a>}

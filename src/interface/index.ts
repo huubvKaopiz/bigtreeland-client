@@ -335,6 +335,10 @@ export interface LessonType {
 		reviewed:number;
 		student_id:number;
 	}[];
+	tuition_period:{
+		from_date:string;
+		to_date:string;
+	}
 }
 
 export interface SalaryType {
