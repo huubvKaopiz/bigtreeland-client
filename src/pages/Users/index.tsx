@@ -1,7 +1,7 @@
 import { MinusCircleOutlined, SearchOutlined, RedoOutlined, ExclamationCircleOutlined, SafetyCertificateOutlined } from "@ant-design/icons";
 import { Button, Input, Layout, Radio, Space, Spin, Table, Tag, Tooltip, Modal } from "antd";
 import { UserType as User } from "interface";
-import { AddNewUser } from "interface/interfaces";
+import { AddNewUser } from "interface";
 import { debounce, get } from "lodash";
 import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";

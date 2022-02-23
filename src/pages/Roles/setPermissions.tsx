@@ -280,14 +280,14 @@ export function SetRolePermissions(): JSX.Element {
 				]}
 			/>
 			<Table
-				scroll={{ y: 600 }}
+				// scroll={{ y: 800 }}
 				loading={loading === "loading" ? true : false}
 				columns={permissions_columns}
 				dataSource={rolePermissions}
 				bordered
 				pagination={{ defaultPageSize: 1000 }}
 				size="middle"
-			/>,
+			/>
 		</Layout.Content>
 	)
 }

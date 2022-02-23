@@ -11,7 +11,10 @@ import {
 import { ClockCircleOutlined } from "@ant-design/icons";
 import { Line } from "@ant-design/charts";
 import { useEffect } from "react";
+<<<<<<< HEAD
 // import io from "socket.io-client";
+=======
+>>>>>>> [update] udpate ui/logic
 // import { useTranslation } from "react-i18next";
 import { RootState, useAppDispatch } from "store/store";
 import { actionGetDayoffs } from "store/settings/dayoff";
@@ -19,9 +22,12 @@ import { useSelector } from "react-redux";
 import { get } from "lodash";
 import moment, { Moment } from "moment";
 const { RangePicker } = DatePicker;
+<<<<<<< HEAD
 // if (import.meta.env.VITE_SOCKET) {
 // 	window.socket = io(import.meta.env.VITE_SOCKET);
 // }
+=======
+>>>>>>> [update] udpate ui/logic
 
 function Home(): JSX.Element {
 	const dispatch = useAppDispatch();
@@ -32,6 +38,7 @@ function Home(): JSX.Element {
 	useEffect(() => {
 		dispatch(actionGetDayoffs({}));
 	}, [dispatch]);
+<<<<<<< HEAD
 
 	// useEffect(() => {
 	// 	const socket = window.socket;
@@ -47,6 +54,9 @@ function Home(): JSX.Element {
 	// 	});
 	// }, []);
 
+=======
+	
+>>>>>>> [update] udpate ui/logic
 	const data = [
 		{ month: "06/2021", value: 210 },
 		{ month: "07/2021", value: 234 },

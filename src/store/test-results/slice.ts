@@ -18,6 +18,9 @@ export interface TestResultsType {
 	teacher_comment: string;
 	parent_feedback: string;
 	updated_at: string;
+	student:{
+		name:string;
+	}
 }
 
 export interface TestResultsState {

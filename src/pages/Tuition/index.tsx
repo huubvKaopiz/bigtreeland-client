@@ -33,6 +33,8 @@ export default function Tuition(): JSX.Element {
 	const dispatch = useAppDispatch();
 	const history = useHistory();
 	const periodTuitionList = useSelector((state: RootState) => state.periodTuitionReducer.periodTuitions);
+	const getTuitionListState = useSelector((state: RootState) => state.periodTuitionReducer.getPeriodTuitionsStatus);
+
 	const classesList = useSelector((state: RootState) => state.classReducer.classes);
 	const [periodTableData, setPeriodTableData] = useState<TableDataType[]>([]);
 	const [classInfoList, setClassInfoList] = useState<ClassType[]>([]);
@@ -60,7 +62,7 @@ export default function Tuition(): JSX.Element {
 					+get(tuition, "residual", 0) +
 					+get(tuition, "fixed_deduction", 0) +
 					+get(tuition, "flexible_deduction", 0) -
-					+get(tuition, "debt", 0);
+					+get(tuition, "prev_debt", 0);
 				const cal_fee = est_fee - deduce_amount;
 				amount += cal_fee;
 				if (tuition.status === 1) paidCount++;
@@ -156,7 +158,7 @@ export default function Tuition(): JSX.Element {
 					Lập bảng học phí
 				</Button>
 			</Space>
-			<Table dataSource={periodTableData} bordered>
+			<Table dataSource={periodTableData} bordered loading={getTuitionListState === 'loading'}>
 				<Column title="Lớp" dataIndex="class_name" key="class_name" render={(v) => <strong>{v}</strong>} />
 				<ColumnGroup title="Chu kỳ">
 					<Column title="Từ ngày" dataIndex="fromDate" key="fromDate" render={(v) => moment(v).format(dateFormat)} />
@@ -199,7 +201,6 @@ export default function Tuition(): JSX.Element {
 					)}
 				/>
 			</Table>
-			,
 		</Layout.Content>
 	);
 }

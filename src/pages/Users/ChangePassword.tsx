@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState, useAppDispatch } from "store/store";
 import { actionResetStatusChangePassword } from "store/users/slice";
-import { PasswordFormProps } from "../../interface/interfaces";
+import { PasswordFormProps } from "../../interface";
 
 interface Props {
 	handleChangePass: (payload: { new_password: string; user_id: number }) => void;

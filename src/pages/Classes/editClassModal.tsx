@@ -4,7 +4,7 @@ import { EditOutlined } from "@ant-design/icons";
 import { useAppDispatch } from "store/store";
 import { actionUpdateClass, actionGetClasses } from "store/classes/slice";
 import { get } from "lodash";
-import { ClassType, EmployeeType, ListEmployeeType } from "interface";
+import { ClassType, EmployeeType, GetResponseType } from "interface";
 import { dayOptions, ROLE_NAMES } from "utils/const";
 import numeral from "numeral";
 import moment from "moment";
@@ -12,7 +12,7 @@ import { converRoleNameToVN } from "utils/ultil";
 
 export default function EditClassModal(props: {
 	classInfo: ClassType;
-	teachers: ListEmployeeType | null;
+	teachers: GetResponseType<EmployeeType> | null;
 	searchTeacher: (search: string) => void;
 	searchStatus: string;
 	show:boolean;

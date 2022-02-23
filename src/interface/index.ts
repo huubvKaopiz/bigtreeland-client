@@ -207,11 +207,24 @@ export interface TestType {
 	title: string;
 	updated_at: string;
 	lesson_id?: number;
-	test_results?: {
+	test_results: {
 		id: number;
 		student_id: number;
 		point: number;
+		result_link:string;
+		correct_link:string;
+		teacher_comment:string;
+		parent_feedback:string;
+		result_files:FileType[];
+		correct_files:FileType[];
 	}[];
+	class:{
+		id:number;
+		name:string;
+		schedule:number[];
+		schedule_time:string;
+		students_num:number
+	}
 }
 
 export interface FileType {
@@ -310,19 +323,17 @@ export interface LessonType {
 	id: 1;
 	tuition_period_id: 1;
 	date: "";
-	tuition_period: {
-		id: number;
-		from_date:string;
-		to_date: string;
-		class: {
-			id: number;
-			name: string;
-		};
-	};
 	lesson_feedback:{
 		id:number;
 		parent_id:number;
 		feedback:string;
+		parent:{
+			phone:string
+		}
+	}[];
+	review_lessons:{
+		reviewed:number;
+		student_id:number;
 	}[];
 }
 
@@ -345,6 +356,9 @@ export interface SalaryType {
 		id: number;
 		name: string;
 		phone: string;
+		profile:{
+			name:string;
+		}
 	};
 }
 
@@ -441,4 +455,15 @@ export interface StudentGiftType {
 		birtday:string;
 	};
 	gift:GiftType;
+}
+
+export interface ClassPhotoType {
+	id:number;
+	class_id:number;
+	file_id:number;
+	created_at:string;
+	file:{
+		name:string;
+		url:string;
+	}
 }

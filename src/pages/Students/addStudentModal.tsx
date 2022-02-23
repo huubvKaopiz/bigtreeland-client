@@ -4,12 +4,12 @@ import { PlusOutlined } from "@ant-design/icons";
 import { RootState, useAppDispatch } from "store/store";
 import { useSelector } from "react-redux";
 import { actionAddStudent, actionGetStudents } from "store/students/slice";
-import { ListParentType, ParentType } from "interface";
+import { GetResponseType, ParentType } from "interface";
 import moment from "moment";
 import { get } from "lodash";
 
 export default function AddStudentModal(props: {
-	parents: ListParentType | null;
+	parents: GetResponseType<ParentType> | null;
 	searchStatus: string,
 	searchParent: (search: string) => void;
 }): JSX.Element {

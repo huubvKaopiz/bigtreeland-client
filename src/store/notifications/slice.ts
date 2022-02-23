@@ -1,8 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { notification } from "antd";
 import { AxiosError } from "axios";
-import { GetResponseType } from "interface";
-import {NotificationType } from "interface/interfaces";
+import {NotificationType, GetResponseType } from "interface";
 import { get } from "lodash";
 import request from "utils/request";
 
@@ -24,8 +23,14 @@ export interface GetNotificationListPrams {
 
 export interface AddNotificationParams {
     user_ids: number[];
-    message: string;
-    uri: string;
+    message:{
+        title:string;
+        body:string;
+        data:{
+            uri:string | null;
+        }
+    }
+    role_id?:number
 }
 const initialState: NotificationReducerState = {
     notificationList: null,
@@ -74,7 +79,7 @@ export const actionAddNotification = createAsyncThunk(
             const response = await request({
                 url: `/api/notifications`,
                 method: "post",
-                data:{data}
+                data,
             });
             return response.data;
         } catch (error) {

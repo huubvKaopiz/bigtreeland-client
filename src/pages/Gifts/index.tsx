@@ -1,7 +1,7 @@
 import { Button, Input, Layout, Space, Image, Table, Tooltip, Modal } from 'antd';
 import { PlusOutlined, DeleteOutlined, EditOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import React, { useEffect, useState } from 'react';
-import { GiftType } from 'interface/interfaces';
+import { GiftType } from 'interface';
 import { AddGiftModal } from './addGiftModal';
 import { RootState, useAppDispatch } from 'store/store';
 import { actionDeleteGift, actionGetGiftList } from 'store/gifts/slice';

@@ -7,9 +7,9 @@ import { actionDeleteSalary, actionGetSalaries, actionSalaryPaymentConfirmed, ac
 import { RootState, useAppDispatch } from 'store/store';
 import { useHistory } from 'react-router-dom';
 import numeral from 'numeral';
-import { SalaryType } from 'interface';
+import { LessonType, SalaryType } from 'interface';
 import moment from 'moment';
-import { actionGetRevenues } from 'store/revenues/slice';
+import { actionGetRevenues, RevenueType } from 'store/revenues/slice';
 import { actionGetLessons } from 'store/lesson/slice';
 
 const { confirm } = Modal;
@@ -62,9 +62,9 @@ export default function Salaries(): JSX.Element {
             title: "Họ tên",
             dataIndex: "user",
             key: "name",
-            render: function nameCol(val: { id: number, name: string, phone: string }): JSX.Element {
+            render: function nameCol(val: { id: number, name: string, phone: string, profile:{name:string} }): JSX.Element {
                 return (
-                    <strong>{val.name}</strong>
+                    <strong>{val.profile.name}</strong>
                 )
             }
         },
@@ -271,14 +271,14 @@ function DetailSalary(props: { salaryInfo: SalaryType, show: boolean, setShow: (
                     <Collapse accordion>
                         <Panel header="Chi tiết doanh thu" key="1">
                             {
-                                salaryInfo.type == 0 ?
+                                salaryInfo.type == 0  && receipts ?
                                     <List
                                         rowKey="id"
                                         itemLayout="horizontal"
                                         // header={<div style={{ justifyContent: "space-between", display: "flex" }}><div>Chi tiết doanh thu</div><div>{numeral(0).format("0,0")}</div></div>}
                                         loading={getReceiptStatus === "loading" ? true : false}
-                                        dataSource={get(receipts, "data", [])}
-                                        renderItem={item => (
+                                        dataSource={receipts && get(receipts, "data", [])}
+                                        renderItem={(item:RevenueType) => (
                                             <List.Item>
                                                 <List.Item.Meta
                                                     title={<a href="#">{item.created_at}</a>}
@@ -287,13 +287,13 @@ function DetailSalary(props: { salaryInfo: SalaryType, show: boolean, setShow: (
                                                 <div style={{ color: "#2980b9" }}>{numeral(item.amount).format("0,0")}</div>
                                             </List.Item>
                                         )}
-                                    /> : salaryInfo.type === 1 ?
+                                    /> : salaryInfo.type === 1 && lessons?
                                         <List rowKey="id"
                                             itemLayout="horizontal"
                                             // header={<div style={{ justifyContent: "end", display: "flex", fontWeight: 600 }}>{numeral(0).format("0,0")}</div>}
                                             loading={getLessonsStatus === "loading" ? true : false}
                                             dataSource={get(lessons, "data", [])}
-                                            renderItem={item => (
+                                            renderItem={(item:LessonType) => (
                                                 <List.Item>
                                                     <List.Item.Meta
                                                         title={<a href="#">{item.tuition_period_id}</a>}

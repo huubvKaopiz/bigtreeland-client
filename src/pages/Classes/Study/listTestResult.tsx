@@ -1,181 +1,139 @@
-/* eslint-disable react-hooks/rules-of-hooks */
-/* eslint-disable no-mixed-spaces-and-tabs */
 import {
 	Image,
 	Button,
 	Descriptions,
 	Input,
 	Layout,
-	List,
 	PageHeader,
-	Skeleton,
 	Space,
 	Typography,
-	Card,
 	Spin,
 	Form,
 	DatePicker,
 	Select,
 	Divider,
+	Table,
 } from "antd";
-import { UploadOutlined, FormOutlined } from "@ant-design/icons";
+import { UploadOutlined, FormOutlined, FileDoneOutlined, StarOutlined } from "@ant-design/icons";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import Modal from "antd/lib/modal/Modal";
 import { RootState } from "store/store";
-import { actionGetClass } from "store/classes/slice";
 import {
 	actionGetTest,
 	actionResetUpdateTest,
 	actionUpdateTest,
 } from "store/testes/slice";
 import moment from "moment";
-import { dayOptions, fileIconList } from "utils/const";
+import { dayOptions, defaul_image_base64, fileIconList } from "utils/const";
 import { isImageType } from "utils/ultil";
 import FileSelectModal from "components/FileSelectModal";
-import { FileType, LessonType } from "interface";
+import { FileType, LessonType, TestType } from "interface";
 import {
-	actionGetTestResults,
 	actionUpdateTestResults,
 	resetUpdateTestResultsStatus,
+	TestResultsType,
 } from "store/test-results/slice";
-import { actionGetAttendances } from "store/attendances/slice";
 import { get } from "lodash";
-import { actionGetListFile } from "store/files/slice";
-import {
-	actionGetLessons,
-	actionSetLessionsStateNull,
-} from "store/lesson/slice";
 
 const { Title } = Typography;
 const dateFormat = "DD-MM-YYYY";
-interface TestResult {
-	id: number;
-	name: string;
-	result_files: FileType[];
-	date: string;
-	teacher_comment: string;
-	point: string;
-	correct_files: FileType[];
-}
 
 export function ListTestResults(): JSX.Element {
 	const params = useParams() as { test_id: string; class_id: string };
 	const dispatch = useDispatch();
-	const storeClassInfo = useSelector(
-		(state: RootState) => state.classReducer.classInfo
-	);
-	const storeTestInfo = useSelector(
+	const [showResultDetail, setShowResultDetail] = useState(-1);
+
+	const testInfo = useSelector(
 		(state: RootState) => state.testReducer.testInfo
-	);
-	const storeTestResultInfo = useSelector(
-		(state: RootState) => state.testResultsReducer.testResults
-	);
-	const storeAttendancesInfo = useSelector(
-		(state: RootState) => state.attendanceReducer.attendances
-	);
-	// status
-	const storeGetTestResultStatus = useSelector(
-		(state: RootState) => state.testResultsReducer.getTestResultsStatus
-	);
-	const storeGetAttendenceStatus = useSelector(
-		(state: RootState) => state.attendanceReducer.getAttendancesStatus
-	);
-	const storeGetClassStatus = useSelector(
-		(state: RootState) => state.classReducer.getClassStatus
 	);
 	const storeGetTestStatus = useSelector(
 		(state: RootState) => state.testReducer.getTestStatus
 	);
 
-	//State
-	const [listResults, setListResults] = useState<TestResult[]>([]);
-
 	useEffect(() => {
-		if (params.test_id && params.class_id) {
-			dispatch(actionGetAttendances({ class_id: parseInt(params.class_id) }));
-			dispatch(actionGetClass({ class_id: parseInt(params.class_id) }));
+		if (params.test_id) {
 			dispatch(actionGetTest(+params.test_id));
-			dispatch(actionGetTestResults({ test_id: +params.test_id }));
-			dispatch(actionSetLessionsStateNull());
-			dispatch(actionGetLessons({ class_id: +params.class_id }));
 		}
 	}, [dispatch, params]);
 
-	useEffect(() => {
-		if (storeTestResultInfo && storeAttendancesInfo) {
-			const listResults: TestResult[] = [];
-			storeTestResultInfo.data?.map((testResult) => {
-				listResults.push({
-					id: testResult.id,
-					name:
-						storeAttendancesInfo.students.find(
-							(st) => st.id === testResult.student_id
-						)?.name ?? "",
-					date: testResult.updated_at,
-					teacher_comment: testResult.teacher_comment,
-					point: testResult.point,
-					correct_files: testResult.correct_files,
-					result_files: testResult.result_files,
-				});
-			});
-			setListResults(listResults);
-		}
-	}, [storeTestResultInfo, storeAttendancesInfo]);
+
+	const testResultCols: any[] = [
+		Table.EXPAND_COLUMN,
+		{
+			title: 'Name',
+			dataIndex: '',
+			key: 'name',
+			render: function nameCol(text: string, record: TestResultsType): JSX.Element {
+				return <strong>{record.student.name}</strong>
+			}
+		},
+		{ title: 'Ngày nộp', dataIndex: 'created_at', key: 'date' },
+		{ title: 'Điểm', dataIndex: 'point', key: 'point' },
+		{ title: 'Nhận xet', dataIndex: 'teacher_comment', key: 'comment' },
+		{
+			title: '',
+			dataIndex: 'action',
+			key: 'address',
+			render: function actionCol(text: string, record: TestResultsType): JSX.Element {
+				return (
+					<>
+						<UploadResultModal
+							key="upload"
+							id={record.id}
+							correct_files={record.correct_files && []}
+						/>
+						<CommentModal
+							key="cmt"
+							id={record.id}
+							point={record.point}
+							teacher_comment={record.teacher_comment}
+						/>
+					</>
+				)
+			}
+		},
+	];
 
 	return (
 		<Layout.Content>
 			<Spin
-				spinning={
-					storeGetTestStatus === "loading" &&
-					storeGetTestResultStatus === "loading" &&
-					storeGetAttendenceStatus === "loading" &&
-					storeGetClassStatus === "loading"
-				}
+				spinning={storeGetTestStatus === "loading"}
 			>
 				<PageHeader
-					title={storeTestInfo?.title ?? "Tên bài test"}
-					subTitle={moment(storeTestInfo?.date).format(dateFormat)}
+					title={get(testInfo, "title", "")}
+					subTitle={moment(get(testInfo, "date", null)).format(dateFormat)}
 					onBack={() => window.history.back()}
 					style={{ backgroundColor: "white", marginTop: 20 }}
 					extra={[
 						<UploadTestResultModal
-							key={params.test_id}
-							id={+params.test_id}
-							title={storeTestInfo?.title ?? ""}
-							date={storeTestInfo?.date ?? ""}
-							content_link={storeTestInfo?.content_link ?? ""}
-							content_files={storeTestInfo?.content_files ?? []}
-							result_link={storeTestInfo?.result_link ?? ""}
-							result_files={storeTestInfo?.result_files ?? []}
-							lesson_id={storeTestInfo?.lesson_id ?? undefined}
+							testInfo={testInfo}
 						/>,
 					]}
 				>
 					<Descriptions size="small" column={2} bordered>
-						<Descriptions.Item label="Giáo viên">
-							<a>{storeClassInfo?.user?.profile?.name ?? "Tên giáo viên"}</a>
-						</Descriptions.Item>
+
 						<Descriptions.Item label="Lớp">
-							{storeClassInfo?.name ?? "Tên Lớp"}
+							<p>{testInfo?.class.name ?? ""}</p>
 						</Descriptions.Item>
 						<Descriptions.Item label="Số bài nộp">
 							<a>
-								{get(storeTestResultInfo, "data", []).length}/
-								{get(storeAttendancesInfo, "students", []).length}
+								{get(testInfo, "test_results", []).length}/
+								{get(testInfo, "class.students_num", 0)}
 							</a>
 						</Descriptions.Item>
 						<Descriptions.Item label="Lịch học">
 							{(() => {
-								const sortedSchedule = storeClassInfo?.schedule
-									? [...storeClassInfo.schedule]
+								const sortedSchedule = testInfo?.class.schedule
+									? [...testInfo?.class.schedule]
 									: [];
 								return sortedSchedule
 									.sort()
 									.map((day) => dayOptions[day])
 									.join(", ");
 							})()}
+							<span>({testInfo?.class.schedule_time ?? ""})</span>
 						</Descriptions.Item>
 					</Descriptions>
 				</PageHeader>
@@ -183,90 +141,33 @@ export function ListTestResults(): JSX.Element {
 					<Title style={{ marginTop: 20 }} level={5}>
 						Đề bài
 					</Title>
-					<Space
-						style={{ backgroundColor: "white", marginBottom:10 }}
-						size={[10, 10]}
-						wrap
-					>
-						Link đề bài:{" "}
-						<a
-							target="_blank"
-							rel="noreferrer"
-							href={storeTestInfo?.content_link}
-						>
-							{storeTestInfo?.content_link}
-						</a>
-					</Space>
-					
-					<div style={{ padding: 10 }}>
-						<Space style={{ backgroundColor: "white" }} size={[10, 10]} wrap>
-							{storeTestInfo?.content_files.map((file, index) => (
-								<Card
-									key={index}
-									hoverable
-									style={{ width: 240 }}
-									cover={
-										<Image
-											width={240}
-											height={240}
-											style={{ objectFit: "cover" }}
-											alt="logo"
-											src={
-												isImageType(file.type || "")
-													? file.url
-													: fileIconList[
-													Object.keys(fileIconList).find(
-														(k) => k === file.type
-													) as keyof typeof fileIconList
-													]
-											}
-										/>
-									}
-								>
-									<Card.Meta
-										style={{ padding: 0 }}
-										title={
-											<a href={file.url} rel="noreferrer" target="_blank">
-												<div>{file.name}</div>
-											</a>
-										}
-									/>
-								</Card>
-							))}
-						</Space>
-					</div>
-					<Title style={{ marginTop: 20 }} level={5}>
-						Đáp án
-					</Title>
-					<Space
-						style={{ backgroundColor: "white", marginBottom:10 }}
-						size={[10, 10]}
-						wrap
-					>
-						Link kết quả:{" "}
-						<a
-							target="_blank"
-							rel="noreferrer"
-							href={storeTestInfo?.result_link}
-						>
-							{storeTestInfo?.result_link ?? ""}
-						</a>
-					</Space>
-					<div style={{ padding: 10 }}>
+					{
+						testInfo?.content_link &&
 						<Space
-							style={{ marginTop: 20, backgroundColor: "white" }}
+							style={{ backgroundColor: "white", marginBottom: 10 }}
 							size={[10, 10]}
 							wrap
 						>
-							{storeTestInfo?.result_files.map((file, index) => (
-								<Card
-									key={index}
-									hoverable
-									style={{ width: 240 }}
-									cover={
+							Link đề bài:{" "}
+							<a
+								target="_blank"
+								rel="noreferrer"
+								href={testInfo?.content_link}
+							>
+								{testInfo?.content_link}
+							</a>
+						</Space>
+					}
+					{
+						get(testInfo, "content_files", []).length > 0 &&
+						<div style={{}}>
+							<p>Ảnh đề bài</p>
+							<Space style={{ backgroundColor: "white" }} size={[10, 10]} wrap>
+								{testInfo?.content_files.map((file, index) => (
+									<div key={index}>
 										<Image
-											width={240}
-											height={240}
+											width={100}
+											height={100}
 											style={{ objectFit: "cover" }}
 											alt="logo"
 											src={
@@ -279,64 +180,143 @@ export function ListTestResults(): JSX.Element {
 													]
 											}
 										/>
-									}
-								>
-									<Card.Meta
-										title={
-											<a href={file.url} rel="noreferrer" target="_blank">
-												{file.name}
-											</a>
-										}
-									/>
-								</Card>
-							))}
+									</div>
+
+								))}
+							</Space>
+						</div>
+					}
+
+					<Title style={{ marginTop: 20 }} level={5}>
+						Đáp án
+					</Title>
+					{
+						testInfo?.result_link &&
+						<Space
+							style={{ backgroundColor: "white", marginBottom: 10 }}
+							size={[10, 10]}
+							wrap
+						>
+							Link đáp án:{" "}
+							<a
+								target="_blank"
+								rel="noreferrer"
+								href={testInfo?.result_link}
+							>
+								{testInfo?.result_link ?? ""}
+							</a>
 						</Space>
-					</div>
+					}
+					{
+						get(testInfo, "result_files", []).length > 0 &&
+						<div>
+							<p>Ảnh đáp án</p>
+							<Space
+								style={{ backgroundColor: "white" }}
+								size={[10, 10]}
+								wrap
+							>
+								{testInfo?.result_files.map((file, index) => (
+									<div key={index}>
+										<Image
+											width={100}
+											height={100}
+											style={{ objectFit: "cover" }}
+											alt="logo"
+											src={
+												isImageType(file.type || "")
+													? file.url
+													: fileIconList[
+													Object.keys(fileIconList).find(
+														(k) => k === file.type
+													) as keyof typeof fileIconList
+													]
+											}
+										/>
+									</div>
+								))}
+							</Space>
+						</div>
+					}
+
 					<Divider />
 					<Title style={{ marginTop: 20 }} level={5}>
 						Danh sách học sinh nộp bài
 					</Title>
-					<List
+					<Table
+						bordered
 						rowKey="id"
-						className="demo-loadmore-list"
-						loading={storeGetTestResultStatus === "loading"}
-						itemLayout="horizontal"
-						style={{ backgroundColor: "white", padding: 20 }}
-						loadMore={true}
-						dataSource={listResults}
-						renderItem={(item) => (
-							<List.Item
-								actions={[
-									<UploadResultModal
-										key="upload"
-										id={item.id}
-										correct_files={item.correct_files && []}
-									/>,
-									<CommentModal
-										key="cmt"
-										id={item.id}
-										point={item.point}
-										teacher_comment={item.teacher_comment}
-									/>,
-								]}
-							>
-								<Skeleton avatar title={false} loading={false} active>
-									<List.Item.Meta
-										avatar={
-											<Image
-												width={100}
-												height={100}
-												alt="image"
-												src="https://gw.alipayobjects.com/zos/rmsportal/mqaQswcyDLcXyDKnZfES.png"
-											/>
-										}
-										/* Todo go to student test details */
-										title={<a href="#">{item.name}</a>}
-										description={item.date}
-									/>
-								</Skeleton>
-							</List.Item>
-						)}
+						dataSource={get(testInfo, "test_results", [])}
+						columns={testResultCols}
+						expandable={{
+							expandedRowRender: record =>
+								<div>
+									{
+										record.result_link &&
+										<div style={{ marginBottom: 10 }}>
+											<h1>Link bài làm:</h1>
+											<a href={record.result_link}>{record.result_link}</a>
+										</div>
+									}
+									{
+										record.correct_link &&
+										<div style={{ marginBottom: 10 }}>
+											<h1>Link bài sửa:</h1>
+											<a href={record.correct_link}>{record.correct_link}</a>
+										</div>
+									}
+									{
+										record.result_files.length > 0 &&
+										<>
+											<h1 style={{ marginBottom: 10 }}>Ảnh bài làm:</h1>
+											<Space
+												style={{ backgroundColor: "white" }}
+												size={[10, 10]}
+												wrap
+											>
+												{get(record, "result_files", []).map(
+													(photo: FileType, index: number) => (
+														<Image
+															key={index}
+															width={100}
+															height={100}
+															style={{ objectFit: "cover" }}
+															alt="logo"
+															src={photo.url}
+															fallback={defaul_image_base64}
+														/>
+													)
+												)}
+											</Space>
+										</>
+									}
+									{
+										record.correct_files.length > 0 &&
+										<>
+											<h1 style={{ marginBottom: 10 }}>Ảnh bài sửa:</h1>
+											<Space
+												style={{ backgroundColor: "white" }}
+												size={[10, 10]}
+												wrap
+											>
+												{get(record, "correct_files", []).map(
+													(photo: FileType, index: number) => (
+														<Image
+															key={index}
+															width={100}
+															height={100}
+															style={{ objectFit: "cover" }}
+															alt="logo"
+															src={photo.url}
+															fallback={defaul_image_base64}
+														/>
+													)
+												)}
+											</Space>
+										</>
+									}
+								</div>
+						}}
 					/>
 				</div>
 			</Spin>
@@ -372,8 +352,8 @@ function CommentModal(props: {
 
 	return (
 		<>
-			<Button type="link" onClick={() => setShow(true)}>
-				Nhận xét
+			<Button type="primary" ghost icon={<StarOutlined />} onClick={() => setShow(true)}>
+				Chấm bài
 			</Button>
 			<Modal
 				title="Chấm điểm bài làm"
@@ -442,11 +422,12 @@ function UploadResultModal(props: {
 
 	return (
 		<>
-			<Button type="link" onClick={() => setShow(true)}>
-				Đăng bài chấm
+			<Button type="primary" style={{ marginRight: 10 }} icon={<FileDoneOutlined />} onClick={() => setShow(true)}>
+				Chữa bài
 			</Button>
 			<Modal
-				title="Tải bài chấm"
+				title="Chữa bài cho học sinh"
+				width={800}
 				visible={show}
 				closable
 				onCancel={() => setShow(false)}
@@ -454,6 +435,9 @@ function UploadResultModal(props: {
 				okText="Lưu lại"
 				confirmLoading={storeUpdateTestResultState === "loading"}
 			>
+				<p>Link bài chữa:</p>
+				<Input placeholder="Link bài chữa" />
+				<p style={{ marginTop: 20 }}>Ảnh bài chữa:</p>
 				<FileSelectModal
 					defaultSelected={fileSelected}
 					isShow={showSelect}
@@ -475,27 +459,10 @@ function UploadResultModal(props: {
 	);
 }
 
-function UploadTestResultModal(props: {
-	id: number;
-	title: string;
-	date: string;
-	content_link: string;
-	content_files: FileType[];
-	result_link: string;
-	result_files: FileType[];
-	lesson_id: number | undefined
-}): JSX.Element {
-	const {
-		id,
-		title,
-		date,
-		content_link,
-		content_files,
-		result_link,
-		result_files,
-		lesson_id
-	} = props;
+function UploadTestResultModal(props: { testInfo: TestType | null }): JSX.Element {
+	const { testInfo } = props;
 	const dispatch = useDispatch();
+	const [utFrom] = Form.useForm();
 	const [show, setShow] = useState(false);
 	const [resultFilesModal, setResultFilesModal] = useState(false);
 	const [showSelect, setShowSelect] = useState(false);
@@ -510,41 +477,53 @@ function UploadTestResultModal(props: {
 	const [fileSelected, setFileSelected] = useState<Array<FileType>>([]);
 
 	useEffect(() => {
-		if (storeUpdateTestState === "success") {
+		if (testInfo && storeUpdateTestState === "success") {
 			dispatch(actionResetUpdateTest());
-			dispatch(actionGetTest(id));
+			dispatch(actionGetTest(testInfo.id));
 			setShow(false);
 		}
-	}, [dispatch, id, storeUpdateTestState]);
+	}, [dispatch, testInfo, storeUpdateTestState]);
 
 	useEffect(() => {
-		const results = result_files.map((propsFile) => {
-			return listFile.data?.find((file) => file.id === propsFile.id);
-		});
-		const contents = content_files.map((propsFile) => {
-			return listFile.data?.find((file) => file.id === propsFile.id);
-		});
-		setResultFiles(results.filter(Boolean) as FileType[]);
-		setFileSelected(contents.filter(Boolean) as FileType[]);
-	}, [result_files, content_files, listFile]);
+		if (testInfo) {
+			utFrom.setFieldsValue({
+				result_link: testInfo.result_link,
+				content_link: testInfo.content_link,
+				title: testInfo.title,
+				date: moment(testInfo.date),
+				lesson_id: testInfo.lesson_id
+			})
+			const results = testInfo.result_files.map((propsFile) => {
+				return listFile.data?.find((file) => file.id === propsFile.id);
+			});
+			const contents = testInfo.content_files.map((propsFile) => {
+				return listFile.data?.find((file) => file.id === propsFile.id);
+			});
+			setResultFiles(results.filter(Boolean) as FileType[]);
+			setFileSelected(contents.filter(Boolean) as FileType[]);
+		}
+	}, [testInfo]);
 
 	function handleSubmit(values: any) {
-		const { result_link, content_link, title, date, lesson_id } = values;
-		const result_files = resultFiles.map((file) => file.id);
-		const content_files = fileSelected.map((file) => file.id);
-		// Todo update
-		dispatch(
-			actionUpdateTest({
-				id,
-				title,
-				date: moment(date).format('YYYY-MM-DD'),
-				content_files,
-				content_link,
-				result_link,
-				result_files,
-				lesson_id
-			})
-		);
+		if (testInfo) {
+			const { result_link, content_link, title, date, lesson_id } = values;
+			const result_files = resultFiles.map((file) => file.id);
+			const content_files = fileSelected.map((file) => file.id);
+			// Todo update
+			dispatch(
+				actionUpdateTest({
+					id: testInfo.id,
+					title,
+					date: moment(date).format('YYYY-MM-DD'),
+					content_files,
+					content_link,
+					result_link,
+					result_files,
+					lesson_id
+				})
+			);
+		}
+
 	}
 
 	function handleResultFileSelected(filesSelected: Array<FileType>) {
@@ -554,6 +533,7 @@ function UploadTestResultModal(props: {
 	function handleFileSelected(filesSelected: Array<FileType>) {
 		setFileSelected(filesSelected);
 	}
+	if (testInfo == undefined) return (<></>)
 
 	return (
 		<>
@@ -583,15 +563,7 @@ function UploadTestResultModal(props: {
 			>
 				<Form
 					id="aForm"
-					initialValues={{
-						result_link,
-						content_files,
-						content_link,
-						result_files,
-						title,
-						date: moment(date),
-						lesson_id
-					}}
+					form={utFrom}
 					labelCol={{ span: 4 }}
 					wrapperCol={{ span: 18 }}
 					layout="horizontal"

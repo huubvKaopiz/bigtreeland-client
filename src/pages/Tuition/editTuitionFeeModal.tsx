@@ -27,9 +27,10 @@ export function EditTuitionFeeModal(prop: { periodInfo: PeriodTuitionType | null
 					"stname": stName,
 					"est_fee": est_fee,
 					"prev_debt": get(tuitionFeeInfo, "prev_debt", "0"),
+					"residual": get(tuitionFeeInfo, "residual", "0"),
 					"fixed_deduction": get(tuitionFeeInfo, "fixed_deduction", "0"),
 					"flexible_deduction": 100 * +get(tuitionFeeInfo, "flexible_deduction", '0') / est_fee,
-					"amount": est_fee + +get(tuitionFeeInfo, "prev_debt", "0") - +get(tuitionFeeInfo, "fixed_deduction", "0") - +get(tuitionFeeInfo, "flexible_deduction", '0'),
+					"amount": est_fee + +get(tuitionFeeInfo, "prev_debt", "0") - +get(tuitionFeeInfo, "residual", "0") - +get(tuitionFeeInfo, "fixed_deduction", "0") - +get(tuitionFeeInfo, "flexible_deduction", '0'),
 					"note": get(tuitionFeeInfo, "note", ""),
 				}
 			)
@@ -109,6 +110,9 @@ export function EditTuitionFeeModal(prop: { periodInfo: PeriodTuitionType | null
 					</Form.Item>
 					<Form.Item label={`Nợ kỳ trước`} name="prev_debt">
 						<InputNumber formatter={(value) => numeral(value).format()} style={{ width: "50%", color: "#3498db", fontWeight: 700 }} disabled />
+					</Form.Item>
+					<Form.Item label={`Dư kỳ trước`} name="residual">
+						<InputNumber formatter={(value) => numeral(value).format()} style={{ width: "50%", color: "#e74c3c", fontWeight: 700 }} disabled />
 					</Form.Item>
 					<Form.Item label="Giảm trừ đặc biệt" name="fixed_deduction">
 						<InputNumber formatter={(value) => numeral(value).format()} style={{ width: "50%", color: "#e74c3c" }} />

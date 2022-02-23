@@ -61,7 +61,7 @@ export function News(): JSX.Element {
                 // loading={getNewsListState === "loading" ? true : false}
                 itemLayout="horizontal"
                 dataSource={get(newsList, "data", [])}
-                renderItem={item => (
+                renderItem={(item:NewsType) => (
                     <List.Item
                         actions={[
                             <Button type="link" danger key="list-loadmore-more" onClick={() => handleDelete(item.id)}>Xoá</Button>,
@@ -71,7 +71,7 @@ export function News(): JSX.Element {
                         <Skeleton avatar title={false} loading={getNewsListState === "loading" ? true : false} active>
                             <List.Item.Meta
                                 // avatar={<ProfileOutlined />}
-                                title={<a href="https://ant.design">{item.title}</a>}
+                                title={<a href="#">{item.title}</a>}
                                 description={item.created_at}
                             />
                             {/* <div

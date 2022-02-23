@@ -50,8 +50,6 @@ export function StudySummaryDetail(): JSX.Element {
         }
     }, [dispatch, summaryInfo])
 
-
-
     useEffect(() => {
         const conduct: number[] = [];
         get(attendances, "students", []).forEach((st) => {

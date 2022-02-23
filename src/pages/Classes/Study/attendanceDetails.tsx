@@ -1,4 +1,4 @@
-import { NotificationOutlined } from "@ant-design/icons";
+import { NotificationOutlined, FormOutlined, CloseOutlined, SaveOutlined, CheckCircleOutlined } from "@ant-design/icons";
 import {
 	Button,
 	Checkbox,
@@ -10,6 +10,8 @@ import {
 	Space,
 	Spin,
 	Table,
+	Tag,
+	Tooltip,
 } from "antd";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import TextArea from "antd/lib/input/TextArea";
@@ -114,6 +116,7 @@ function AttendanceDetails(): JSX.Element {
 
 	useEffect(() => {
 		if (storeUpdateAttendanceStatus === "success") {
+			setEditMode(false)
 			dispatch(actionGetAttendances({ class_id: parseInt(class_id) }));
 			dispatch(actionGetClass({ class_id: parseInt(class_id) }));
 		}
@@ -159,7 +162,7 @@ function AttendanceDetails(): JSX.Element {
 		studentList[index].comment = comment;
 	}
 
-	function handleCancelEdit(){
+	function handleCancelEdit() {
 		dispatch(actionGetAttendances({ class_id: parseInt(class_id) }));
 		setEditMode(false);
 	}
@@ -191,11 +194,7 @@ function AttendanceDetails(): JSX.Element {
 				students,
 				date: attendanceDate,
 			};
-			dispatch(actionUpdateAttendance(params)).finally(()=>{
-				if(storeUpdateAttendanceStatus === "success"){
-					setEditMode(false)
-				}
-			})
+			dispatch(actionUpdateAttendance(params));
 		} else {
 			notification.warn({ message: "Danh sách điểm danh trống" });
 		}
@@ -210,7 +209,8 @@ function AttendanceDetails(): JSX.Element {
 			title: "Họ tên",
 			dataIndex: "name",
 			key: "name",
-			with: "40%",
+			with: 100,
+			fixed: 'left',
 			render: function col(value: string): JSX.Element {
 				return <strong>{value}</strong>;
 			},
@@ -242,13 +242,16 @@ function AttendanceDetails(): JSX.Element {
 				index: number
 			): JSX.Element {
 				return (
-					<div style={{ textAlign: "center" }}>
+					<Space style={{ textAlign: "center" }}>
 						<Checkbox
 							onChange={() => handleCheckbox(index)}
 							checked={isAttendance}
 							disabled={!editMode}
 						/>
-					</div>
+						{
+							isAttendance ? null : <Tooltip title="Đã xem lại bài "><CheckCircleOutlined style={{color:"#27ae60", marginLeft:5}} /></Tooltip>
+						}
+					</Space>
 				);
 			},
 		},
@@ -324,6 +327,7 @@ function AttendanceDetails(): JSX.Element {
 				);
 			},
 		},
+
 		{
 			title: "",
 			key: "action",
@@ -349,39 +353,39 @@ function AttendanceDetails(): JSX.Element {
 			<PageHeader
 				className="site-page-header-responsive"
 				onBack={() => history.goBack()}
-				title={storeClassInfo?.name}
-				subTitle="Chi tiết lớp học"
+				title={moment(attendanceDate).format("DD-MM-YYYY")}
+				subTitle={`Chi tiết buổi học`}
+				extra={
+					<Space style={{ paddingTop: 20, marginBottom: 20 }}>
+						{/* Ngày điểm danh: {moment(attendanceDate).format("DD-MM-YYYY")} */}
+						{editMode && (
+							<Button type="primary" icon={<SaveOutlined />} onClick={handleSubmit}>
+								Lưu lại
+							</Button>
+						)}
+						{
+							editMode
+								? <Button type="primary" icon={<CloseOutlined />} danger onClick={() => handleCancelEdit()}>Huỷ bỏ cập nhật</Button>
+								: <Button type="primary" icon={<FormOutlined />} onClick={() => setEditMode(true)}>Cập nhật</Button>
+						}
+					</Space>
+				}
 				footer={
-					<>
-						<Space style={{ paddingTop: 20, marginBottom: 20 }}>
-							Ngày điểm danh: {moment(attendanceDate).format("DD-MM-YYYY")}
-							{editMode && (
-								<Button type="primary" onClick={handleSubmit}>
-									Lưu lại
-								</Button>
-							)}
-							{
-								editMode ?  <Button type="primary" danger onClick={()=>handleCancelEdit()}>Huỷ bỏ cập nhật</Button> : <Button type="primary" onClick={()=>setEditMode(true)}>Cập nhật</Button>
-							}
-						</Space>
-						<div>
-							<Spin
-								spinning={
-									storeGetAttendanceStatus === "loading" ||
-									storeUpdateAttendanceStatus === "loading"
-								}
-							>
-								<Table
-									dataSource={studentList}
-									columns={attendance_columns}
-									bordered
-									rowKey="id"
-									size="small"
-									pagination={false}
-								/>
-							</Spin>
-						</div>
-					</>
+					<Spin
+						spinning={
+							storeGetAttendanceStatus === "loading" ||
+							storeUpdateAttendanceStatus === "loading"
+						}
+					>
+						<Table
+							dataSource={studentList}
+							columns={attendance_columns}
+							bordered
+							rowKey="id"
+							size="small"
+							pagination={false}
+						/>
+					</Spin>
 				}
 			>
 				<Descriptions
@@ -393,11 +397,9 @@ function AttendanceDetails(): JSX.Element {
 					<Descriptions.Item label="Giáo viên">
 						<a>{get(storeClassInfo, "user.profile.name", "")}</a>
 					</Descriptions.Item>
-					<Descriptions.Item label="Ngày bắt đầu">
+					<Descriptions.Item label="Lớp học">
 						<strong>
-							{moment(get(storeClassInfo, "start_date", "") ?? void 0).format(
-								"DD-MM-YYYY"
-							)}
+							{get(storeClassInfo, "name", "")}
 						</strong>
 					</Descriptions.Item>
 					<Descriptions.Item label="Số học sinh">

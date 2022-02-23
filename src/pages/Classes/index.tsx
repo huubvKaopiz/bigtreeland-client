@@ -123,7 +123,7 @@ function Classes(): JSX.Element {
 						<Button
 							type="link"
 							icon={<UnorderedListOutlined />}
-							onClick={() => history.push({ pathname: `/classes-detail/${record.id}`, state: { classInfo: record } })}
+							onClick={() => history.push({ pathname: `/study/${record.id}`, state: { classInfo: record } })}
 						/>
 						<Button type="link" icon={<EditOutlined />} onClick={() => handleEdit(index)} />
 

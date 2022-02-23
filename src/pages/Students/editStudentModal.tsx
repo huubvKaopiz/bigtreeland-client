@@ -10,7 +10,7 @@ import {
 	Switch,
 	Spin,
 } from "antd";
-import { ListParentType, ParentType, StudentType } from "interface";
+import { GetResponseType, ParentType, StudentType } from "interface";
 import { get } from "lodash";
 import { RootState, useAppDispatch } from "store/store";
 import { actionGetStudents, actionUpdateStudent } from "store/students/slice";
@@ -21,7 +21,7 @@ const dateFormat = "DD/MM/YYYY";
 
 export default function EditStudentModal(props: {
 	student: StudentType;
-	parents: ListParentType | null;
+	parents: GetResponseType<ParentType> | null;
 	searchParent: (search: string) => void;
 	searchStatus: string;
 	show: boolean;

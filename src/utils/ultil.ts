@@ -37,14 +37,14 @@ export function downloadFile(urlFile: string, fileName: string): void {
 	});
 }
 
-export function isRoleDefault(role:string):boolean {
-	return  role === ROLE_NAMES.ADMIM || 
-			role === ROLE_NAMES.TEACHER || 
-			role === ROLE_NAMES.TEACHER2 || 
-			role === ROLE_NAMES.PARENT || 
-			role === ROLE_NAMES.SALE || 
-			role === ROLE_NAMES.ON_MANAGER
-}	
+export function isRoleDefault(role: string): boolean {
+	return role === ROLE_NAMES.ADMIM ||
+		role === ROLE_NAMES.TEACHER ||
+		role === ROLE_NAMES.TEACHER2 ||
+		role === ROLE_NAMES.PARENT ||
+		role === ROLE_NAMES.SALE ||
+		role === ROLE_NAMES.ON_MANAGER
+}
 
 
 export function converRoleNameToVN(role: ROLE_NAMES): string {
@@ -191,6 +191,12 @@ export function getPermissionDes(name: string): string {
 			break;
 		case 'gifts':
 			res = 'Quà tặng';
+			break;
+		case 'devices':
+			res = 'Thiết bị nhận thông báo';
+			break;
+		case 'many-updates':
+			res = 'Cập nhật theo lớp';
 			break;
 		default:
 			break;

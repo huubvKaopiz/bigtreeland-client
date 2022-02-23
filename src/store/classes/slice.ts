@@ -1,20 +1,25 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { notification } from "antd";
 import { AxiosError } from "axios";
-import { ClassType, FileType, GetResponseType } from "interface";
+import { ClassPhotoType, ClassType, FileType, GetResponseType } from "interface";
 import { get } from "lodash";
+import { STUDY_TABS } from "utils/const";
 import request from "utils/request";
 
 export interface ClassReducerState {
 	classes: GetResponseType<ClassType> | null;
 	classInfo: ClassType | null;
 	recentTestAdded: FileType | null;
-	classDetailTabKey:string;
+	classDetailTabKey: string;
+	photos: GetResponseType<ClassPhotoType> | null;
 	getClassStatus: "idle" | "loading" | "success" | "error";
 	getClassesStatus: "idle" | "loading" | "success" | "error";
 	addClassStatus: "idle" | "loading" | "success" | "error";
 	updateClassStatus: "idle" | "loading" | "success" | "error";
 	addStudentsStatus: "idle" | "loading" | "success" | "error";
+	getClassPhotosStatus: "idle" | "loading" | "success" | "error";
+	addClassPhotosStatus: "idle" | "loading" | "success" | "error";
+	deleteClassPhotosStatus: "idle" | "loading" | "success" | "error";
 }
 
 export interface GetClassesPrams {
@@ -43,13 +48,18 @@ export interface AddTestParms {
 const initialState: ClassReducerState = {
 	classes: null,
 	classInfo: null,
-	classDetailTabKey:"1",
+	classDetailTabKey: STUDY_TABS.ATTENDACNE,
 	recentTestAdded: null,
+	photos: null,
 	getClassStatus: "idle",
 	getClassesStatus: "idle",
 	addClassStatus: "idle",
 	updateClassStatus: "idle",
 	addStudentsStatus: "idle",
+	getClassPhotosStatus: "idle",
+	addClassPhotosStatus: 'idle',
+	deleteClassPhotosStatus: "idle",
+
 };
 
 export const actionGetClass = createAsyncThunk(
@@ -124,6 +134,53 @@ export const actionUpdateClass = createAsyncThunk(
 	}
 );
 
+export const actionGetClassPhotos = createAsyncThunk(
+	"actionGetClassPhotos",
+	async (params: { class_id: number }, { rejectWithValue }) => {
+		try {
+			const response = await request({
+				url: `/api/albums`,
+				method: "get",
+				params,
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
+	}
+);
+
+export const actionAddClassPhotos = createAsyncThunk(
+	"actionAddClassPhotos",
+	async (data: { class_id: number, file_ids: number[] }, { rejectWithValue }) => {
+		try {
+			const response = await request({
+				url: `/api/albums`,
+				method: "post",
+				data,
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
+	}
+);
+
+export const actionDeleteClassPhoto = createAsyncThunk(
+	"actionDeleteClassPhoto",
+	async (albumID: number, { rejectWithValue }) => {
+		try {
+			const response = await request({
+				url: `/api/albums/${albumID}`,
+				method: "delete",
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
+	}
+);
+
 export const actionAddStudents = createAsyncThunk(
 	"actionAddStudents",
 	async (
@@ -163,8 +220,17 @@ export const classSlice = createSlice({
 		actionResetAddStudent(state) {
 			state.addStudentsStatus = "idle";
 		},
-		actionSetClassDetailTabKey(state,action){
+		actionSetClassDetailTabKey(state, action) {
 			state.classDetailTabKey = action.payload;
+		},
+		actionAddClassPhotos(state) {
+			state.addClassPhotosStatus = 'idle';
+		},
+		actionDeleteClassPhoto(state) {
+			state.deleteClassPhotosStatus = 'idle';
+		},
+		actionGetClassPhotos(state) {
+			state.getClassPhotosStatus = 'idle';
 		}
 	},
 	extraReducers: (builder) => {
@@ -246,9 +312,57 @@ export const classSlice = createSlice({
 				notification.error({
 					message: get(error, "response.data", "Có lỗi xảy ra!"),
 				});
+			})
+			
+			// get class photos
+			.addCase(actionGetClassPhotos.pending, (state) => {
+				state.getClassPhotosStatus = "loading";
+			})
+			.addCase(actionGetClassPhotos.fulfilled, (state, action) => {
+				state.getClassPhotosStatus = "success";
+				state.photos = action.payload as GetResponseType<ClassPhotoType>
+			})
+			.addCase(actionGetClassPhotos.rejected, (state, action) => {
+				state.getClassPhotosStatus = "error";
+				const error = action.payload as AxiosError;
+				notification.error({
+					message: get(error, "response.data", "Có lỗi xảy ra!"),
+				});
+			})
+
+			// add class photos
+			.addCase(actionAddClassPhotos.pending, (state) => {
+				state.addClassPhotosStatus = "loading";
+			})
+			.addCase(actionAddClassPhotos.fulfilled, (state) => {
+				state.addClassPhotosStatus = "success";
+				notification.success({ message: "Thêm ảnh thành công!" });
+			})
+			.addCase(actionAddClassPhotos.rejected, (state, action) => {
+				state.addClassPhotosStatus = "error";
+				const error = action.payload as AxiosError;
+				notification.error({
+					message: get(error, "response.data", "Có lỗi xảy ra!"),
+				});
+			})
+
+			// delete class photo
+			.addCase(actionDeleteClassPhoto.pending, (state) => {
+				state.deleteClassPhotosStatus = "loading";
+			})
+			.addCase(actionDeleteClassPhoto.fulfilled, (state) => {
+				state.deleteClassPhotosStatus = "success";
+				notification.success({ message: "Xoá ảnh thành công!" });
+			})
+			.addCase(actionDeleteClassPhoto.rejected, (state, action) => {
+				state.deleteClassPhotosStatus = "error";
+				const error = action.payload as AxiosError;
+				notification.error({
+					message: get(error, "response.data", "Có lỗi xảy ra!"),
+				});
 			});
 	},
 });
-export const { actionSetClassStateNull, actionResetAddStudent, actionSetClassDetailTabKey} =
+export const { actionSetClassStateNull, actionResetAddStudent, actionSetClassDetailTabKey } =
 	classSlice.actions;
 export default classSlice.reducer;

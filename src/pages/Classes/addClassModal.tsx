@@ -5,14 +5,14 @@ import { RootState, useAppDispatch } from "store/store";
 import { useSelector } from "react-redux";
 import { actionAddClass, actionGetClasses } from "store/classes/slice";
 import { get } from "lodash";
-import { EmployeeType, ListEmployeeType } from "interface";
+import { EmployeeType, GetResponseType } from "interface";
 import numeral from "numeral";
 import { dayOptions, ROLE_NAMES } from "utils/const";
 import moment from "moment";
 import { converRoleNameToVN } from "utils/ultil";
 
 export default function AddClassModal(props: {
-	teachers: ListEmployeeType | null;
+	teachers: GetResponseType<EmployeeType> | null;
 }): JSX.Element {
 
 	const { teachers } = props;

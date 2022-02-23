@@ -43,8 +43,6 @@ const lesson_columns = [
 export default function TuitionDetail(): JSX.Element {
 	const params = useParams() as { tuition_id: string };
 	const dispatch = useAppDispatch();
-	const tuitionPeriodInfo = useSelector((state: RootState) => state.periodTuitionReducer.periodTuition);
-	const students = useSelector((state: RootState) => state.studentReducer.students);
 	const [studentList, setStudetnList] = useState<StudentType[]>([]);
 	const [newStudentList, setNewStudentList] = useState<StudentType[]>([]);
 	const [estTuitionFee, setEstTuitionFee] = useState<number>(0);
@@ -52,6 +50,11 @@ export default function TuitionDetail(): JSX.Element {
 	const [paymentCount, setPaymentCount] = useState<number>(0);
 	const [showNotiForm, setShowNotiForm] = useState(false);
 	const [notiIndex, setNotiIndex] = useState(-1);
+
+	const tuitionPeriodInfo = useSelector((state: RootState) => state.periodTuitionReducer.periodTuition);
+	const getTuitionPeriodState = useSelector((state: RootState) => state.periodTuitionReducer.getPeriodTuitionStatus);
+
+	const students = useSelector((state: RootState) => state.studentReducer.students);
 
 	//get period information 
 	useEffect(() => {
@@ -124,7 +127,7 @@ export default function TuitionDetail(): JSX.Element {
 			content: "Lưu ý để chuyển nợ bắt buộc phải tồn tại một chu kỳ mới tương ứng của học sinh!",
 			icon: <ExclamationCircleOutlined />,
 			onOk() {
-				const debt_tranfer = feesPerStudent[tuition.id] - +tuition.fixed_deduction - +tuition.flexible_deduction;
+				const debt_tranfer = feesPerStudent[tuition.id] - +tuition.fixed_deduction - +tuition.flexible_deduction - +tuition.residual || 0;
 				dispatch(actionTuitionFeeTranferDebt({ debt_tranfer: String(debt_tranfer), tuition_fee_id: tuition.id })).finally(() => {
 					dispatch(actionGetPeriodTuion(parseInt(params.tuition_id)));
 				})
@@ -236,7 +239,7 @@ export default function TuitionDetail(): JSX.Element {
 			render: function amountCol(_: number, feeItem: TuitionFeeType): JSX.Element {
 				return (
 					<span style={{ color: "#2980b9", fontWeight: 700 }}>
-						{numeral(feesPerStudent[feeItem.id]! + +feeItem.prev_debt - +feeItem.fixed_deduction - +feeItem.flexible_deduction).format("0,0")}
+						{numeral(feesPerStudent[feeItem.id]! + +feeItem.prev_debt - +feeItem.fixed_deduction - +feeItem.flexible_deduction - +feeItem.residual || 0).format("0,0")}
 					</span>
 				);
 			},
@@ -327,6 +330,7 @@ export default function TuitionDetail(): JSX.Element {
 						<TabPane tab="Học phí mỗi học sinh" key="stdTuition">
 							<Table
 								rowKey="student_id"
+								loading={getTuitionPeriodState === 'loading'}
 								bordered
 								style={{ paddingTop: 20 }}
 								dataSource={get(tuitionPeriodInfo, "tuition_fees", [])}
@@ -403,25 +407,30 @@ function SendNotiModal(prop: {
 				if (onlyUnpaid) {
 					if (tuition.status !== 1) {
 						const student = students.find((st) => st.id === tuition.student_id);
-						const userID = get(student,"parent.id",0);
+						const userID = get(student, "parent.id", 0);
 						if (userID > 0) user_ids.push(userID)
 					}
 				} else {
 					const student = students.find((st) => st.id === tuition.student_id);
-					const userID = get(student,"parent.id",0);
+					const userID = get(student, "parent.id", 0);
 					if (userID > 0) user_ids.push(userID)
 				}
 			})
 		} else {
 			const student = students.find((st) => st.id === get(periodTuitionInfo, "tuition_fees", [])[tuitionIndex].student_id);
-			const userID = get(student,"parent.id",0);
+			const userID = get(student, "parent.id", 0);
 			if (userID > 0) user_ids.push(userID)
 		}
 
 		const payload = {
 			user_ids,
-			message,
-			uri: NOTIFI_URIS.TUITION_FEE
+			message: {
+				title: "Thông báo học phí",
+				body: message,
+				data: {
+					uri: NOTIFI_URIS.TUITION_FEE
+				}
+			}
 		}
 		dispatch(actionAddNotification(payload)).finally(() => {
 			setShow(false);
@@ -436,10 +445,10 @@ function SendNotiModal(prop: {
 				onOk={handleSendNotification}
 				footer={[
 					<Button key="btncancel" onClick={() => setShow(false)}>Huỷ bỏ</Button>,
-					<Button 
-						key="btnsubmit" 
-						type="primary" 
-						onClick={() => handleSendNotification()} 
+					<Button
+						key="btnsubmit"
+						type="primary"
+						onClick={() => handleSendNotification()}
 						loading={sending === 'loading' ? true : false}>Gửi đi
 					</Button>
 

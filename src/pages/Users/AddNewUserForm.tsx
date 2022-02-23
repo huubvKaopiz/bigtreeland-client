@@ -1,6 +1,6 @@
 import { PlusOutlined } from "@ant-design/icons";
 import { Button, Form, Input, Modal, Select, Space, Spin } from "antd";
-import { AddNewUser } from "interface/interfaces";
+import { AddNewUser } from "interface";
 import validateMessage from "lib/validateMessage";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
