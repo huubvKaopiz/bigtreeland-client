@@ -38,7 +38,7 @@ function Routes(): JSX.Element {
 			<Route path="/salaries-create" component={AddSalary} />
 			<Route path="/classes" component={Classes} />
 			<Route exact path="/study/:class_id" component={Study} />
-			<Route path="/study/:class_id/attendace/:date" component={AttendanceDetails} />
+			<Route path="/study/:class_id/attendance/:date" component={AttendanceDetails} />
 			<Route path="/study/:class_id/edit-attendace/:date" component={AttendanceDetails} />
 			<Route path="/study-tests/:test_id/:class_id" component={ListTestResults} />
 			<Route path="/study-summary" component={StudySumaryBoard} />

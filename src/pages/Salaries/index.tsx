@@ -110,7 +110,6 @@ export default function Salaries(): JSX.Element {
             render: function actionsCol(val: string, record: SalaryType, index: number) {
                 return (
                     <>
-
                         <Tooltip title="Xem chi tiết"> <Button onClick={() => handleShowDetail(index)} type="link" icon={<ProfileOutlined />} /></Tooltip>
                         {/* <Tooltip title="Sửa bảng lương"> <Button disabled={Number(record.status) === 1 ? true : false} type="link" icon={<EditOutlined />} onClick={() => history.push(`/salaries-edit/${record.id}`)} /></Tooltip> */}
                         <Tooltip title="Đã thanh toán">
