@@ -14,7 +14,7 @@ import Revenue from "pages/Revenues/Revenues";
 import { ListTestResults } from "pages/Classes/Study/listTestResult";
 import Tuition from "pages/Tuition";
 import TuitionDetail from "pages/Tuition/tuitionDetail";
-import Settings from "pages/Settings";
+import Settings from "pages/settings/index";
 import Salaries from "pages/Salaries";
 import AddSalary from "pages/Salaries/addSalary";
 import CreateTuitionPeriod from "pages/Tuition/createTuitionPeriod";
@@ -38,28 +38,51 @@ function Routes(): JSX.Element {
 			<Route path="/salaries-create" component={AddSalary} />
 			<Route path="/classes" component={Classes} />
 			<Route exact path="/study/:class_id" component={Study} />
-			<Route path="/study/:class_id/attendance/:date" component={AttendanceDetails} />
-			<Route path="/study/:class_id/edit-attendace/:date" component={AttendanceDetails} />
-			<Route path="/study-tests/:test_id/:class_id" component={ListTestResults} />
+			<Route
+				path="/study/:class_id/attendance/:date"
+				component={AttendanceDetails}
+			/>
+			<Route
+				path="/study/:class_id/edit-attendace/:date"
+				component={AttendanceDetails}
+			/>
+			<Route
+				path="/study-tests/:test_id/:class_id"
+				component={ListTestResults}
+			/>
 			<Route path="/study-summary" component={StudySumaryBoard} />
-			<Route path="/study-summary-detail/:sumamry_id" component={StudySummaryDetail} />
+			<Route
+				path="/study-summary-detail/:sumamry_id"
+				component={StudySummaryDetail}
+			/>
 			<Route path="/students" component={Students} />
-			<Route path="/students-study-profile/:student_id" component={StudyProfile} />
+			<Route
+				path="/students-study-profile/:student_id"
+				component={StudyProfile}
+			/>
 			<Route path="/payments/tuition" component={Tuition} />
-			<Route path="/payments/tuition-detail/:tuition_id" component={TuitionDetail} />
+			<Route
+				path="/payments/tuition-detail/:tuition_id"
+				component={TuitionDetail}
+			/>
 			<Route path="/payments/tuition-create" component={CreateTuitionPeriod} />
 			<Route path="/payments/revenue" component={Revenue} />
 			<Route path="/parents" component={Parents} />
 			<Route path="/permissions" component={Permissions} />
 			<Route path="/roles" component={Roles} />
-			<Route path="/roles-set-permissions/:role_id" component={SetRolePermissions} />
-			<Route path="/user-set-permissions/:user_id" component={SetUserPermissions} />
+			<Route
+				path="/roles-set-permissions/:role_id"
+				component={SetRolePermissions}
+			/>
+			<Route
+				path="/user-set-permissions/:user_id"
+				component={SetUserPermissions}
+			/>
 			<Route path="/payments/payment-slips" component={Payment} />
 			<Route path="/news" component={News} />
 			<Route path="/gifts" component={Gifts} />
 			<Route path="/files" component={Files} />
 			<Route path="/settings" component={Settings} />
-			
 		</>
 	);
 }
