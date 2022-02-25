@@ -14,14 +14,18 @@ import { get } from "lodash";
 import { actionLogout } from "store/auth/slice";
 import "./i18n";
 import { getFireBaseListApp, initializeFirebase } from "lib/fire-base";
+import useIsMounted from "hooks/useIsMounted";
 
 initLib();
 
-
 function Root() {
-	const access_token = useSelector((state: RootState) => state.auth.user?.access_token ?? "");
+	const access_token = useSelector(
+		(state: RootState) => state.auth.user?.access_token ?? ""
+	);
 	if (access_token) {
-		api.defaults.headers.common["Authorization"] = "Bearer ".concat(access_token);
+		api.defaults.headers.common["Authorization"] = "Bearer ".concat(
+			access_token
+		);
 	}
 
 	api.interceptors.response.use(
@@ -35,11 +39,12 @@ function Root() {
 	);
 
 	useEffect(() => {
-		if(!getFireBaseListApp()){
-			console.log("init firebase")
-			initializeFirebase()
+		if (!getFireBaseListApp()) {
+			console.log("init firebase");
+			initializeFirebase();
 		}
-	},[])
+	}, []);
+
 	return (
 		<Router>
 			<Switch>

@@ -231,7 +231,6 @@ function LoginForm(): JSX.Element {
 						src={logo}
 						alt=""
 					/>
-					<div id="sign-in-button"></div>
 				</section>
 			</Content>
 		</Layout>
