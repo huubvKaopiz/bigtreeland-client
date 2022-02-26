@@ -26,10 +26,11 @@ export interface AttendanceStudentComment {
 	reminder: string;
 }
 export interface AddAttendenceParams {
-	class_id: number;
+	class_id?: number;
 	teacher_id?: number;
 	students: AttendanceStudentComment[];
-	date: string;
+	lesson_id?: number;
+	date?:string;
 }
 
 const initialState: AttendanceReducerState = {

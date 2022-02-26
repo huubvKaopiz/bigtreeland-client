@@ -12,6 +12,8 @@ interface TuitionFeeReducerState {
 	getTuitionFeesState: "idle" | "loading" | "success" | "error";
 	addTuitionFeeState: "idle" | "loading" | "success" | "error";
 	updateTuitionFeeState: "idle" | "loading" | "success" | "error";
+	tuitionFeePaymentState: "idle" | "loading" | "success" | "error";
+
 }
 
 interface addTuitionFeeParams {
@@ -104,6 +106,25 @@ export const actionUpdateTuitionFee = createAsyncThunk(
 	}
 );
 
+export const actionTuitionFeePayment = createAsyncThunk(
+	"actionTuitionFeePayment",
+	async (
+		data: { tuition_fee_id: number, amount: string },
+		{ rejectWithValue }
+	) => {
+		try {
+			const response = await request({
+				url: `/api/tuition-fees/payment`,
+				method: "post",
+				data,
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
+	}
+);
+
 export const actionTuitionFeeTranferDebt = createAsyncThunk(
 	"actionTuitionFeeTranferDebt",
 	async (
@@ -131,6 +152,7 @@ const initialState: TuitionFeeReducerState = {
 	getTuitionFeesState: "idle",
 	addTuitionFeeState: "idle",
 	updateTuitionFeeState: "idle",
+	tuitionFeePaymentState:'idle',
 };
 
 export const tuitionFeeSlice = createSlice({
@@ -155,6 +177,9 @@ export const tuitionFeeSlice = createSlice({
 		actionTuitionFeeTranferDebt(state) {
 			state.updateTuitionFeeState = "idle";
 		},
+		actionTuitionFeePayment(state){
+			state.tuitionFeePaymentState = 'idle';
+ 		}
 	},
 	extraReducers: (builder) => {
 		builder
@@ -227,6 +252,21 @@ export const tuitionFeeSlice = createSlice({
 			})
 			.addCase(actionTuitionFeeTranferDebt.rejected, (state, action) => {
 				state.updateTuitionFeeState = "error";
+				const error = action.payload as AxiosError;
+				notification.error({
+					message: get(error, "response.data", "Có lỗi xảy ra!"),
+				});
+			})
+
+			.addCase(actionTuitionFeePayment.pending, (state) => {
+				state.tuitionFeePaymentState = "loading";
+			})
+			.addCase(actionTuitionFeePayment.fulfilled, (state) => {
+				state.tuitionFeePaymentState = "success";
+				notification.success({ message: "Cập nhật thành công!" });
+			})
+			.addCase(actionTuitionFeePayment.rejected, (state, action) => {
+				state.tuitionFeePaymentState = "error";
 				const error = action.payload as AxiosError;
 				notification.error({
 					message: get(error, "response.data", "Có lỗi xảy ra!"),

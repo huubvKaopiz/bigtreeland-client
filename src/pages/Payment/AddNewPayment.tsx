@@ -66,7 +66,7 @@ function AddNewPayment(): JSX.Element {
 				icon={<PlusOutlined />}
 				onClick={() => setShow(true)}
 			>
-				Thêm mới chi tiêu
+				Thêm chi tiêu
 			</Button>
 			<Modal
 				width={1000}
@@ -103,7 +103,7 @@ function AddNewPayment(): JSX.Element {
 								{userList &&
 									get(userList, "data", []).map((emp: EmployeeType) => (
 										<Select.Option key={emp.id} value={emp.id}>
-											{`${get(emp,"profile.name","")} - ${emp.profile?.email ?? ''}`}
+											{`${get(emp,"profile.name","")}`} <a>{emp.phone ?? ''}</a>
 										</Select.Option>
 									))}
 							</Select>

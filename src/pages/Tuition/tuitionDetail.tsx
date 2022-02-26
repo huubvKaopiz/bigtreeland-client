@@ -12,7 +12,7 @@ import { actionAddNotification } from "store/notifications/slice";
 import { RootState, useAppDispatch } from "store/store";
 import { actionGetStudents } from "store/students/slice";
 import { actionGetPeriodTuion } from "store/tuition/periodslice";
-import { actionTuitionFeeTranferDebt, actionUpdateTuitionFee } from "store/tuition/tuition";
+import { actionTuitionFeePayment, actionTuitionFeeTranferDebt, actionUpdateTuitionFee } from "store/tuition/tuition";
 import { NOTIFI_URIS } from "utils/const";
 import { formatCurrency } from "utils/ultil";
 import { CreateTuitionFeeModal } from "./createTuitionFreeModal";
@@ -53,15 +53,17 @@ export default function TuitionDetail(): JSX.Element {
 
 	const tuitionPeriodInfo = useSelector((state: RootState) => state.periodTuitionReducer.periodTuition);
 	const getTuitionPeriodState = useSelector((state: RootState) => state.periodTuitionReducer.getPeriodTuitionStatus);
+	const tuitionFeePaymentState = useSelector((state: RootState) => state.tuitionFeeReducer.tuitionFeePaymentState);
+
 
 	const students = useSelector((state: RootState) => state.studentReducer.students);
 
 	//get period information 
 	useEffect(() => {
-		if (params.tuition_id) {
+		if (params.tuition_id || tuitionFeePaymentState === 'success') {
 			dispatch(actionGetPeriodTuion(parseInt(params.tuition_id)));
 		}
-	}, [dispatch, params.tuition_id]);
+	}, [dispatch, params.tuition_id, tuitionFeePaymentState]);
 
 	//handle period information change
 	useEffect(() => {
@@ -136,16 +138,23 @@ export default function TuitionDetail(): JSX.Element {
 	}
 
 	function handlePaidConfirm(tuition: TuitionFeeType) {
-		confirm({
-			title: "Xác nhận đã thanh toán",
-			content: "Lưu ý sau khi xác nhận đã thanh toán sẽ không thể sửa được bảng học phí!",
-			icon: <ExclamationCircleOutlined />,
-			onOk() {
-				dispatch(actionUpdateTuitionFee({ data: { status: 1 }, tuition_id: get(tuition, "id", 0) })).finally(() => {
-					dispatch(actionGetPeriodTuion(parseInt(params.tuition_id)));
-				})
+		if(tuition){
+			const amount = feesPerStudent[tuition.id]! + +tuition.prev_debt - +tuition.fixed_deduction - +tuition.flexible_deduction - +tuition.residual || 0
+			const tuition_fee_id = tuition.id;
+			const payload = {
+				tuition_fee_id,
+				amount:String(amount)
 			}
-		})
+			confirm({
+				title: "Xác nhận đã thanh toán",
+				content: "Lưu ý sau khi xác nhận đã thanh toán sẽ không thể sửa được bảng học phí!",
+				icon: <ExclamationCircleOutlined />,
+				onOk() {
+					dispatch(actionTuitionFeePayment(payload));
+				}
+			})
+		}
+	
 	}
 
 	function handleSendNotification(index: number) {

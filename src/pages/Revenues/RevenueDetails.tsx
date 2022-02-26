@@ -1,30 +1,9 @@
-import { Drawer } from "antd";
+import { Descriptions, Modal, Tag } from "antd";
+import { get } from "lodash";
 import moment from "moment";
 import React from "react";
 import { RevenueType, RevenuesTypeList, RevenuesStatusList } from "store/revenues/slice";
-import styled from "styled-components";
 import { formatCurrency } from "utils/ultil";
-import logo from "assets/image/mainlogo.png";
-
-const Wrapper = styled.div`
-	position: relative;
-	border: 1px solid rgba(64, 64, 64, 0.5);
-	border-radius: 10px;
-	padding: 10px 30px;
-	.text-center {
-		text-align: center;
-	}
-	.mb-20px {
-		margin-bottom: 20px;
-	}
-	.logo {
-		position: absolute;
-		left: 50%;
-		top: 50%;
-		transform: translate(-50%, -50%);
-		opacity: 70%;
-	}
-`;
 
 function RevenueDetails({
 	handleShowDetail,
@@ -36,54 +15,35 @@ function RevenueDetails({
 	data: RevenueType | null;
 }): JSX.Element {
 	return (
-		<>
-			<Drawer
-				width={"50%"}
-				title="Thông tin phiếu thu"
-				placement="right"
-				visible={show}
-				onClose={() => handleShowDetail(false)}
-			>
-				{data && (
-					<Wrapper>
-						<div className="logo">
-							<img style={{ maxWidth: "100%" }} src={logo} alt="" />
-						</div>
-						<div style={{ position: "relative", zIndex: 1 }}>
-							<h1 className="text-center">PHIẾU THU</h1>
-							<h4 className="text-center mb-20px">
-								<i>
-									Ngày {moment(data?.created_at).format("DD")} tháng {moment(data?.created_at).format("MM")} năm{" "}
-									{moment(data?.created_at).format("YYYY")}
-								</i>
-							</h4>
-							<h3>Mã số: {data?.id}</h3>
-							<h3>
-								Người lập phiếu: <i style={{ color: "#3f8600" }}>{data?.creator?.name}</i>
-							</h3>
-							<h3>
-								Loại chi:{" "}
-								<i style={{ color: data?.type === 1 ? "#cf1322" : "#3f8600" }}>
-									{data && RevenuesTypeList[data?.type]}
-								</i>
-							</h3>
-							<h3>
-								Lý do chi: <i>{data?.reason}</i>
-							</h3>
-							<h3>
-								Số tiền: <i style={{ color: "#3f8600" }}> {formatCurrency(data?.amount)}</i>
-							</h3>
-							<h3>
-								Ghi chú: <i>{data?.note}</i>
-							</h3>
-							<h3>
-								Trạng thái: <i>{RevenuesStatusList[data?.status]}</i>
-							</h3>
-						</div>
-					</Wrapper>
-				)}
-			</Drawer>
-		</>
+		<Modal
+			width={1000}
+			title="Thông tin phiếu thu"
+			visible={show}
+			onCancel={() => handleShowDetail(false)}
+			footer={null}
+		>
+			{data && (
+				<Descriptions bordered>
+					<Descriptions.Item span={2} label="Người lập"><a href="#">{get(data, "creator.profile.name")}</a></Descriptions.Item>
+					<Descriptions.Item label="Ngày lập">{moment(data?.created_at).format("DD-MM-YYYY HH:mm")}</Descriptions.Item>
+					<Descriptions.Item label="Số tiền">
+						<strong style={{ color: "#3f8600" }}> {formatCurrency(data?.amount || 0)}</strong>
+					</Descriptions.Item>
+					<Descriptions.Item label="Loại doanh thu">
+						<Tag color={data?.type === 1 ? "#3498db" : "#d35400"}>{data && RevenuesTypeList[data?.type]}</Tag>
+					</Descriptions.Item>
+					<Descriptions.Item label="Trạng thái">
+						<Tag color={data.status === 1 ? "green" : "red"}>{RevenuesStatusList[data?.status]}</Tag>
+					</Descriptions.Item>
+					<Descriptions.Item label="Lý do" span={4}>
+						{data?.reason}
+					</Descriptions.Item>
+					<Descriptions.Item label="Ghi chú">
+						{data?.note}
+					</Descriptions.Item>
+				</Descriptions>
+			)}
+		</Modal>
 	);
 }
 

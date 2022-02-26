@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Descriptions, Typography, Layout, Table, Button, Tag, Space, Image } from 'antd';
+import { Descriptions, Typography, Layout, Table, Button, Tag, Space, Image, PageHeader } from 'antd';
 import { GiftOutlined } from '@ant-design/icons';
 import { StudentType, StudySummaryType } from 'interface';
 import { RootState, useAppDispatch } from 'store/store';
@@ -7,7 +7,7 @@ import { actionGetAttendances } from 'store/attendances/slice';
 import { actionGetTestes } from 'store/testes/slice';
 import { useSelector } from 'react-redux';
 import { get } from 'lodash';
-import { useLocation } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 import moment from 'moment';
 import { actionGetLessons } from 'store/lesson/slice';
 import Modal from 'antd/lib/modal/Modal';
@@ -20,6 +20,7 @@ export function StudySummaryDetail(): JSX.Element {
 
     const location = useLocation();
     const dispatch = useAppDispatch();
+    const history = useHistory();
     const summaryInfo = get(location, "state.summaryInfo", null) as StudySummaryType;
     const [conductPoint, setConductPoint] = useState<number[]>([]);
     const [testPointAvg, setTestPointAvg] = useState<number[]>([]);
@@ -174,10 +175,14 @@ export function StudySummaryDetail(): JSX.Element {
 
     return (
         <Layout.Content>
-            <Descriptions
+            <PageHeader
+                className="site-page-header-responsive"
+                onBack={() => history.goBack()}
                 title="Chi tiết bảng tổng kết"
                 extra={<StudentGiftsModal summaryInfo={summaryInfo} />}
-                bordered>
+            />
+           <div style={{paddingLeft:20}}>
+           <Descriptions bordered>
                 <Descriptions.Item label="Lớp"><a>{get(summaryInfo, "class.name", "")}</a></Descriptions.Item>
                 <Descriptions.Item label="Giáo viên">Hangzhou, Zhejiang</Descriptions.Item>
                 <Descriptions.Item label="Số học sinh">{get(summaryInfo, "class.students_num", 0)}</Descriptions.Item>
@@ -198,6 +203,7 @@ export function StudySummaryDetail(): JSX.Element {
                 pagination={{ defaultPageSize: 100 }}
                 scroll={{ x: 'calc(700px + 50%)' }}
             />
+           </div>
         </Layout.Content>
     )
 }
@@ -235,7 +241,7 @@ function StudentGiftsModal(props: { summaryInfo: StudySummaryType }): JSX.Elemen
             render: function GiftCol(text: string, record: StudentGiftType): JSX.Element {
                 return (
                     <Space>
-                        <Image width={60} src={get(record, "gift.url", "error")} style={{marginRight:10}}/>
+                        <Image width={60} src={get(record, "gift.url", "error")} style={{ marginRight: 10 }} />
                         <span>{get(record, "gift.name", "")}</span>
                     </Space>
                 )
@@ -275,10 +281,10 @@ function StudentGiftsModal(props: { summaryInfo: StudySummaryType }): JSX.Elemen
                 onCancel={() => setShow(false)}
                 onOk={() => setShow(false)}
             >
-                <Table 
-                    columns={cols} 
-                    dataSource={get(studentGifts, "data", [])} 
-                    loading={getStudentGiftsStatus === "loading" ? true : false}/>
+                <Table
+                    columns={cols}
+                    dataSource={get(studentGifts, "data", [])}
+                    loading={getStudentGiftsStatus === "loading" ? true : false} />
 
             </Modal>
         </>

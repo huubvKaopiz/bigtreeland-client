@@ -26,8 +26,8 @@ import {
 	AttendanceStudentComment,
 } from "store/attendances/slice";
 import { actionGetClass } from "store/classes/slice";
+import { actionGetLessonInfo } from "store/lesson/slice";
 import { RootState, useAppDispatch } from "store/store";
-import { updateStudentStatus } from "store/students/slice";
 import { dayOptions } from "utils/const";
 
 interface AttendanceDetailType {
@@ -38,12 +38,13 @@ interface AttendanceDetailType {
 	conduct_point: string;
 	reminder: string;
 	comment: string;
+	reviewd: number;
 }
 
-function AttendanceDetails(): JSX.Element {
-	const { class_id, date: attendanceDate } = useParams() as {
+function LessonDetails(): JSX.Element {
+	const { class_id, lesson_id } = useParams() as {
 		class_id: string;
-		date: string;
+		lesson_id: string;
 	};
 	const { pathname } = useLocation();
 	const [editMode, setEditMode] = useState(false);
@@ -53,31 +54,48 @@ function AttendanceDetails(): JSX.Element {
 	const [checkAll, setCheckAll] = useState(false);
 	const [studentList, setStudentList] = useState<AttendanceDetailType[]>([]);
 
-	//selector
-	const storeAttendances = useSelector(
-		(state: RootState) => state.attendanceReducer.attendances
-	);
-	const storeGetAttendanceStatus = useSelector(
-		(state: RootState) => state.attendanceReducer.getAttendancesStatus
-	);
+	//app state
 	const storeUpdateAttendanceStatus = useSelector(
 		(state: RootState) => state.attendanceReducer.updateAttendanceStatus
 	);
-	const storeClassInfo = useSelector(
+
+	const getLessonInfoState = useSelector(
+		(state: RootState) => state.lessonReducer.getLessonInfoSate
+	);
+
+	const lessonInfo = useSelector(
+		(state: RootState) => state.lessonReducer.lessonInfo
+	);
+
+	const classInfo = useSelector(
 		(state: RootState) => state.classReducer.classInfo
 	);
 
 	useEffect(() => {
-		if (storeAttendances) {
-			const { students = [] } = storeAttendances;
-			const { attendances = {} } = storeAttendances;
-			const currentAttendance = attendances[attendanceDate];
+		dispatch(actionGetLessonInfo(+lesson_id))
+		dispatch(actionGetClass({ class_id: parseInt(class_id), params: { students: true, active_periodinfo: false } }));
+	}, [dispatch, class_id]);
+
+	useEffect(() => {
+		pathname.includes("edit-attendace") && setEditMode(true);
+	}, [pathname]);
+
+
+
+	useEffect(() => {
+		if (lessonInfo && classInfo) {
+			const { students = [] } = classInfo;
+			const { attendances = [], review_lessons = [] } = lessonInfo;
 			const studentList = students.reduce(
 				(listStudents: AttendanceDetailType[], currentStudent) => {
 					const { id, name, birthday } = currentStudent;
-					const attendanceInList = currentAttendance.find(
+
+					const attendanceInList = attendances.find(
 						(st) => st.student_id === id
 					);
+
+					const reviewLessonInList = review_lessons.find((rl) => rl.student_id === id);
+
 					const conduct_point = attendanceInList?.conduct_point
 						? attendanceInList.conduct_point.toString()
 						: "";
@@ -87,6 +105,10 @@ function AttendanceDetails(): JSX.Element {
 					const comment = attendanceInList?.comment
 						? attendanceInList.comment
 						: "";
+					let reviewd = 0;
+					if (attendanceInList === undefined && reviewLessonInList) {
+						reviewd = reviewLessonInList.reviewed + 1;
+					}
 					listStudents.push({
 						id,
 						name,
@@ -95,30 +117,22 @@ function AttendanceDetails(): JSX.Element {
 						conduct_point,
 						reminder,
 						comment,
+						reviewd,
 					});
 					return listStudents;
 				},
 				[]
 			);
 			setStudentList(studentList);
-			setCheckAll(currentAttendance.length === students.length);
+			setCheckAll(attendances.length === students.length);
 		}
-	}, [attendanceDate, storeAttendances]);
+	}, [lessonInfo, classInfo]);
 
-	useEffect(() => {
-		dispatch(actionGetAttendances({ class_id: parseInt(class_id) }));
-		dispatch(actionGetClass({ class_id: parseInt(class_id) }));
-	}, [dispatch, class_id]);
-
-	useEffect(() => {
-		pathname.includes("edit-attendace") && setEditMode(true);
-	}, [pathname]);
 
 	useEffect(() => {
 		if (storeUpdateAttendanceStatus === "success") {
 			setEditMode(false)
-			dispatch(actionGetAttendances({ class_id: parseInt(class_id) }));
-			dispatch(actionGetClass({ class_id: parseInt(class_id) }));
+			dispatch(actionGetLessonInfo(+class_id));
 		}
 	}, [class_id, dispatch, storeUpdateAttendanceStatus]);
 
@@ -168,12 +182,14 @@ function AttendanceDetails(): JSX.Element {
 	}
 
 	function handleSubmit() {
-		if (!storeClassInfo) {
+		if (!classInfo) {
 			notification.warn({
 				message: "Thông tin lớp học bị lỗi, xin hãy thử lại",
 			});
 			return;
 		}
+
+
 		const students = studentList.reduce<AttendanceStudentComment[]>(
 			(list, student) => {
 				if (student.isAttendance) {
@@ -188,11 +204,10 @@ function AttendanceDetails(): JSX.Element {
 			},
 			[]
 		);
-		if (students.length > 0) {
+		if (students.length > 0 && lessonInfo) {
 			const params = {
-				class_id: storeClassInfo.id,
+				lesson_id: lessonInfo.id,
 				students,
-				date: attendanceDate,
 			};
 			dispatch(actionUpdateAttendance(params));
 		} else {
@@ -211,28 +226,19 @@ function AttendanceDetails(): JSX.Element {
 			key: "name",
 			with: 100,
 			fixed: 'left',
-			render: function col(value: string): JSX.Element {
-				return <strong>{value}</strong>;
-			},
-		},
-		{
-			title: "Ngày sinh",
-			dataIndex: "birthday",
-			key: "birthday",
-			with: "20%",
-			render: function col(value: string): JSX.Element {
-				return <span>{moment(value).format("DD-MM-YYYY")}</span>;
+			render: function col(value: string, record:{name:string, birthday:string}): JSX.Element {
+				return <Tooltip title={`Ngày sinh: ${moment(record.birthday).format("DD-MM-YYYY")}`}><strong>{value}</strong></Tooltip>;
 			},
 		},
 		{
 			title: (
-				<div style={{ textAlign: "center" }}>
+				<Tooltip title="Điểm danh">
 					<Checkbox
 						onChange={handleCheckAll}
 						disabled={!editMode}
 						checked={checkAll}
 					/>
-				</div>
+				</Tooltip>
 			),
 			key: "operation",
 			dataIndex: "isAttendance",
@@ -246,20 +252,23 @@ function AttendanceDetails(): JSX.Element {
 						<Checkbox
 							onChange={() => handleCheckbox(index)}
 							checked={isAttendance}
-							disabled={!editMode}
+							disabled={!editMode || _.reviewd === 2}
 						/>
 						{
-							isAttendance ? null : <Tooltip title="Đã xem lại bài "><CheckCircleOutlined style={{color:"#27ae60", marginLeft:5}} /></Tooltip>
+							isAttendance ? null :
+								_.reviewd === 2 ?
+									<Tooltip title="Đã xem lại bài "><CheckCircleOutlined style={{ color: "#27ae60", marginLeft: 5 }} /></Tooltip> :
+									<Tooltip title="Chưa xem lại bài "><CheckCircleOutlined style={{ color: "#e74c3c", marginLeft: 5 }} /></Tooltip>
 						}
 					</Space>
 				);
 			},
 		},
 		{
-			title: "Điểm hạnh kiểm",
+			title: "Hạnh kiểm",
 			key: "point",
 			dataIndex: "conduct_point",
-			width: 150,
+			width: 100,
 			render: function col(
 				conduct_point: number,
 				_: AttendanceDetailType,
@@ -268,10 +277,10 @@ function AttendanceDetails(): JSX.Element {
 				return (
 					<Input
 						className="_input_"
-						style={{ width: "100%" }}
+						style={{ width: "100%", color: "#34495e" }}
 						type="number"
 						step={0.1}
-						placeholder={editMode ? "điểm hạnh kiểm" : ""}
+						placeholder={editMode ? "0.0" : ""}
 						onChange={(e) => handleChangeCoductPoint(e, index)}
 						defaultValue={conduct_point}
 						disabled={!editMode}
@@ -291,7 +300,7 @@ function AttendanceDetails(): JSX.Element {
 				return (
 					<TextArea
 						className="_input_"
-						style={{ width: "100%" }}
+						style={{ width: "100%", color: "#34495e" }}
 						autoSize={{ minRows: 1, maxRows: 3 }}
 						placeholder={editMode ? "Lời nhắc nhở" : ""}
 						onChange={({ target: { value } }) => {
@@ -315,7 +324,7 @@ function AttendanceDetails(): JSX.Element {
 				return (
 					<TextArea
 						className="_input_"
-						style={{ width: "100%" }}
+						style={{ width: "100%", color: "#34495e" }}
 						autoSize={{ minRows: 1, maxRows: 3 }}
 						placeholder={editMode ? "Nhận xét" : ""}
 						onChange={({ target: { value } }) => {
@@ -353,7 +362,7 @@ function AttendanceDetails(): JSX.Element {
 			<PageHeader
 				className="site-page-header-responsive"
 				onBack={() => history.goBack()}
-				title={moment(attendanceDate).format("DD-MM-YYYY")}
+				title={moment(lessonInfo?.date || "").format("DD-MM-YYYY")}
 				subTitle={`Chi tiết buổi học`}
 				extra={
 					<Space style={{ paddingTop: 20, marginBottom: 20 }}>
@@ -373,7 +382,7 @@ function AttendanceDetails(): JSX.Element {
 				footer={
 					<Spin
 						spinning={
-							storeGetAttendanceStatus === "loading" ||
+							getLessonInfoState === "loading" ||
 							storeUpdateAttendanceStatus === "loading"
 						}
 					>
@@ -395,30 +404,30 @@ function AttendanceDetails(): JSX.Element {
 					bordered
 				>
 					<Descriptions.Item label="Giáo viên">
-						<a>{get(storeClassInfo, "user.profile.name", "")}</a>
+						<a>{get(classInfo, "user.profile.name", "")}</a>
 					</Descriptions.Item>
 					<Descriptions.Item label="Lớp học">
 						<strong>
-							{get(storeClassInfo, "name", "")}
+							{get(classInfo, "name", "")}
 						</strong>
 					</Descriptions.Item>
 					<Descriptions.Item label="Số học sinh">
 						<strong style={{ color: "#e67e22" }}>
-							{get(storeClassInfo, "students_num", 0)}
+							{get(classInfo, "students_num", 0)}
 						</strong>
 					</Descriptions.Item>
 					<Descriptions.Item label="Lịch học">
 						<strong>
 							{(() => {
-								const sortedSchedule = storeClassInfo?.schedule
-									? [...storeClassInfo.schedule]
+								const sortedSchedule = classInfo?.schedule
+									? [...classInfo.schedule]
 									: [];
 								return sortedSchedule
 									.sort()
 									.map((day) => dayOptions[day])
 									.join(", ");
 							})()}{" "}
-							({storeClassInfo?.schedule_time ?? "Chưa có thời gian học"})
+							({classInfo?.schedule_time ?? "Chưa có thời gian học"})
 						</strong>
 					</Descriptions.Item>
 				</Descriptions>
@@ -427,4 +436,4 @@ function AttendanceDetails(): JSX.Element {
 	);
 }
 
-export default AttendanceDetails;
+export default LessonDetails;

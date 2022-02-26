@@ -3,7 +3,8 @@ import {
 	CloseOutlined,
 	EditOutlined,
 	QuestionCircleOutlined,
-	UserOutlined
+	FileTextOutlined,
+	DeleteOutlined
 } from "@ant-design/icons/lib/icons";
 import SearchOutlined from "@ant-design/icons/lib/icons/SearchOutlined";
 import {
@@ -19,6 +20,7 @@ import {
 	Spin,
 	Statistic,
 	Table,
+	Tag,
 	Tooltip
 } from "antd";
 import { debounce, get, pick } from "lodash";
@@ -58,6 +60,7 @@ function Revenues(): JSX.Element {
 	const [receivedValue, setReceivedValue] = useState(123);
 	const [editingKey, setEditingKey] = useState(-1);
 	const [rowValueChange, setRowValueChange] = useState<RevenueType | null>(null);
+	const [selectedRows, setSelectedRows] = useState<RevenueType[]>([]);
 	const [currentDrawerData, setCurrentDrawerData] = useState<RevenueType | null>(null);
 	const [showDrawer, setShowDrawer] = useState(false);
 	const [searchObj, setSearchObj] = useState(() => {
@@ -140,105 +143,58 @@ function Revenues(): JSX.Element {
 		setEditingKey(-1);
 	}
 
+	function handleMultipleConfirmed() {
+
+	}
+
 	function handleShowDrawer(state: boolean) {
 		setShowDrawer(state);
 	}
 
+	function handleDelete(id: number) {
+
+	}
+
 	const tableColumn = [
 		{
-			width: "10%",
+			title: "Ngày tạo",
+			dataIndex: "created_at",
+			key: "payemnt_date",
+			render: function dateCol(date: string): JSX.Element {
+				return <>{moment(date).format("DD-MM-YYYY HH:mm")}</>;
+			},
+		},
+		{
 			title: "Người lập",
 			dataIndex: "__",
 			key: "payemnt_creator",
 			render: function NameCol(_: string, row: RevenueType): JSX.Element {
 				return (
-					<div>
-						<Space>
-							<UserOutlined />
-							{get(row, "creator.profile.name", "")}
-						</Space>
-					</div>
+					<a>
+						{get(row, "creator.profile.name", "")}
+					</a>
 				);
 			},
 		},
 		{
-			width: "10%",
-			title: "Người thu",
-			dataIndex: "_",
-			key: "payemnt_payer",
-			render: function NameCol(_: string, row: RevenueType): JSX.Element {
-				return (
-					<div>
-						<Space>
-							<UserOutlined />
-							{get(row, "saler.profile.name", "")}
-						</Space>
-					</div>
-				);
-			},
-		},
-		{
-			width: "8%",
 			title: "Loại thu",
 			dataIndex: "type",
 			key: "payemnt_type",
-			// eslint-disable-next-line @typescript-eslint/prefer-as-const
 			align: "center" as "center",
 			render: function TypeCol(type: number): JSX.Element {
-				return <span style={{ color: type === 1 ? "#cf1322" : "#3f8600" }}>{RevenuesTypeList[type]}</span>;
+				return <Tag color={type === 1 ? "#3498db" : "#d35400"}>{RevenuesTypeList[type]}</Tag>;
 			},
 		},
 		{
-			width: "10%",
 			title: "Số tiền",
 			dataIndex: "amount",
 			key: "payemnt_amount",
 			render: function amountCol(amount: number): JSX.Element {
-				return <span style={{ color: "#3f8600" }}>{formatCurrency(amount)}</span>;
+				return <strong style={{ color: "#3f8600" }}>{formatCurrency(amount)}</strong>;
 			},
 		},
+		Table.SELECTION_COLUMN,
 		{
-			width: "25%",
-			title: "Lý do",
-			dataIndex: "reason",
-			key: "payemnt_reason",
-			render: function reasonCol(reason: string, row: RevenueType): JSX.Element {
-				const editable = isEditting(row);
-				return editable ? (
-					<Input
-						placeholder={reason}
-						onClick={(e) => {
-							e.stopPropagation();
-						}}
-						onChange={({ target }) => setRowValueChange({ ...row, reason: target.value })}
-					/>
-				) : (
-					<>{reason}</>
-				);
-			},
-		},
-		{
-			width: "12%",
-			title: "Ghi chú",
-			dataIndex: "note",
-			key: "payemnt_note",
-			render: function noteCol(note: string, row: RevenueType): JSX.Element {
-				const editable = isEditting(row);
-				return editable ? (
-					<Input
-						placeholder={note}
-						onClick={(e) => {
-							e.stopPropagation();
-						}}
-						onChange={({ target }) => setRowValueChange({ ...row, note: target.value })}
-					/>
-				) : (
-					<>{note}</>
-				);
-			},
-		},
-		{
-			width: "8%",
 			title: "Trạng thái",
 			dataIndex: "status",
 			key: "payemnt_status",
@@ -264,21 +220,12 @@ function Revenues(): JSX.Element {
 						</Select>
 					</>
 				) : (
-					<>{RevenuesStatusList[status]}</>
+					<Tag color={status === 1 ? "green" : "red"}>{RevenuesStatusList[status]}</Tag>
 				);
 			},
 		},
+
 		{
-			width: "10%",
-			title: "Ngày tạo",
-			dataIndex: "date",
-			key: "payemnt_date",
-			render: function dateCol(date: string): JSX.Element {
-				return <>{formatDate(date, DatePattern.DD_MM_YYYY_HH_mm_ss)}</>;
-			},
-		},
-		{
-			width: "5%",
 			title: "Action",
 			key: "payemnt_action",
 			render: function actionCol(value: string, row: RevenueType): JSX.Element {
@@ -310,21 +257,33 @@ function Revenues(): JSX.Element {
 								handleCancelUpdateRowData();
 							}}
 							type="link"
+							danger
 							icon={<CloseOutlined />}
 						></Button>
 					</>
 				) : (
-					<Tooltip placement="top" title="Sửa thông tin">
-						<Button
-							onClick={(e) => {
-								console.log("click edit");
-								setEditingKey(row.id);
-								e.stopPropagation();
-							}}
-							type="link"
-							icon={<EditOutlined />}
-						></Button>
-					</Tooltip>
+					<Space>
+						<Tooltip placement="top" title="Sửa thông tin">
+							<Button
+								onClick={(e) => {
+									console.log("click edit");
+									setEditingKey(row.id);
+									e.stopPropagation();
+								}}
+								type="link"
+								icon={<EditOutlined />}
+							></Button>
+						</Tooltip>
+						<Tooltip title="Chi tiết">
+							<Button type="link" icon={<FileTextOutlined />} onClick={() => {
+								handleShowDrawer(true);
+								setCurrentDrawerData(row);
+							}} />
+						</Tooltip>
+						<Tooltip title="Xoá">
+							<Button type="link" danger icon={<DeleteOutlined />} disabled={row.status === 1} onClick={() => handleDelete(row.id)} />
+						</Tooltip>
+					</Space>
 				);
 			},
 		},
@@ -333,11 +292,11 @@ function Revenues(): JSX.Element {
 		<Wrapper>
 			<Layout.Content style={{ height: 1000 }}>
 				<Row style={{ marginBottom: 20, marginTop: 20 }} justify="start">
-					<Col span={10}>
+					{/* <Col span={10}>
 						<Input prefix={<SearchOutlined />} onChange={({ target: input }) => onTableFiler(input.value)} />
-					</Col>
+					</Col> */}
 
-					<Col style={{ marginLeft: 20 }}>
+					<Col>
 						<Row justify="start">
 							<RangePicker
 								allowEmpty={[true, true]}
@@ -355,27 +314,35 @@ function Revenues(): JSX.Element {
 					<Statistic title="Tổng thu" value={receivedValue} suffix="VND" valueStyle={{ color: "#3f8600" }} />
 				</Row>
 				<Spin spinning={statusGetRevenues === "loading" || statusUpdateRevenues === "loading"}>
+					{selectedRows.length > 0 &&
+						<Space style={{marginBottom:20}}>
+							<Button type="primary" icon={<CheckCircleOutlined />} onClick={() => handleMultipleConfirmed()} loading={false}>
+								Xác nhận
+							</Button>
+							<span style={{ marginLeft: 8 }}>
+								{selectedRows.length > 0 ? `${selectedRows.length} phiếu thu` : ''}
+							</span>
+						</Space>
+					}
 					<Table
 						rowClassName={(record) => (record.id === editingKey ? "editing-row" : "")}
 						rowKey="id"
-						size="small"
+						// bordered
+						dataSource={rawTableData}
+						columns={tableColumn}
+						rowSelection={{
+							type: 'checkbox',
+							onChange: (selectedRowKeys: React.Key[], selectedRows: RevenueType[]) => {
+								console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+								setSelectedRows(selectedRows);
+							},
+							getCheckboxProps: (record: RevenueType) => ({
+								disabled: record.status === 1, // Column configuration not to be checked
+							}),
+						}}
 						pagination={{
 							pageSize: 20,
 							total: get(revenuesData, "total", 0),
-							// onChange: (page) => {
-							// 	setPage(page);
-							// },
-						}}
-						dataSource={rawTableData}
-						columns={tableColumn}
-						bordered
-						onRow={(record) => {
-							return {
-								onClick: () => {
-									handleShowDrawer(true);
-									setCurrentDrawerData(record);
-								},
-							};
 						}}
 					/>
 					<RevenueDetails handleShowDetail={handleShowDrawer} show={showDrawer} data={currentDrawerData} />

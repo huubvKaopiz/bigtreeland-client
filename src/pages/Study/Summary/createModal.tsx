@@ -12,17 +12,18 @@ const { RangePicker } = DatePicker;
 export function CreateStudySummary(
     prop: {
         classList: ClassType[] | null;
+        class_id: number
     }
 ): JSX.Element {
 
-    const { classList } = prop;
+    const { classList, class_id } = prop;
     const dispatch = useAppDispatch();
     const [show, setShow] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     function submit(values: any) {
         if (values.dateRange == null) return;
         const payload = {
-            class_id: values.class_id,
+            class_id: class_id === 0 ? values.class_id : class_id,
             from_date: moment(values.dateRange[0]).format("YYYY-MM-DD"),
             to_date: moment(values.dateRange[1]).format("YYYY-MM-DD")
         }
@@ -50,8 +51,8 @@ export function CreateStudySummary(
                 onCancel={() => setShow(false)}
                 width={800}
                 footer={[
-                    <Button key="btnCancel" type="default" >Cancel</Button>,
-                    <Button key="btnSubmit" type="primary" htmlType="submit" form="stcreateFrom" loading={submitting}>Submit</Button>,
+                    <Button key="btnCancel" type="default" onClick={() => setShow(false)}>Huỷ bỏ</Button>,
+                    <Button key="btnSubmit" type="primary" htmlType="submit" form="stcreateFrom" loading={submitting}>Lư lại</Button>,
 
                 ]}
             >
@@ -62,17 +63,20 @@ export function CreateStudySummary(
                     layout="horizontal"
                     onFinish={submit}
                 >
-                    <Form.Item label="Chọn lớp" name="class_id" required>
-                        <Select defaultValue={0} style={{ width: 260 }} >
-                            <Option value={0}>Tất cả</Option>
-                            {classList && classList.map((cl) => (
-                                <Option value={cl.id} key={cl.id}>
-                                    {" "}
-                                    {cl.name}
-                                </Option>
-                            ))}
-                        </Select>
-                    </Form.Item>
+                    {
+                        class_id === 0 &&
+                        <Form.Item label="Chọn lớp" name="class_id" required>
+                            <Select defaultValue={0} style={{ width: 260 }} >
+                                <Option value={0}>Tất cả</Option>
+                                {classList && classList.map((cl) => (
+                                    <Option value={cl.id} key={cl.id}>
+                                        {" "}
+                                        {cl.name}
+                                    </Option>
+                                ))}
+                            </Select>
+                        </Form.Item>
+                    }
                     <Form.Item label="Khoảng thời gian" name="dateRange" required>
                         <RangePicker />
                     </Form.Item>

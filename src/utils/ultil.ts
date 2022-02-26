@@ -4,7 +4,7 @@ import { imageExtensionsList, ROLE_NAMES } from "./const";
 import request from "./request";
 
 export function formatCurrency(amount: number | string | undefined | null): string {
-	return numeral(amount).format("(0,0 $)");
+	return numeral(amount).format("(0,0)");
 }
 
 export function formatFileSize(size: number | string | undefined | null): string {

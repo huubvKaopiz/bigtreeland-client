@@ -61,7 +61,7 @@ function AddNewRevenues(): JSX.Element {
 				icon={<PlusOutlined />}
 				onClick={() => setShow(true)}
 			>
-				Thêm mới doanh thu
+				Thêm phiếu thu
 			</Button>
 			<Modal
 				width={1000}
@@ -86,13 +86,13 @@ function AddNewRevenues(): JSX.Element {
 						form={revenuesForm}
 						onFinish={submitForm}
 					>
-						<Divider>Thêm chi doanh thu</Divider>
+						<Divider>Tạo phiếu doanh thu</Divider>
 						<Form.Item name="sale_id" label="Người thu">
 							<Select>
 								{userList &&
 									get(userList, "data", []).map((emp: EmployeeType) => (
 										<Select.Option key={emp.id} value={emp.id}>
-											{`${get(emp,"profile.name","")} - ${emp.profile?.email ?? ''}`}
+											{`${get(emp,"profile.name","")}`} <a>{emp.phone ?? ''}</a>
 										</Select.Option>
 									))}
 							</Select>

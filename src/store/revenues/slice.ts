@@ -50,9 +50,9 @@ export interface RevenuesSearchParam {
 	employee_id?: number;
 }
 
-export const RevenuesStatusList = ["Chưa xử lý", "Đã xử lý"];
+export const RevenuesStatusList = ["Chưa xác nhận", "Đã xác nhận"];
 
-export const RevenuesTypeList = ["Học phí/Doanh thu ngoài", "Doanh thu sale"];
+export const RevenuesTypeList = ["Doanh thu ngoài", "Sale","Học phí"];
 
 export interface RevenuesState {
 	revenues: GetResponseType<RevenueType> | null;

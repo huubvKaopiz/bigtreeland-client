@@ -48,7 +48,7 @@ export interface AddTestParms {
 const initialState: ClassReducerState = {
 	classes: null,
 	classInfo: null,
-	classDetailTabKey: STUDY_TABS.ATTENDACNE,
+	classDetailTabKey: STUDY_TABS.LESSON,
 	recentTestAdded: null,
 	photos: null,
 	getClassStatus: "idle",

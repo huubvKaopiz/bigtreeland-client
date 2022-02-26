@@ -51,8 +51,9 @@ export enum NOTIFI_URIS {
 }
 
 export enum STUDY_TABS {
-	ATTENDACNE = '1',
+	// ATTENDACNE = '1',
 	TEST = '2',
-	LESSON = '3',
-	ALBUM = '4'
+	LESSON = '1',
+	ALBUM = '3',
+	SUMMARY = '4'
 }

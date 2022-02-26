@@ -66,17 +66,8 @@ function Classes(): JSX.Element {
 			title: "Tên lớp",
 			dataIndex: "name",
 			key: "name",
-			render: function nameCol(name: string): JSX.Element {
-				return <strong>{name}</strong>;
-			},
-		},
-		{
-			width: "15%",
-			title: "Loại",
-			dataIndex: "type",
-			key: "type",
-			render: function nameCol(type: number): JSX.Element {
-				return <Tag color={type === 0 ? "red" : "green"}>{type === 0 ? "Offline" : "Online"}</Tag>;
+			render: function nameCol(name: string, record:{id:number, type:number}): JSX.Element {
+				return <><strong>{name}</strong>  <Tag color={record.type === 0 ? "red" : "green"}>{record.type === 0 ? "Offline" : "Online"}</Tag></>
 			},
 		},
 		{

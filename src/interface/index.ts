@@ -19,7 +19,7 @@ export interface GetResponseType<T = unknown> {
 export interface RoleType {
 	created_at: "2021-11-02T00:50:17.000000Z";
 	guard_name: "api";
-	description:string;
+	description: string;
 	id: number;
 	name: string;
 	updated_at: "2021-11-02T00:50:17.000000Z";
@@ -37,7 +37,7 @@ export interface UserType {
 	id: number;
 	name: "admin";
 	parent: null;
-	permissions:PermistionType [];
+	permissions: PermistionType[];
 	roles: RoleType[];
 	updated_at: "2021-11-02T00:50:17.000000Z";
 	key?: React.Key;
@@ -74,7 +74,7 @@ export interface ParentType {
 export interface ClassType {
 	id: 1;
 	name: "Lớp tiếng Anh 3";
-	type:number; // 0 offline, 1 online
+	type: number; // 0 offline, 1 online
 	user: { id: number; phone: string; profile: { name: string } };
 	employee_id?: number;
 	students_num: 0;
@@ -92,7 +92,7 @@ export interface ClassType {
 }
 
 export interface User {
-	id:number;
+	id: number;
 	email: string;
 	phone: string;
 	role: string;
@@ -165,7 +165,7 @@ export interface StudentType {
 		id: number;
 		name: string;
 	};
-	type:number; // 0 offline, 1 online
+	type: number; // 0 offline, 1 online
 	school: null;
 	address: null;
 	interests: null;
@@ -182,7 +182,7 @@ export interface StudentType {
 export interface ListAttendancesType {
 	class_id: number;
 	class_name: string;
-	students: { id: number; name: string; birthday: string, parent:{id:number, name:string} }[];
+	students: StudentType[];
 	attendances: {
 		[key: string]: {
 			comment: string;
@@ -211,19 +211,19 @@ export interface TestType {
 		id: number;
 		student_id: number;
 		point: number;
-		result_link:string;
-		correct_link:string;
-		teacher_comment:string;
-		parent_feedback:string;
-		result_files:FileType[];
-		correct_files:FileType[];
+		result_link: string;
+		correct_link: string;
+		teacher_comment: string;
+		parent_feedback: string;
+		result_files: FileType[];
+		correct_files: FileType[];
 	}[];
-	class:{
-		id:number;
-		name:string;
-		schedule:number[];
-		schedule_time:string;
-		students_num:number
+	class: {
+		id: number;
+		name: string;
+		schedule: number[];
+		schedule_time: string;
+		students_num: number
 	}
 }
 
@@ -261,7 +261,7 @@ export interface OptionType {
 
 export interface RoleCreateFormType {
 	name: string;
-	description:string;
+	description: string;
 	permission_ids: React.Key[];
 	user_ids: React.Key[];
 }
@@ -323,21 +323,29 @@ export interface LessonType {
 	id: 1;
 	tuition_period_id: 1;
 	date: "";
-	lesson_feedback:{
-		id:number;
-		parent_id:number;
-		feedback:string;
-		parent:{
-			phone:string
+	lesson_feedback: {
+		id: number;
+		parent_id: number;
+		feedback: string;
+		parent: {
+			phone: string
 		}
 	}[];
-	review_lessons:{
-		reviewed:number;
-		student_id:number;
+	review_lessons: {
+		reviewed: number;
+		student_id: number;
 	}[];
-	tuition_period:{
-		from_date:string;
-		to_date:string;
+	attendances: {
+		id: number;
+		student_id: number;
+		comment: string;
+		conduct_point: string;
+		reminder: string;
+	}[];
+	tuition_period: {
+		id: number;
+		from_date: string;
+		to_date: string;
 	}
 }
 
@@ -360,8 +368,8 @@ export interface SalaryType {
 		id: number;
 		name: string;
 		phone: string;
-		profile:{
-			name:string;
+		profile: {
+			name: string;
 		}
 	};
 }
@@ -379,17 +387,17 @@ export interface StudySummaryType {
 }
 
 export interface SystemSettingsType {
-	name:string,
-	address:string,
-	phone:string,
-	email:string,
-	logo_file:{
-		id:number,
-		url:string,
+	name: string,
+	address: string,
+	phone: string,
+	email: string,
+	logo_file: {
+		id: number,
+		url: string,
 	},
-	permission_configuration_file:{
-		id:number,
-		url:string,
+	permission_configuration_file: {
+		id: number,
+		url: string,
 	}
 }
 export interface User {
@@ -431,10 +439,10 @@ export interface NewsType {
 
 export interface NotificationType {
 	user_ids: number[],
-	data:{
-		title:string;
-		body:string;
-		to:string
+	data: {
+		title: string;
+		body: string;
+		to: string
 	}[];
 }
 
@@ -449,25 +457,25 @@ export interface GiftType {
 }
 
 export interface StudentGiftType {
-	study_summary_board_id:number;
-	student_id:number;
-	gift_id:number;
-	status:number;
-	student:{
-		id:number;
-		name:number;
-		birtday:string;
+	study_summary_board_id: number;
+	student_id: number;
+	gift_id: number;
+	status: number;
+	student: {
+		id: number;
+		name: number;
+		birtday: string;
 	};
-	gift:GiftType;
+	gift: GiftType;
 }
 
 export interface ClassPhotoType {
-	id:number;
-	class_id:number;
-	file_id:number;
-	created_at:string;
-	file:{
-		name:string;
-		url:string;
+	id: number;
+	class_id: number;
+	file_id: number;
+	created_at: string;
+	file: {
+		name: string;
+		url: string;
 	}
 }

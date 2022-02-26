@@ -9,7 +9,7 @@ import {
     List,
     Space,
 } from "antd";
-import { ClassType, TestType } from "interface";
+import { ClassType, StudentType, TestType } from "interface";
 import { get } from "lodash";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
@@ -21,10 +21,9 @@ import AddTest from "./addTestModal";
 
 export function Tests(props: {
     classInfo: ClassType | null,
-    students: { id: number; name: string; birthday: string, parent: { id: number, name: string } }[]
 }): JSX.Element {
 
-    const { classInfo, students } = props;
+    const { classInfo } = props;
     const dispatch = useAppDispatch();
     const history = useHistory();
     
@@ -80,7 +79,7 @@ export function Tests(props: {
                                 }}
                             >
                                 <Button type="link" icon={<TeamOutlined />} />
-                                {students.length}
+                                {get(classInfo,"students",[]).length}
                             </Space>,
                             <Space
                                 key="act2"

@@ -185,18 +185,11 @@ function Payment(): JSX.Element {
 	const tableColumn = [
 		{
 			width: "10%",
-			title: "Người lập",
-			dataIndex: "__",
-			key: "payemnt_creator",
-			render: function NameCol(_: string, row: any): JSX.Element {
-				return (
-					<div>
-						<Space>
-							<UserOutlined />
-							{get(row, "creator.profile.name", "")}
-						</Space>
-					</div>
-				);
+			title: "Ngày tạo",
+			dataIndex: "date",
+			key: "payemnt_date",
+			render: function dateCol(date: string): JSX.Element {
+				return <>{formatDate(date, DatePattern.DD_MM_YYYY_HH_mm_ss)}</>;
 			},
 		},
 		{
@@ -247,12 +240,6 @@ function Payment(): JSX.Element {
 			key: "payemnt_reason",
 		},
 		{
-			width: "12%",
-			title: "Ghi chú",
-			dataIndex: "note",
-			key: "payemnt_note",
-		},
-		{
 			width: "8%",
 			title: "Trạng thái",
 			dataIndex: "status",
@@ -283,15 +270,7 @@ function Payment(): JSX.Element {
 				);
 			},
 		},
-		{
-			width: "10%",
-			title: "Ngày tạo",
-			dataIndex: "date",
-			key: "payemnt_date",
-			render: function dateCol(date: string): JSX.Element {
-				return <>{formatDate(date, DatePattern.DD_MM_YYYY_HH_mm_ss)}</>;
-			},
-		},
+		
 		{
 			width: "5%",
 			title: "Action",
@@ -349,14 +328,14 @@ function Payment(): JSX.Element {
 		<Wrapper>
 			<Layout.Content>
 				<Row style={{ marginBottom: 20, marginTop: 20 }} justify="start">
-					<Col span={10}>
+					{/* <Col span={10}>
 						<Input
 							prefix={<SearchOutlined />}
 							onChange={({ target: input }) => onTableFiler(input.value)}
 						/>
-					</Col>
+					</Col> */}
 
-					<Col style={{ marginLeft: 20 }}>
+					<Col>
 						<Row justify="start">
 							<RangePicker
 								allowEmpty={[true, true]}
@@ -373,9 +352,9 @@ function Payment(): JSX.Element {
 						<AddNewPayment />
 					</Col>
 				</Row>
-				<Row style={{ justifyContent: "space-between" }}>
+				<Row style={{ justifyContent: "flex-end" }}>
 					{/* Todo */}
-					<Button type="primary"> Đặt ngưỡng chi tiêu </Button>
+					{/* <Button type="primary"> Đặt ngưỡng chi tiêu </Button> */}
 					<Statistic
 						title="Tổng chi"
 						value={spenValue}

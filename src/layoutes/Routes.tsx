@@ -1,4 +1,3 @@
-import ClassDetail from "pages/Classes/Study";
 import Payment from "pages/Payment";
 import Parents from "pages/Parents";
 import Roles from "pages/Roles";
@@ -10,23 +9,23 @@ import Home from "../pages/Home";
 import Permissions from "../pages/Permissions";
 import Users from "../pages/Users";
 import Files from "pages/Files";
-import Revenue from "pages/Revenues/Revenues";
-import { ListTestResults } from "pages/Classes/Study/listTestResult";
+import Revenue from "pages/Revenues";
+import { ListTestResults } from "pages/Study/Test/listTestResult";
 import Tuition from "pages/Tuition";
 import TuitionDetail from "pages/Tuition/tuitionDetail";
-import Settings from "pages/settings/index";
 import Salaries from "pages/Salaries";
 import AddSalary from "pages/Salaries/addSalary";
 import CreateTuitionPeriod from "pages/Tuition/createTuitionPeriod";
-import { StudySumaryBoard } from "pages/StudySummary";
-import { StudySummaryDetail } from "pages/StudySummary/studySummaryDetail";
+import { StudySumaryBoard } from "pages/Study/Summary";
+import { StudySummaryDetail } from "pages/Study/Summary/studySummaryDetail";
 import { SetRolePermissions } from "pages/Roles/setPermissions";
 import { SetUserPermissions } from "pages/Users/SetPermissions";
 import { StudyProfile } from "pages/Students/studyProfile";
-import AttendanceDetails from "pages/Classes/Study/attendanceDetails";
 import { News } from "pages/News";
 import { Gifts } from "pages/Gifts";
-import Study from "pages/Classes/Study";
+import Study from "pages/Study";
+import Settings from "pages/Settings";
+import LessonDetails from "pages/Study/Lesson/lessonDetail";
 
 function Routes(): JSX.Element {
 	return (
@@ -39,12 +38,9 @@ function Routes(): JSX.Element {
 			<Route path="/classes" component={Classes} />
 			<Route exact path="/study/:class_id" component={Study} />
 			<Route
-				path="/study/:class_id/attendance/:date"
-				component={AttendanceDetails}
-			/>
-			<Route
-				path="/study/:class_id/edit-attendace/:date"
-				component={AttendanceDetails}
+				exact
+				path="/study/:class_id/lesson-detail/:lesson_id"
+				component={LessonDetails}
 			/>
 			<Route
 				path="/study-tests/:test_id/:class_id"
