@@ -52,6 +52,8 @@ export interface PaymentState {
 	getPaymentStatus: "idle" | "loading" | "success" | "error";
 	addPaymentStatus: "idle" | "loading" | "success" | "error";
 	updatePaymentStatus: "idle" | "loading" | "success" | "error";
+	deletePaymentStatus: "idle" | "loading" | "success" | "error";
+
 }
 
 const initialState: PaymentState = {
@@ -59,6 +61,7 @@ const initialState: PaymentState = {
 	getPaymentStatus: "idle",
 	addPaymentStatus: "idle",
 	updatePaymentStatus: "idle",
+	deletePaymentStatus: "idle"
 };
 
 export const actionGetPayments = createAsyncThunk(
@@ -109,6 +112,22 @@ export const actionUpdatePaymentStatus = createAsyncThunk(
 	}
 );
 
+
+export const actionDeletePayment = createAsyncThunk(
+	"actionDeletePayment",
+	async (pId:number, { rejectWithValue }) => {
+		try {
+			const response = await request({
+				url: `/api/payment-slips/${pId}`,
+				method: "delete",
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
+	}
+);
+
 export const slice = createSlice({
 	name: "payments",
 	initialState,
@@ -122,6 +141,9 @@ export const slice = createSlice({
 		resetUpdatePaymentStatus(state) {
 			state.updatePaymentStatus = "idle";
 		},
+		actionDeletePayment(state){
+			state.deletePaymentStatus = 'idle';
+		}
 	},
 
 	extraReducers: (builder) => {
@@ -164,6 +186,21 @@ export const slice = createSlice({
 			})
 			.addCase(actionUpdatePaymentStatus.rejected, (state, action) => {
 				state.updatePaymentStatus = "error";
+				const error = action.payload as AxiosError;
+				notification.error({
+					message: get(error, "response.data", "Có lỗi xảy ra!"),
+				});
+			})
+
+			.addCase(actionDeletePayment.pending, (state) => {
+				state.deletePaymentStatus = "loading";
+			})
+			.addCase(actionDeletePayment.fulfilled, (state) => {
+				state.deletePaymentStatus = "success";
+				notification.success({ message: "Xoá chi tiêu thành công!" });
+			})
+			.addCase(actionDeletePayment.rejected, (state, action) => {
+				state.deletePaymentStatus = "error";
 				const error = action.payload as AxiosError;
 				notification.error({
 					message: get(error, "response.data", "Có lỗi xảy ra!"),

@@ -479,3 +479,9 @@ export interface ClassPhotoType {
 		url: string;
 	}
 }
+
+export interface StudentStatType {
+	total_student: { [key: string]: number };
+	total_student_off: { [key: string]: number };
+	total: number;
+}

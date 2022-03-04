@@ -206,8 +206,6 @@ function DetailSalary(props: { salaryInfo: SalaryType, show: boolean, setShow: (
         })
     }
 
-
-
     return (
         <>
             {

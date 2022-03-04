@@ -1,10 +1,12 @@
-import { Drawer } from "antd";
+import { Descriptions, Drawer, Tag } from "antd";
 import moment from "moment";
 import React from "react";
 import { PaymentStatusList, PaymentType, PaymentTypeEnum } from "store/payments/slice";
 import styled from "styled-components";
 import { formatCurrency } from "utils/ultil";
 import logo from "assets/image/mainlogo.png";
+import Modal from "antd/lib/modal/Modal";
+import { get } from "lodash";
 
 const Wrapper = styled.div`
 	position: relative;
@@ -37,50 +39,35 @@ function PaymentDetails({
 }): JSX.Element {
 	return (
 		<>
-			<Drawer
-				width={"50%"}
+			<Modal
+				width={800}
 				title="Thông tin phiếu chi"
-				placement="right"
 				visible={show}
-				onClose={() => handleShowDetail(false)}
+				cancelText=""
+				onCancel={() => handleShowDetail(false)}
 			>
 				{data && (
-					<Wrapper>
-						<div className="logo">
-							<img style={{ maxWidth: "100%" }} src={logo} alt="" />
-						</div>
-						<div style={{ position: "relative", zIndex: 1 }}>
-							<h1 className="text-center">PHIẾU CHI</h1>
-							<h4 className="text-center mb-20px">
-								<i>
-									Ngày {moment(data?.created_at).format("DD")} tháng {moment(data?.created_at).format("MM")} năm{" "}
-									{moment(data?.created_at).format("YYYY")}
-								</i>
-							</h4>
-							<h3>Mã số: {data?.id}</h3>
-							<h3>
-								Người lập phiếu: <i style={{ color: "#3f8600" }}>{data?.creator?.name}</i>
-							</h3>
-							<h3>
-								Loại chi:{" "}
-								<i style={{ color: data?.type === 0 ? "#cf1322" : "#3f8600" }}>{data && PaymentTypeEnum[data?.type]}</i>
-							</h3>
-							<h3>
-								Lý do chi: <i>{data?.reason}</i>
-							</h3>
-							<h3>
-								Số tiền: <i style={{ color: "#cf1322" }}> {formatCurrency(data?.amount)}</i>
-							</h3>
-							<h3>
-								Ghi chú: <i>{data?.note}</i>
-							</h3>
-							<h3>
-								Trạng thái: <i>{PaymentStatusList[data?.status]}</i>
-							</h3>
-						</div>
-					</Wrapper>
-				)}
-			</Drawer>
+				<Descriptions bordered>
+					<Descriptions.Item span={2} label="Người lập"><a href="#">{get(data, "creator.profile.name")}</a></Descriptions.Item>
+					<Descriptions.Item label="Ngày lập">{moment(data?.created_at).format("DD-MM-YYYY HH:mm")}</Descriptions.Item>
+					<Descriptions.Item label="Số tiền">
+						<strong style={{ color: "#cf1322" }}> {formatCurrency(data?.amount || 0)}</strong>
+					</Descriptions.Item>
+					<Descriptions.Item label="Loại chi">
+						<Tag color={data?.type === 1 ? "#3498db" : "#d35400"}>{data && PaymentTypeEnum[data?.type]}</Tag>
+					</Descriptions.Item>
+					<Descriptions.Item label="Trạng thái">
+						<Tag color={data.status === 1 ? "green" : "red"}>{PaymentStatusList[data?.status]}</Tag>
+					</Descriptions.Item>
+					<Descriptions.Item label="Lý do" span={4}>
+						{data?.reason}
+					</Descriptions.Item>
+					<Descriptions.Item label="Ghi chú">
+						{data?.note}
+					</Descriptions.Item>
+				</Descriptions>
+			)}
+			</Modal>
 		</>
 	);
 }

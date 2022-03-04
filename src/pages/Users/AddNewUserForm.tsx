@@ -47,7 +47,7 @@ function AddNewUserForm({
 		form.resetFields();
 	}
 	function handleAddUser(userInfo: AddNewUser) {
-		onAddUser(userInfo);
+		onAddUser({...userInfo,password:"password"});
 	}
 
 	useEffect(() => {
@@ -119,13 +119,13 @@ function AddNewUserForm({
 						>
 							<Select options={listRole} />
 						</Form.Item>
-						<Form.Item
+						{/* <Form.Item
 							name={"password"}
 							label="Mật khẩu"
 							rules={[{ required: true, message: validateMessage.REQUIRE }]}
 						>
 							<Input.Password />
-						</Form.Item>
+						</Form.Item> */}
 						<Form.Item wrapperCol={{ offset: 8 }}>
 							<Space size="large">
 								<Button type="primary" htmlType="submit">
