@@ -153,10 +153,10 @@ export default function CreateTuitionPeriod(): JSX.Element {
 						} else {
 							flexible_deduction_percent = 100 * +get(tuitionFee, "flexible_deduction", 0) / (get(classInfo, "active_period_tuition.est_session_num", 0) * fee_per_session)
 						}
-					}
+					} else special_residual_session_num = -1;
 				}
 
-				const finalResidual = special_residual_session_num === 0
+				const finalResidual = special_residual_session_num === -1 ? 0 : special_residual_session_num === 0
 					? residualSessionNum * fee_per_session - (residualSessionNum * fee_per_session * flexible_deduction_percent / 100)
 					: special_residual_session_num * fee_per_session - (special_residual_session_num * fee_per_session * flexible_deduction_percent / 100)
 				// push tuition_fee
@@ -178,6 +178,20 @@ export default function CreateTuitionPeriod(): JSX.Element {
 		}
 	}, [classInfo, residualSessionNum, estSessionNum]);
 
+	useEffect(() => {
+		if (addPeriodTuitionState === 'success') {
+			setShowConfirmSubmit(false);
+			confirm({
+				title: "Chuyển tới bảng danh sách chu kỳ học phí!",
+				icon: <CheckCircleOutlined />,
+				onOk() {
+					history.push("/payments/tuition")
+				}
+			})
+		}
+	})
+
+
 	function getTuitionFeeAmount(index: number): number {
 		const est_fee = estSessionNum * get(classInfo, "fee_per_session", 0);
 		return (
@@ -196,7 +210,7 @@ export default function CreateTuitionPeriod(): JSX.Element {
 		if (get(classInfo, "active_period_tuition.to_date", "") != "") {
 			if (moment(get(classInfo, "active_period_tuition.to_date", "")).isSameOrAfter(moment(dateString[0]))) setPeriodDateRangValid(false);
 			else setPeriodDateRangValid(true);
-		}else setPeriodDateRangValid(true);
+		} else setPeriodDateRangValid(true);
 		dispatch(actionGetDayoffs({ from_date: dateString[0], to_date: dateString[1] }));
 	}
 
@@ -261,16 +275,7 @@ export default function CreateTuitionPeriod(): JSX.Element {
 				draft,
 				dayoffs: dayoffsInPeriod,
 			};
-			dispatch(actionAddPeriodTuion(payload as AddPeriodTuionParms)).finally(() => {
-				setShowConfirmSubmit(false);
-				confirm({
-					title: "Chuyển tới bảng danh sách chu kỳ học phí!",
-					icon: <CheckCircleOutlined />,
-					onOk() {
-						history.push("/payments/tuition")
-					}
-				})
-			})
+			dispatch(actionAddPeriodTuion(payload as AddPeriodTuionParms));
 		}
 	}
 
@@ -548,7 +553,7 @@ export default function CreateTuitionPeriod(): JSX.Element {
 				{
 					periodDateRangValid === false ?
 						<Alert
-							style={{marginTop:20}}
+							style={{ marginTop: 20 }}
 							message="Sai khoảng thời gian tính học phí"
 							description={`Ngày bắt đầu tính học phí phải sau ngày ${get(classInfo, "active_period_tuition.to_date", "")}`}
 							type="error"
