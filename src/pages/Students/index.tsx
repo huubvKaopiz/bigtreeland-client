@@ -67,25 +67,15 @@ export default function Students(): JSX.Element {
 
 	const columns = [
 		{
-			width: "15%",
 			title: "Họ tên",
 			dataIndex: "name",
 			key: "name",
-			render: function nameCol(value: string): JSX.Element {
-				return <strong>{value}</strong>;
+			render: function nameCol(value: string, record:StudentType): JSX.Element {
+				return  <Space><strong>{value}</strong><Tag style={{fontSize:12}} color={record.type === 0 ? "red" : "green"}>{record.type === 0 ? "Offline" : "Online"}</Tag></Space>;
 			},
 		},
 		{
-			width: "15%",
-			title: "Loại",
-			dataIndex: "type",
-			key: "type",
-			render: function nameCol(type: number): JSX.Element {
-				return <Tag color={type === 0 ? "red" : "green"}>{type === 0 ? "Offline" : "Online"}</Tag>;
-			},
-		},
-		{
-			width: "10%",
+			width: 120,
 			title: "Ngày sinh",
 			dataIndex: "birthday",
 			key: "birthday",
@@ -95,7 +85,7 @@ export default function Students(): JSX.Element {
 		},
 
 		{
-			width: "15%",
+			width: 200,
 			title: "Phụ huynh",
 			dataIndex: "parent",
 			key: "parent",
@@ -104,7 +94,7 @@ export default function Students(): JSX.Element {
 			},
 		},
 		{
-			width: "15%",
+			width: 200,
 			title: "Lớp",
 			dataIndex: "class",
 			key: "class",
@@ -112,38 +102,18 @@ export default function Students(): JSX.Element {
 				return <a>{get(value, "name", "")}</a>;
 			},
 		},
-		// {
-		// 	width: "10%",
-		// 	title: "Trường học",
-		// 	dataIndex: "school",
-		// 	key: "school",
-		// },
-
-		// {
-		// 	width: "10%",
-		// 	title: "Gới tính",
-		// 	dataIndex: "gender",
-		// 	key: "gender",
-		// 	render: function genderCol(value: number): JSX.Element {
-		// 		return <span>{value === 0 ? "Nữ" : "Nam"}</span>;
-		// 	},
-		// },
 		{
-			width: "15%",
+			width: 200,
 			title: "Action",
 			render: function ActionCol(text: string, student: StudentType, index: number): JSX.Element {
 				return (
 					<Space key={student.id}>
-						{student.class === null ? (
-							<ImportClass
-								student={student}
-								classesList={classesList}
-								searchClass={debounceSearchClass}
-								searchStatus={searchClassStatus}
-							/>
-						) : (
-							""
-						)}
+						<ImportClass
+							student={student}
+							classesList={classesList}
+							searchClass={debounceSearchClass}
+							searchStatus={searchClassStatus}
+						/>
 						{/* <Profile student={student} /> */}
 						<Tooltip placement="top" title="Hồ sơ học tập">
 							<Button icon={<SnippetsOutlined onClick={() => history.push(`/students-study-profile/${student.id}`)} />} type="link" />
@@ -165,7 +135,7 @@ export default function Students(): JSX.Element {
 		<Layout.Content>
 			<Row style={{ marginBottom: 20, marginTop: 20 }} justify="start">
 				<Col span={10}>
-					<Input.Search allowClear onChange={({ target: { value } }) => debounceSearchStudent(value)} />
+					<Input.Search allowClear onChange={({ target: { value } }) => debounceSearchStudent(value)} placeholder='Tìm kiếm theo tên học sinh' />
 				</Col>
 				<Col span={6} style={{ marginLeft: 20 }}>
 					<AddStudentModal parents={parents} searchParent={debounceSearchParent} searchStatus={searchParentStatus} />

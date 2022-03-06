@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Descriptions, Typography, Layout, Table, Button, Tag, Space, Image, PageHeader } from 'antd';
 import { GiftOutlined } from '@ant-design/icons';
-import { StudentType, StudySummaryType } from 'interface';
+import { LessonType, StudentType, StudySummaryType } from 'interface';
 import { RootState, useAppDispatch } from 'store/store';
 import { actionGetAttendances } from 'store/attendances/slice';
 import { actionGetTestes } from 'store/testes/slice';
@@ -13,6 +13,7 @@ import { actionGetLessons } from 'store/lesson/slice';
 import Modal from 'antd/lib/modal/Modal';
 import { actionGetStudyGifts } from 'store/study-summary/slice';
 import { StudentGiftType } from 'interface';
+import { actionGetStudents } from 'store/students/slice';
 
 const { Title } = Typography;
 
@@ -26,17 +27,21 @@ export function StudySummaryDetail(): JSX.Element {
     const [testPointAvg, setTestPointAvg] = useState<number[]>([]);
 
     //application state
-    const attendances = useSelector((state: RootState) => state.attendanceReducer.attendances);
     const testes = useSelector((state: RootState) => state.testReducer.testes);
     const lessons = useSelector((state: RootState) => state.lessonReducer.lessons);
-    const getAttendanceStatus = useSelector((state: RootState) => state.attendanceReducer.getAttendancesStatus);
+    const students =  useSelector((state: RootState) => state.studentReducer.students);
+    const getLessonsStat = useSelector((state: RootState) => state.lessonReducer.getLessonsState);
+    const getTestsStat = useSelector((state: RootState) => state.testReducer.getTestesStatus);
+    const getStudentsStat = useSelector((state: RootState) => state.studentReducer.getStudentsStatus);
 
+
+
+
+    // get list students, lessons, tests
     useEffect(() => {
         if (summaryInfo) {
-            dispatch(actionGetAttendances({
-                class_id: summaryInfo.class_id,
-                from_date: summaryInfo.from_date,
-                to_date: summaryInfo.to_date,
+            dispatch(actionGetStudents({
+                class_id: summaryInfo.class_id
             }));
             dispatch(actionGetTestes({
                 class_id: summaryInfo.class_id,
@@ -51,31 +56,37 @@ export function StudySummaryDetail(): JSX.Element {
         }
     }, [dispatch, summaryInfo])
 
+    // cal conduct point agv for each student.
     useEffect(() => {
-        const conduct: number[] = [];
-        get(attendances, "students", []).forEach((st) => {
-            let total = 0;
-            const attendanceMap = attendances?.attendances;
-            for (const key in attendanceMap) {
-                const found = attendanceMap[key].find((el) => el.student_id === st.id);
-                console.log(found?.conduct_point)
-                if (found) total += +found.conduct_point;
-            }
-            conduct.push(total + 10);
-        })
-        setConductPoint(conduct);
-    }, [attendances]);
+        if(students && lessons){
+            const conduct: number[] = [];
+            get(students, "data", []).forEach((st) => {
+                if(st.class_histories.length > 1){
+                    if(moment(st.class_histories[1].date).isAfter(moment(summaryInfo.from_date))){
+                        console.log(st.name, 'có điểm tổng kết ở 2 lớp', st.class_histories[1].class_id)
+                    }
+                }
+                let total = 0;
+                lessons.data?.forEach((ls) => {
+                    const at_found = ls.attendances.find((at)=>at.student_id === st.id);
+                    if(at_found) total += +at_found.conduct_point;
+                })
+                conduct.push(total + 10);
+            })
+        
+            setConductPoint(conduct);
+        }
+    }, [students,lessons]);
 
+    // cal test point avg for each student
     useEffect(() => {
         const testPoint: number[] = [];
-        get(attendances, "students", []).forEach((st) => {
+        get(students, "data", []).forEach((st) => {
             let count = 0;
             let total = 0;
             get(testes, "data", []).forEach((test) => {
-                console.log(test.test_results, st.id)
                 const found = get(test, "test_results", []).find((rs) => rs.student_id === st.id)
-                console.log(found)
-                if (found) {
+                if (found && found.point !== null) {
                     total += +found.point;
                     count++;
                 }
@@ -84,23 +95,19 @@ export function StudySummaryDetail(): JSX.Element {
             else testPoint.push(0)
         });
         setTestPointAvg(testPoint);
-    }, [testes, attendances]);
+    }, [testes, students]);
 
 
-    function getConductPoint(stID: number, date: string): string {
-        const found = attendances?.attendances && attendances.attendances[date];
-        let res = 0;
-        if (found) {
-            res = found.find((at) => at.student_id === stID)?.conduct_point || 0;
-        }
-        return res != 0 ? `${res}` : '-'
+    // get conduct point for each student on each lesson
+    function getConductPoint(lsIndex:number, stID:number): string {
+        return get(lessons,"data",[])[lsIndex].attendances.find((at) => at.student_id === stID)?.conduct_point || '-';
     }
 
-    function getTestPoint(stID: number, date: string): string {
+    function getTestPoint(stID: number, lsID: number): string {
         let res = '';
         let count = 0;
         get(testes, "data", []).forEach((test) => {
-            if (moment(test.date).isSame(moment(date))) {
+            if (test.lesson_id === lsID) {
                 const p = get(test, "test_results", []).find((rs) => rs.student_id == stID)?.point || 0;
 
                 if (p > 0) {
@@ -112,7 +119,6 @@ export function StudySummaryDetail(): JSX.Element {
         if (res === '') res = '-'
         return res;
     }
-
 
     const cols: any[] = [
         {
@@ -126,7 +132,7 @@ export function StudySummaryDetail(): JSX.Element {
             }
         }
     ]
-    get(lessons, "data", []).map((ls) => {
+    get(lessons, "data", []).map((ls, index) => {
         cols.push({
             title: `${moment(ls.date).format("DD/MM")}`,
             dataIndex: "",
@@ -135,8 +141,8 @@ export function StudySummaryDetail(): JSX.Element {
             render: function col(text: string, record: StudentType): JSX.Element {
                 return (
                     <>
-                        <div style={{ borderBottom: "solid 1px #ecf0f1", marginBottom: 5, textAlign: "center" }}>{getConductPoint(record.id, ls.date)}</div>
-                        <div style={{ textAlign: "center" }}>{getTestPoint(record.id, ls.date)}</div>
+                        <div style={{ borderBottom: "solid 1px #ecf0f1", marginBottom: 5, textAlign: "center" }}>{getConductPoint(index, record.id )}</div>
+                        <div style={{ textAlign: "center" }}>{getTestPoint(record.id, ls.id)}</div>
                     </>
                 )
             },
@@ -196,10 +202,10 @@ export function StudySummaryDetail(): JSX.Element {
             <Title level={4} style={{ marginTop: 20, marginBottom: 20 }}>Bảng tổng kết</Title>
             <Table
                 rowKey="id"
-                loading={getAttendanceStatus === 'loading' ? true : false}
+                loading={getTestsStat === 'loading' || getLessonsStat === 'loading' || getStudentsStat === 'loading'}
                 bordered
                 columns={cols}
-                dataSource={get(attendances, "students", [])}
+                dataSource={get(students, "data", [])}
                 pagination={{ defaultPageSize: 100 }}
                 scroll={{ x: 'calc(700px + 50%)' }}
             />

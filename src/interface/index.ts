@@ -164,7 +164,15 @@ export interface StudentType {
 	parent: {
 		id: number;
 		name: string;
+		profile:{
+			name:string;
+		}
 	};
+	class_histories:{
+		id:number;
+		class_id:number;
+		date:string
+	}[];
 	type: number; // 0 offline, 1 online
 	school: null;
 	address: null;

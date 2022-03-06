@@ -1,4 +1,4 @@
-import { ImportOutlined } from "@ant-design/icons";
+import { ImportOutlined, SwapOutlined } from "@ant-design/icons";
 import { Button, Select, Space, Spin, Tooltip } from "antd";
 import Modal from "antd/lib/modal/Modal";
 import { ClassType, GetResponseType, StudentType } from "interface";
@@ -38,9 +38,16 @@ export default function ImportClass(props: {
 	};
 	return (
 		<>
-			<Tooltip placement="top" title="Nhập lớp">
-				<Button onClick={() => setShow(true)} type="link" icon={<ImportOutlined />} />
-			</Tooltip>
+			{
+				student.class === null ?
+					<Tooltip placement="top" title="Nhập lớp">
+						<Button onClick={() => setShow(true)} type="link" icon={<ImportOutlined />} />
+					</Tooltip>
+					:
+					<Tooltip title="Chuyển lớp">
+						<Button icon={<SwapOutlined onClick={() => setShow(true)}/>} type="link" />
+					</Tooltip>
+			}
 			<Modal
 				title="Nhập lớp học"
 				visible={show}

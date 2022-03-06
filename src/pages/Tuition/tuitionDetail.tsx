@@ -1,4 +1,4 @@
-import { QuestionCircleOutlined, NotificationOutlined, CreditCardOutlined, TransactionOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
+import { QuestionCircleOutlined, NotificationOutlined, CreditCardOutlined, TransactionOutlined, ExclamationCircleOutlined, DownloadOutlined } from "@ant-design/icons";
 import { Alert, Button, Checkbox, Descriptions, Input, Layout, Modal, PageHeader, Space, Statistic, Table, Tabs, Tag, Tooltip } from "antd";
 import Column from "antd/lib/table/Column";
 import { PeriodTuitionType, StudentType, TuitionFeeType } from "interface";
@@ -17,6 +17,7 @@ import { NOTIFI_URIS } from "utils/const";
 import { formatCurrency } from "utils/ultil";
 import { CreateTuitionFeeModal } from "./createTuitionFreeModal";
 import { EditTuitionFeeModal } from "./editTuitionFeeModal";
+import ExportExcel from "./exportExcel";
 
 const { TabPane } = Tabs;
 const { confirm } = Modal;
@@ -330,10 +331,13 @@ export default function TuitionDetail(): JSX.Element {
 				className="site-page-header-responsive"
 				title="Chi tiết chu kỳ học phí"
 				style={{ backgroundColor: "white" }}
-				extra={<Button type="primary" icon={<NotificationOutlined />} onClick={() => {
-					setShowNotiForm(true);
-					setNotiIndex(-1)
-				}}>Gửi thông báo</Button>}
+				extra={[
+					<Button type="primary" icon={<NotificationOutlined />} onClick={() => {
+						setShowNotiForm(true);
+						setNotiIndex(-1)
+					}}>Thông báo</Button>,
+					<ExportExcel periodTuition={tuitionPeriodInfo} students={studentList} feesPerStudent={feesPerStudent}/>
+				]}
 				footer={
 					<Tabs defaultActiveKey="1" >
 						<TabPane tab="Học phí mỗi học sinh" key="stdTuition">

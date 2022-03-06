@@ -26,10 +26,10 @@ import { actionGetRevenues, RevenuesTypeList } from "store/revenues/slice";
 import { useHistory } from "react-router-dom";
 const { RangePicker } = DatePicker;
 
-interface ChartDataType{
-	month:string;
-	type:string;
-	total:number;
+interface ChartDataType {
+	month: string;
+	type: string;
+	total: number;
 }
 
 function Home(): JSX.Element {
@@ -70,8 +70,10 @@ function Home(): JSX.Element {
 	useEffect(() => {
 		if (studentsStat) {
 			const data: ChartDataType[] = [];
-			Object.keys(studentsStat.total_student).map((key: string) => data.push({ month: key, total: studentsStat.total_student[key],type:"in" }));
-			Object.keys(studentsStat.total_student_off).map((key: string) => data.push({ month: key, total: studentsStat.total_student[key],type:"out" }));
+			Object.keys(studentsStat.total_student).map((key: string) =>
+				data.push({ month: key, total: studentsStat.total_student[key], type: "in" }));
+			Object.keys(studentsStat.total_student_off).map((key: string) =>
+				data.push({ month: key, total: studentsStat.total_student_off[key], type: "out" }));
 			setStChartData(data)
 		}
 	}, [studentsStat])
@@ -82,7 +84,8 @@ function Home(): JSX.Element {
 		height: 250,
 		xField: "month",
 		yField: "total",
-		seriesField:'type',
+		seriesField: 'type',
+		color: ['#1979C9', '#e74c3c'],
 		point: {
 			size: 5,
 			shape: "diamond",
@@ -137,7 +140,6 @@ function Home(): JSX.Element {
 					<RangePicker onChange={onChangeStatisticalDateRange} allowEmpty={[true, true]} />
 				</Space>
 				<Row gutter={16}>
-
 					<Col span={8}>
 						<Card
 							title={<span style={{ color: "#fff" }}>Số lượng học sinh</span>}
@@ -218,7 +220,7 @@ function Home(): JSX.Element {
 							type="inner"
 							bordered={true}
 							style={{ marginTop: 20 }}
-							extra={<Button type="link" onClick={()=>history.push("/payments/revenue")}>Xem thêm</Button>}
+							extra={<Button type="link" onClick={() => history.push("/payments/revenue")}>Xem thêm</Button>}
 						>
 							<Timeline>
 								{
