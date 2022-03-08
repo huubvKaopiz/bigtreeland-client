@@ -1,4 +1,4 @@
-import { QuestionCircleOutlined, NotificationOutlined, CreditCardOutlined, TransactionOutlined, ExclamationCircleOutlined, DownloadOutlined } from "@ant-design/icons";
+import { QuestionCircleOutlined, NotificationOutlined,FileAddOutlined, CreditCardOutlined, TransactionOutlined, ExclamationCircleOutlined, DownloadOutlined } from "@ant-design/icons";
 import { Alert, Button, Checkbox, Descriptions, Input, Layout, Modal, PageHeader, Space, Statistic, Table, Tabs, Tag, Tooltip } from "antd";
 import Column from "antd/lib/table/Column";
 import { PeriodTuitionType, StudentType, TuitionFeeType } from "interface";
@@ -50,6 +50,8 @@ export default function TuitionDetail(): JSX.Element {
 	const [feesPerStudent, setFeesPerStudent] = useState<number[]>([]);
 	const [paymentCount, setPaymentCount] = useState<number>(0);
 	const [showNotiForm, setShowNotiForm] = useState(false);
+	const [showAddTuitionFee, setShowAddTuitionFee] = useState(false);
+	const [addTuitionFeeStudent, setAddTuitionFeeStudent] = useState<StudentType | null>(null)
 	const [notiIndex, setNotiIndex] = useState(-1);
 
 	const tuitionPeriodInfo = useSelector((state: RootState) => state.periodTuitionReducer.periodTuition);
@@ -115,7 +117,12 @@ export default function TuitionDetail(): JSX.Element {
 			if (get(students, "data", []).length > get(tuitionPeriodInfo, "tuition_fees", []).length) {
 				get(students, "data", []).forEach((st) => {
 					const index = get(tuitionPeriodInfo, "tuition_fees", []).findIndex((tuition) => tuition.student_id === st.id);
-					if (index === -1 && moment(st.admission_date).isSameOrAfter(moment(get(tuitionPeriodInfo, "from_date", "")))) newList.push(st);
+					if (index === -1) {
+						if (st.class_histories.length >= 1) {
+							if (moment(st.class_histories[st.class_histories.length - 1].date).isSameOrAfter(moment(get(tuitionPeriodInfo, "from_date", ""))))
+								newList.push(st)
+						}
+					}
 				})
 			}
 			setNewStudentList(newList);
@@ -127,7 +134,7 @@ export default function TuitionDetail(): JSX.Element {
 
 		confirm({
 			title: "Xác nhận chuyển nợ sang chu kỳ mới",
-			content: "Lưu ý để chuyển nợ bắt buộc phải tồn tại một chu kỳ mới tương ứng của học sinh!",
+			content: "Lưu ý để chuyển nợ bắt buộc phải tồn tại một bảng học phí mới tương ứng của học sinh!",
 			icon: <ExclamationCircleOutlined />,
 			onOk() {
 				const debt_tranfer = feesPerStudent[tuition.id] - +tuition.fixed_deduction - +tuition.flexible_deduction - +tuition.residual || 0;
@@ -139,12 +146,12 @@ export default function TuitionDetail(): JSX.Element {
 	}
 
 	function handlePaidConfirm(tuition: TuitionFeeType) {
-		if(tuition){
+		if (tuition) {
 			const amount = feesPerStudent[tuition.id]! + +tuition.prev_debt - +tuition.fixed_deduction - +tuition.flexible_deduction - +tuition.residual || 0
 			const tuition_fee_id = tuition.id;
 			const payload = {
 				tuition_fee_id,
-				amount:String(amount)
+				amount: String(amount)
 			}
 			confirm({
 				title: "Xác nhận đã thanh toán",
@@ -155,7 +162,7 @@ export default function TuitionDetail(): JSX.Element {
 				}
 			})
 		}
-	
+
 	}
 
 	function handleSendNotification(index: number) {
@@ -336,7 +343,7 @@ export default function TuitionDetail(): JSX.Element {
 						setShowNotiForm(true);
 						setNotiIndex(-1)
 					}}>Thông báo</Button>,
-					<ExportExcel periodTuition={tuitionPeriodInfo} students={studentList} feesPerStudent={feesPerStudent}/>
+					<ExportExcel periodTuition={tuitionPeriodInfo} students={studentList} feesPerStudent={feesPerStudent} />
 				]}
 				footer={
 					<Tabs defaultActiveKey="1" >
@@ -364,11 +371,16 @@ export default function TuitionDetail(): JSX.Element {
 									/>
 									<Table dataSource={newStudentList} rowKey="id">
 										<Column title="Họ tên" dataIndex="name" key="name" render={(val) => <a>{val}</a>} />
-										<Column title="Ngày sinh" dataIndex="birthday" key="birthday" />
-										<Column title="Ngày nhập học" dataIndex="admission_date" key="admission_date" />
+										<Column title="Ngày sinh" dataIndex="birthday" key="birthday" render={(val) => <>{moment(val).format('DD/MM/YYYY')}</>} />
+										<Column title="Ngày nhập học" dataIndex="" key="admission_date" render={(_: number, record: StudentType) => (<strong>{moment(record.class_histories[record.class_histories.length - 1].date).format("DD/MM/YYYY")}</strong>)} />
 										<Column title="Aaction" dataIndex="action" key="action" render={(_: number, record: StudentType) => (
 											<Space>
-												<CreateTuitionFeeModal periodInfo={tuitionPeriodInfo} studentInfo={record} />
+												<Tooltip title="Tạo bảng học phí">
+													<Button onClick={() =>{
+														setShowAddTuitionFee(true);
+														setAddTuitionFeeStudent(record);
+													}} icon={<FileAddOutlined />} type="link" />
+												</Tooltip>
 											</Space>
 										)} />
 									</Table>
@@ -389,6 +401,7 @@ export default function TuitionDetail(): JSX.Element {
 				}
 			>
 				<Content extra={extraContent}>{renderContent()}</Content>
+				<CreateTuitionFeeModal periodInfo={tuitionPeriodInfo} studentInfo={addTuitionFeeStudent} show={showAddTuitionFee} setShow={setShowAddTuitionFee} />
 				<SendNotiModal tuitionIndex={notiIndex} periodTuitionInfo={tuitionPeriodInfo} show={showNotiForm} setShow={setShowNotiForm} students={studentList} />
 			</PageHeader>
 		</Layout.Content>
