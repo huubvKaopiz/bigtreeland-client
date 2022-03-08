@@ -52,13 +52,15 @@ export interface RevenuesSearchParam {
 
 export const RevenuesStatusList = ["Chưa xác nhận", "Đã xác nhận"];
 
-export const RevenuesTypeList = ["Doanh thu ngoài", "Sale","Học phí"];
+export const RevenuesTypeList = ["Doanh thu ngoài", "Sale", "Học phí"];
 
 export interface RevenuesState {
 	revenues: GetResponseType<RevenueType> | null;
 	getRevenuesStatus: "idle" | "loading" | "success" | "error";
 	addRevenuesStatus: "idle" | "loading" | "success" | "error";
 	updateRevenuesStatus: "idle" | "loading" | "success" | "error";
+	deleteRevenuesStatus: "idle" | "loading" | "success" | "error";
+
 }
 
 const initialState: RevenuesState = {
@@ -66,6 +68,7 @@ const initialState: RevenuesState = {
 	getRevenuesStatus: "idle",
 	addRevenuesStatus: "idle",
 	updateRevenuesStatus: "idle",
+	deleteRevenuesStatus: "idle"
 };
 
 export const actionGetRevenues = createAsyncThunk(
@@ -117,6 +120,38 @@ export const actionUpdateRevenues = createAsyncThunk(
 	}
 );
 
+export const actionUpdateRevenueStatus = createAsyncThunk(
+	"actionUpdateRevenueStatus",
+	async (data: { receipt_ids: number[], status: number }, { rejectWithValue }) => {
+		try {
+			const response = await request({
+				url: `/api/receipts/update-status`,
+				method: "post",
+				data,
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
+	}
+);
+
+
+export const actionDeleteRevenue = createAsyncThunk(
+	"actionDeleteRevenue",
+	async (ID: number, { rejectWithValue }) => {
+		try {
+			const response = await request({
+				url: `/api/receipts/${ID}`,
+				method: "delete",
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
+	}
+);
+
 export const slice = createSlice({
 	name: "revenues",
 	initialState,
@@ -127,13 +162,22 @@ export const slice = createSlice({
 		resetAddRevenuesStatus(state) {
 			state.addRevenuesStatus = "idle";
 		},
-		resetUpdateRevenuesStatus(state) {
+		actionUpdateRevenues(state) {
+			state.updateRevenuesStatus = "idle";
+		},
+		actionUpdateRevenueStatus(state) {
 			state.updateRevenuesStatus = "idle";
 		},
 		actionSetListRevenuesNull(state) {
 			state.getRevenuesStatus = "idle";
 			state.revenues = null;
 		},
+		resetUpdateRevenuesStatus(state) {
+			state.updateRevenuesStatus = "idle";
+		},
+		actionDeleteRevenue(state) {
+			state.deleteRevenuesStatus = 'idle'
+		}
 	},
 
 	extraReducers: (builder) => {
@@ -178,6 +222,37 @@ export const slice = createSlice({
 			})
 			.addCase(actionUpdateRevenues.rejected, (state, action) => {
 				state.updateRevenuesStatus = "error";
+				const error = action.payload as AxiosError;
+				notification.error({
+					message: get(error, "response.data", "Có lỗi xảy ra!"),
+				});
+			})
+
+			// update status
+			.addCase(actionUpdateRevenueStatus.fulfilled, (state) => {
+				state.updateRevenuesStatus = "success";
+				notification.success({ message: "Cập nhật doanh thu thành công!" });
+			})
+			.addCase(actionUpdateRevenueStatus.pending, (state) => {
+				state.updateRevenuesStatus = "loading";
+			})
+			.addCase(actionUpdateRevenueStatus.rejected, (state, action) => {
+				state.updateRevenuesStatus = "error";
+				const error = action.payload as AxiosError;
+				notification.error({
+					message: get(error, "response.data", "Có lỗi xảy ra!"),
+				});
+			})
+			// delete
+			.addCase(actionDeleteRevenue.fulfilled, (state) => {
+				state.deleteRevenuesStatus = "success";
+				notification.success({ message: "Đã xoá phiếu thu!" });
+			})
+			.addCase(actionDeleteRevenue.pending, (state) => {
+				state.deleteRevenuesStatus = "loading";
+			})
+			.addCase(actionDeleteRevenue.rejected, (state, action) => {
+				state.deleteRevenuesStatus = "error";
 				const error = action.payload as AxiosError;
 				notification.error({
 					message: get(error, "response.data", "Có lỗi xảy ra!"),

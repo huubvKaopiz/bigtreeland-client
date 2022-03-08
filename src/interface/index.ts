@@ -462,6 +462,7 @@ export interface GiftType {
 	description: string;
 	status: number;
 	quantity: number;
+	condition_point:string;
 }
 
 export interface StudentGiftType {

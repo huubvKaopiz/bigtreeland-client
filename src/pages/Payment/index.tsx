@@ -70,7 +70,6 @@ function Payment(): JSX.Element {
 	const [searchInput, setSearchInput] = useState("");
 	const [selectedRows, setSelectedRows] = useState<PaymentType[]>([]);
 
-	const [editingKey, setEditingKey] = useState(-1);
 	const [statusValueChange, setStatusValueChange] = useState("");
 
 	const paymentTableData = useSelector(
@@ -90,10 +89,6 @@ function Payment(): JSX.Element {
 		(state: RootState) => state.paymentReducer.deletePaymentStatus
 	);
 
-	const isEditting = (record: any) => record.id === editingKey;
-
-	console.log("re-render");
-
 	const debounceSearch = useRef(
 		debounce(
 			(nextValue) => dispatch(actionGetPayments({ search: nextValue })),
@@ -102,10 +97,10 @@ function Payment(): JSX.Element {
 	).current;
 
 	useEffect(() => {
-		const startOfMonth = moment().startOf("month").format("YYYY-MM-DD");
-		const endOfMonth = moment().endOf("month").format("YYYY-MM-DD");
-		setSearchRange([startOfMonth, endOfMonth]);
-		dispatch(actionGetPayments({ fromDate: startOfMonth, toDate: endOfMonth }));
+		// const startOfMonth = moment().startOf("month").format("YYYY-MM-DD");
+		// const endOfMonth = moment().endOf("month").format("YYYY-MM-DD");
+		// setSearchRange([startOfMonth, endOfMonth]);
+		dispatch(actionGetPayments({}));
 	}, [dispatch]);
 
 	const handleSearchRange = useCallback(
@@ -146,7 +141,6 @@ function Payment(): JSX.Element {
 			dispatch(actionGetPayments({}));
 		} else if (statusDeletePayment === 'success') {
 			dispatch(actionGetPayments({}));
-			setLoading(false)
 		}
 		else if (
 			statusGetPayment === "error" ||
@@ -183,16 +177,12 @@ function Payment(): JSX.Element {
 		console.log(dateString[0], dateString[1]);
 	}
 
-	function handleUpdateRowData() {
-		dispatch(
-			actionUpdatePaymentStatus({ id: +editingKey, status: +statusValueChange })
-		);
-		// Get payment again after update.
-	}
-
-	function handleCancelUpdateRowData() {
-		setStatusValueChange("");
-		setEditingKey(-1);
+	function handleMultipleConfirmed(){
+		const payment_slip_ids: number[] = [];
+		selectedRows.forEach((r) => payment_slip_ids.push(r.id));
+		const status = 1;
+		dispatch(actionUpdatePaymentStatus({ payment_slip_ids, status }));
+		setSelectedRows([])
 	}
 
 	function handleDelete(payment: PaymentType) {
@@ -265,29 +255,8 @@ function Payment(): JSX.Element {
 			dataIndex: "status",
 			key: "payemnt_status",
 			editable: true,
-			render: function statusCold(status: number, row: any): JSX.Element {
-				const editable = isEditting(row);
-				return editable ? (
-					<>
-						<Select
-							defaultValue={row.status}
-							onChange={(value) => {
-								setStatusValueChange(value);
-							}}
-							onClick={(e) => {
-								e.stopPropagation();
-							}}
-						>
-							{PaymentStatusList.map((v, i) => (
-								<Select.Option value={i} key={i}>
-									{v}
-								</Select.Option>
-							))}
-						</Select>
-					</>
-				) : (
-					<Tag color={status === 1 ? 'green' : 'red'}>{PaymentStatusList[status]}</Tag>
-				);
+			render: function statusCold(status: number): JSX.Element {
+				return (<Tag color={status === 1 ? 'green' : 'red'}>{PaymentStatusList[status]}</Tag>)
 			},
 		},
 
@@ -295,51 +264,9 @@ function Payment(): JSX.Element {
 			width: "10%",
 			title: "Action",
 			key: "payemnt_action",
-			render: function actionCol(value: string, row: PaymentType): JSX.Element {
-				const editable = isEditting(row);
-
-				return editable ? (
-					<>
-						<Popconfirm
-							title="Xác nhận sửa thông tin?"
-							icon={<QuestionCircleOutlined />}
-							onConfirm={(e) => {
-								e?.stopPropagation();
-								handleUpdateRowData();
-								handleCancelUpdateRowData();
-							}}
-							onCancel={(e) => e?.stopPropagation()}
-						>
-							<Button
-								onClick={(e) => {
-									e.stopPropagation();
-								}}
-								type="link"
-								icon={<CheckCircleOutlined />}
-							></Button>
-						</Popconfirm>
-						<Button
-							onClick={(e) => {
-								e.stopPropagation();
-								handleCancelUpdateRowData();
-							}}
-							type="link"
-							icon={<CloseOutlined />}
-						></Button>
-					</>
-				) : (
+			render: function actionCol(_: string, row: PaymentType): JSX.Element {
+				return (
 					<Space>
-						<Tooltip placement="top" title="Sửa thông tin">
-							<Button
-								onClick={(e) => {
-									console.log("click edit");
-									setEditingKey(row.id);
-									e.stopPropagation();
-								}}
-								type="link"
-								icon={<EditOutlined />}
-							></Button>
-						</Tooltip>
 						<Tooltip placement="top" title="Chi tiết">
 							<Button
 								onClick={(e) => {
@@ -363,7 +290,7 @@ function Payment(): JSX.Element {
 							></Button>
 						</Tooltip>
 					</Space>
-				);
+				)
 			},
 		},
 	];
@@ -406,10 +333,17 @@ function Payment(): JSX.Element {
 				/>
 			</Row>
 			<Spin spinning={loading}>
+				{selectedRows.length > 0 &&
+					<Space style={{ marginBottom: 20 }}>
+						<Button type="primary" icon={<CheckCircleOutlined />} onClick={() => handleMultipleConfirmed()} loading={false}>
+							Xác nhận
+						</Button>
+						<span style={{ marginLeft: 8 }}>
+							{selectedRows.length > 0 ? `${selectedRows.length} phiếu chi` : ''}
+						</span>
+					</Space>
+				}
 				<Table
-					rowClassName={(record: PaymentType) =>
-						record.id === editingKey ? "editing-row" : ""
-					}
 					rowKey="id"
 					size="small"
 					dataSource={rawTableData}

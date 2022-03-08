@@ -33,6 +33,8 @@ export function AddGiftModal(props: {
                 type: get(giftInfo, "type", ""),
                 description: get(giftInfo, "description", ""),
                 quantity: get(giftInfo, "quantity", 0),
+                condition_point: get(giftInfo, "condition_point", 0),
+
             })
             setFileSelected([giftInfo.photo])
         } else {
@@ -41,6 +43,7 @@ export function AddGiftModal(props: {
                 type: null,
                 description: "",
                 quantity: 0,
+                condition_point:0,
             })
             setFileSelected([])
         }
@@ -106,6 +109,9 @@ export function AddGiftModal(props: {
                         <Select.Option value={2}>Loại 2</Select.Option>
                         <Select.Option value={3}>Loại 3</Select.Option>
                     </Select>
+                </Form.Item>
+                <Form.Item label="Điểm điều kiện" name="condition_point">
+                    <InputNumber />
                 </Form.Item>
                 <Form.Item label="Số lượng trong kho" name="quantity">
                     <InputNumber />

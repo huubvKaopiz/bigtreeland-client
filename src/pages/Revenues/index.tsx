@@ -2,7 +2,7 @@ import {
 	CheckCircleOutlined,
 	CloseOutlined,
 	EditOutlined,
-	QuestionCircleOutlined,
+	ExclamationCircleOutlined,
 	FileTextOutlined,
 	DeleteOutlined
 } from "@ant-design/icons/lib/icons";
@@ -21,15 +21,18 @@ import {
 	Statistic,
 	Table,
 	Tag,
-	Tooltip
+	Tooltip,
+	Modal
 } from "antd";
 import { debounce, get, pick } from "lodash";
 import moment from "moment";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
+	actionDeleteRevenue,
 	actionGetRevenues,
 	actionUpdateRevenues,
+	actionUpdateRevenueStatus,
 	resetAddRevenuesStatus,
 	resetGetRevenuesStatus,
 	resetUpdateRevenuesStatus,
@@ -45,7 +48,7 @@ import { formatCurrency } from "utils/ultil";
 import AddNewRevenues from "./AddNewRevenues";
 import RevenueDetails from "./RevenueDetails";
 const { RangePicker } = DatePicker;
-
+const { confirm } = Modal;
 const Wrapper = styled.div`
 	.ant-table-tbody > tr.ant-table-row:hover > td {
 		background: #61dafb38;
@@ -58,7 +61,6 @@ const Wrapper = styled.div`
 function Revenues(): JSX.Element {
 	const dispatch = useDispatch();
 	const [receivedValue, setReceivedValue] = useState(123);
-	const [editingKey, setEditingKey] = useState(-1);
 	const [rowValueChange, setRowValueChange] = useState<RevenueType | null>(null);
 	const [selectedRows, setSelectedRows] = useState<RevenueType[]>([]);
 	const [currentDrawerData, setCurrentDrawerData] = useState<RevenueType | null>(null);
@@ -109,7 +111,6 @@ function Revenues(): JSX.Element {
 		}
 	}, [dispatch, statusAddRevenues, statusGetRevenues, statusUpdateRevenues]);
 
-	const isEditting = (record: any) => record.id === editingKey;
 
 	function onTableFiler(value: string) {
 		const [fromDate, toDate] = searchObj.searchRange;
@@ -138,13 +139,13 @@ function Revenues(): JSX.Element {
 		);
 	}
 
-	function handleCancelUpdateRowData() {
-		setRowValueChange(null);
-		setEditingKey(-1);
-	}
 
 	function handleMultipleConfirmed() {
-
+		const receipt_ids: number[] = [];
+		selectedRows.forEach((r) => receipt_ids.push(r.id));
+		const status = 1;
+		dispatch(actionUpdateRevenueStatus({ receipt_ids, status }));
+		setSelectedRows([])
 	}
 
 	function handleShowDrawer(state: boolean) {
@@ -152,7 +153,13 @@ function Revenues(): JSX.Element {
 	}
 
 	function handleDelete(id: number) {
-
+		confirm({
+			title: "Bạn muốn xoá phiếu thu này!",
+			icon: <ExclamationCircleOutlined />,
+			onOk() {
+				dispatch(actionDeleteRevenue(id));
+			}
+		})
 	}
 
 	const tableColumn = [
@@ -199,81 +206,28 @@ function Revenues(): JSX.Element {
 			dataIndex: "status",
 			key: "payemnt_status",
 			editable: true,
-			render: function statusCol(status: number, row: RevenueType): JSX.Element {
-				const editable = isEditting(row);
-				return editable ? (
-					<>
-						<Select
-							defaultValue={row.status}
-							onChange={(value) => {
-								setRowValueChange({ ...row, status: value });
-							}}
-							onClick={(e) => {
-								e.stopPropagation();
-							}}
-						>
-							{RevenuesStatusList.map((v, i) => (
-								<Select.Option value={i} key={i}>
-									{v}
-								</Select.Option>
-							))}
-						</Select>
-					</>
-				) : (
-					<Tag color={status === 1 ? "green" : "red"}>{RevenuesStatusList[status]}</Tag>
-				);
+			render: function statusCol(status: number): JSX.Element {
+				return (<Tag color={status === 1 ? "green" : "red"}>{RevenuesStatusList[status]}</Tag>)
 			},
 		},
 
 		{
 			title: "Action",
 			key: "payemnt_action",
-			render: function actionCol(value: string, row: RevenueType): JSX.Element {
-				const editable = isEditting(row);
+			render: function actionCol(_: string, row: RevenueType): JSX.Element {
 
-				return editable ? (
-					<>
-						<Popconfirm
-							title="Xác nhận sửa thông tin?"
-							icon={<QuestionCircleOutlined />}
-							onConfirm={(e) => {
-								e?.stopPropagation();
-								handleUpdateRowData();
-								handleCancelUpdateRowData();
-							}}
-							onCancel={(e) => e?.stopPropagation()}
-						>
-							<Button
-								onClick={(e) => {
-									e.stopPropagation();
-								}}
-								type="link"
-								icon={<CheckCircleOutlined />}
-							></Button>
-						</Popconfirm>
-						<Button
-							onClick={(e) => {
-								e.stopPropagation();
-								handleCancelUpdateRowData();
-							}}
-							type="link"
-							danger
-							icon={<CloseOutlined />}
-						></Button>
-					</>
-				) : (
+				return (
 					<Space>
-						<Tooltip placement="top" title="Sửa thông tin">
+						{/* <Tooltip placement="top" title="Sửa thông tin">
 							<Button
 								onClick={(e) => {
 									console.log("click edit");
-									setEditingKey(row.id);
-									e.stopPropagation();
+								
 								}}
 								type="link"
 								icon={<EditOutlined />}
 							></Button>
-						</Tooltip>
+						</Tooltip> */}
 						<Tooltip title="Chi tiết">
 							<Button type="link" icon={<FileTextOutlined />} onClick={() => {
 								handleShowDrawer(true);
@@ -315,7 +269,7 @@ function Revenues(): JSX.Element {
 				</Row>
 				<Spin spinning={statusGetRevenues === "loading" || statusUpdateRevenues === "loading"}>
 					{selectedRows.length > 0 &&
-						<Space style={{marginBottom:20}}>
+						<Space style={{ marginBottom: 20 }}>
 							<Button type="primary" icon={<CheckCircleOutlined />} onClick={() => handleMultipleConfirmed()} loading={false}>
 								Xác nhận
 							</Button>
@@ -325,7 +279,7 @@ function Revenues(): JSX.Element {
 						</Space>
 					}
 					<Table
-						rowClassName={(record) => (record.id === editingKey ? "editing-row" : "")}
+						// rowClassName={(record) => (record.id === editingKey ? "editing-row" : "")}
 						rowKey="id"
 						// bordered
 						dataSource={rawTableData}

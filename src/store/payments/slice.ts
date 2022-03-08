@@ -98,12 +98,12 @@ export const actionAddNewPayment = createAsyncThunk(
 
 export const actionUpdatePaymentStatus = createAsyncThunk(
 	"actionUpdatePaymentStatus",
-	async (data: { id: number; status: number }, { rejectWithValue }) => {
+	async ( data: { status: number, payment_slip_ids: number[]}, { rejectWithValue }) => {
 		try {
 			const response = await request({
-				url: `/api/payment-slips/${data.id}`,
-				method: "put",
-				data: { status: data.status },
+				url: `/api/payment-slips/update-status`,
+				method: "post",
+				data
 			});
 			return response.data;
 		} catch (error) {
@@ -115,7 +115,7 @@ export const actionUpdatePaymentStatus = createAsyncThunk(
 
 export const actionDeletePayment = createAsyncThunk(
 	"actionDeletePayment",
-	async (pId:number, { rejectWithValue }) => {
+	async (pId: number, { rejectWithValue }) => {
 		try {
 			const response = await request({
 				url: `/api/payment-slips/${pId}`,
@@ -141,8 +141,11 @@ export const slice = createSlice({
 		resetUpdatePaymentStatus(state) {
 			state.updatePaymentStatus = "idle";
 		},
-		actionDeletePayment(state){
+		actionDeletePayment(state) {
 			state.deletePaymentStatus = 'idle';
+		},
+		actionUpdatePaymentStatus(state){
+			state.updatePaymentStatus = 'idle';
 		}
 	},
 
