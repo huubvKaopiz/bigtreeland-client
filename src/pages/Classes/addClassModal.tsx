@@ -24,7 +24,7 @@ export default function AddClassModal(props: {
 	const addStatus = useSelector((state: RootState) => state.classReducer.addClassStatus);
 
 	function handleSubmit(values: any) {
-		let scheduleTime = null;
+		let scheduleTime = '';
 		if (values.schedule_time) {
 			scheduleTime = moment(values.schedule_time[0]).format("HH:mm:ss") + "-" + moment(values.schedule_time[1]).format("HH:mm:ss");
 		}

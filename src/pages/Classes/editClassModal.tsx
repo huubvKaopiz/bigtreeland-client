@@ -43,7 +43,7 @@ export default function EditClassModal(props: {
 
 	function handleSubmit(values: any) {
 		setSubmiting(true);
-		let scheduleTime = null;
+		let scheduleTime = '';
 		if (values.schedule_time) {
 			scheduleTime = moment(values.schedule_time[0]).format("HH:mm:ss") + "-" + moment(values.schedule_time[1]).format("HH:mm:ss")
 		}
