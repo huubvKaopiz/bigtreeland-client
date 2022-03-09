@@ -62,7 +62,7 @@ function Classes(): JSX.Element {
 
 	const columns = [
 		{
-			width: "15%",
+			width: "20%",
 			title: "Tên lớp",
 			dataIndex: "name",
 			key: "name",

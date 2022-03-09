@@ -198,6 +198,21 @@ export function getPermissionDes(name: string): string {
 		case 'many-updates':
 			res = 'Cập nhật theo lớp';
 			break;
+		case 'payment':
+			res = 'Xác nhận thanh toán';
+			break;
+		case 'statistical':
+			res = 'Thống kê';
+			break;
+		case 'revenue':
+			res = 'Doanh thu';
+			break;
+		case 'class':
+			res = 'Lớp học';
+			break;
+		case 'update_status':
+			res = 'Cập nhật trạng thái';
+			break;
 		default:
 			break;
 	}

@@ -47,7 +47,7 @@ function AddNewUserForm({
 		form.resetFields();
 	}
 	function handleAddUser(userInfo: AddNewUser) {
-		onAddUser({...userInfo,password:"password"});
+		onAddUser({ ...userInfo, password: "password" });
 	}
 
 	useEffect(() => {
@@ -69,13 +69,15 @@ function AddNewUserForm({
 			</Button>
 			<Modal
 				title="Thêm tài khoàn người dùng mới"
-				centered
 				visible={showForm}
 				onCancel={() => {
 					setShowForm(false);
 					handleResetFormField();
 				}}
-				footer={false}
+				footer={[
+					<Button type="primary" key="btnSubmit" htmlType="submit" form="addUserForm">Lưu lại</Button>,
+					<Button key="btncancel" onClick={handleResetFormField}>Làm mới</Button>
+				]}
 				width={800}
 			>
 				<Spin spinning={status === "loading"}>
@@ -84,8 +86,16 @@ function AddNewUserForm({
 						labelAlign="left"
 						name="nest-messages"
 						onFinish={handleAddUser}
+						id="addUserForm"
 						form={form}
 					>
+						<Form.Item
+							name={"name"}
+							label="Tên người dùng"
+							rules={[{ required: true, message: validateMessage.REQUIRE }]}
+						>
+							<Input />
+						</Form.Item>
 						<Form.Item
 							name={"email"}
 							label="Email"
@@ -105,34 +115,13 @@ function AddNewUserForm({
 							<Input />
 						</Form.Item>
 
-						<Form.Item
-							name={"name"}
-							label="Tên người dùng"
-							rules={[{ required: true, message: validateMessage.REQUIRE }]}
-						>
-							<Input />
-						</Form.Item>
+
 						<Form.Item
 							name={"role_id"}
-							label="Role"
+							label="Vai trò"
 							rules={[{ required: true, message: validateMessage.REQUIRE }]}
 						>
 							<Select options={listRole} />
-						</Form.Item>
-						{/* <Form.Item
-							name={"password"}
-							label="Mật khẩu"
-							rules={[{ required: true, message: validateMessage.REQUIRE }]}
-						>
-							<Input.Password />
-						</Form.Item> */}
-						<Form.Item wrapperCol={{ offset: 8 }}>
-							<Space size="large">
-								<Button type="primary" htmlType="submit">
-									Submit
-								</Button>
-								<Button onClick={handleResetFormField}>Reset</Button>
-							</Space>
 						</Form.Item>
 					</Form>
 				</Spin>

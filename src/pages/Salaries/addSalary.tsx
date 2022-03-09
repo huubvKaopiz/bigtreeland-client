@@ -129,6 +129,22 @@ export default function AddSalary(): JSX.Element {
         }
     }, [lessons, role, form, dispatch])
 
+    useEffect(()=>{
+        if (addSalaryStatus === 'success') {
+            confirm({
+                title: 'Lưu bảng lương thành công!',
+                icon: <CheckCircleOutlined />,
+                content: 'Bạn muốn chuyển đến danh sách bảng lương',
+                onOk() {
+                    history.push("/salaries")
+                },
+                onCancel() {
+                    console.log('Cancel');
+                },
+            });
+        }
+    },[addSalaryStatus])
+
     function handleChangeDateRange(date: any, dateString: [string, string]) {
         setDateRange([dateString[0], dateString[1]])
     }
@@ -279,21 +295,7 @@ export default function AddSalary(): JSX.Element {
             status: 0,
             type: role === ROLE_NAMES.SALE ? 0 : role === ROLE_NAMES.TEACHER2 ? 1 : 2
         }
-        dispatch(actionAddSalary(payload)).finally(() => {
-            if (addSalaryStatus === 'success') {
-                confirm({
-                    title: 'Lưu bảng lương thành công!',
-                    icon: <CheckCircleOutlined />,
-                    content: 'Bạn muốn chuyển đến danh sách bảng lương',
-                    onOk() {
-                        history.push("/salaries")
-                    },
-                    onCancel() {
-                        console.log('Cancel');
-                    },
-                });
-            }
-        })
+        dispatch(actionAddSalary(payload));
     }
 
     //UI render 
@@ -399,7 +401,7 @@ export default function AddSalary(): JSX.Element {
                         <Form.Item>
                             <Space >
                                 <strong style={{ marginRight: 20 }}>Tổng lương: <span style={{ color: "#d35400" }}>{numeral(amountSalary).format("0,0")}</span></strong>
-                                <Button type="primary" htmlType="submit" loading={addSalaryStatus == "loading" ? true : false}>Submit</Button>
+                                <Button type="primary" htmlType="submit" loading={addSalaryStatus == "loading" ? true : false}>Lưu lại</Button>
                             </Space>
                         </Form.Item>
 

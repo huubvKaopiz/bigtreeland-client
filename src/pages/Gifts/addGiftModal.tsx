@@ -5,7 +5,7 @@ import { FileType, GiftType } from 'interface';
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState, useAppDispatch } from 'store/store';
-import { actionAddGift, actionUpdateGift } from 'store/gifts/slice';
+import { actionAddGift, actionGetGiftList, actionUpdateGift } from 'store/gifts/slice';
 import { get } from 'lodash';
 
 export function AddGiftModal(props: {
@@ -49,6 +49,14 @@ export function AddGiftModal(props: {
         }
     },[editMode, giftInfo])
 
+    useEffect(()=>{
+        if(updateGiftStatus === 'success' || addGiftStatus === 'success'){
+            setShow(false);
+            setEditMode(false);
+            dispatch(actionGetGiftList({}))
+        }
+    },[updateGiftStatus, addGiftStatus])
+
     function handleFileSelected(filesSelected: Array<FileType>) {
         setFileSelected(filesSelected);
     }
@@ -56,18 +64,9 @@ export function AddGiftModal(props: {
     function handleSubmit(values: any) {
         const payload = { ...values, photo: fileSelected.length > 0 && fileSelected[0].id }
         if (editMode && giftInfo) {
-            dispatch(actionUpdateGift({ giftId: giftInfo.id, data: payload })).finally(() => {
-                if (updateGiftStatus === "success") {
-                    setShow(false);
-                    setEditMode(false);
-                }
-            })
+            dispatch(actionUpdateGift({ giftId: giftInfo.id, data: payload }));
         } else {
-            dispatch(actionAddGift(payload)).finally(() => {
-                if (addGiftStatus === "success") {
-                    setShow(false);
-                }
-            })
+            dispatch(actionAddGift(payload));
         }
     }
 

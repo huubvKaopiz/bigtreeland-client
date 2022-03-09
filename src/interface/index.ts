@@ -354,6 +354,10 @@ export interface LessonType {
 		id: number;
 		from_date: string;
 		to_date: string;
+		class:{
+			id:number;
+			name:string;
+		}
 	}
 }
 

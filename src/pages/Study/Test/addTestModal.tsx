@@ -141,6 +141,7 @@ export default function AddTest(props: { classInfo: ClassType | null }): JSX.Ele
 							isShow={showSelect}
 							okFunction={handleFileSelected}
 							closeFunction={() => setShowSelect(false)}
+							review={true}
 							showSelectedList
 						>
 							<Button
@@ -162,6 +163,7 @@ export default function AddTest(props: { classInfo: ClassType | null }): JSX.Ele
 							isShow={resultFilesModal}
 							okFunction={handleResultFileSelected}
 							closeFunction={() => setResultFilesModal(false)}
+							review={true}
 							showSelectedList
 						>
 							<Button

@@ -22,12 +22,22 @@ export function Lesson(props: { classInfo: ClassType | null }): JSX.Element {
     const lessons = useSelector((state: RootState) => state.lessonReducer.lessons);
     const getLessonsState = useSelector((state: RootState) => state.lessonReducer.getLessonsState);
     const activeTab = useSelector((state: RootState) => state.classReducer.classDetailTabKey);
+    const addAttendanceStatus = useSelector(
+        (state: RootState) => state.attendanceReducer.addAttendanceStatus
+    );
 
     useEffect(() => {
         if (classInfo && activeTab === STUDY_TABS.LESSON) {
             dispatch(actionGetLessons({ class_id: classInfo.id }))
         }
     }, [classInfo, activeTab])
+
+    useEffect(() => {
+        if (addAttendanceStatus === 'success') {
+            setCreateMode(false);
+            if (classInfo) dispatch(actionGetLessons({ class_id: classInfo.id }))
+        }
+    }, [addAttendanceStatus])
 
 
     function handleChangeLessonRange(_: any, dateString: string[]) {

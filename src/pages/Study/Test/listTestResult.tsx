@@ -444,6 +444,7 @@ function UploadResultModal(props: {
 					okFunction={handleFileSelected}
 					closeFunction={() => setShowSelect(false)}
 					showSelectedList
+					review={true}
 				>
 					<Button
 						onClick={() => setShowSelect(true)}
@@ -621,6 +622,7 @@ function UploadTestResultModal(props: { testInfo: TestType | null }): JSX.Elemen
 							okFunction={handleFileSelected}
 							closeFunction={() => setShowSelect(false)}
 							showSelectedList
+							review={true}
 						>
 							<Button
 								onClick={() => setShowSelect(true)}
@@ -642,6 +644,7 @@ function UploadTestResultModal(props: { testInfo: TestType | null }): JSX.Elemen
 							okFunction={handleResultFileSelected}
 							closeFunction={() => setResultFilesModal(false)}
 							showSelectedList
+							review={true}
 						>
 							<Button
 								onClick={() => setResultFilesModal(true)}

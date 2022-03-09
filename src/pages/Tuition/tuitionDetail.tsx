@@ -1,4 +1,4 @@
-import { QuestionCircleOutlined, NotificationOutlined,FileAddOutlined, CreditCardOutlined, TransactionOutlined, ExclamationCircleOutlined, DownloadOutlined } from "@ant-design/icons";
+import { QuestionCircleOutlined, NotificationOutlined, FileAddOutlined, CreditCardOutlined, TransactionOutlined, ExclamationCircleOutlined, DownloadOutlined } from "@ant-design/icons";
 import { Alert, Button, Checkbox, Descriptions, Input, Layout, Modal, PageHeader, Space, Statistic, Table, Tabs, Tag, Tooltip } from "antd";
 import Column from "antd/lib/table/Column";
 import { PeriodTuitionType, StudentType, TuitionFeeType } from "interface";
@@ -114,17 +114,15 @@ export default function TuitionDetail(): JSX.Element {
 		setStudetnList([...(get(students, "data", []) as StudentType[])]);
 		if (get(tuitionPeriodInfo, "active", 0) === 1) {
 			const newList: StudentType[] = [];
-			if (get(students, "data", []).length > get(tuitionPeriodInfo, "tuition_fees", []).length) {
-				get(students, "data", []).forEach((st) => {
-					const index = get(tuitionPeriodInfo, "tuition_fees", []).findIndex((tuition) => tuition.student_id === st.id);
-					if (index === -1) {
-						if (st.class_histories.length >= 1) {
-							if (moment(st.class_histories[st.class_histories.length - 1].date).isSameOrAfter(moment(get(tuitionPeriodInfo, "from_date", ""))))
-								newList.push(st)
-						}
+			get(students, "data", []).forEach((st) => {
+				const index = get(tuitionPeriodInfo, "tuition_fees", []).findIndex((tuition) => tuition.student_id === st.id);
+				if (index === -1) {
+					if (st.class_histories.length >= 1) {
+						if (moment(st.class_histories[st.class_histories.length - 1].date).isSameOrAfter(moment(get(tuitionPeriodInfo, "from_date", ""))))
+							newList.push(st)
 					}
-				})
-			}
+				}
+			})
 			setNewStudentList(newList);
 		}
 	}, [students, tuitionPeriodInfo]);
@@ -235,18 +233,10 @@ export default function TuitionDetail(): JSX.Element {
 	const std_fee_columns = [
 		{
 			title: "Họ tên",
-			dataIndex: "student_id",
-			key: "student_name",
-			render: function nameCol(student_id: number): JSX.Element {
-				return <strong>{studentList.find((st) => st.id === student_id)?.name}</strong>;
-			},
-		},
-		{
-			title: "Ngày sinh",
-			dataIndex: "student_id",
-			key: "student_birthday",
-			render: function nameCol(student_id: number): JSX.Element {
-				return <>{studentList.find((st) => st.id === student_id)?.birthday}</>;
+			dataIndex: "student",
+			key: "student",
+			render: function nameCol(_: string, record: TuitionFeeType): JSX.Element {
+				return <><a>{record.student.name}</a> {record.student.birthday}</>;
 			},
 		},
 		{
@@ -348,6 +338,16 @@ export default function TuitionDetail(): JSX.Element {
 				footer={
 					<Tabs defaultActiveKey="1" >
 						<TabPane tab="Học phí mỗi học sinh" key="stdTuition">
+							<Alert
+								style={{ marginBottom: 20, marginTop: 20 }}
+								message=""
+								description={(<>
+								<p>Với học sinh đã chuyển lớp, cần quyết toán học phí ở lớp cũ trước khi lập bảng học phí ở lớp mới!</p>
+								<p>Quyết toán bằng cách cập nhật lại bảng học phí theo đúng số buổi đã học ở lớp cũ (cập nhật giảm trừ, ghi chú cụ thể...)</p>
+								</>)}
+								type="warning"
+								closable
+							/>
 							<Table
 								rowKey="student_id"
 								loading={getTuitionPeriodState === 'loading'}
@@ -365,7 +365,7 @@ export default function TuitionDetail(): JSX.Element {
 									<Alert
 										style={{ marginBottom: 20, marginTop: 20 }}
 										message=""
-										description="DS học sinh mới là những học sinh vào sau chu kỳ thu học phí và chưa lập bảng thu học phí cho chu kỳ này!"
+										description="DS học sinh mới là những học sinh vào lớp sau chu kỳ thu học phí và chưa lập bảng thu học phí cho chu kỳ này!"
 										type="warning"
 										closable
 									/>
@@ -376,7 +376,7 @@ export default function TuitionDetail(): JSX.Element {
 										<Column title="Aaction" dataIndex="action" key="action" render={(_: number, record: StudentType) => (
 											<Space>
 												<Tooltip title="Tạo bảng học phí">
-													<Button onClick={() =>{
+													<Button onClick={() => {
 														setShowAddTuitionFee(true);
 														setAddTuitionFeeStudent(record);
 													}} icon={<FileAddOutlined />} type="link" />

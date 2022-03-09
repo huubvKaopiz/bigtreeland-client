@@ -186,7 +186,7 @@ export default function Users(): JSX.Element {
 			key: "phone",
 			// eslint-disable-next-line react/display-name
 			render: (user: User) => {
-			return <span>{user.phone} {user.phone_verified_at === null ? <Tag color="red">Chưa xác thực</Tag> : ""}</span>;
+				return <span>{user.phone} {user.phone_verified_at === null ? <Tag color="red">Chưa xác thực</Tag> : ""}</span>;
 			},
 		},
 		{
@@ -211,26 +211,23 @@ export default function Users(): JSX.Element {
 	return (
 		<Layout.Content>
 			<Spin spinning={status === "loading"}>
-				<div
-					style={{
-						marginBottom: 20,
-						display: "flex",
-						justifyContent: "space-between",
-					}}
-				>
+				<Space>
 					<Input
-						placeholder="Tìm kiếm thông qua email, phone hoặc role"
+						style={{ width: 400 }}
+						placeholder="Tìm kiếm thông qua tên, email, hoặc số điện thoại"
 						onChange={({ target: input }) => handleTableFilter(input.value)}
 						prefix={<SearchOutlined />}
 					/>
-					<div style={{ marginLeft: 20 }}>
+					<div style={{ marginLeft: 10 }}>
 						<AddNewUserForm onAddUser={handleAddNewUser} />
 					</div>
+				</Space>
+				<div>
+					<Radio.Group defaultValue={'active'} onChange={onChangeListFilter} style={{ marginBottom: 20, marginTop: 20 }}>
+						<Radio value={'active'}>Đang kích hoạt</Radio>
+						<Radio value={'deactive'}>Vô hiệu hoá</Radio>
+					</Radio.Group>
 				</div>
-				<Radio.Group defaultValue={'active'} onChange={onChangeListFilter} style={{ marginBottom: 20, marginTop: 20 }}>
-					<Radio value={'active'}>Đang kích hoạt</Radio>
-					<Radio value={'deactive'}>Vô hiệu hoá</Radio>
-				</Radio.Group>
 				<Table
 					rowKey="id"
 					dataSource={get(users, "data", [])}

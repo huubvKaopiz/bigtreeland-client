@@ -293,8 +293,8 @@ function DetailSalary(props: { salaryInfo: SalaryType, show: boolean, setShow: (
                                             renderItem={(item:LessonType) => (
                                                 <List.Item>
                                                     <List.Item.Meta
-                                                        title={<a href="#">{item.tuition_period_id}</a>}
-                                                        description={item.tuition_period_id}
+                                                        title={<a href="#">{item.tuition_period.class.name}</a>}
+                                                        // description={`Chu kỳ học phí: `}
                                                     />
                                                     <div style={{ color: "#2980b9" }}>{item.date}</div>
 

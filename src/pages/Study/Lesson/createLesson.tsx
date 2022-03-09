@@ -145,13 +145,6 @@ export default function CreateLesson(props: {
             notification.warn({ message: "Danh sách điểm danh trống" });
         }
     }
-
-    useEffect(() => {
-        if (addAttendanceStatus === 'success') {
-            setCreateMode(false);
-        }
-    }, [addAttendanceStatus])
-
     const attendance_columns: any[] = [
         {
             title: "Họ tên",

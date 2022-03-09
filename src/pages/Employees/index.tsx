@@ -204,6 +204,7 @@ function Employees(): JSX.Element {
 				<Col span={10}>
 					<Input
 						allowClear
+						placeholder='Tìm theo tên hoặc số điện thoại...'
 						onChange={({ target: input }) => handleSearch(input.value)}
 					/>
 				</Col>
