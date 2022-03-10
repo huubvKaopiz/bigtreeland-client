@@ -35,9 +35,8 @@ export default function UpdateTestModal(props: { testInfo: TestType | null }): J
 	const lessonList = useSelector(
 		(state: RootState) => state.lessonReducer.lessons
 	);
-	const listFile = useSelector((state: RootState) => state.filesReducer.files);
 	const [resultFiles, setResultFiles] = useState<Array<FileType>>([]);
-	const [fileSelected, setFileSelected] = useState<Array<FileType>>([]);
+	const [contentFiles, setContentFiles] = useState<Array<FileType>>([]);
 
 	useEffect(() => {
 		if (testInfo && storeUpdateTestState === "success") {
@@ -56,14 +55,8 @@ export default function UpdateTestModal(props: { testInfo: TestType | null }): J
 				date: moment(testInfo.date),
 				lesson_id: testInfo.lesson_id
 			})
-			const results = testInfo.result_files.map((propsFile) => {
-				return listFile.data?.find((file) => file.id === propsFile.id);
-			});
-			const contents = testInfo.content_files.map((propsFile) => {
-				return listFile.data?.find((file) => file.id === propsFile.id);
-			});
-			setResultFiles(results.filter(Boolean) as FileType[]);
-			setFileSelected(contents.filter(Boolean) as FileType[]);
+			setResultFiles(testInfo.result_files)
+			setContentFiles(testInfo.content_files)
 		}
 	}, [testInfo]);
 
@@ -71,7 +64,7 @@ export default function UpdateTestModal(props: { testInfo: TestType | null }): J
 		if (testInfo) {
 			const { result_link, content_link, title, date, lesson_id } = values;
 			const result_files = resultFiles.map((file) => file.id);
-			const content_files = fileSelected.map((file) => file.id);
+			const content_files = contentFiles.map((file) => file.id);
 			// Todo update
 			dispatch(
 				actionUpdateTest({
@@ -87,14 +80,6 @@ export default function UpdateTestModal(props: { testInfo: TestType | null }): J
 			);
 		}
 
-	}
-
-	function handleResultFileSelected(filesSelected: Array<FileType>) {
-		setResultFiles(filesSelected);
-	}
-
-	function handleFileSelected(filesSelected: Array<FileType>) {
-		setFileSelected(filesSelected);
 	}
 	if (testInfo == undefined) return (<></>)
 
@@ -179,9 +164,9 @@ export default function UpdateTestModal(props: { testInfo: TestType | null }): J
 					</Form.Item>
 					<Form.Item label="Chọn files đề thi">
 						<FileSelectModal
-							defaultSelected={fileSelected}
+							defaultSelected={contentFiles}
 							isShow={showSelect}
-							okFunction={handleFileSelected}
+							okFunction={setContentFiles}
 							closeFunction={() => setShowSelect(false)}
 							showSelectedList
 							review={true}
@@ -203,7 +188,7 @@ export default function UpdateTestModal(props: { testInfo: TestType | null }): J
 						<FileSelectModal
 							defaultSelected={resultFiles}
 							isShow={resultFilesModal}
-							okFunction={handleResultFileSelected}
+							okFunction={setResultFiles}
 							closeFunction={() => setResultFilesModal(false)}
 							showSelectedList
 							review={true}

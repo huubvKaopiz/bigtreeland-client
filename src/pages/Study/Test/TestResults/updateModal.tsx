@@ -1,4 +1,5 @@
 import {
+    Alert,
     Button,
     Input,
 } from "antd";
@@ -39,14 +40,18 @@ export default function UpdateModal(props: {
         (state: RootState) => state.testResultsReducer.addTestResultStatus
     );
 
-    useEffect(()=>{
-        if(testResultInfo?.test_result){
+    useEffect(() => {
+        if (testResultInfo?.test_result) {
             setComment(testResultInfo.test_result.teacher_comment)
             setPoint(testResultInfo.test_result.point)
             setFileSelected(testResultInfo.test_result.correct_files)
+        } else {
+            setComment("")
+            setPoint("")
+            setFileSelected([])
         }
-    },[testResultInfo])
-   
+    }, [testResultInfo])
+
 
     function handleSubmit() {
         if (testResultInfo) {
@@ -85,11 +90,16 @@ export default function UpdateModal(props: {
                 confirmLoading={updateTestResultState === "loading" || addTestResultState === 'loading'}
             >
                 <div style={{ padding: 20 }}>
+                    <Alert
+                        message="Nếu học sinh chưa nộp bài thì việc chấm điểm và nhận xét sẽ đi kèm với việc giáo viên xác nhận đã nộp bài cho học sinh."
+                        type="warning"
+                    />
                     <p style={{ marginBottom: 10, marginTop: 10 }}>Chấm điểm</p>
                     <Input
                         placeholder="0.0"
                         onChange={({ target: { value } }) => setPoint(value)}
                         value={point}
+                        style={{width:100}}
                     />
                     <p style={{ marginBottom: 10, marginTop: 10 }}>Nhận xét</p>
                     <TextArea
@@ -113,7 +123,7 @@ export default function UpdateModal(props: {
                             onClick={() => setShowSelect(true)}
                             type="default"
                             size="middle"
-                            style={{backgroundColor:"#FFF", color:"#f39c12", borderColor:"#f39c12"}}
+                            style={{ backgroundColor: "#FFF", color: "#f39c12", borderColor: "#f39c12" }}
                             icon={<UploadOutlined />}
                         >
                             Chọn files

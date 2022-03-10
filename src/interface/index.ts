@@ -205,27 +205,17 @@ export interface ListAttendancesType {
 
 export interface TestType {
 	class_id: number;
-	content_files: any[];
+	content_files: FileType[];
 	content_link: string;
 	created_at: string;
 	date: string;
 	id: number;
-	result_files: any[];
+	result_files: FileType[];
 	result_link: string;
 	title: string;
 	updated_at: string;
 	lesson_id?: number;
-	test_results: {
-		id: number;
-		student_id: number;
-		point: number;
-		result_link: string;
-		correct_link: string;
-		teacher_comment: string;
-		parent_feedback: string;
-		result_files: FileType[];
-		correct_files: FileType[];
-	}[];
+	test_results: TestResultsType[];
 	class: {
 		id: number;
 		name: string;
@@ -511,7 +501,5 @@ export interface TestResultsType {
 	teacher_comment: string;
 	parent_feedback: string;
 	updated_at: string;
-	student: {
-		name: string;
-	}
+	student:StudentType
 }

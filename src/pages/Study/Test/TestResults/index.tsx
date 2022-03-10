@@ -14,7 +14,7 @@ import { actionGetTest } from 'store/testes/slice';
 import SendNotificationModal from 'components/SendNotificationModal';
 
 export interface TestResultDataType {
-    student:StudentType;
+    student: StudentType;
     test_result: TestResultsType | undefined;
 }
 
@@ -49,12 +49,12 @@ export default function (props: {
         if (testInfo && students) {
             const testRsData: TestResultDataType[] = [];
             students.data?.forEach((st) => {
-                const test_result_found = testInfo.test_results.find((ts) => ts.student_id === st.id)
+                const rs = testInfo.test_results.find((el) => el.student_id === st.id)
                 testRsData.push({
                     student: st,
-                    test_result: test_result_found as TestResultsType | undefined
+                    test_result: rs
                 })
-            })
+            });
             setTestResultData(testRsData);
         }
     }, [students])
@@ -120,14 +120,14 @@ export default function (props: {
                                 }} />
                         </Tooltip>
                         <Tooltip title="Nhắc nhở nộp bài">
-                            <Button 
-                                type="link" 
-                                icon={<NotificationOutlined />} 
-                                disabled={record.test_result !== undefined} 
-                                onClick={()=>{
+                            <Button
+                                type="link"
+                                icon={<NotificationOutlined />}
+                                disabled={record.test_result !== undefined}
+                                onClick={() => {
                                     setShowSendNotiModal(true);
                                     setTestResultSelected(record);
-                                }}    
+                                }}
                             />
                         </Tooltip>
                     </>
@@ -139,7 +139,7 @@ export default function (props: {
         <>
             <Table
                 bordered
-                rowKey="student_id"
+                rowKey={(record) => record.student.id}
                 dataSource={testResultData}
                 columns={testResultCols}
                 expandable={{
@@ -210,6 +210,7 @@ export default function (props: {
 
                         </div>
                 }}
+                pagination={{ pageSize: 20 }}
             />
             <UpdateModal
                 key="cmt"
