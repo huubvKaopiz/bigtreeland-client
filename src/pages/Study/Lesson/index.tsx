@@ -7,14 +7,14 @@ import { useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { RootState, useAppDispatch } from "store/store";
 import { actionGetLessons } from "store/lesson/slice";
-import { ClassType, LessonType } from "interface";
+import { ClassType, LessonType, StudentType } from "interface";
 import { STUDY_TABS } from "utils/const";
 import CreateLesson from "./createLesson";
 
 const { RangePicker } = DatePicker;
 
-export function Lesson(props: { classInfo: ClassType | null }): JSX.Element {
-    const { classInfo } = props;
+export function Lesson(props: { classInfo: ClassType | null, students:StudentType[] | [] }): JSX.Element {
+    const { classInfo, students } = props;
     const history = useHistory();
     const dispatch = useAppDispatch();
     const [createMode, setCreateMode] = useState(false);
@@ -101,7 +101,7 @@ export function Lesson(props: { classInfo: ClassType | null }): JSX.Element {
             {
                 createMode
                     ?
-                    <CreateLesson classID={get(classInfo, "id", 0)} setCreateMode={setCreateMode} students={classInfo?.students || []} />
+                    <CreateLesson classID={get(classInfo, "id", 0)} setCreateMode={setCreateMode} students={students || []} />
                     :
                     <>
                         <Space>

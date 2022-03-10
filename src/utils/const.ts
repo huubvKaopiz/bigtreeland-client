@@ -47,7 +47,8 @@ export enum DEFAULT_ROLE_IDS{
 export enum NOTIFI_URIS {
 	TUITION_FEE = 'main/tuition',
 	ATTENDANCE_REMIND = 'main/study',
-	NOTIFICATIONS = 'main/notification'
+	NOTIFICATIONS = 'main/notification',
+	SUBMIT_TEST_RESULT_REMIND = 'main/study/test',
 }
 
 export enum STUDY_TABS {

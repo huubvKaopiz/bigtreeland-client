@@ -14,7 +14,8 @@ import { actionAddAttendance, AttendanceStudentComment } from 'store/attendances
 import { useSelector } from 'react-redux';
 import { RootState, useAppDispatch } from 'store/store';
 import { get } from 'lodash';
-import { STATUS_CODES } from 'http';
+import SendNotificationModal from 'components/SendNotificationModal';
+import { NOTIFI_URIS } from 'utils/const';
 
 const dateFormat = "DD-MM-YYYY";
 
@@ -151,7 +152,7 @@ export default function CreateLesson(props: {
             dataIndex: "name",
             key: "name",
             with: 100,
-            fixed:'left',
+            fixed: 'left',
             render: function col(value: string, record: StudentType): JSX.Element {
                 return <Tooltip title={`Ngày sinh: ${moment(record.birthday).format("DD-MM-YYYY")}`}><strong>{value}</strong></Tooltip>;
             },
@@ -235,11 +236,11 @@ export default function CreateLesson(props: {
             key: "action",
             dataIndex: "",
             width: 80,
-            render: function col(text: string, record: { id: number }, index: number): JSX.Element {
+            render: function col(_: string, record: { id: number }, index: number): JSX.Element {
                 return (
                     <Space>
 
-                        <Tooltip title="Gửi thông báo">
+                        <Tooltip title="Nhắc nhở vào học">
                             <Button
                                 icon={<NotificationOutlined />}
                                 type="link"
@@ -271,11 +272,6 @@ export default function CreateLesson(props: {
 
             <Row>
                 <Col span={24}>
-                    {/* <Spin
-                        spinning={
-                            addAttendanceStatus === "loading"
-                        }
-                    > */}
                     <Table
                         dataSource={students}
                         columns={attendance_columns}
@@ -284,9 +280,15 @@ export default function CreateLesson(props: {
                         size="small"
                         pagination={false}
                     />
-                    {/* </Spin> */}
                 </Col>
             </Row>
+            <SendNotificationModal
+                title="Nhắc nhở vào học"
+                show={showNotiForm}
+                setShow={setShowNotiForm}
+                students={notiIndex !== -1 ? new Array(students[notiIndex]) : []}
+                uri={NOTIFI_URIS.ATTENDANCE_REMIND}
+            />
         </div>
     )
 }

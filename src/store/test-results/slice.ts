@@ -2,32 +2,15 @@ import { async } from "@firebase/util";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { notification } from "antd";
 import { AxiosError } from "axios";
-import { FileType, GetResponseType } from "interface";
+import { FileType, GetResponseType, TestResultsType } from "interface";
 import { get } from "lodash";
 import request from "utils/request";
-
-export interface TestResultsType {
-	id: number;
-	student_id: number;
-	test_id: number;
-	result_files: FileType[];
-	result_link: string;
-	correct_files: FileType[];
-	correct_link: string;
-	point: string;
-	teacher_comment: string;
-	parent_feedback: string;
-	updated_at: string;
-	student:{
-		name:string;
-	}
-}
 
 export interface TestResultsState {
 	testResults: GetResponseType<TestResultsType> | null;
 	getTestResultsStatus: "idle" | "loading" | "success" | "error";
-	addTestResultsStatus: "idle" | "loading" | "success" | "error";
-	updateTestResultsStatus: "idle" | "loading" | "success" | "error";
+	addTestResultStatus: "idle" | "loading" | "success" | "error";
+	updateTestResultStatus: "idle" | "loading" | "success" | "error";
 }
 
 export interface GetTestResultsParam {
@@ -41,6 +24,14 @@ export interface UpdateTestResultsParam {
 	teacher_comment?: string;
 	point?: string;
 	parent_feedback?: string;
+}
+
+export interface AddTestResultParam {
+	test_id: number;
+	student_id: number;
+	teacher_comment?: string;
+	point?: string;
+	correct_files?:number[];
 }
 
 export const actionGetTestResults = createAsyncThunk(
@@ -59,7 +50,23 @@ export const actionGetTestResults = createAsyncThunk(
 	}
 );
 
-export const actionUpdateTestResults = createAsyncThunk(
+export const actionAddTestResult = createAsyncThunk(
+	"actionAddTestResult",
+	async (data: AddTestResultParam, { rejectWithValue }) => {
+		try {
+			const response = await request({
+				url: "api/test-results",
+				method: "post",
+				data,
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
+	}
+);
+
+export const actionUpdateTestResult = createAsyncThunk(
 	"actionUpdateTestResults",
 	async (params: UpdateTestResultsParam, { rejectWithValue }) => {
 		try {
@@ -79,8 +86,8 @@ export const actionUpdateTestResults = createAsyncThunk(
 const initialState: TestResultsState = {
 	testResults: null,
 	getTestResultsStatus: "idle",
-	addTestResultsStatus: "idle",
-	updateTestResultsStatus: "idle",
+	addTestResultStatus: "idle",
+	updateTestResultStatus: "idle",
 };
 
 export const testResults = createSlice({
@@ -113,17 +120,29 @@ export const testResults = createSlice({
 					message: get(error, "response.data", "Có lỗi xảy ra!"),
 				});
 			})
-			//
-			.addCase(actionUpdateTestResults.pending, (state) => {
-				state.updateTestResultsStatus = "loading";
+			// add new
+			.addCase(actionAddTestResult.pending, (state) => {
+				state.addTestResultStatus = "loading";
 			})
-			.addCase(actionUpdateTestResults.rejected, (state, action) => {
-				state.updateTestResultsStatus = "error";
+			.addCase(actionAddTestResult.rejected, (state, action) => {
+				state.addTestResultStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({message:get(error,"response.data","Có lỗi xảy ra!")})
+				notification.error({ message: get(error, "response.data", "Có lỗi xảy ra!") })
 			})
-			.addCase(actionUpdateTestResults.fulfilled, (state) => {
-				state.updateTestResultsStatus = "success";
+			.addCase(actionAddTestResult.fulfilled, (state) => {
+				state.addTestResultStatus = "success";
+			})
+			//update
+			.addCase(actionUpdateTestResult.pending, (state) => {
+				state.updateTestResultStatus = "loading";
+			})
+			.addCase(actionUpdateTestResult.rejected, (state, action) => {
+				state.updateTestResultStatus = "error";
+				const error = action.payload as AxiosError;
+				notification.error({ message: get(error, "response.data", "Có lỗi xảy ra!") })
+			})
+			.addCase(actionUpdateTestResult.fulfilled, (state) => {
+				state.updateTestResultStatus = "success";
 			});
 	},
 });

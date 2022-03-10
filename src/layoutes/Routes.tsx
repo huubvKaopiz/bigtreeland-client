@@ -10,7 +10,7 @@ import Permissions from "../pages/Permissions";
 import Users from "../pages/Users";
 import Files from "pages/Files";
 import Revenue from "pages/Revenues";
-import { ListTestResults } from "pages/Study/Test/listTestResult";
+import { TestDetail } from "pages/Study/Test/testDetail";
 import Tuition from "pages/Tuition";
 import TuitionDetail from "pages/Tuition/tuitionDetail";
 import Salaries from "pages/Salaries";
@@ -44,7 +44,7 @@ function Routes(): JSX.Element {
 			/>
 			<Route
 				path="/study-tests/:test_id/:class_id"
-				component={ListTestResults}
+				component={TestDetail}
 			/>
 			<Route path="/study-summary" component={StudySumaryBoard} />
 			<Route

@@ -19,6 +19,7 @@ import { Tests } from "./Test";
 import AddStudentsModal from "pages/Classes/addStudentsModal";
 import { StudySumaryBoard } from "./Summary";
 import { CreateStudySummary } from "./Summary/createModal";
+import { actionGetStudents } from "store/students/slice";
 
 export default function (): JSX.Element {
 	const params = useParams() as { class_id: string };
@@ -37,9 +38,15 @@ export default function (): JSX.Element {
 		(state: RootState) => state.classReducer.getClassStatus
 	);
 
+	const students = useSelector(
+		(state: RootState) => state.studentReducer.students
+	);
+
 	useEffect(() => {
 		if (params.class_id) {
-			dispatch(actionGetClass({ class_id: parseInt(params.class_id), params: { active_periodinfo: false, students: true } }));
+			dispatch(actionGetClass({ class_id: parseInt(params.class_id)}));
+			dispatch(actionGetStudents({ class_id: parseInt(params.class_id)}));
+
 		}
 	}, [dispatch, params]);
 
@@ -98,17 +105,17 @@ export default function (): JSX.Element {
 				</Descriptions>
 				<Tabs activeKey={activeTab} onChange={(activeKey) => dispatch(actionSetClassDetailTabKey(activeKey))}>
 					<TabPane tab="DS buổi học" key={STUDY_TABS.LESSON}>
-						<Lesson classInfo={classInfo} />
+						<Lesson classInfo={classInfo}  students={get(students,"data",[])}/>
 					</TabPane>
 					<TabPane tab="Bài tập" key={STUDY_TABS.TEST}>
-						<Tests classInfo={classInfo} />
+						<Tests classInfo={classInfo} students={get(students,"data",[])}/>
 					</TabPane>
 					<TabPane tab="Album ảnh" key={STUDY_TABS.ALBUM}>
 						<ClassPhotos class_id={params.class_id} />
 					</TabPane>
 					<TabPane tab="Bảng tổng kết" key={STUDY_TABS.SUMMARY}>
 						 <div style={{marginTop:10, marginBottom:20}}>
-						 <CreateStudySummary class_id={+params.class_id} classList={null}/>
+						 <CreateStudySummary class_id={+params.class_id} classList={null} />
 						 </div>
 						<StudySumaryBoard class_id={+params.class_id} />
 					</TabPane>

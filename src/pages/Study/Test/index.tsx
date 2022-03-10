@@ -20,10 +20,11 @@ import { defaul_image_base64, STUDY_TABS } from "utils/const";
 import AddTest from "./addTestModal";
 
 export function Tests(props: {
-    classInfo: ClassType | null,
+    classInfo: ClassType | null;
+    students:StudentType[];
 }): JSX.Element {
 
-    const { classInfo } = props;
+    const { classInfo, students } = props;
     const dispatch = useAppDispatch();
     const history = useHistory();
     
@@ -79,7 +80,7 @@ export function Tests(props: {
                                 }}
                             >
                                 <Button type="link" icon={<TeamOutlined />} />
-                                {get(classInfo,"students",[]).length}
+                                {students.length}
                             </Space>,
                             <Space
                                 key="act2"

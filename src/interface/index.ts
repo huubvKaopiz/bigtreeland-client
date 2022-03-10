@@ -498,3 +498,20 @@ export interface StudentStatType {
 	total_student_off: { [key: string]: number };
 	total: number;
 }
+
+export interface TestResultsType {
+	id: number;
+	student_id: number;
+	test_id: number;
+	result_files: FileType[];
+	result_link: number | null;
+	correct_files: FileType[];
+	correct_link: string;
+	point: string;
+	teacher_comment: string;
+	parent_feedback: string;
+	updated_at: string;
+	student: {
+		name: string;
+	}
+}
