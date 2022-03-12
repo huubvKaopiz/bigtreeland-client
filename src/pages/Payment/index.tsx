@@ -68,10 +68,10 @@ function Payment(): JSX.Element {
 	const [currentDrawerData, setCurrentDrawerData] = useState<PaymentType | null>(null);
 	const [page, setPage] = useState(1);
 	const [searchInput, setSearchInput] = useState("");
-	const [selectedRows, setSelectedRows] = useState<PaymentType[]>([]);
+	const [selectedPaymentRows, setSelectedPaymentRows] = useState<PaymentType[]>([]);
+	const [selectedRowKeys, setsSlectedRowKeys] = useState< React.Key[]>([])
 
-	const [statusValueChange, setStatusValueChange] = useState("");
-
+	// application state
 	const paymentTableData = useSelector(
 		(state: RootState) => state.paymentReducer.payments
 	);
@@ -97,11 +97,20 @@ function Payment(): JSX.Element {
 	).current;
 
 	useEffect(() => {
-		// const startOfMonth = moment().startOf("month").format("YYYY-MM-DD");
-		// const endOfMonth = moment().endOf("month").format("YYYY-MM-DD");
+		const startOfMonth = moment().startOf("month").format("YYYY-MM-DD");
+		const endOfMonth = moment().endOf("month").format("YYYY-MM-DD");
 		// setSearchRange([startOfMonth, endOfMonth]);
-		dispatch(actionGetPayments({}));
+		dispatch(actionGetPayments({fromDate:startOfMonth, toDate:endOfMonth}));
 	}, [dispatch]);
+
+	useEffect(() => {
+		const tableData = get(paymentTableData, "data", []) as PaymentType[];
+		const spendAmount = tableData.reduce(
+			(pre, current) => pre + +current.amount,
+			0
+		);
+		if (spendAmount) setSpenValue(spendAmount);
+	}, [paymentTableData]);
 
 	const handleSearchRange = useCallback(
 		(page?: number) => {
@@ -120,6 +129,7 @@ function Payment(): JSX.Element {
 		handleSearchRange(page);
 	}, [dispatch, handleSearchRange, page]);
 
+	// refresh data when the updating is complete
 	useEffect(() => {
 		if (statusGetPayment === "loading" || statusUpdatePayment === "loading" || statusDeletePayment === 'loading')
 			setLoading(true);
@@ -133,6 +143,8 @@ function Payment(): JSX.Element {
 			setRawTableData(tableData);
 			dispatch(resetGetPaymentStatus());
 			setLoading(false);
+			setsSlectedRowKeys([]);
+			setSelectedPaymentRows([]);
 		} else if (statusUpdatePayment === "success") {
 			dispatch(resetUpdatePaymentStatus());
 			dispatch(actionGetPayments({}));
@@ -158,19 +170,11 @@ function Payment(): JSX.Element {
 		statusDeletePayment
 	]);
 
-	useEffect(() => {
-		const tableData = get(paymentTableData, "data", []) as PaymentType[];
-		const spendAmount = tableData.reduce(
-			(pre, current) => pre + +current.amount,
-			0
-		);
-		if (spendAmount) setSpenValue(spendAmount);
-	}, [paymentTableData]);
-
-	function onTableFiler(value: string) {
-		setSearchInput(value);
-		debounceSearch(value);
-	}
+	
+	// function onTableFiler(value: string) {
+	// 	setSearchInput(value);
+	// 	debounceSearch(value);
+	// }
 
 	function searchRangeChange(_: any, dateString: string[]) {
 		setSearchRange([dateString[0], dateString[1]]);
@@ -179,10 +183,10 @@ function Payment(): JSX.Element {
 
 	function handleMultipleConfirmed(){
 		const payment_slip_ids: number[] = [];
-		selectedRows.forEach((r) => payment_slip_ids.push(r.id));
+		selectedPaymentRows.forEach((r) => payment_slip_ids.push(r.id));
 		const status = 1;
 		dispatch(actionUpdatePaymentStatus({ payment_slip_ids, status }));
-		setSelectedRows([])
+		
 	}
 
 	function handleDelete(payment: PaymentType) {
@@ -194,6 +198,8 @@ function Payment(): JSX.Element {
 			}
 		})
 	}
+
+	console.log(selectedPaymentRows)
 
 	const tableColumn = [
 		{
@@ -333,13 +339,13 @@ function Payment(): JSX.Element {
 				/>
 			</Row>
 			<Spin spinning={loading}>
-				{selectedRows.length > 0 &&
+				{selectedPaymentRows.length > 0 &&
 					<Space style={{ marginBottom: 20 }}>
 						<Button type="primary" icon={<CheckCircleOutlined />} onClick={() => handleMultipleConfirmed()} loading={false}>
 							Xác nhận
 						</Button>
 						<span style={{ marginLeft: 8 }}>
-							{selectedRows.length > 0 ? `${selectedRows.length} phiếu chi` : ''}
+							{selectedPaymentRows.length > 0 ? `${selectedPaymentRows.length} phiếu chi` : ''}
 						</span>
 					</Space>
 				}
@@ -349,14 +355,16 @@ function Payment(): JSX.Element {
 					dataSource={rawTableData}
 					columns={tableColumn}
 					rowSelection={{
-						type: 'checkbox',
+						selectedRowKeys,
 						onChange: (selectedRowKeys: React.Key[], selectedRows: PaymentType[]) => {
-							console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
-							setSelectedRows(selectedRows);
+							// console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+							setSelectedPaymentRows(selectedRows);
+							setsSlectedRowKeys(selectedRowKeys);
 						},
 						getCheckboxProps: (record: PaymentType) => ({
 							disabled: record.status === 1, // Column configuration not to be checked
 						}),
+					
 					}}
 					pagination={{
 						pageSize: 20,

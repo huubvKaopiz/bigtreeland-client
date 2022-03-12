@@ -16,6 +16,7 @@ import SendNotificationModal from 'components/SendNotificationModal';
 export interface TestResultDataType {
     student: StudentType;
     test_result: TestResultsType | undefined;
+    tranferred: boolean;
 }
 
 export default function (props: {
@@ -39,6 +40,7 @@ export default function (props: {
         (state: RootState) => state.testResultsReducer.addTestResultStatus
     );
 
+    // get the testinfo following the test_id
     useEffect(() => {
         if (testInfo) {
             dispatch(actionGetStudents({ class_id: testInfo.class_id }))
@@ -48,17 +50,33 @@ export default function (props: {
     useEffect(() => {
         if (testInfo && students) {
             const testRsData: TestResultDataType[] = [];
+            const mapped: number[] = []
+            // check if the student has submited or not
             students.data?.forEach((st) => {
-                const rs = testInfo.test_results.find((el) => el.student_id === st.id)
+                const rs = testInfo.test_results.find((rs_el) => rs_el.student_id === st.id)
+                if (rs) mapped.push(rs.id);
                 testRsData.push({
                     student: st,
-                    test_result: rs
+                    test_result: rs,
+                    tranferred: false
                 })
             });
+            // in case of student is tranfered to a different class
+            if (mapped.length < testInfo.test_results.length) {
+                testInfo.test_results.forEach((ts_el) => {
+                    const ts = mapped.find((mapped_el) => mapped_el === ts_el.id)
+                    if (ts === undefined) testRsData.push({
+                        student: ts_el.student,
+                        test_result: ts_el,
+                        tranferred: true
+                    })
+                })
+            }
             setTestResultData(testRsData);
         }
     }, [students])
 
+    // When the updatting is complete, reload the data.
     useEffect(() => {
         if (updateTestResultState === "success" || addTestResultState === 'success') {
             setShowAddTestCommentModal(false);
@@ -76,7 +94,10 @@ export default function (props: {
             dataIndex: '',
             key: 'name',
             render: function nameCol(_: string, record: TestResultDataType): JSX.Element {
-                return <strong>{record.student.name}</strong>
+                return <>
+                    <strong>{record.student.name}</strong>
+                    {record.tranferred && <span style={{ fontStyle: 'italic', color: "#95a5a6" }}> (đã chuyển lớp)</span>}
+                </>
             }
         },
         {

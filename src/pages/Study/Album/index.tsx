@@ -1,6 +1,7 @@
 import {
     InboxOutlined,
     UploadOutlined,
+    CloseOutlined
 } from "@ant-design/icons";
 import {
     Button,
@@ -16,7 +17,7 @@ import { ClassPhotoType, FileType, StudentType, TestType } from "interface";
 import { get } from "lodash";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { actionAddClassPhotos, actionGetClassPhotos } from "store/classes/slice";
+import { actionAddClassPhotos, actionDeleteClassPhoto, actionGetClassPhotos } from "store/classes/slice";
 import { actionUploadFile } from "store/files/slice";
 import { RootState, useAppDispatch } from "store/store";
 import { defaul_image_base64, imageExtensionsList, NOTIFI_URIS, STUDY_TABS } from "utils/const";
@@ -31,12 +32,13 @@ export function ClassPhotos(props: { class_id: string }): JSX.Element {
     const [isLoading, setIsLoading] = useState(false);
 
     const photos = useSelector((state: RootState) => state.classReducer.photos)
+    const deletePhotoState = useSelector((state: RootState) => state.classReducer.deleteClassPhotosStatus)
     const activeTab = useSelector((state: RootState) => state.classReducer.classDetailTabKey);
 
     useEffect(() => {
-        if (class_id && activeTab === STUDY_TABS.ALBUM)
+        if (class_id && activeTab === STUDY_TABS.ALBUM || deletePhotoState === 'success')
             dispatch(actionGetClassPhotos({ class_id: +class_id }))
-    }, [class_id, activeTab])
+    }, [class_id, activeTab, deletePhotoState])
 
     useEffect(() => {
         if (show) setFileList([]);
@@ -68,6 +70,10 @@ export function ClassPhotos(props: { class_id: string }): JSX.Element {
                         });
                 });
         }
+    }
+
+    function handleDelete(id: number) {
+        if (id) dispatch(actionDeleteClassPhoto(id));
     }
 
     return (
@@ -139,23 +145,40 @@ export function ClassPhotos(props: { class_id: string }): JSX.Element {
                 size={[10, 10]}
                 wrap
             >
-                {get(photos, "data", []).map(
-                    (photo: ClassPhotoType, index: number) => (
-                        <Image
-                            key={index}
-                            width={240}
-                            height={240}
-                            style={{ objectFit: "cover" }}
-                            alt="logo"
-                            src={get(
-                                photo,
-                                "file.url",
-                                "error"
-                            )}
-                            fallback={defaul_image_base64}
-                        />
-                    )
-                )}
+                <Image.PreviewGroup>
+                    {get(photos, "data", []).map(
+                        (photo: ClassPhotoType, index: number) => (
+                            <div style={{ display: 'inline-block', position: 'relative', padding: 10 }}>
+                                <Image
+                                    key={index}
+                                    width={200}
+                                    height={200}
+                                    style={{ objectFit: "cover" }}
+                                    alt="logo"
+                                    src={get(
+                                        photo,
+                                        "file.url",
+                                        "error"
+                                    )}
+                                    fallback={defaul_image_base64}
+                                />
+                                <Button
+                                    style={{
+                                        position: 'absolute',
+                                        top: 10,
+                                        right: 10,
+                                        backgroundColor: 'rgb(189, 195, 199,0.6)',
+
+                                    }}
+                                    type="link"
+                                    danger
+                                    icon={<CloseOutlined />}
+                                    onClick={() => handleDelete(photo.id)}
+                                />
+                            </div>
+                        )
+                    )}
+                </Image.PreviewGroup>
             </Space>
         </>
     );

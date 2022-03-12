@@ -67,7 +67,7 @@ function Classes(): JSX.Element {
 			dataIndex: "name",
 			key: "name",
 			render: function nameCol(name: string, record:{id:number, type:number}): JSX.Element {
-				return <><strong>{name}</strong>  <Tag color={record.type === 0 ? "red" : "green"}>{record.type === 0 ? "Offline" : "Online"}</Tag></>
+				return <><strong>{name}</strong>  <Tag style={{fontSize:10}} color={record.type === 0 ? "red" : "green"}>{record.type === 0 ? "Offline" : "Online"}</Tag></>
 			},
 		},
 		{

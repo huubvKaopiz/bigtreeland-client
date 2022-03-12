@@ -71,7 +71,7 @@ export default function Students(): JSX.Element {
 			dataIndex: "name",
 			key: "name",
 			render: function nameCol(value: string, record:StudentType): JSX.Element {
-				return  <Space><strong>{value}</strong><Tag style={{fontSize:12}} color={record.type === 0 ? "red" : "green"}>{record.type === 0 ? "Offline" : "Online"}</Tag></Space>;
+				return  <Space><strong>{value}</strong><Tag style={{fontSize:10}} color={record.type === 0 ? "red" : "green"}>{record.type === 0 ? "Offline" : "Online"}</Tag></Space>;
 			},
 		},
 		{

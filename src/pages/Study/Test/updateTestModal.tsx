@@ -72,8 +72,8 @@ export default function UpdateTestModal(props: { testInfo: TestType | null }): J
 					title,
 					date: moment(date).format('YYYY-MM-DD'),
 					content_files,
-					content_link,
-					result_link,
+					content_link: content_link === '' ? null : content_link,
+					result_link: result_link === '' ? null : result_link,
 					result_files,
 					lesson_id
 				})

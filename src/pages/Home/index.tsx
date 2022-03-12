@@ -9,8 +9,9 @@ import {
 	DatePicker,
 	Space,
 	Button,
+	Popover,
 } from "antd";
-import { ClockCircleOutlined } from "@ant-design/icons";
+import { GiftOutlined } from "@ant-design/icons";
 import { Line } from "@ant-design/charts";
 import { useEffect, useState } from "react";
 // import { useTranslation } from "react-i18next";
@@ -20,8 +21,8 @@ import { useSelector } from "react-redux";
 import { get } from "lodash";
 import moment, { Moment } from "moment";
 import numeral from "numeral";
-import { actionGetClassesToday, actionGetRevenueStat, actionGetStudentStat } from "store/statistical/slice";
-import { ClassType } from "interface";
+import { actionGetBirthdayList, actionGetClassesToday, actionGetRevenueStat, actionGetStudentStat } from "store/statistical/slice";
+import { ClassType, StudentType, UserType } from "interface";
 import { actionGetRevenues, RevenuesTypeList } from "store/revenues/slice";
 import { useHistory } from "react-router-dom";
 const { RangePicker } = DatePicker;
@@ -52,32 +53,51 @@ function Home(): JSX.Element {
 	const studentsStat = useSelector(
 		(state: RootState) => state.statisticalReducer.studentStat
 	);
+	const birthdayList = useSelector(
+		(state: RootState) => state.statisticalReducer.birthdayList
+	);
+
 
 	const revenuesData = useSelector((state: RootState) => state.revenuesReducer.revenues);
 
 
 	useEffect(() => {
-		dispatch(actionGetDayoffs({}));
-		dispatch(actionGetRevenueStat({}))
+		const from_date = moment(moment().startOf('month')).startOf("week");
+		const to_date = moment(from_date).day(+41)
+		dispatch(actionGetDayoffs({
+			from_date: moment(from_date).format('YYYY-MM-DD'),
+			to_date: moment(to_date).format('YYYY-MM-DD')
+		}));
+		dispatch(actionGetRevenueStat({}));
+		dispatch(actionGetClassesToday({}));
 		dispatch(actionGetStudentStat({
 			from_date: moment().startOf('year').format("YYYY-MM"),
 			to_date: moment().format("YYYY-MM")
-		}))
-		dispatch(actionGetClassesToday({}))
-		dispatch(actionGetRevenues({}))
+		}));
+		dispatch(actionGetBirthdayList({
+			from_date: moment(from_date).format('YYYY-MM-DD'),
+			to_date: moment(to_date).format('YYYY-MM-DD')
+		}));
 	}, [dispatch]);
 
 	useEffect(() => {
 		if (studentsStat) {
 			const data: ChartDataType[] = [];
 			Object.keys(studentsStat.total_student).map((key: string) =>
-				data.push({ month: key, total: studentsStat.total_student[key], type: "in" }));
+				data.push({
+					month: key,
+					total: studentsStat.total_student[key],
+					type: "in"
+				}));
 			Object.keys(studentsStat.total_student_off).map((key: string) =>
-				data.push({ month: key, total: studentsStat.total_student_off[key], type: "out" }));
+				data.push({
+					month: key,
+					total: studentsStat.total_student_off[key],
+					type: "out"
+				}));
 			setStChartData(data)
 		}
 	}, [studentsStat])
-
 
 	const config = {
 		data: stChartData,
@@ -107,8 +127,14 @@ function Home(): JSX.Element {
 		}
 	}
 
-	function onPanelChange(value: { format: (arg0: string) => any }, mode: any) {
+	function onPanelChange(value:Moment, mode: any) {
 		console.log(value.format("YYYY-MM-DD"), mode);
+		const from_date = moment(value.startOf('month')).startOf("week");
+		const to_date = moment(from_date).day(+41)
+		dispatch(actionGetBirthdayList({
+			from_date: moment(from_date).format('YYYY-MM-DD'),
+			to_date: moment(to_date).format('YYYY-MM-DD')
+		}));
 	}
 
 	function scheduleCellRender(value: Moment) {
@@ -122,13 +148,63 @@ function Home(): JSX.Element {
 				}
 			}
 		);
-		if (isDayoff) {
-			return (
-				<>
-					<Tag color="#f50">Ngày nghỉ</Tag>
-				</>
-			);
+		let employees_birthday: UserType[] = [];
+		let students_birthday: StudentType[] = [];
+		if (birthdayList) {
+			birthdayList.students.forEach((st) => {
+				if (moment(dateValue).format('M') === moment(st.birthday).format('M')
+					&& moment(dateValue).format('D') === moment(st.birthday).format('D'))
+					students_birthday.push(st);
+			})
+			birthdayList.users.forEach((user) => {
+				if (moment(dateValue).format('M') === moment(user.profile?.birthday).format('M')
+					&& moment(dateValue).format('D') === moment(user.profile?.birthday).format('D'))
+					employees_birthday.push(user);
+			})
 		}
+		return (
+			<>
+				{isDayoff && <Tag style={{fontSize:10}} color="#ff7979">Ngày nghỉ</Tag>}
+				{
+					employees_birthday.map((emp) =>
+						<div key={emp.id} style={{ fontSize: 10, backgroundColor: "#f6e58d", paddingLeft: 4, paddingRight: 4, marginBottom: 4 }}>
+							<Popover
+								title={<><GiftOutlined style={{ color: "#e84393" }} /> Sinh nhật nhân viên</>}
+								content={
+									<div>
+										<a>{emp.profile?.name}</a>
+										<p>Phone: {emp.phone}</p>
+									</div>
+								}
+							>
+								<GiftOutlined style={{ color: "#e84393" }} />
+								<span> {emp.profile?.name}</span>
+							</Popover>
+						</div>)
+				}
+				{
+					students_birthday.map((st) =>
+						<div
+							key={st.id}
+							style={{ fontSize: 10, backgroundColor: "#dff9fb", paddingLeft: 4, paddingRight: 4, marginBottom: 4 }}
+						>
+							<Popover
+								title={<><GiftOutlined style={{ color: "#e84393" }} /> Sinh nhật học sinh</>}
+								content={
+									<div>
+										<a>{st.name}</a>
+										<p>Lớp: {get(st, "class.name", "")}</p>
+									</div>
+								}
+							>
+								<GiftOutlined style={{ color: "#e84393" }} />
+								<span> {st.name}</span>
+							</Popover>
+
+						</div>)
+				}
+			</>
+		);
 	}
 
 
@@ -179,6 +255,15 @@ function Home(): JSX.Element {
 						</Card>
 					</Col>
 				</Row>
+				<Row gutter={16}>
+					<Card type="inner" title="Lịch trung tâm" bordered={true} style={{ marginTop: 20 }}>
+						<Calendar
+							fullscreen={true}
+							onPanelChange={onPanelChange}
+							dateCellRender={scheduleCellRender}
+						/>
+					</Card>
+				</Row>
 			</div>
 			<div className="site-card-wrapper" style={{ marginTop: 20 }}>
 				<Row gutter={16}>
@@ -191,13 +276,7 @@ function Home(): JSX.Element {
 						>
 							<Line {...config} />
 						</Card>
-						<Card type="inner" title="Lịch trung tâm" bordered={true} style={{ marginTop: 20 }}>
-							<Calendar
-								fullscreen={true}
-								onPanelChange={onPanelChange}
-								dateCellRender={scheduleCellRender}
-							/>
-						</Card>
+
 					</Col>
 					<Col span={8}>
 						<Card title="Lịch học hôm nay" type="inner" bordered={true}>

@@ -46,6 +46,7 @@ export interface UserType {
 		id: 1;
 		name: "parent";
 		email: "parent@gmail.com";
+		birthday:string;
 		deleted_at: null;
 		created_at: null;
 		updated_at: null;
@@ -502,4 +503,9 @@ export interface TestResultsType {
 	parent_feedback: string;
 	updated_at: string;
 	student:StudentType
+}
+
+export interface BirthdayListType {
+	students:StudentType[];
+	users:UserType[];
 }

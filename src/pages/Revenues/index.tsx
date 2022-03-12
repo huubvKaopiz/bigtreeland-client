@@ -63,6 +63,7 @@ function Revenues(): JSX.Element {
 	const [receivedValue, setReceivedValue] = useState(123);
 	const [rowValueChange, setRowValueChange] = useState<RevenueType | null>(null);
 	const [selectedRows, setSelectedRows] = useState<RevenueType[]>([]);
+	const [selectedRowKeys, setsSlectedRowKeys] = useState< React.Key[]>([])
 	const [currentDrawerData, setCurrentDrawerData] = useState<RevenueType | null>(null);
 	const [showDrawer, setShowDrawer] = useState(false);
 	const [searchObj, setSearchObj] = useState(() => {
@@ -72,7 +73,7 @@ function Revenues(): JSX.Element {
 	});
 
 	const [rawTableData, setRawTableData] = useState<RevenueType[]>([]);
-
+	//application state
 	const statusGetRevenues = useSelector((state: RootState) => state.revenuesReducer.getRevenuesStatus);
 	const statusAddRevenues = useSelector((state: RootState) => state.revenuesReducer.addRevenuesStatus);
 	const statusUpdateRevenues = useSelector((state: RootState) => state.revenuesReducer.updateRevenuesStatus);
@@ -95,9 +96,12 @@ function Revenues(): JSX.Element {
 		setRawTableData(tableData);
 	}, [revenuesData]);
 
+	// refresh data when the updating is complete
 	useEffect(() => {
 		if (statusGetRevenues === "success" || statusGetRevenues === "error") {
 			dispatch(resetGetRevenuesStatus());
+			setSelectedRows([]);
+			setsSlectedRowKeys([]);
 		} else if (statusAddRevenues === "success" || statusAddRevenues === "error") {
 			if (statusAddRevenues === "success") {
 				dispatch(actionGetRevenues({}));
@@ -111,41 +115,17 @@ function Revenues(): JSX.Element {
 		}
 	}, [dispatch, statusAddRevenues, statusGetRevenues, statusUpdateRevenues]);
 
-
-	function onTableFiler(value: string) {
-		const [fromDate, toDate] = searchObj.searchRange;
-		debounceSearch(value, fromDate, toDate);
-	}
-
+	// actions handler
 	function searchRangeChange(_: any, dateString: string[]) {
 		const [fromDate, toDate] = dateString;
 		setSearchObj({ ...searchObj, searchRange: [fromDate, toDate] });
 	}
-
-	function handleUpdateRowData() {
-		dispatch(
-			actionUpdateRevenues(
-				pick(rowValueChange, [
-					"id",
-					"creator_id",
-					"type",
-					"amount",
-					"note",
-					"reason",
-					"date",
-					"status",
-				]) as RevenuesRequestUpdateType
-			)
-		);
-	}
-
 
 	function handleMultipleConfirmed() {
 		const receipt_ids: number[] = [];
 		selectedRows.forEach((r) => receipt_ids.push(r.id));
 		const status = 1;
 		dispatch(actionUpdateRevenueStatus({ receipt_ids, status }));
-		setSelectedRows([])
 	}
 
 	function handleShowDrawer(state: boolean) {
@@ -161,7 +141,9 @@ function Revenues(): JSX.Element {
 			}
 		})
 	}
+	////
 
+	// table cols rendering
 	const tableColumn = [
 		{
 			title: "Ngày tạo",
@@ -218,16 +200,6 @@ function Revenues(): JSX.Element {
 
 				return (
 					<Space>
-						{/* <Tooltip placement="top" title="Sửa thông tin">
-							<Button
-								onClick={(e) => {
-									console.log("click edit");
-								
-								}}
-								type="link"
-								icon={<EditOutlined />}
-							></Button>
-						</Tooltip> */}
 						<Tooltip title="Chi tiết">
 							<Button type="link" icon={<FileTextOutlined />} onClick={() => {
 								handleShowDrawer(true);
@@ -246,10 +218,6 @@ function Revenues(): JSX.Element {
 		<Wrapper>
 			<Layout.Content style={{ height: 1000 }}>
 				<Row style={{ marginBottom: 20, marginTop: 20 }} justify="start">
-					{/* <Col span={10}>
-						<Input prefix={<SearchOutlined />} onChange={({ target: input }) => onTableFiler(input.value)} />
-					</Col> */}
-
 					<Col>
 						<Row justify="start">
 							<RangePicker
@@ -279,16 +247,15 @@ function Revenues(): JSX.Element {
 						</Space>
 					}
 					<Table
-						// rowClassName={(record) => (record.id === editingKey ? "editing-row" : "")}
 						rowKey="id"
-						// bordered
 						dataSource={rawTableData}
 						columns={tableColumn}
 						rowSelection={{
-							type: 'checkbox',
+							selectedRowKeys,
 							onChange: (selectedRowKeys: React.Key[], selectedRows: RevenueType[]) => {
 								console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
 								setSelectedRows(selectedRows);
+								setsSlectedRowKeys(selectedRowKeys);
 							},
 							getCheckboxProps: (record: RevenueType) => ({
 								disabled: record.status === 1, // Column configuration not to be checked
