@@ -1,22 +1,29 @@
+import { ConfigProvider } from "antd";
+import { getFireBaseListApp, initializeFirebase } from "lib/fire-base";
+import { get } from "lodash";
 import React, { useEffect } from "react";
 import ReactDOM from "react-dom";
 import { Provider, useSelector } from "react-redux";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import { PersistGate } from "redux-persist/integration/react";
+import { actionLogout } from "store/auth/slice";
 import { initLib } from "utils/initLib";
 import { api } from "utils/request";
+import "./i18n";
 import "./index.css";
 import AuthProvider from "./layoutes/AuthProvider";
 import { LoginForm } from "./pages/Login";
 import reportWebVitals from "./reportWebVitals";
 import { persistor, RootState, store } from "./store/store";
-import { get } from "lodash";
-import { actionLogout } from "store/auth/slice";
-import "./i18n";
-import { getFireBaseListApp, initializeFirebase } from "lib/fire-base";
-import useIsMounted from "hooks/useIsMounted";
 
 initLib();
+
+ConfigProvider.config({
+	theme: {
+		primaryColor: "#e67e22",
+		infoColor: "#1890ff",
+	},
+});
 
 function Root() {
 	const access_token = useSelector(
