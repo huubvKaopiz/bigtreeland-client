@@ -80,7 +80,6 @@
     "less": "^4.1.2",
     "less-loader": "^10.2.0",
     "prettier": "^2.4.1",
-    "vite": "^2.7.13",
-    "vite-plugin-imp": "^2.1.6"
+    "vite": "^2.7.13"
   }
 }
