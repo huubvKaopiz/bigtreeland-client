@@ -2,7 +2,7 @@ import { ImportOutlined, SwapOutlined } from "@ant-design/icons";
 import { Button, Select, Space, Spin, Tooltip } from "antd";
 import Modal from "antd/lib/modal/Modal";
 import { ClassType, GetResponseType, StudentType } from "interface";
-import { get, pick } from "lodash";
+import { get } from "lodash";
 import React, { useState } from "react";
 import { useAppDispatch } from "store/store";
 import { actionUpdateStudent, StudentParams } from "store/students/slice";

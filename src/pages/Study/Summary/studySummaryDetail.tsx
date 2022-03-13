@@ -1,19 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { Descriptions, Typography, Layout, Table, Button, Tag, Space, Image, PageHeader } from 'antd';
 import { GiftOutlined } from '@ant-design/icons';
-import { LessonType, StudentType, StudySummaryType } from 'interface';
-import { RootState, useAppDispatch } from 'store/store';
-import { actionGetAttendances } from 'store/attendances/slice';
-import { actionGetTestes } from 'store/testes/slice';
-import { useSelector } from 'react-redux';
-import { get } from 'lodash';
-import { useHistory, useLocation } from 'react-router-dom';
-import moment from 'moment';
-import { actionGetLessons } from 'store/lesson/slice';
+import { Button, Descriptions, Image, Layout, PageHeader, Space, Table, Tag, Typography } from 'antd';
 import Modal from 'antd/lib/modal/Modal';
-import { actionGetStudyGifts } from 'store/study-summary/slice';
-import { StudentGiftType } from 'interface';
+import { StudentGiftType, StudentType, StudySummaryType } from 'interface';
+import { get } from 'lodash';
+import moment from 'moment';
+import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { useHistory, useLocation } from 'react-router-dom';
+import { actionGetLessons } from 'store/lesson/slice';
+import { RootState, useAppDispatch } from 'store/store';
 import { actionGetStudents } from 'store/students/slice';
+import { actionGetStudyGifts } from 'store/study-summary/slice';
+import { actionGetTestes } from 'store/testes/slice';
 
 const { Title } = Typography;
 
@@ -76,6 +74,7 @@ export function StudySummaryDetail(): JSX.Element {
         
             setConductPoint(conduct);
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [students,lessons]);
 
     // cal test point avg for each student

@@ -1,12 +1,12 @@
-import { Button, Form, Image, Input, InputNumber, Modal, Select } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
+import { Button, Form, Input, InputNumber, Modal, Select } from 'antd';
 import FileSelectModal from 'components/FileSelectModal';
 import { FileType, GiftType } from 'interface';
+import { get } from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { RootState, useAppDispatch } from 'store/store';
 import { actionAddGift, actionGetGiftList, actionUpdateGift } from 'store/gifts/slice';
-import { get } from 'lodash';
+import { RootState, useAppDispatch } from 'store/store';
 
 export function AddGiftModal(props: {
     editMode: boolean;

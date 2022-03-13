@@ -1,18 +1,18 @@
-import { Col, Form, Input, Layout, Row, Select, Divider, Typography, Button, List, DatePicker, Space, InputNumber, Alert, Table, Tabs, Modal, Tag } from 'antd';
 import { CheckCircleOutlined } from '@ant-design/icons';
-import React, { useEffect, useState } from 'react';
-import { RootState, useAppDispatch } from 'store/store';
-import { useSelector } from 'react-redux';
-import { actionGetEmployeeInfo, actionGetEmployees, actionSetListEmployeesNull } from 'store/employees/slice';
+import { Alert, Button, Col, DatePicker, Divider, Form, Input, InputNumber, Layout, List, Modal, Row, Select, Space, Table, Tabs, Tag, Typography } from 'antd';
+import { LessonType, PeriodTuitionType, TuitionFeeType } from 'interface';
 import { findIndex, get } from 'lodash';
 import moment from 'moment';
-import { actionGetRevenues, actionSetListRevenuesNull, RevenueType } from 'store/revenues/slice';
 import numeral from 'numeral';
-import { actionAddSalary, AddSalaryData } from 'store/salaries/slice';
-import { actionGetLessons, actionSetLessionsStateNull } from 'store/lesson/slice';
-import { LessonType, PeriodTuitionType, TuitionFeeType } from 'interface';
-import { actionGetTuitionFees, actionSetTuitionFeesStateNull } from 'store/tuition/tuition';
+import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
+import { actionGetEmployeeInfo, actionGetEmployees, actionSetListEmployeesNull } from 'store/employees/slice';
+import { actionGetLessons, actionSetLessionsStateNull } from 'store/lesson/slice';
+import { actionGetRevenues, actionSetListRevenuesNull, RevenueType } from 'store/revenues/slice';
+import { actionAddSalary, AddSalaryData } from 'store/salaries/slice';
+import { RootState, useAppDispatch } from 'store/store';
+import { actionGetTuitionFees, actionSetTuitionFeesStateNull } from 'store/tuition/tuition';
 import { ROLE_NAMES } from 'utils/const';
 
 const { Option } = Select;
@@ -143,6 +143,7 @@ export default function AddSalary(): JSX.Element {
                 },
             });
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     },[addSalaryStatus])
 
     function handleChangeDateRange(date: any, dateString: [string, string]) {

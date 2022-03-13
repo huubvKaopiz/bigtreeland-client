@@ -1,16 +1,16 @@
-import { Button, Descriptions, Input, Layout, List, Space, Table, Tag, Tooltip, Modal, Collapse, InputNumber } from 'antd';
-import { PlusOutlined, ProfileOutlined, DollarCircleOutlined, DeleteOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
+import { DeleteOutlined, DollarCircleOutlined, ExclamationCircleOutlined, PlusOutlined, ProfileOutlined } from '@ant-design/icons';
+import { Button, Collapse, Descriptions, Input, InputNumber, Layout, List, Modal, Space, Table, Tag, Tooltip } from 'antd';
+import { LessonType, SalaryType } from 'interface';
 import { get } from 'lodash';
+import moment from 'moment';
+import numeral from 'numeral';
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { useHistory } from 'react-router-dom';
+import { actionGetLessons } from 'store/lesson/slice';
+import { actionGetRevenues, RevenueType } from 'store/revenues/slice';
 import { actionDeleteSalary, actionGetSalaries, actionSalaryPaymentConfirmed, actionUpdateSalary } from 'store/salaries/slice';
 import { RootState, useAppDispatch } from 'store/store';
-import { useHistory } from 'react-router-dom';
-import numeral from 'numeral';
-import { LessonType, SalaryType } from 'interface';
-import moment from 'moment';
-import { actionGetRevenues, RevenueType } from 'store/revenues/slice';
-import { actionGetLessons } from 'store/lesson/slice';
 
 const { confirm } = Modal;
 const { Panel } = Collapse;

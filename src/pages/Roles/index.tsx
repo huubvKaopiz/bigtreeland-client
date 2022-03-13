@@ -1,23 +1,22 @@
-import { Button, Col, Input, Layout, Modal, Row, Space, Table, Tooltip } from "antd";
-import { DeleteOutlined, UserOutlined, ExclamationCircleOutlined, AuditOutlined, TeamOutlined, WindowsOutlined } from '@ant-design/icons';
+import { AuditOutlined, DeleteOutlined, ExclamationCircleOutlined, TeamOutlined, UserOutlined, WindowsOutlined } from '@ant-design/icons';
+import { Button, Col, Layout, Modal, Row, Space, Table, Tooltip } from "antd";
 import { RoleCreateFormType, RoleType, UserType } from "interface";
-import { UpdateRoleDataType } from "interface/api-params-interface";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { useHistory } from "react-router-dom";
 import {
 	actionCreateRole,
 	actionDeleteRoles,
 	actionGetRoles,
 	actionResetStatusDeleteRole,
 	actionResetStatusGetRole,
-	actionResetStatusUpdateRole,
+	actionResetStatusUpdateRole
 } from "store/roles/slice";
 import { RootState, useAppDispatch } from "store/store";
 import { ROLE_NAMES } from "utils/const";
 import { DatePattern, dateSort, formatDate } from "utils/dateUltils";
 import { converRoleNameToVN, isRoleDefault } from "utils/ultil";
 import AddRolesForm from "./AddRolesForm";
-import { useHistory } from "react-router-dom";
 import { RoleUsers } from "./roleUsers";
 import SetMenuView from "./SetMenuView";
 

@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
 import { Button, Descriptions, Tag } from 'antd';
 import Modal from 'antd/lib/modal/Modal';
-import { get } from 'lodash';
-import { RootState } from 'store/store';
-import { useSelector } from 'react-redux';
 import { RoleType } from 'interface';
+import { get } from 'lodash';
+import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
+import { RootState } from 'store/store';
 
 export function EmpProfile(): JSX.Element {
 

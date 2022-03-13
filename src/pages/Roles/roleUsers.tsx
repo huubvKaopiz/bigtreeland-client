@@ -1,13 +1,13 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { Button, Modal, Space, Select, List, Tooltip, message } from "antd";
-import { CloseOutlined, TeamOutlined, PlusOutlined } from '@ant-design/icons';
+import { CloseOutlined, PlusOutlined } from '@ant-design/icons';
+import { Button, List, message, Modal, Select, Space } from "antd";
 import { RoleType } from "interface";
 import { get } from "lodash";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { actionSetRoleForUsers } from "store/roles/slice";
 import { RootState, useAppDispatch } from "store/store";
 import { actionGetUsers } from "store/users/slice";
-import { actionSetRoleForUsers } from "store/roles/slice";
 
 interface RoleUserType {
     id: number;

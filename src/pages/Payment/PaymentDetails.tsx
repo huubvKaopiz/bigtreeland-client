@@ -1,12 +1,11 @@
-import { Descriptions, Drawer, Tag } from "antd";
+import { Descriptions, Tag } from "antd";
+import Modal from "antd/lib/modal/Modal";
+import { get } from "lodash";
 import moment from "moment";
 import React from "react";
 import { PaymentStatusList, PaymentType, PaymentTypeEnum } from "store/payments/slice";
 import styled from "styled-components";
 import { formatCurrency } from "utils/ultil";
-import logo from "assets/image/mainlogo.png";
-import Modal from "antd/lib/modal/Modal";
-import { get } from "lodash";
 
 const Wrapper = styled.div`
 	position: relative;

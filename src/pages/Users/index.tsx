@@ -1,7 +1,6 @@
-import { MinusCircleOutlined, SearchOutlined, RedoOutlined, ExclamationCircleOutlined, SafetyCertificateOutlined } from "@ant-design/icons";
-import { Button, Input, Layout, Radio, Space, Spin, Table, Tag, Tooltip, Modal } from "antd";
-import { UserType as User } from "interface";
-import { AddNewUser } from "interface";
+import { ExclamationCircleOutlined, MinusCircleOutlined, RedoOutlined, SafetyCertificateOutlined, SearchOutlined } from "@ant-design/icons";
+import { Button, Input, Layout, Modal, Radio, Space, Spin, Table, Tag, Tooltip } from "antd";
+import { AddNewUser, UserType as User } from "interface";
 import { debounce, get } from "lodash";
 import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
@@ -14,7 +13,7 @@ import {
 	actionGetUsers,
 	actionResetStatusDeactiveUser,
 	actionRestoreUser,
-	actionSetPermissionsForUser,
+	actionSetPermissionsForUser
 } from "store/users/slice";
 import AddNewUserForm from "./AddNewUserForm";
 import ChangePassword from "./ChangePassword";

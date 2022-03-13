@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react';
 import { PlusOutlined } from "@ant-design/icons";
 import { Button, Select } from 'antd';
-import { RootState, useAppDispatch } from 'store/store';
-import { actionAddStudents, actionResetAddStudent } from 'store/classes/slice';
 import Modal from 'antd/lib/modal/Modal';
-import { useSelector } from 'react-redux';
-import { get } from 'lodash';
 import { StudentType } from 'interface';
+import { get } from 'lodash';
 import moment from 'moment';
+import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { actionAddStudents, actionResetAddStudent } from 'store/classes/slice';
+import { RootState, useAppDispatch } from 'store/store';
 import { actionGetStudents } from 'store/students/slice';
 
 export default function AddStudentsModal(props: { class_id: string | null }): JSX.Element {

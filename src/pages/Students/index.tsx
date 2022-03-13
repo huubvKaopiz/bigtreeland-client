@@ -1,19 +1,19 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Button, Col, Input, Layout, Row, Space, Table, Tag, Tooltip } from "antd";
 import { EditOutlined, SnippetsOutlined } from '@ant-design/icons';
-import AddStudentModal from "./addStudentModal";
-import { StudentType } from "../../interface";
+import { Button, Col, Input, Layout, Row, Space, Table, Tag, Tooltip } from "antd";
+import { debounce, get } from "lodash";
+import moment from "moment";
+import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
+import { useHistory } from "react-router-dom";
+import { actionGetClasses } from "store/classes/slice";
+import { actionGetParents } from "store/parents/slice";
 import { RootState, useAppDispatch } from "store/store";
 import { actionGetStudents, actionResetGetStudents, actionResetUpdateStudent } from "store/students/slice";
-import { debounce, get } from "lodash";
+import { StudentType } from "../../interface";
+import AddStudentModal from "./addStudentModal";
+import EditStudentModal from "./editStudentModal";
 import ImportClass from "./importClass";
 import LeaveModal from "./leaveModal";
-import EditStudentModal from "./editStudentModal";
-import { actionGetParents } from "store/parents/slice";
-import { actionGetClasses } from "store/classes/slice";
-import moment from "moment";
-import { useHistory } from "react-router-dom";
 
 export default function Students(): JSX.Element {
 	const dispatch = useAppDispatch();

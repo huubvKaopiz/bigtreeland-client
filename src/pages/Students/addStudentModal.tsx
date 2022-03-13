@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { Button, Modal, Form, Input, Select, DatePicker, InputNumber, Switch, Checkbox, Spin } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
-import { RootState, useAppDispatch } from "store/store";
-import { useSelector } from "react-redux";
-import { actionAddStudent, actionGetStudents } from "store/students/slice";
+import { Button, Checkbox, DatePicker, Form, Input, InputNumber, Modal, Select, Spin, Switch } from "antd";
 import { GetResponseType, ParentType } from "interface";
-import moment from "moment";
 import { get } from "lodash";
+import moment from "moment";
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { RootState, useAppDispatch } from "store/store";
+import { actionAddStudent, actionGetStudents } from "store/students/slice";
 
 export default function AddStudentModal(props: {
 	parents: GetResponseType<ParentType> | null;

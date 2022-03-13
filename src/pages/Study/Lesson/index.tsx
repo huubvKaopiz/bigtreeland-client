@@ -1,13 +1,13 @@
-import { Button, DatePicker, List, Space, Table, Tooltip, Comment } from "antd";
-import { UnorderedListOutlined, PlusOutlined } from "@ant-design/icons";
+import { PlusOutlined, UnorderedListOutlined } from "@ant-design/icons";
+import { Button, Comment, DatePicker, List, Space, Table, Tooltip } from "antd";
+import { ClassType, LessonType, StudentType } from "interface";
 import { get } from "lodash";
 import moment from "moment";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
-import { RootState, useAppDispatch } from "store/store";
 import { actionGetLessons } from "store/lesson/slice";
-import { ClassType, LessonType, StudentType } from "interface";
+import { RootState, useAppDispatch } from "store/store";
 import { STUDY_TABS } from "utils/const";
 import CreateLesson from "./createLesson";
 
@@ -30,13 +30,14 @@ export function Lesson(props: { classInfo: ClassType | null, students:StudentTyp
         if (classInfo && activeTab === STUDY_TABS.LESSON) {
             dispatch(actionGetLessons({ class_id: classInfo.id }))
         }
-    }, [classInfo, activeTab])
+    }, [classInfo, activeTab, dispatch])
 
     useEffect(() => {
         if (addAttendanceStatus === 'success') {
             setCreateMode(false);
             if (classInfo) dispatch(actionGetLessons({ class_id: classInfo.id }))
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [addAttendanceStatus])
 
 

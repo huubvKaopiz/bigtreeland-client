@@ -1,9 +1,9 @@
-import { Button } from 'antd';
 import { DownloadOutlined } from '@ant-design/icons';
-import React, { useEffect, useState } from 'react';
-
-import { CSVLink, CSVDownload } from "react-csv";
+import { Button } from 'antd';
 import { PeriodTuitionType, StudentType } from 'interface';
+import React, { useEffect, useState } from 'react';
+import { CSVLink } from "react-csv";
+
 
 interface ExportDataType {
     name: string;

@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { PeriodTuitionType } from 'interface';
-import { useAppDispatch } from 'store/store';
-import { Button, Form, Input, InputNumber, Modal, Tooltip } from 'antd';
 import { FileTextOutlined } from '@ant-design/icons';
+import { Button, Form, Input, InputNumber, Modal, Tooltip } from 'antd';
+import { PeriodTuitionType } from 'interface';
 import { get } from 'lodash';
-import { actionGetPeriodTuion } from 'store/tuition/periodslice';
 import numeral from 'numeral';
-import { TuitionFeeType } from './createTuitionPeriod';
+import React, { useEffect, useState } from 'react';
+import { useAppDispatch } from 'store/store';
+import { actionGetPeriodTuion } from 'store/tuition/periodslice';
 import { actionUpdateTuitionFee } from 'store/tuition/tuition';
+import { TuitionFeeType } from './createTuitionPeriod';
 const { TextArea } = Input;
 
 export function EditTuitionFeeModal(prop: { periodInfo: PeriodTuitionType | null, tuitionFeeInfo: TuitionFeeType, stName?: string }): JSX.Element {

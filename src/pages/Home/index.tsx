@@ -1,30 +1,23 @@
-import {
-	Calendar,
-	Card,
-	Col,
-	Layout,
-	Row,
-	Tag,
-	Timeline,
-	DatePicker,
-	Space,
-	Button,
-	Popover,
-} from "antd";
-import { GiftOutlined } from "@ant-design/icons";
 import { Line } from "@ant-design/charts";
-import { useEffect, useState } from "react";
-// import { useTranslation } from "react-i18next";
-import { RootState, useAppDispatch } from "store/store";
-import { actionGetDayoffs } from "store/settings/dayoff";
-import { useSelector } from "react-redux";
+import { GiftOutlined } from "@ant-design/icons";
+import {
+	Button, Calendar,
+	Card,
+	Col, DatePicker, Layout, Popover, Row, Space, Tag,
+	Timeline
+} from "antd";
+import { ClassType, StudentType, UserType } from "interface";
 import { get } from "lodash";
 import moment, { Moment } from "moment";
 import numeral from "numeral";
-import { actionGetBirthdayList, actionGetClassesToday, actionGetRevenueStat, actionGetStudentStat } from "store/statistical/slice";
-import { ClassType, StudentType, UserType } from "interface";
-import { actionGetRevenues, RevenuesTypeList } from "store/revenues/slice";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
+import { RevenuesTypeList } from "store/revenues/slice";
+import { actionGetDayoffs } from "store/settings/dayoff";
+import { actionGetBirthdayList, actionGetClassesToday, actionGetRevenueStat, actionGetStudentStat } from "store/statistical/slice";
+// import { useTranslation } from "react-i18next";
+import { RootState, useAppDispatch } from "store/store";
 const { RangePicker } = DatePicker;
 
 interface ChartDataType {

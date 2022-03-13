@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { Button, Form, Input, Checkbox } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
-import { RootState, useAppDispatch } from "store/store";
+import { Button, Checkbox, Form, Input } from "antd";
+import Modal from "antd/lib/modal/Modal";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { actionAddParent, actionGetParents } from "store/parents/slice";
-import Modal from "antd/lib/modal/Modal";
+import { RootState, useAppDispatch } from "store/store";
 import { DEFAULT_ROLE_IDS } from "utils/const";
 
 export default function AddParent(): JSX.Element {

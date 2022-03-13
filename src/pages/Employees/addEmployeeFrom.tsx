@@ -1,13 +1,13 @@
-import { Form, Modal, Button, Input, Select, DatePicker, Divider, Upload, Checkbox } from "antd";
-import React, { useEffect, useState } from "react";
 import { PlusOutlined, UploadOutlined } from "@ant-design/icons";
-import { actionAddEmployee, actionGetEmployees} from "store/employees/slice";
-import moment from "moment";
-import { RootState, useAppDispatch } from "store/store";
-import { useSelector } from "react-redux";
+import { Button, Checkbox, DatePicker, Divider, Form, Input, Modal, Select, Upload } from "antd";
 import { RoleType } from "interface";
-import { converRoleNameToVN } from "utils/ultil";
+import moment from "moment";
+import React, { useState } from "react";
+import { useSelector } from "react-redux";
+import { actionAddEmployee, actionGetEmployees } from "store/employees/slice";
+import { RootState, useAppDispatch } from "store/store";
 import { ROLE_NAMES } from "utils/const";
+import { converRoleNameToVN } from "utils/ultil";
 
 const IsNumeric = { pattern: /^-{0,1}\d*\.{0,1}\d+$/, message: "Giá trị nhập phải là số" };
 

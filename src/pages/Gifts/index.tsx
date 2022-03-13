@@ -1,12 +1,12 @@
-import { Button, Input, Layout, Space, Image, Table, Tooltip, Modal } from 'antd';
-import { PlusOutlined, DeleteOutlined, EditOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
-import React, { useEffect, useState } from 'react';
+import { DeleteOutlined, EditOutlined, ExclamationCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { Button, Image, Input, Layout, Modal, Space, Table, Tooltip } from 'antd';
 import { GiftType } from 'interface';
-import { AddGiftModal } from './addGiftModal';
-import { RootState, useAppDispatch } from 'store/store';
-import { actionDeleteGift, actionGetGiftList } from 'store/gifts/slice';
-import { useSelector } from 'react-redux';
 import { get } from 'lodash';
+import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { actionDeleteGift, actionGetGiftList } from 'store/gifts/slice';
+import { RootState, useAppDispatch } from 'store/store';
+import { AddGiftModal } from './addGiftModal';
 const { confirm } = Modal;
 
 export function Gifts(): JSX.Element {

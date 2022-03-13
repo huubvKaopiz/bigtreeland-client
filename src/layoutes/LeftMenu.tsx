@@ -41,7 +41,7 @@ function LeftMenu(): JSX.Element {
 			setSelectedKeys(["15"]);
 			return;
 		}
-		if (pathname.includes("/Gifts")) {
+		if (pathname.includes("/gifts")) {
 			setSelectedKeys(["16"]);
 			return;
 		}
@@ -111,7 +111,7 @@ function LeftMenu(): JSX.Element {
 
 		if (pathname.includes("/study-summary")) {
 			setOpenKeys(["classes"]);
-			setSelectedKeys(["15"]);
+			setSelectedKeys(["11"]);
 			return;
 		}
 

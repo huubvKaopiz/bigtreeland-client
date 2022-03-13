@@ -1,13 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Button, Input, Modal, notification } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
 // import { CKEditor } from 'ckeditor4-react';
 import { Editor } from '@tinymce/tinymce-react';
-import { RootState, useAppDispatch } from 'store/store';
-import { actionAddNews, actionGetNewsList, actionUpdateNews } from 'store/news/slice';
-import { useSelector } from 'react-redux';
-import { NewsType } from 'interface';
+import { Button, Input, Modal, notification } from 'antd';
 import Text from 'antd/lib/typography/Text';
+import { NewsType } from 'interface';
+import React, { useEffect, useRef, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { actionAddNews, actionGetNewsList, actionUpdateNews } from 'store/news/slice';
+import { RootState, useAppDispatch } from 'store/store';
 
 export function AddNewsModal(props: {
     editting: boolean,

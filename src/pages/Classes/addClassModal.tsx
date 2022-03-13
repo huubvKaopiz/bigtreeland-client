@@ -1,14 +1,14 @@
-import React, {useState } from "react";
-import { Modal, Form, Input, Button, Select, Checkbox, InputNumber, TimePicker, Space, Tag } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
-import { RootState, useAppDispatch } from "store/store";
+import { Button, Checkbox, Form, Input, InputNumber, Modal, Select, Space, Tag, TimePicker } from "antd";
+import { EmployeeType, GetResponseType } from "interface";
+import { get } from "lodash";
+import moment from "moment";
+import numeral from "numeral";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { actionAddClass, actionGetClasses } from "store/classes/slice";
-import { get } from "lodash";
-import { EmployeeType, GetResponseType } from "interface";
-import numeral from "numeral";
+import { RootState, useAppDispatch } from "store/store";
 import { dayOptions, ROLE_NAMES } from "utils/const";
-import moment from "moment";
 import { converRoleNameToVN } from "utils/ultil";
 
 export default function AddClassModal(props: {

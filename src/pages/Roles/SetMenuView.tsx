@@ -1,4 +1,4 @@
-import { Button, Card, Checkbox, Modal } from "antd";
+import { Button, Checkbox, Modal } from "antd";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import { CheckboxValueType } from "antd/lib/checkbox/Group";
 import { RoleType } from "interface";

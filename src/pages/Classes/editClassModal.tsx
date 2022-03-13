@@ -1,13 +1,12 @@
-import { useState, useEffect } from "react";
-import { Button, Modal, Form, Select, Input, TimePicker, InputNumber, Space, Tag } from "antd";
-import { EditOutlined } from "@ant-design/icons";
-import { useAppDispatch } from "store/store";
-import { actionUpdateClass, actionGetClasses } from "store/classes/slice";
-import { get } from "lodash";
+import { Button, Form, Input, InputNumber, Modal, Select, Space, Tag, TimePicker } from "antd";
 import { ClassType, EmployeeType, GetResponseType } from "interface";
-import { dayOptions, ROLE_NAMES } from "utils/const";
-import numeral from "numeral";
+import { get } from "lodash";
 import moment from "moment";
+import numeral from "numeral";
+import { useEffect, useState } from "react";
+import { actionGetClasses, actionUpdateClass } from "store/classes/slice";
+import { useAppDispatch } from "store/store";
+import { dayOptions, ROLE_NAMES } from "utils/const";
 import { converRoleNameToVN } from "utils/ultil";
 
 export default function EditClassModal(props: {

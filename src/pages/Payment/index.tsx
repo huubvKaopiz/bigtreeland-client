@@ -1,31 +1,19 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
-	DeleteOutlined,
-	CheckCircleOutlined,
-	CloseOutlined,
-	EditOutlined,
-	QuestionCircleOutlined,
-	FileTextOutlined,
-	ExclamationCircleOutlined
+	CheckCircleOutlined, DeleteOutlined, ExclamationCircleOutlined, FileTextOutlined
 } from '@ant-design/icons';
 import {
 	Button,
 	Col,
-	DatePicker,
-	Modal,
-	Layout,
-	Popconfirm,
-	Row,
-	Select,
-	Space,
+	DatePicker, Layout, Modal, Row, Space,
 	Spin,
 	Statistic,
 	Table,
 	Tag,
-	Tooltip,
+	Tooltip
 } from "antd";
 import { debounce, get } from "lodash";
 import moment from "moment";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import {
 	actionDeletePayment,
@@ -37,7 +25,7 @@ import {
 	PaymentTypeEnum,
 	resetAddPaymentStatus,
 	resetGetPaymentStatus,
-	resetUpdatePaymentStatus,
+	resetUpdatePaymentStatus
 } from "store/payments/slice";
 import { RootState, useAppDispatch } from "store/store";
 import styled from "styled-components";

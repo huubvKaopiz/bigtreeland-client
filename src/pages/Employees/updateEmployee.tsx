@@ -1,26 +1,20 @@
-import {
-	Form,
-	Modal,
-	Button,
-	Input,
-	Select,
-	DatePicker,
-	Divider,
-	Upload,
-} from "antd";
-import React, { useEffect } from "react";
-import moment from "moment";
 import { UploadOutlined } from "@ant-design/icons";
+import {
+	Button, DatePicker,
+	Divider, Form, Input, Modal, Select, Upload
+} from "antd";
 import { EmployeeType, RoleType } from "interface";
+import { get } from "lodash";
+import moment from "moment";
+import React, { useEffect } from "react";
+import { useSelector } from "react-redux";
 import {
 	actionResetUpdateEmployeeSatus,
-	actionUpdateEmployee,
+	actionUpdateEmployee
 } from "store/employees/slice";
 import { RootState, useAppDispatch } from "store/store";
-import { useSelector } from "react-redux";
-import { get } from "lodash";
-import { converRoleNameToVN } from "utils/ultil";
 import { ROLE_NAMES } from "utils/const";
+import { converRoleNameToVN } from "utils/ultil";
 
 const dateFormat = "DD/MM/YYYY";
 

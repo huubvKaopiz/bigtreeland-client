@@ -1,21 +1,14 @@
-import React, { useEffect } from "react";
 import {
-	Button,
-	Modal,
-	Form,
-	Input,
-	Select,
-	DatePicker,
-	InputNumber,
-	Switch,
-	Spin,
+	Button, DatePicker, Form,
+	Input, InputNumber, Modal, Select, Spin, Switch
 } from "antd";
 import { GetResponseType, ParentType, StudentType } from "interface";
 import { get } from "lodash";
+import moment from "moment";
+import React, { useEffect } from "react";
+import { useSelector } from "react-redux";
 import { RootState, useAppDispatch } from "store/store";
 import { actionGetStudents, actionUpdateStudent } from "store/students/slice";
-import moment from "moment";
-import { useSelector } from "react-redux";
 
 const dateFormat = "DD/MM/YYYY";
 

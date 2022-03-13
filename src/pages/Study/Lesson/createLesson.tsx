@@ -1,20 +1,18 @@
-import { Button, Col, DatePicker, Row, Space, Spin, Table, Checkbox, Input, Tooltip, notification } from 'antd';
 import {
-    NotificationOutlined,
-    SaveOutlined,
-    CloseOutlined,
-    QuestionCircleOutlined
+    CloseOutlined, NotificationOutlined,
+    SaveOutlined
 } from "@ant-design/icons";
+import { Button, Checkbox, Col, DatePicker, Input, notification, Row, Space, Table, Tooltip } from 'antd';
 import { CheckboxChangeEvent } from 'antd/lib/checkbox';
 import TextArea from 'antd/lib/input/TextArea';
-import { ClassType, StudentType } from 'interface';
-import moment from 'moment';
-import React, { useEffect, useState } from 'react';
-import { actionAddAttendance, AttendanceStudentComment } from 'store/attendances/slice';
-import { useSelector } from 'react-redux';
-import { RootState, useAppDispatch } from 'store/store';
-import { get } from 'lodash';
 import SendNotificationModal from 'components/SendNotificationModal';
+import { StudentType } from 'interface';
+import { get } from 'lodash';
+import moment from 'moment';
+import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
+import { actionAddAttendance, AttendanceStudentComment } from 'store/attendances/slice';
+import { RootState, useAppDispatch } from 'store/store';
 import { NOTIFI_URIS } from 'utils/const';
 
 const dateFormat = "DD-MM-YYYY";

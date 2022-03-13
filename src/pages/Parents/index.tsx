@@ -1,27 +1,18 @@
-import React, { useEffect, useState } from "react";
-import {
-	Layout,
-	Space,
-	Button,
-	Table,
-	Row,
-	Col,
-	Input,
-	Tag,
-	Tooltip,
-	Form,
-	Popconfirm,
-} from "antd";
 import { CheckCircleOutlined, EditOutlined, UsergroupAddOutlined } from "@ant-design/icons";
+import {
+	Button, Col, Form, Input, Layout, Popconfirm, Row, Space, Table, Tag,
+	Tooltip
+} from "antd";
+import useDebouncedCallback from "hooks/useDebounceCallback";
 import { ParentType } from "interface";
+import { get } from "lodash";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { actionGetParents, actionUpdateParent } from "store/parents/slice";
 import { RootState, useAppDispatch } from "store/store";
-import AddParent from "./addParentModal";
-import { get } from "lodash";
-import AddStudent from "./addStudents";
-import useDebouncedCallback from "hooks/useDebounceCallback";
 import { actionGetStudents } from "store/students/slice";
+import AddParent from "./addParentModal";
+import AddStudent from "./addStudents";
 
 interface EditPayloadType {
 	user_id: number,

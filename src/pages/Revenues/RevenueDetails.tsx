@@ -2,7 +2,7 @@ import { Descriptions, Modal, Tag } from "antd";
 import { get } from "lodash";
 import moment from "moment";
 import React from "react";
-import { RevenueType, RevenuesTypeList, RevenuesStatusList } from "store/revenues/slice";
+import { RevenuesStatusList, RevenuesTypeList, RevenueType } from "store/revenues/slice";
 import { formatCurrency } from "utils/ultil";
 
 function RevenueDetails({

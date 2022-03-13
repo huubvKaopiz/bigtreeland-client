@@ -1,35 +1,24 @@
+import { CheckCircleOutlined, FileOutlined, QuestionCircleOutlined } from "@ant-design/icons";
 import {
-	Descriptions,
-	Layout,
-	PageHeader,
-	DatePicker,
-	Select,
-	Table,
-	Input,
-	Tooltip,
-	Checkbox,
-	Button,
-	Modal,
-	InputNumber,
-	Alert,
+	Alert, Button, Checkbox, DatePicker, Descriptions, Input, InputNumber, Layout, Modal, PageHeader, Select,
+	Table, Tooltip
 } from "antd";
-import { QuestionCircleOutlined, CheckCircleOutlined, FileOutlined } from "@ant-design/icons";
+import { DayoffType, StudentType } from "interface";
 import { get } from "lodash";
 import moment from "moment";
 import numeral from "numeral";
 import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
-import { actionGetClass, actionGetClasses, actionSetClassStateNull, classSlice } from "store/classes/slice";
+import { actionGetClass, actionGetClasses, actionSetClassStateNull } from "store/classes/slice";
+import { actionGetDayoffs } from "store/settings/dayoff";
 import { RootState, useAppDispatch } from "store/store";
 import { actionSetStudentsStateNull } from "store/students/slice";
-import { DayoffType, StudentType } from "interface";
-import { actionGetDayoffs } from "store/settings/dayoff";
-import { getDatesInRange, getSameDates } from "utils/dateUltils";
 import {
 	actionAddPeriodTuion,
-	AddPeriodTuionParms,
+	AddPeriodTuionParms
 } from "store/tuition/periodslice";
+import { getDatesInRange, getSameDates } from "utils/dateUltils";
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
@@ -189,7 +178,8 @@ export default function CreateTuitionPeriod(): JSX.Element {
 				}
 			})
 		}
-	})
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [addPeriodTuitionState])
 
 
 	function getTuitionFeeAmount(index: number): number {

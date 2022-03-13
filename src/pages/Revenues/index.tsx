@@ -1,49 +1,32 @@
 import {
-	CheckCircleOutlined,
-	CloseOutlined,
-	EditOutlined,
-	ExclamationCircleOutlined,
-	FileTextOutlined,
-	DeleteOutlined
+	CheckCircleOutlined, DeleteOutlined, ExclamationCircleOutlined,
+	FileTextOutlined
 } from "@ant-design/icons/lib/icons";
-import SearchOutlined from "@ant-design/icons/lib/icons/SearchOutlined";
 import {
 	Button,
 	Col,
-	DatePicker,
-	Input,
-	Layout,
-	Popconfirm,
-	Row,
-	Select,
-	Space,
+	DatePicker, Layout, Modal, Row, Space,
 	Spin,
 	Statistic,
 	Table,
 	Tag,
-	Tooltip,
-	Modal
+	Tooltip
 } from "antd";
-import { debounce, get, pick } from "lodash";
+import { debounce, get } from "lodash";
 import moment from "moment";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
 	actionDeleteRevenue,
-	actionGetRevenues,
-	actionUpdateRevenues,
-	actionUpdateRevenueStatus,
+	actionGetRevenues, actionUpdateRevenueStatus,
 	resetAddRevenuesStatus,
 	resetGetRevenuesStatus,
-	resetUpdateRevenuesStatus,
-	RevenuesRequestUpdateType,
-	RevenuesStatusList,
+	resetUpdateRevenuesStatus, RevenuesStatusList,
 	RevenuesTypeList,
 	RevenueType
 } from "store/revenues/slice";
 import { RootState } from "store/store";
 import styled from "styled-components";
-import { DatePattern, formatDate } from "utils/dateUltils";
 import { formatCurrency } from "utils/ultil";
 import AddNewRevenues from "./AddNewRevenues";
 import RevenueDetails from "./RevenueDetails";

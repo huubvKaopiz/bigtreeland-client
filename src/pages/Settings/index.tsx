@@ -1,14 +1,14 @@
-import { Alert, Button, Calendar, Collapse, Form, Input, InputNumber, Layout, Space, Tag, Upload } from 'antd';
-import { FieldTimeOutlined, CloseCircleOutlined, UploadOutlined } from '@ant-design/icons';
+import { CloseCircleOutlined, FieldTimeOutlined, UploadOutlined } from '@ant-design/icons';
+import { Alert, Button, Calendar, Collapse, Form, Input, Layout, Space, Tag, Upload } from 'antd';
+import FileSelectModal from 'components/FileSelectModal';
+import { FileType } from 'interface';
+import { get } from 'lodash';
 import moment, { Moment } from 'moment';
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { RootState, useAppDispatch } from 'store/store';
 import { actionAddDayoff, actionDeleteDayoff, actionGetDayoffs, actionSetAddDayoffStateIdle, actionSetDeleteDayoffStateIdle } from 'store/settings/dayoff';
-import { get } from 'lodash';
 import { actionGetSystemSettingInfo, actionUpdateSystemSetting } from 'store/settings/system';
-import FileSelectModal from 'components/FileSelectModal';
-import { FileType } from 'interface';
+import { RootState, useAppDispatch } from 'store/store';
 const { Panel } = Collapse;
 
 const layout = {
@@ -53,6 +53,7 @@ export default function Settings(): JSX.Element {
             systemInfoForm.setFieldsValue(systemInfo);
             setSlideFilesSelected(get(systemInfo, "app_slide_files", []))
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     },[systemInfo])
 
 

@@ -1,10 +1,10 @@
-import { Button, Form, Input, Modal, Tooltip } from "antd";
 import { EditOutlined } from "@ant-design/icons";
+import { Button, Form, Input, Modal, Tooltip } from "antd";
 import { ParentType } from "interface";
 import React, { useEffect, useState } from "react";
-import { RootState, useAppDispatch } from "store/store";
-import { actionGetParents, actionUpdateParent } from "store/parents/slice";
 import { useSelector } from "react-redux";
+import { actionGetParents } from "store/parents/slice";
+import { RootState, useAppDispatch } from "store/store";
 
 export default function UpdateParent(props: { parent: ParentType }): JSX.Element {
 	const { parent } = props;

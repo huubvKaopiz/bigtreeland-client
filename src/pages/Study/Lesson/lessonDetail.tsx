@@ -1,4 +1,4 @@
-import { NotificationOutlined, FormOutlined, CloseOutlined, SaveOutlined, CheckCircleOutlined } from "@ant-design/icons";
+import { CheckCircleOutlined, CloseOutlined, FormOutlined, NotificationOutlined, SaveOutlined } from "@ant-design/icons";
 import {
 	Button,
 	Checkbox,
@@ -9,9 +9,7 @@ import {
 	PageHeader,
 	Space,
 	Spin,
-	Table,
-	Tag,
-	Tooltip,
+	Table, Tooltip
 } from "antd";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import TextArea from "antd/lib/input/TextArea";
@@ -23,7 +21,7 @@ import { useHistory, useLocation, useParams } from "react-router-dom";
 import {
 	actionGetAttendances,
 	actionUpdateAttendance,
-	AttendanceStudentComment,
+	AttendanceStudentComment
 } from "store/attendances/slice";
 import { actionGetClass } from "store/classes/slice";
 import { actionGetLessonInfo } from "store/lesson/slice";
@@ -74,6 +72,7 @@ function LessonDetails(): JSX.Element {
 	useEffect(() => {
 		dispatch(actionGetLessonInfo(+lesson_id))
 		dispatch(actionGetClass({ class_id: parseInt(class_id), params: { students: true, active_periodinfo: false } }));
+	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [dispatch, class_id]);
 
 	useEffect(() => {

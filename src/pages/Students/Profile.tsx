@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
-import { Button, Modal, Tooltip } from 'antd';
-import { SnippetsOutlined } from '@ant-design/icons';
-
+import { Modal } from 'antd';
 // import { useSelector } from 'react-redux';
 // import { RootState } from 'store/store';
 import { StudentType } from 'interface';
+import React, { useState } from 'react';
+
 
 
 export default function Profile(props: { student: StudentType }): JSX.Element {

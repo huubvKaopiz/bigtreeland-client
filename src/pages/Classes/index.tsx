@@ -1,18 +1,18 @@
+import { EditOutlined, UnorderedListOutlined } from "@ant-design/icons";
+import { Button, Col, Input, Layout, Row, Space, Table, Tag } from "antd";
+import { get } from "lodash";
+import numeral from "numeral";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../store/store";
-import { ClassType, RoleType } from "../../interface";
-import { Button, Col, Input, Layout, Row, Space, Table, Tag } from "antd";
-import { UnorderedListOutlined, EditOutlined } from "@ant-design/icons";
-import EditClassModal from "./editClassModal";
-import AddClassModal from "./addClassModal";
 import { useHistory } from "react-router-dom";
 import { actionGetClasses } from "store/classes/slice";
-import { get } from "lodash";
 import { actionGetEmployees } from "store/employees/slice";
-import numeral from "numeral";
 import { dayOptions, DEFAULT_ROLE_IDS } from "utils/const";
 import useDebouncedCallback from "../../hooks/useDebounceCallback";
+import { ClassType, RoleType } from "../../interface";
+import { RootState } from "../../store/store";
+import AddClassModal from "./addClassModal";
+import EditClassModal from "./editClassModal";
 
 function Classes(): JSX.Element {
 	const dispatch = useDispatch();

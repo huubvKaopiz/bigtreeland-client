@@ -11,7 +11,7 @@ import {
 	actionGetListFile,
 	resetDeleteFileStatus,
 	resetGetFileStatus,
-	resetUploadFileStatus,
+	resetUploadFileStatus
 } from "store/files/slice";
 import { RootState, useAppDispatch } from "store/store";
 import styled from "styled-components";

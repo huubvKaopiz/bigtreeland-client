@@ -1,12 +1,12 @@
-import { Button, Input, Layout, List, Skeleton, Space, Modal } from 'antd';
-import { SearchOutlined, ExclamationCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { ExclamationCircleOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
+import { Button, Input, Layout, List, Modal, Skeleton, Space } from 'antd';
+import { NewsType } from 'interface';
 import { get } from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { actionDeleteNews, actionGetNewsList } from 'store/news/slice';
 import { RootState, useAppDispatch } from 'store/store';
 import { AddNewsModal } from './addNewsModal';
-import { NewsType } from 'interface';
 const { confirm } = Modal;
 
 export function News(): JSX.Element {

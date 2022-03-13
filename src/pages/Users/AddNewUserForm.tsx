@@ -1,5 +1,5 @@
 import { PlusOutlined } from "@ant-design/icons";
-import { Button, Form, Input, Modal, Select, Space, Spin } from "antd";
+import { Button, Form, Input, Modal, Select, Spin } from "antd";
 import { AddNewUser } from "interface";
 import validateMessage from "lib/validateMessage";
 import { useEffect, useState } from "react";

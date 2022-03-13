@@ -1,3 +1,4 @@
+import { EditOutlined, QuestionCircleOutlined } from "@ant-design/icons";
 import {
 	Button,
 	Col,
@@ -8,23 +9,22 @@ import {
 	Space,
 	Table,
 	Tag,
-	Tooltip,
+	Tooltip
 } from "antd";
-import { EditOutlined, QuestionCircleOutlined } from "@ant-design/icons";
 import { EmployeeType, User, UserType } from "interface";
 import { debounce, get } from "lodash";
+import moment from "moment";
 import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import {
 	// actionDeleteEmployee,
-	actionGetEmployees,
+	actionGetEmployees
 } from "store/employees/slice";
 import { actionGetRoles } from "store/roles/slice";
+import { ROLE_NAMES } from "utils/const";
 import { RootState, useAppDispatch } from "../../store/store";
 import AddEmplyeeForm from "./addEmployeeFrom";
 import UpdateEmplyeeForm from "./updateEmployee";
-import { ROLE_NAMES } from "utils/const";
-import moment from "moment";
 
 // const { confirm } = Modal;
 

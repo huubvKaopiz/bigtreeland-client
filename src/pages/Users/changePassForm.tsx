@@ -1,7 +1,7 @@
 import { Button, Form, Input, Modal, Space } from "antd";
+import { PasswordFormProps, User } from "interface";
 import validateMessage from "lib/validateMessage";
 import React, { useState } from "react";
-import { User, PasswordFormProps } from "interface";
 
 interface Props {
 	user: User;

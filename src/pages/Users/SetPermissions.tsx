@@ -1,10 +1,10 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import React, { useEffect, useState } from "react";
-import { Layout, PageHeader, Table, Checkbox, Button, notification, Alert, Tag } from "antd";
+import { Alert, Button, Checkbox, Layout, notification, PageHeader, Table, Tag } from "antd";
 // import { CloseOutlined } from '@ant-design/icons';
 import { get } from "lodash";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { useParams, useHistory } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import { actionGetPermissions, actionGetUserPermissions, actionSetUserPermissions, PermistionType } from "store/permissions/slice";
 import { RootState, useAppDispatch } from "store/store";
 import { getPermissionDes } from "utils/ultil";

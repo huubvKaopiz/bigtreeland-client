@@ -1,15 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import { Button, Form, Input, InputNumber, Modal } from 'antd';
 import { PeriodTuitionType, StudentType } from 'interface';
-import { RootState, useAppDispatch } from 'store/store';
-import { Button, Form, Input, InputNumber, Modal, Tooltip } from 'antd';
-import { FileAddOutlined } from '@ant-design/icons';
+import { get } from 'lodash';
+import numeral from 'numeral';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { actionGetDayoffs } from 'store/settings/dayoff';
-import { get } from 'lodash';
-import { getDatesInRange, getSameDates } from 'utils/dateUltils';
-import { actionAddTuitionFee } from 'store/tuition/tuition';
+import { RootState, useAppDispatch } from 'store/store';
 import { actionGetPeriodTuion } from 'store/tuition/periodslice';
-import numeral from 'numeral';
+import { actionAddTuitionFee } from 'store/tuition/tuition';
+import { getDatesInRange, getSameDates } from 'utils/dateUltils';
 
 export function CreateTuitionFeeModal(prop: {
 	periodInfo: PeriodTuitionType | null;

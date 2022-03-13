@@ -1,9 +1,9 @@
-import { Button, Tooltip } from "antd";
 import { MinusCircleOutlined } from "@ant-design/icons";
+import { Button, Tooltip } from "antd";
+import confirm from "antd/lib/modal/confirm";
 import { ParentType } from "interface";
 import { useState } from "react";
 import { useAppDispatch } from "store/store";
-import confirm from "antd/lib/modal/confirm";
 import { actionDeleteParent, actionGetParents } from "../../store/parents/slice";
 
 export default function DeleteParent(props: { parent: ParentType }): JSX.Element {

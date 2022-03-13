@@ -1,27 +1,24 @@
-import {
-	Descriptions,
-	Layout,
-	PageHeader,
-	Spin,
-	Tabs,
-} from "antd";
+import { Descriptions, Layout, PageHeader, Spin, Tabs } from "antd";
 import { get } from "lodash";
 import moment from "moment";
+import AddStudentsModal from "pages/Classes/addStudentsModal";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { actionGetClass, actionSetClassDetailTabKey } from "store/classes/slice";
+import {
+	actionGetClass,
+	actionSetClassDetailTabKey,
+} from "store/classes/slice";
 import { RootState, useAppDispatch } from "store/store";
+import { actionGetStudents } from "store/students/slice";
 import { dayOptions, STUDY_TABS } from "utils/const";
-import { Lesson } from "./Lesson";
 import { ClassPhotos } from "./Album";
-import { Tests } from "./Test";
-import AddStudentsModal from "pages/Classes/addStudentsModal";
+import { Lesson } from "./Lesson";
 import { StudySumaryBoard } from "./Summary";
 import { CreateStudySummary } from "./Summary/createModal";
-import { actionGetStudents } from "store/students/slice";
+import { Tests } from "./Test";
 
-export default function (): JSX.Element {
+export default function Test(): JSX.Element {
 	const params = useParams() as { class_id: string };
 	const dispatch = useAppDispatch();
 	const { TabPane } = Tabs;
@@ -44,18 +41,14 @@ export default function (): JSX.Element {
 
 	useEffect(() => {
 		if (params.class_id) {
-			dispatch(actionGetClass({ class_id: parseInt(params.class_id)}));
-			dispatch(actionGetStudents({ class_id: parseInt(params.class_id)}));
-
+			dispatch(actionGetClass({ class_id: parseInt(params.class_id) }));
+			dispatch(actionGetStudents({ class_id: parseInt(params.class_id) }));
 		}
 	}, [dispatch, params]);
 
 	return (
 		<Layout.Content>
-			<Spin
-				spinning={
-					getClassInfoState === "loading"
-				}>
+			<Spin spinning={getClassInfoState === "loading"}>
 				<PageHeader
 					className="site-page-header-responsive"
 					onBack={() => window.history.back()}
@@ -65,8 +58,7 @@ export default function (): JSX.Element {
 						<AddStudentsModal key="addStudents" class_id={params.class_id} />,
 						// <Button key="2">In danh sách</Button>,
 					]}
-				>
-				</PageHeader>
+				></PageHeader>
 				<Descriptions
 					size="small"
 					column={2}
@@ -103,20 +95,31 @@ export default function (): JSX.Element {
 						</strong>
 					</Descriptions.Item>
 				</Descriptions>
-				<Tabs activeKey={activeTab} onChange={(activeKey) => dispatch(actionSetClassDetailTabKey(activeKey))}>
+				<Tabs
+					activeKey={activeTab}
+					onChange={(activeKey) =>
+						dispatch(actionSetClassDetailTabKey(activeKey))
+					}
+				>
 					<TabPane tab="DS buổi học" key={STUDY_TABS.LESSON}>
-						<Lesson classInfo={classInfo}  students={get(students,"data",[])}/>
+						<Lesson
+							classInfo={classInfo}
+							students={get(students, "data", [])}
+						/>
 					</TabPane>
 					<TabPane tab="Bài tập" key={STUDY_TABS.TEST}>
-						<Tests classInfo={classInfo} students={get(students,"data",[])}/>
+						<Tests classInfo={classInfo} students={get(students, "data", [])} />
 					</TabPane>
 					<TabPane tab="Album ảnh" key={STUDY_TABS.ALBUM}>
 						<ClassPhotos class_id={params.class_id} />
 					</TabPane>
 					<TabPane tab="Bảng tổng kết" key={STUDY_TABS.SUMMARY}>
-						 <div style={{marginTop:10, marginBottom:20}}>
-						 <CreateStudySummary class_id={+params.class_id} classList={null} />
-						 </div>
+						<div style={{ marginTop: 10, marginBottom: 20 }}>
+							<CreateStudySummary
+								class_id={+params.class_id}
+								classList={null}
+							/>
+						</div>
 						<StudySumaryBoard class_id={+params.class_id} />
 					</TabPane>
 				</Tabs>
@@ -124,5 +127,3 @@ export default function (): JSX.Element {
 		</Layout.Content>
 	);
 }
-
-

@@ -2,7 +2,7 @@ import { Button, Checkbox, Form, Input, Layout, notification } from "antd";
 import { useForm } from "antd/lib/form/Form";
 import { AxiosError } from "axios";
 import { signInWithPhoneNumber } from "firebase/auth";
-import { auth, initializeFirebase } from "lib/fire-base";
+import { auth } from "lib/fire-base";
 import { get } from "lodash";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -14,9 +14,9 @@ import {
 	actionLogin,
 	actionResetStatusUserVerified,
 	actionVerifyAccount,
-	PayloadLogin,
+	PayloadLogin
 } from "../../store/auth/slice";
-import { RootState, useAppDispatch, store } from "../../store/store";
+import { RootState, useAppDispatch } from "../../store/store";
 
 const { Content } = Layout;
 
