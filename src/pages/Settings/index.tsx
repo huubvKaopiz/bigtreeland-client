@@ -134,9 +134,6 @@ export default function Settings(): JSX.Element {
                 <Panel header={
                     <Space style={{width:"100%", display: "flex", justifyContent: "space-between", alignItems:"center" }}>
                         <span>Thông tin trung tâm</span>
-                        <Button type="primary" htmlType="submit" form="setting-form" loading={updateSystemInfoState === 'loading' ? true : false}>
-                            Cập nhật
-                        </Button>
                     </Space>
                 } key="1">
                     <Form {...layout} id="setting-form" onFinish={handleUpdateSystemtInfo} form={systemInfoForm}>
@@ -182,11 +179,11 @@ export default function Settings(): JSX.Element {
                             </FileSelectModal>
                         </Form.Item>
 
-                        {/* <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 3 }}>
+                        <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 3 }}>
                             <Button type="primary" htmlType="submit" loading={updateSystemInfoState === 'loading' ? true : false}>
                                 Cập nhật
                             </Button>
-                        </Form.Item> */}
+                        </Form.Item>
                     </Form>
                 </Panel>
                 <Panel header="Lịch trung tâm" key="2">

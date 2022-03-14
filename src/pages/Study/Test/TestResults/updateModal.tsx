@@ -121,9 +121,9 @@ export default function UpdateModal(props: {
                     >
                         <Button
                             onClick={() => setShowSelect(true)}
-                            type="default"
+                            type="primary"
+                            ghost
                             size="middle"
-                            style={{ backgroundColor: "#FFF", color: "#f39c12", borderColor: "#f39c12" }}
                             icon={<UploadOutlined />}
                         >
                             Chọn files

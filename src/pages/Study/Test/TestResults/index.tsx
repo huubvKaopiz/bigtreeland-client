@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { FileType, StudentType, TestResultsType, TestType } from 'interface';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from 'store/store';
+import ReactPlayer from 'react-player'
 import { actionGetStudents } from 'store/students/slice';
 import { Button, Space, Table, Tag, Tooltip, Image } from 'antd';
-import { NotificationOutlined, IssuesCloseOutlined } from "@ant-design/icons";
+import { NotificationOutlined, IssuesCloseOutlined, PauseCircleFilled, PlayCircleFilled } from "@ant-design/icons";
 import moment from 'moment';
 import { get } from 'lodash';
 import { defaul_image_base64, NOTIFI_URIS } from 'utils/const';
@@ -28,7 +29,8 @@ export default function (props: {
     const [showAddTestCommentModal, setShowAddTestCommentModal] = useState(false);
     const [showSendNotiModal, setShowSendNotiModal] = useState(false);
     const [testResultSelected, setTestResultSelected] = useState<TestResultDataType | null>(null);
-
+    const [videoPlaying, setVideoPlaying] = useState(false);
+    const [videoPlayingId, setVideoPlayingId] = useState(-1);
 
     const students = useSelector(
         (state: RootState) => state.studentReducer.students
@@ -179,24 +181,58 @@ export default function (props: {
                                     {
                                         record.test_result.result_files.length > 0 &&
                                         <>
-                                            <h1 style={{ marginBottom: 10 }}>Ảnh bài làm:</h1>
-                                            <Space
-                                                style={{ backgroundColor: "white" }}
+                                            <h1 style={{ marginBottom: 10 }}>Files bài làm:</h1>
+                                            <Space 
                                                 size={[10, 10]}
                                                 wrap
                                             >
-                                                {get(record, "result_files", []).map(
-                                                    (photo: FileType, index: number) => (
-                                                        <Image
-                                                            key={index}
-                                                            width={100}
-                                                            height={100}
-                                                            style={{ objectFit: "cover" }}
-                                                            alt="logo"
-                                                            src={photo.url}
-                                                            fallback={defaul_image_base64}
-                                                        />
-                                                    )
+                                                {get(record, "test_result.result_files", []).map(
+                                                    (file: FileType, index: number) =>
+                                                        <div key={index}>
+                                                            {
+                                                                file.type === "mp4" || file.type === "mov"
+                                                                    ?
+                                                                    <div>
+                                                                        <ReactPlayer 
+                                                                            loop={true}
+                                                                            style={{width:200, height:'auto'}} 
+                                                                            url={file.url} 
+                                                                            playing={videoPlaying && videoPlayingId === file.id} />
+                                                                        <div style={{
+                                                                            justifyContent: 'center',
+                                                                            alignItems: 'center',
+                                                                            display: 'flex',
+                                                                            fontSize: 18,
+                                                                            marginTop: 10,
+                                                                            color: "#e67e22"
+                                                                        }}>
+                                                                            {
+                                                                                videoPlaying
+                                                                                    ?
+                                                                                    <PauseCircleFilled onClick={() => {
+                                                                                        setVideoPlaying(!videoPlaying);
+                                                                                        setVideoPlayingId(file.id)
+                                                                                    }} />
+                                                                                    :
+                                                                                    <PlayCircleFilled onClick={() => {
+                                                                                        setVideoPlaying(!videoPlaying);
+                                                                                        setVideoPlayingId(file.id)
+                                                                                    }} />
+                                                                            }
+                                                                        </div>
+                                                                    </div>
+                                                                    :
+                                                                    <Image
+                                                                        width={150}
+                                                                        height={150}
+                                                                        style={{ objectFit: "cover" }}
+                                                                        alt="logo"
+                                                                        src={file.url}
+                                                                        fallback={defaul_image_base64}
+                                                                    />
+                                                            }
+                                                        </div>
+
                                                 )}
                                             </Space>
                                         </>

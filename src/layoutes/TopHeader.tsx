@@ -1,12 +1,8 @@
-import { DownOutlined, MenuOutlined } from "@ant-design/icons";
-import {Button, Dropdown, Layout, Menu } from "antd";
-// import userService from "api/user.service";
+import { DownOutlined, MenuFoldOutlined } from "@ant-design/icons";
+import { Button, Dropdown, Layout, Menu } from "antd";
 import { get } from "lodash";
 import { EmpProfile } from "pages/Employees/profile";
 import { ChangePasswordForm } from "pages/Login/changePasswordForm";
-// import ChangePassForm from "pages/Users/changePassForm";
-// import { PasswordFormProps } from "interface/interfaces";
-// import ChangePassForm from "pages/Users/ChangePassword";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { actionLogout } from "store/auth/slice";
@@ -34,25 +30,14 @@ function TopHeader(props: TopHeaderType): JSX.Element {
 
 	const user = useSelector((state: RootState) => state.auth.user);
 
-	// useEffect(() => {
-	// 	userService.getMe();
-	// }, []);
-
 	function handleLogout() {
 		dispatch(actionLogout());
 	}
 
-	// function handleChangePass(passwordForm: PasswordFormProps) {
-	// 	return userService.changePasswordSelf({
-	// 		current_password: passwordForm.old_password,
-	// 		new_password: passwordForm.new_password,
-	// 	});
-	// }
-
 	return (
 		<Header style={{ padding: 0, background: "white" }}>
 			<HeaderWrapper>
-				<MenuOutlined className="cursor-pointer" onClick={onClickMenu} />
+				<MenuFoldOutlined  className="cursor-pointer" onClick={onClickMenu} />
 				<div>
 					<Dropdown
 						overlay={
@@ -71,7 +56,7 @@ function TopHeader(props: TopHeaderType): JSX.Element {
 						className="mr-2"
 					>
 						<Button type="text">
-							<strong style={{color:"#e67e22"}}>{get(user, "profile.name", "")}</strong>
+							<strong style={{ color: "#e67e22" }}>{get(user, "profile.name", "")}</strong>
 							<DownOutlined />
 						</Button>
 					</Dropdown>

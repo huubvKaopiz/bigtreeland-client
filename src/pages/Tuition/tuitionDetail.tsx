@@ -185,9 +185,9 @@ export default function TuitionDetail(): JSX.Element {
 			onOk() {
 				const debt_tranfer =
 					feesPerStudent[tuition.id] -
-						+tuition.fixed_deduction -
-						+tuition.flexible_deduction -
-						+tuition.residual || 0;
+					+tuition.fixed_deduction -
+					+tuition.flexible_deduction -
+					+tuition.residual || 0;
 				dispatch(
 					actionTuitionFeeTranferDebt({
 						debt_tranfer: String(debt_tranfer),
@@ -204,10 +204,10 @@ export default function TuitionDetail(): JSX.Element {
 		if (tuition) {
 			const amount =
 				feesPerStudent[tuition.id]! +
-					+tuition.prev_debt -
-					+tuition.fixed_deduction -
-					+tuition.flexible_deduction -
-					+tuition.residual || 0;
+				+tuition.prev_debt -
+				+tuition.fixed_deduction -
+				+tuition.flexible_deduction -
+				+tuition.residual || 0;
 			const tuition_fee_id = tuition.id;
 			const payload = {
 				tuition_fee_id,
@@ -295,9 +295,8 @@ export default function TuitionDetail(): JSX.Element {
 			/>
 			<Statistic
 				title="Đã nộp"
-				value={`${paymentCount} / ${
-					get(tuitionPeriodInfo, "tuition_fees", []).length
-				}`}
+				value={`${paymentCount} / ${get(tuitionPeriodInfo, "tuition_fees", []).length
+					}`}
 				style={{
 					fontWeight: 600,
 				}}
@@ -330,10 +329,10 @@ export default function TuitionDetail(): JSX.Element {
 					<span style={{ color: "#2980b9", fontWeight: 700 }}>
 						{numeral(
 							feesPerStudent[feeItem.id]! +
-								+feeItem.prev_debt -
-								+feeItem.fixed_deduction -
-								+feeItem.flexible_deduction -
-								+feeItem.residual || 0
+							+feeItem.prev_debt -
+							+feeItem.fixed_deduction -
+							+feeItem.flexible_deduction -
+							+feeItem.residual || 0
 						).format("0,0")}
 					</span>
 				);
@@ -450,6 +449,12 @@ export default function TuitionDetail(): JSX.Element {
 				style={{ backgroundColor: "white" }}
 				extra={[
 					<>
+
+						<ExportExcel
+							periodTuition={tuitionPeriodInfo}
+							students={studentList}
+							feesPerStudent={feesPerStudent}
+						/>
 						<Button
 							type="primary"
 							icon={<NotificationOutlined />}
@@ -460,12 +465,6 @@ export default function TuitionDetail(): JSX.Element {
 						>
 							Thông báo
 						</Button>
-						,
-						<ExportExcel
-							periodTuition={tuitionPeriodInfo}
-							students={studentList}
-							feesPerStudent={feesPerStudent}
-						/>
 					</>,
 				]}
 				footer={

@@ -350,6 +350,7 @@ export interface LessonType {
 			name:string;
 		}
 	}
+	tests:TestType[];
 }
 
 export interface SalaryType {

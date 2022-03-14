@@ -43,7 +43,7 @@ export default function ExportExcel(props: {
     return (
         <>
             <CSVLink data={exportData}>
-                <Button style={{ background: "#f39c12", color: "#fff" }} icon={<DownloadOutlined />}>Tải excel</Button>
+                <Button type="primary" ghost icon={<DownloadOutlined />}>Tải excel</Button>
             </CSVLink>
         </>
     )

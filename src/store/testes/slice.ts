@@ -20,6 +20,7 @@ export interface GetTestsPrams {
 	from_date?: string;
 	to_date?: string;
 	page?: number;
+	lesson_id?:number | null
 }
 
 export interface AddTestParms {

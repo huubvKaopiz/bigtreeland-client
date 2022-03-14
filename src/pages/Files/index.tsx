@@ -1,7 +1,7 @@
 import DeleteOutlined from "@ant-design/icons/lib/icons/DeleteOutlined";
 import QuestionCircleOutlined from "@ant-design/icons/lib/icons/QuestionCircleOutlined";
 import SearchOutlined from "@ant-design/icons/lib/icons/SearchOutlined";
-import { Input, Layout, Popconfirm, Spin, Table } from "antd";
+import { Button, Input, Layout, Popconfirm, Space, Spin, Table } from "antd";
 import { FileType } from "interface";
 import { get } from "lodash";
 import React, { useEffect, useState } from "react";
@@ -80,7 +80,6 @@ function Files(): JSX.Element {
 			title: "Name",
 			dataIndex: "name",
 			key: "name",
-			// eslint-disable-next-line react/display-name
 			render: (file_name: string, file: FileType) => {
 				return (
 					<span>
@@ -103,7 +102,6 @@ function Files(): JSX.Element {
 			width: "20%",
 			title: "Preview",
 			key: "_",
-			// eslint-disable-next-line react/display-name
 			render: (file: FileType) => {
 				if (isImageType(file.type || ""))
 					return (
@@ -120,7 +118,6 @@ function Files(): JSX.Element {
 			title: "Size",
 			dataIndex: "size",
 			key: "size",
-			// eslint-disable-next-line react/display-name
 			render: (size: string) => <span>{formatFileSize(size)}</span>,
 		},
 		{
@@ -128,23 +125,19 @@ function Files(): JSX.Element {
 			title: "Ngày upload",
 			dataIndex: "created_at",
 			key: "created_at",
-			// eslint-disable-next-line react/display-name
 			render: (date: string) => <>{formatDate(date, DatePattern.DD_MM_YYYY_HH_mm_ss)}</>,
 		},
 		{
 			width: "10%",
 			title: "Action",
 			key: "action",
-			// eslint-disable-next-line react/display-name
 			render: (file: FileType) => (
 				<Popconfirm
 					title="Xác nhận xoá file?"
 					icon={<QuestionCircleOutlined />}
 					onConfirm={() => handleDeleteFile(file)}
 				>
-					<a style={{ display: "block", margin: "0 auto", width: "fit-content" }}>
-						<DeleteOutlined />
-					</a>
+					<Button type="link" danger icon={<DeleteOutlined />} />
 				</Popconfirm>
 			),
 		},
@@ -154,17 +147,19 @@ function Files(): JSX.Element {
 		<Wrapper>
 			<Layout.Content style={{ padding: 20 }}>
 				<Spin spinning={loading}>
-					<div style={{ marginBottom: 20, display: "flex", justifyContent: "space-between" }}>
+					<Space style={{marginBottom:20}}>
 						<Input
-							placeholder="Tìm kiếm thông qua tên file"
+							style={{width:300}}
+							placeholder="Tìm kiếm thông qua tên file..."
 							onChange={(e) => setSearch(e.target.value)}
+							value={search}
 							onKeyUp={(e) => e.key === "Enter" && handleTableFilter()}
 							prefix={<SearchOutlined />}
 						/>
 						<div style={{ marginLeft: 20 }}>
 							<UploadFileModal />
 						</div>
-					</div>
+					</Space>
 					<Table
 						rowKey="id"
 						dataSource={get(listFile, "data", [])}

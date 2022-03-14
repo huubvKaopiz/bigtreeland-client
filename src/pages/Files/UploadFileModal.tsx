@@ -30,10 +30,10 @@ function UploadFileModal(): JSX.Element {
 					setShow(true);
 				}}
 			>
-				Upload file
+				Tải lên
 			</Button>
 			<Modal
-				title="Upload file"
+				title="Tải file lên"
 				centered
 				visible={show}
 				onCancel={() => {

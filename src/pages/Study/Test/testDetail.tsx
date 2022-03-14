@@ -8,7 +8,9 @@ import {
 	Spin,
 	Divider,
 } from "antd";
-import React, { useEffect } from "react";
+import { PlayCircleFilled, PauseCircleFilled } from '@ant-design/icons';
+import React, { useEffect, useState } from "react";
+import ReactPlayer from 'react-player'
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { RootState } from "store/store";
@@ -28,7 +30,7 @@ const dateFormat = "DD-MM-YYYY";
 export function TestDetail(): JSX.Element {
 	const params = useParams() as { test_id: string; class_id: string };
 	const dispatch = useDispatch();
-
+	const [videoPlaying, setVideoPlaying] = useState(false);
 	const testInfo = useSelector(
 		(state: RootState) => state.testReducer.testInfo
 	);
@@ -108,25 +110,50 @@ export function TestDetail(): JSX.Element {
 					{
 						get(testInfo, "content_files", []).length > 0 &&
 						<div style={{}}>
-							<p>Ảnh đề bài</p>
+							{/* <p>Đề bài</p> */}
 							<Space style={{ backgroundColor: "white" }} size={[10, 10]} wrap>
 								{testInfo?.content_files.map((file, index) => (
 									<div key={index}>
-										<Image
-											width={100}
-											height={100}
-											style={{ objectFit: "cover" }}
-											alt="logo"
-											src={
-												isImageType(file.type || "")
-													? file.url
-													: fileIconList[
-													Object.keys(fileIconList).find(
-														(k) => k === file.type
-													) as keyof typeof fileIconList
-													]
-											}
-										/>
+										{
+											file.type === 'mp4' || file.type === 'mov'
+												?
+												<div>
+													<ReactPlayer url={file.url} playing={videoPlaying} />
+													<div style={{
+														justifyContent: 'center',
+														alignItems: 'center',
+														display: 'flex',
+														fontSize: 18,
+														marginTop: 10,
+														color: "#e67e22"
+													}}>
+														{
+															videoPlaying
+																?
+																<PauseCircleFilled onClick={() => setVideoPlaying(!videoPlaying)} />
+																:
+																<PlayCircleFilled onClick={() => setVideoPlaying(!videoPlaying)} />
+														}
+													</div>
+												</div>
+												:
+												<Image
+													width={100}
+													height={100}
+													style={{ objectFit: "cover" }}
+													alt="logo"
+													src={
+														isImageType(file.type || "")
+															? file.url
+															: fileIconList[
+															Object.keys(fileIconList).find(
+																(k) => k === file.type
+															) as keyof typeof fileIconList
+															]
+													}
+												/>
+										}
+
 									</div>
 
 								))}

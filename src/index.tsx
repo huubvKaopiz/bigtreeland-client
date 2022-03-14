@@ -20,8 +20,8 @@ initLib();
 
 ConfigProvider.config({
 	theme: {
-		primaryColor: "#e67e22",
-		infoColor: "#1890ff",
+		primaryColor: "#f98115",
+		infoColor: "#109444",
 	},
 });
 

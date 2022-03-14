@@ -50,7 +50,6 @@ function Home(): JSX.Element {
 		(state: RootState) => state.statisticalReducer.birthdayList
 	);
 
-
 	const revenuesData = useSelector((state: RootState) => state.revenuesReducer.revenues);
 
 
@@ -157,7 +156,7 @@ function Home(): JSX.Element {
 		}
 		return (
 			<>
-				{isDayoff && <Tag style={{fontSize:10}} color="#ff7979">Ngày nghỉ</Tag>}
+				{isDayoff && <Tag style={{fontSize:10, marginBottom:5}} color="#ff7979">Ngày nghỉ</Tag>}
 				{
 					employees_birthday.map((emp) =>
 						<div key={emp.id} style={{ fontSize: 10, backgroundColor: "#f6e58d", paddingLeft: 4, paddingRight: 4, marginBottom: 4 }}>
@@ -248,8 +247,8 @@ function Home(): JSX.Element {
 						</Card>
 					</Col>
 				</Row>
-				<Row gutter={16}>
-					<Card type="inner" title="Lịch trung tâm" bordered={true} style={{ marginTop: 20 }}>
+				<Row gutter={16} style={{padding:10}}>
+					<Card type="inner" title="Lịch trung tâm" bordered={true} style={{ marginTop: 20}}>
 						<Calendar
 							fullscreen={true}
 							onPanelChange={onPanelChange}
