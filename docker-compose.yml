@@ -4,8 +4,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: buivanhuu2017/bigtreeland-client:${VERSION}
-    deploy:
-      replicas: 1
+    # image: buivanhuu2017/bigtreeland-client:${VERSION}
+    # deploy:
+    #   replicas: 1
     ports:
       - 80:80
