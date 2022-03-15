@@ -1,4 +1,4 @@
-import { CheckCircleOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, SaveOutlined } from '@ant-design/icons';
 import { Alert, Button, Col, DatePicker, Divider, Form, Input, InputNumber, Layout, List, Modal, Row, Select, Space, Table, Tabs, Tag, Typography } from 'antd';
 import { LessonType, PeriodTuitionType, TuitionFeeType } from 'interface';
 import { findIndex, get } from 'lodash';
@@ -10,7 +10,7 @@ import { useHistory } from 'react-router-dom';
 import { actionGetEmployeeInfo, actionGetEmployees, actionSetListEmployeesNull } from 'store/employees/slice';
 import { actionGetLessons, actionSetLessionsStateNull } from 'store/lesson/slice';
 import { actionGetRevenues, actionSetListRevenuesNull, RevenueType } from 'store/revenues/slice';
-import { actionAddSalary, AddSalaryData } from 'store/salaries/slice';
+import { actionAddSalary, actionSetAddSalaryStateIdle, AddSalaryData } from 'store/salaries/slice';
 import { RootState, useAppDispatch } from 'store/store';
 import { actionGetTuitionFees, actionSetTuitionFeesStateNull } from 'store/tuition/tuition';
 import { ROLE_NAMES } from 'utils/const';
@@ -135,6 +135,7 @@ export default function AddSalary(): JSX.Element {
                 title: 'Lưu bảng lương thành công!',
                 icon: <CheckCircleOutlined />,
                 content: 'Bạn muốn chuyển đến danh sách bảng lương',
+                cancelText:"Ở lại trang này",
                 onOk() {
                     history.push("/salaries")
                 },
@@ -142,6 +143,7 @@ export default function AddSalary(): JSX.Element {
                     console.log('Cancel');
                 },
             });
+            dispatch(actionSetAddSalaryStateIdle());
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     },[addSalaryStatus])
@@ -156,7 +158,7 @@ export default function AddSalary(): JSX.Element {
             setRevenueLoading(true);
             switch (role) {
                 case ROLE_NAMES.SALE:
-                    dispatch(actionGetRevenues({ employee_id: form.getFieldValue('employee_id'), fromDate: dateRange[0], toDate: dateRange[1] })).then(() => setRevenueLoading(false))
+                    dispatch(actionGetRevenues({ employee_id: form.getFieldValue('employee_id'), from_date: dateRange[0], to_date: dateRange[1] })).then(() => setRevenueLoading(false))
                     break;
                 case ROLE_NAMES.TEACHER:
                     dispatch(actionGetLessons({ employee_id: form.getFieldValue('employee_id'), from_date: dateRange[0], to_date: dateRange[1] })).then(() => setRevenueLoading(false));
@@ -402,7 +404,7 @@ export default function AddSalary(): JSX.Element {
                         <Form.Item>
                             <Space >
                                 <strong style={{ marginRight: 20 }}>Tổng lương: <span style={{ color: "#d35400" }}>{numeral(amountSalary).format("0,0")}</span></strong>
-                                <Button type="primary" htmlType="submit" loading={addSalaryStatus == "loading" ? true : false}>Lưu lại</Button>
+                                <Button type="primary" htmlType="submit" icon={<SaveOutlined />} loading={addSalaryStatus == "loading" ? true : false}>Lưu lại</Button>
                             </Space>
                         </Form.Item>
 

@@ -15,6 +15,7 @@ import {
 	actionRestoreUser,
 	actionSetPermissionsForUser
 } from "store/users/slice";
+import { converRoleNameToVN } from "utils/ultil";
 import AddNewUserForm from "./AddNewUserForm";
 import ChangePassword from "./ChangePassword";
 // import ChangePermisstion from "./ChangePermisstion";
@@ -44,7 +45,6 @@ export default function Users(): JSX.Element {
 
 	useEffect(() => {
 		dispatch(actionGetUsers({ page, search, status: statusFilter }));
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [dispatch, page, statusFilter]);
 
 	useEffect(() => {
@@ -63,43 +63,24 @@ export default function Users(): JSX.Element {
 		setStatusFilter(e.target.value)
 	}
 
-	function handleChangePass(payload: {
-		new_password: string;
-		user_id: number;
-	}) {
-		dispatch(actionChangePassworfOfUser(payload));
-	}
+	// function handleChangePass(payload: {
+	// 	new_password: string;
+	// 	user_id: number;
+	// }) {
+	// 	dispatch(actionChangePassworfOfUser(payload));
+	// }
 
 	function handleDeactive(user: User) {
 		confirm({
 			title: "Bạn muốn vô hiệu hoá tài khoản này!",
 			icon: <ExclamationCircleOutlined />,
+			cancelText:"Huỷ bỏ",
 			onOk() {
 				dispatch(actionDeactiveUser(user.id)).finally(() => {
 					dispatch(actionGetUsers({ per_page: 100, status: 'active' }));
 				});
 			},
 		});
-	}
-
-	function handleSetPermission(
-		user: User,
-		newPermissionList: number[],
-		oldPermissionList: number[]
-	) {
-		const listPermissionAdded = newPermissionList.filter(
-			(permission) => !oldPermissionList.includes(permission)
-		);
-		const listPermissionRemoved = oldPermissionList.filter(
-			(permission) => !newPermissionList.includes(permission)
-		);
-		dispatch(
-			actionSetPermissionsForUser({
-				user_id: +user.id,
-				permission_add_ids: listPermissionAdded,
-				permission_delete_ids: listPermissionRemoved,
-			})
-		);
 	}
 
 	function handleAddNewUser(userValue: AddNewUser) {
@@ -110,6 +91,7 @@ export default function Users(): JSX.Element {
 		confirm({
 			title: "Bạn muốn khôi phục tài khoản này!",
 			icon: <ExclamationCircleOutlined />,
+			cancelText:"Huỷ bỏ",
 			onOk() {
 				dispatch(actionRestoreUser(user.id)).finally(() => {
 					dispatch(actionGetUsers({ per_page: 100, status: 'deactive' }));
@@ -123,7 +105,7 @@ export default function Users(): JSX.Element {
 			<>
 				{user.deleted_at === null ?
 					<Space>
-						<ChangePassword userId={+user.id} handleChangePass={handleChangePass} />
+						{/* <ChangePassword userId={+user.id} handleChangePass={handleChangePass} /> */}
 						{/* <ChangePermisstion
 							user={user}
 							handleChangePermission={handleSetPermission}
@@ -161,46 +143,41 @@ export default function Users(): JSX.Element {
 
 	const columns = [
 		{
-			width: "30%",
+			width: 200,
 			title: "Name",
 			key: "name",
-			// eslint-disable-next-line react/display-name
 			render: (user: User) => {
-				return <strong>{get(user, "profile.name", "")}</strong>;
+				return <a>{get(user, "profile.name", "")}</a>;
 			},
 		},
 		{
-			width: "30%",
+			width: 200,
 			title: "Email",
 			key: "email",
-			// eslint-disable-next-line react/display-name
 			render: (user: User) => {
 				return <span>{get(user, "profile.email", "")}</span>;
 			},
 		},
 
 		{
-			width: "20%",
+			width: 200,
 			title: "Phone",
 			key: "phone",
-			// eslint-disable-next-line react/display-name
 			render: (user: User) => {
 				return <span>{user.phone} {user.phone_verified_at === null ? <Tag color="red">Chưa xác thực</Tag> : ""}</span>;
 			},
 		},
 		{
-			width: "10%",
+			width: 200,
 			title: "Role",
 			key: "role",
-			// eslint-disable-next-line react/display-name
 			render: (text: string, record: User) => {
 				return <>
-					{get(record, "roles", []).map((role) => <Tag color="orange" key={role.id}>{role.name}</Tag>)}
+					{get(record, "roles", []).map((role) => <Tag color="blue" key={role.id}>{converRoleNameToVN(role.name)}</Tag>)}
 				</>
 			},
 		},
 		{
-			width: "10%",
 			title: "Action",
 			key: "action",
 			render: ColActions,

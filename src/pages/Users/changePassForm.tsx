@@ -33,7 +33,6 @@ function ChangePassForm(props: Props): JSX.Element {
 			<Button onClick={() => setShowForm(true)}>Đổi mật khẩu </Button>
 			<Modal
 				title="Thay đổi mật khẩu"
-				centered
 				visible={showForm}
 				onCancel={() => {
 					setShowForm(false);
@@ -75,7 +74,7 @@ function ChangePassForm(props: Props): JSX.Element {
 					>
 						<Input.Password />
 					</Form.Item>
-					<Form.Item wrapperCol={{ offset: 8 }}>
+					<Form.Item wrapperCol={{ offset: 12 }}>
 						<Space>
 							<Button type="primary" htmlType="submit">
 								Submit
@@ -88,5 +87,4 @@ function ChangePassForm(props: Props): JSX.Element {
 		</div>
 	);
 }
-
 export default ChangePassForm;

@@ -3,8 +3,9 @@ import { Button, Select, Space, Spin, Tooltip } from "antd";
 import Modal from "antd/lib/modal/Modal";
 import { ClassType, GetResponseType, StudentType } from "interface";
 import { get } from "lodash";
-import React, { useState } from "react";
-import { useAppDispatch } from "store/store";
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { RootState, useAppDispatch } from "store/store";
 import { actionUpdateStudent, StudentParams } from "store/students/slice";
 
 export default function ImportClass(props: {
@@ -17,6 +18,14 @@ export default function ImportClass(props: {
 	const [show, setShow] = useState(false);
 	const [classID, setClassID] = useState(null);
 	const dispatch = useAppDispatch();
+
+	const updateState = useSelector((state:RootState) => state.studentReducer.updateStudentStatus);
+	
+	useEffect(() => {
+		if(updateState === 'success'){
+			setShow(false);
+		}
+	},[updateState])
 
 	const handleSelected = (value: any) => {
 		setClassID(value);
@@ -54,7 +63,7 @@ export default function ImportClass(props: {
 				closable={true}
 				onCancel={() => setShow(false)}
 				footer={[
-					<Button key="btnSubmit" type="primary" onClick={handleSubmit}>
+					<Button key="btnSubmit" type="primary" onClick={handleSubmit} loading={updateState === 'loading'}>
 						Lưu lại
 					</Button>,
 				]}

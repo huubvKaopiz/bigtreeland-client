@@ -75,56 +75,54 @@ function AddNewUserForm({
 					handleResetFormField();
 				}}
 				footer={[
-					<Button type="primary" key="btnSubmit" htmlType="submit" form="addUserForm">Lưu lại</Button>,
-					<Button key="btncancel" onClick={handleResetFormField}>Làm mới</Button>
+					<Button key="btncancel" onClick={handleResetFormField}>Làm mới</Button>,
+					<Button type="primary" key="btnSubmit" htmlType="submit" form="addUserForm" loading={status === 'loading'}>Lưu lại</Button>
 				]}
 				width={800}
 			>
-				<Spin spinning={status === "loading"}>
-					<Form
-						{...form_layout}
-						labelAlign="left"
-						name="nest-messages"
-						onFinish={handleAddUser}
-						id="addUserForm"
-						form={form}
+				<Form
+					{...form_layout}
+					labelAlign="left"
+					name="nest-messages"
+					onFinish={handleAddUser}
+					id="addUserForm"
+					form={form}
+				>
+					<Form.Item
+						name={"name"}
+						label="Tên người dùng"
+						rules={[{ required: true, message: validateMessage.REQUIRE }]}
 					>
-						<Form.Item
-							name={"name"}
-							label="Tên người dùng"
-							rules={[{ required: true, message: validateMessage.REQUIRE }]}
-						>
-							<Input />
-						</Form.Item>
-						<Form.Item
-							name={"email"}
-							label="Email"
-							rules={[
-								{ type: "email", message: validateMessage.EMAIL },
-								{ required: true, message: validateMessage.REQUIRE },
-							]}
-						>
-							<Input />
-						</Form.Item>
+						<Input />
+					</Form.Item>
+					<Form.Item
+						name={"email"}
+						label="Email"
+						rules={[
+							{ type: "email", message: validateMessage.EMAIL },
+							{ required: true, message: validateMessage.REQUIRE },
+						]}
+					>
+						<Input />
+					</Form.Item>
 
-						<Form.Item
-							name={"phone"}
-							label="Phone"
-							rules={[{ required: true, message: validateMessage.REQUIRE }]}
-						>
-							<Input />
-						</Form.Item>
+					<Form.Item
+						name={"phone"}
+						label="Phone"
+						rules={[{ required: true, message: validateMessage.REQUIRE }]}
+					>
+						<Input />
+					</Form.Item>
 
 
-						<Form.Item
-							name={"role_id"}
-							label="Vai trò"
-							rules={[{ required: true, message: validateMessage.REQUIRE }]}
-						>
-							<Select options={listRole} />
-						</Form.Item>
-					</Form>
-				</Spin>
+					<Form.Item
+						name={"role_id"}
+						label="Vai trò"
+						rules={[{ required: true, message: validateMessage.REQUIRE }]}
+					>
+						<Select options={listRole} />
+					</Form.Item>
+				</Form>
 			</Modal>
 		</>
 	);

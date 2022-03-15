@@ -49,7 +49,7 @@ export default function Students(): JSX.Element {
 
 	useEffect(() => {
 		if (updateStudentStatus === "success") {
-			dispatch(actionGetStudents({ page: 1 }));
+			dispatch(actionGetStudents({ page }));
 			dispatch(actionResetUpdateStudent());
 		}
 	}, [dispatch, updateStudentStatus]);
@@ -68,6 +68,7 @@ export default function Students(): JSX.Element {
 	const columns = [
 		{
 			title: "Họ tên",
+			with:120,
 			dataIndex: "name",
 			key: "name",
 			render: function nameCol(value: string, record:StudentType): JSX.Element {
@@ -99,12 +100,12 @@ export default function Students(): JSX.Element {
 			dataIndex: "class",
 			key: "class",
 			render: function parentCol(value?: { id: number; name: string }): JSX.Element {
-				return <a>{get(value, "name", "")}</a>;
+				return <span style={{color:"#2980b9"}}>{get(value, "name", "")}</span>;
 			},
 		},
 		{
-			width: 200,
 			title: "Action",
+			key:"action",
 			render: function ActionCol(text: string, student: StudentType, index: number): JSX.Element {
 				return (
 					<Space key={student.id}>

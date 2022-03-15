@@ -43,11 +43,11 @@ export default function EditStudentModal(props: {
 				hope: student.hope,
 				knowledge_status: student.knowledge_status,
 				is_special: student.is_special,
-				type:student.type,
+				type: student.type,
 			});
 			searchParent('');
 		}
-	// eslint-disable-next-line react-hooks/exhaustive-deps
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [student, uForm]);
 
 	const handleSubmit = (values: any) => {
@@ -101,7 +101,7 @@ export default function EditStudentModal(props: {
 					onFinish={handleSubmit}
 				>
 
-					<Form.Item label="Họ và tên" name="name">
+					<Form.Item label="Họ và tên" name="name" rules={[{ required: true, message: "Họ tên không được để trống!" }]}>
 						<Input />
 					</Form.Item>
 					<Form.Item name="parent_id" label="Phụ huynh">
@@ -126,8 +126,8 @@ export default function EditStudentModal(props: {
 							})}
 						</Select>
 					</Form.Item>
-					<Form.Item name="type" label="Loại" wrapperCol={{ span: 2 }} required>
-						<Select style={{width:120}}>
+					<Form.Item name="type" label="Loại" wrapperCol={{ span: 2 }} rules={[{ required: true }]}>
+						<Select style={{ width: 120 }}>
 							<Select.Option value={1}>Online</Select.Option>
 							<Select.Option value={0}>Offline</Select.Option>
 						</Select>
@@ -142,14 +142,14 @@ export default function EditStudentModal(props: {
 					<Form.Item name="birthday" label="Sinh nhật">
 						<DatePicker format={dateFormat} />
 					</Form.Item>
+					<Form.Item name="admission_date" label="Ngày nhập học" rules={[{ required: true, message: "Ngày nhập học không được để trống!" }]}>
+						<DatePicker format={dateFormat} />
+					</Form.Item>
 					<Form.Item name="school" label="Trường đang học">
 						<Input />
 					</Form.Item>
 					<Form.Item name="address" label="Địa chỉ">
 						<Input />
-					</Form.Item>
-					<Form.Item name="admission_date" label="Ngày nhập học">
-						<DatePicker format={dateFormat} />
 					</Form.Item>
 					<Form.Item name="knowledge_status" label="Tình trạng đầu vào">
 						<InputNumber />

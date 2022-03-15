@@ -68,7 +68,7 @@ export default function AddClassModal(props: {
 					// initialValues={}
 					onFinish={handleSubmit}
 				>
-					<Form.Item label="Tên lớp" name="name" required>
+					<Form.Item label="Tên lớp" name="name" rules={[{ required: true, message: "Tên không được để trống!" }]}>
 						<Input />
 					</Form.Item>
 					<Form.Item label="Giáo viên" name="employee_id">
@@ -93,16 +93,16 @@ export default function AddClassModal(props: {
 								})}
 						</Select>
 					</Form.Item>
-					<Form.Item name="type" label="Loại" wrapperCol={{ span: 2 }} required>
+					<Form.Item name="type" label="Loại" wrapperCol={{ span: 2 }} rules={[{ required: true, message: "Không được để trống!" }]}>
 						<Select style={{width:120}}>
 							<Select.Option value={1}>Online</Select.Option>
 							<Select.Option value={0}>Offline</Select.Option>
 						</Select>
 					</Form.Item>
-					<Form.Item label="Học phí/buổi" name="fee_per_session" required>
+					<Form.Item label="Học phí/buổi" name="fee_per_session" rules={[{ required: true, message: "Không được để trống!" }]}>
 						<InputNumber formatter={(value) => numeral(value).format()} style={{ width: "100%" }} />
 					</Form.Item>
-					<Form.Item label="Lịch học" name="schedule" required>
+					<Form.Item label="Lịch học" name="schedule" rules={[{ required: true, message: "Không được để trống!" }]}>
 						<Select mode="multiple" placeholder="Chọn lịch học">
 							{dayOptions.map((day, value) => (
 								<Select.Option value={value} key={value}>

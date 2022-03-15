@@ -37,6 +37,9 @@ export default function Parents(): JSX.Element {
 	const parents = useSelector(
 		(state: RootState) => state.parentReducer.parents
 	);
+	const updateParentStatus = useSelector(
+		(state: RootState) => state.parentReducer.updateParentStatus
+	);
 
 	const students = useSelector(
 		(state: RootState) => state.studentReducer.students
@@ -57,6 +60,13 @@ export default function Parents(): JSX.Element {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [dispatch, page]);
 
+	useEffect(() => {
+		if (updateParentStatus === 'success') {
+			handleSetEdit(-1, null);
+			dispatch(actionGetParents({ page: 1, search }))
+		}
+	}, [updateParentStatus]);
+
 	function handleSetEdit(index: number, record: ParentType | null) {
 		setEditIndex(index);
 		if (index === -1) setEditPayload(null)
@@ -76,17 +86,14 @@ export default function Parents(): JSX.Element {
 			dispatch(actionUpdateParent({
 				data: { name: editPayload.name, email: editPayload.email, gender: 0 },
 				uID: editPayload.user_id
-			})).finally(() => {
-				handleSetEdit(-1, null);
-				dispatch(actionGetParents({ page: 1, search }))
-			})
+			}));
 		}
 	}
 
-	function handleShowAddStudent(index:number){
-		setShowAddStudentIndex(index);
-		setShowAddStudent(true);
-	}
+	// function handleShowAddStudent(index:number){
+	// 	setShowAddStudentIndex(index);
+	// 	setShowAddStudent(true);
+	// }
 	const columns = [
 		{
 			width: "15%",
@@ -140,25 +147,6 @@ export default function Parents(): JSX.Element {
 				);
 			},
 		},
-		// {
-		// 	width: "15%",
-		// 	title: "Học sinh",
-		// 	dataIndex: "students",
-		// 	key: "students",
-		// 	editable: false,
-		// 	render: function StudentsCol(
-		// 		students: { id: number; name: string }[]
-		// 	): JSX.Element {
-		// 		return (
-		// 			<div>
-		// 				{students &&
-		// 					students.map((student) => {
-		// 						<a key={student.id}>{student.name}</a>;
-		// 					})}
-		// 			</div>
-		// 		);
-		// 	},
-		// },
 		{
 			width: "15%",
 			title: "Action",
@@ -169,14 +157,21 @@ export default function Parents(): JSX.Element {
 						{/* <DeleteParent parent={record} /> */}
 
 						<span>
-							<Button size="small" type="primary" onClick={() => handleUpdate(index)} style={{ marginRight: 8 }}>
+							<Button
+								size="small"
+								type="primary"
+								onClick={() => handleUpdate(index)}
+								style={{ marginRight: 8 }}
+								loading={updateParentStatus === "loading"}>
 								Lưu lại
 							</Button>
-							<Popconfirm title="Sure to cancel?" onConfirm={() => {
-								handleSetEdit(-1, record);
-							}}>
-								<Button size="small" type="primary" danger>Huỷ bỏ</Button>
-							</Popconfirm>
+							<Button
+								size="small"
+								type="primary"
+								danger
+								onClick={() => handleSetEdit(-1, record)}>
+								Huỷ bỏ
+							</Button>
 						</span>
 					</Space>
 				) : (
@@ -188,14 +183,6 @@ export default function Parents(): JSX.Element {
 						) : (
 							""
 						)}
-						<Tooltip placement="top" title="Thêm học sinh">
-							<Button
-								icon={<UsergroupAddOutlined />}
-								type="link"
-								onClick={() => handleShowAddStudent(index)}
-							/>
-						</Tooltip>
-
 						<Button type="link" icon={<EditOutlined />} disabled={editIndex !== -1} onClick={() => handleSetEdit(index, record)} />
 					</Space>
 				);
@@ -207,7 +194,7 @@ export default function Parents(): JSX.Element {
 		<Layout.Content>
 			<Row style={{ marginBottom: 20, marginTop: 20 }} justify="start">
 				<Col span={10}>
-					<Input.Search allowClear onChange={({ target: { value } }) => searchParent(value)} />
+					<Input.Search allowClear onChange={({ target: { value } }) => searchParent(value)} placeholder="Tìm theo tên, email hoặc số điện thoại..." />
 				</Col>
 				<Col span={6} style={{ marginLeft: 20 }}>
 					<AddParent />
@@ -231,7 +218,7 @@ export default function Parents(): JSX.Element {
 			</Form>
 			<AddStudent
 				parentInfo={get(parents, "data", [])[parentAddStudentIndex]}
-				students={get(students,"data",[])}
+				students={get(students, "data", [])}
 				searchStudent={searchStudent}
 				show={showAddStudent}
 				setShow={setShowAddStudent} />

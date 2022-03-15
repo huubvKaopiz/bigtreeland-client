@@ -6,12 +6,13 @@ import {
 	Layout,
 	Radio,
 	Row,
+	Select,
 	Space,
 	Table,
 	Tag,
 	Tooltip
 } from "antd";
-import { EmployeeType, User, UserType } from "interface";
+import { EmployeeType, RoleType, User, UserType } from "interface";
 import { debounce, get } from "lodash";
 import moment from "moment";
 import React, { useEffect, useRef, useState } from "react";
@@ -22,6 +23,7 @@ import {
 } from "store/employees/slice";
 import { actionGetRoles } from "store/roles/slice";
 import { ROLE_NAMES } from "utils/const";
+import { converRoleNameToVN } from "utils/ultil";
 import { RootState, useAppDispatch } from "../../store/store";
 import AddEmplyeeForm from "./addEmployeeFrom";
 import UpdateEmplyeeForm from "./updateEmployee";
@@ -76,27 +78,15 @@ function Employees(): JSX.Element {
 		debounceSearch(search);
 	};
 
-	function handleChangeRole(e: any) {
-		setRole(e.target.value);
+	function handleChangeRole(value: any) {
+		setRole(value);
 		// console.log(e.target.value)
 	}
 
-	function handleEdit(index:number){
+	function handleEdit(index: number) {
 		setShowEdit(true);
 		setEditIndex(index);
 	}
-
-	// function handleDelete(emp: EmployeeType) {
-	// 	confirm({
-	// 		title: "Bạn muốn vô hiệu hoá tài khoản nhân viên này!",
-	// 		icon: <ExclamationCircleOutlined />,
-	// 		onOk() {
-	// 			dispatch(actionDeleteEmployee(emp.id)).finally(() => {
-	// 				dispatch(actionGetEmployees({ per_page: 100, role_name: role }));
-	// 			});
-	// 		},
-	// 	});
-	// }
 
 	const columns = [
 		{
@@ -147,7 +137,7 @@ function Employees(): JSX.Element {
 		},
 		{
 			width: "10%",
-			title: "Vị trí",
+			title: "Vai trò",
 			key: "employee_contract",
 			render: function PhoneCol(user: UserType): JSX.Element {
 				return (
@@ -155,8 +145,8 @@ function Employees(): JSX.Element {
 						{get(user, "roles", []).map(
 							(role: { name: string; id: number }) => {
 								return (
-									<Tag color="orange" key={role.id}>
-										{role.name}
+									<Tag color="blue" key={role.id}>
+										{converRoleNameToVN(role.name as ROLE_NAMES)}
 									</Tag>
 								);
 							}
@@ -172,7 +162,7 @@ function Employees(): JSX.Element {
 			render: function ColActionn(
 				text: string,
 				record: EmployeeType,
-				index:number
+				index: number
 			): JSX.Element {
 				return (
 					<Space size="middle">
@@ -183,15 +173,6 @@ function Employees(): JSX.Element {
 								onClick={() => handleEdit(index)}
 							/>
 						</Tooltip>
-						
-						{/* <Tooltip placement="top" title="Vô hiệu hoá tài khoản">
-							<Button
-								type="link"
-								icon={<MinusCircleOutlined />}
-								danger
-								onClick={() => handleDelete(record)}
-							/>
-						</Tooltip> */}
 					</Space>
 				);
 			},
@@ -201,40 +182,30 @@ function Employees(): JSX.Element {
 	return (
 		<Layout.Content>
 			<Row style={{ marginBottom: 20, marginTop: 20 }} justify="start">
-				<Col span={10}>
+				<Col>
 					<Input
+						style={{ width: 300, marginRight: 15 }}
 						allowClear
 						placeholder='Tìm theo tên hoặc số điện thoại...'
 						onChange={({ target: input }) => handleSearch(input.value)}
 					/>
 				</Col>
+				<Col>
+					<Select style={{ width: 200 }} placeholder="Lọc theo vai trò" onChange={handleChangeRole}>
+						{roles.map((role: RoleType) => {
+							return (
+								role.name !== ROLE_NAMES.PARENT &&
+								<Select.Option key={role.id} value={role.name}>
+									<span>{converRoleNameToVN(role.name as ROLE_NAMES)}</span>
+								</Select.Option>
+							);
+						})}
+					</Select>
+				</Col>
 				<Col span={6} style={{ marginLeft: 20 }}>
 					<AddEmplyeeForm roles={roles} selectedRole={role} />
 				</Col>
 			</Row>
-			<Space style={{ marginBottom: 20 }}>
-				<Radio.Group onChange={handleChangeRole} value={role}>
-					<Radio value={ROLE_NAMES.TEACHER}>
-						Giáo viên(1) {' '}
-						<Tooltip title="Giáo viên chính thức (lương theo doanh thu học phí)">
-							<QuestionCircleOutlined style={{ color: "#f39c12" }} />
-						</Tooltip>
-					</Radio>
-					<Radio value={ROLE_NAMES.TEACHER2}>
-						Giáo viên(2) {' '}
-						<Tooltip title="Giáo viên hợp đồng (lương trên số buổi dạy)">
-							<QuestionCircleOutlined style={{ color: "#f39c12" }} />
-						</Tooltip>
-					</Radio>
-					<Radio value={ROLE_NAMES.SALE}>
-						Sale{' '}
-						<Tooltip title="Nhân viên sale">
-							<QuestionCircleOutlined style={{ color: "#f39c12" }} />
-						</Tooltip>
-					</Radio>
-					<Radio value={ROLE_NAMES.EMPLOYEE}>Khác</Radio>
-				</Radio.Group>
-			</Space>
 			<Table
 				loading={getEmployeesStatus === "loading"}
 				size="small"
@@ -250,7 +221,7 @@ function Employees(): JSX.Element {
 					},
 				}}
 			/>
-			<UpdateEmplyeeForm employee={get(employees, "data", [])[editIndex]} roles={roles} show={showEdit} setShow={setShowEdit}/>
+			<UpdateEmplyeeForm employee={get(employees, "data", [])[editIndex]} roles={roles} show={showEdit} setShow={setShowEdit} />
 		</Layout.Content>
 	);
 }

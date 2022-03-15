@@ -94,7 +94,7 @@ export default function AddStudentModal(props: {
 					form={aForm}
 					onFinish={handleSubmit}
 				>
-					<Form.Item label="Họ và tên" name="name" required>
+					<Form.Item label="Họ và tên" name="name" rules={[{ required: true, message: "Họ tên không được để trống!" }]}>
 						<Input />
 					</Form.Item>
 					<Form.Item name="parent_id" label="Phụ huynh">
@@ -114,7 +114,7 @@ export default function AddStudentModal(props: {
 							})}
 						</Select>
 					</Form.Item>
-					<Form.Item name="type" label="Loại" wrapperCol={{ span: 2 }} required>
+					<Form.Item name="type" label="Loại" wrapperCol={{ span: 2 }} rules={[{ required: true, message: "Loại không được để trống!" }]}>
 						<Select style={{width:120}}>
 							<Select.Option value={1}>Online</Select.Option>
 							<Select.Option value={0}>Offline</Select.Option>
@@ -130,15 +130,16 @@ export default function AddStudentModal(props: {
 					<Form.Item name="birthday" label="Sinh nhật">
 						<DatePicker />
 					</Form.Item>
+					<Form.Item name="admission_date" label="Ngày nhập học" rules={[{ required: true, message: "Ngày nhập học không được để trống!" }]}>
+						<DatePicker />
+					</Form.Item>
 					<Form.Item name="school" label="Trường đang học">
 						<Input />
 					</Form.Item>
 					<Form.Item name="address" label="Địa chỉ">
 						<Input />
 					</Form.Item>
-					<Form.Item name="admission_date" label="Ngày nhập học" required>
-						<DatePicker />
-					</Form.Item>
+				
 					<Form.Item name="knowledge_status" label="Tình trạng đầu vào">
 						<InputNumber />
 					</Form.Item>

@@ -1,13 +1,13 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { Alert, Button, Checkbox, Layout, notification, PageHeader, Table, Tag } from "antd";
-// import { CloseOutlined } from '@ant-design/icons';
+import { SaveOutlined } from '@ant-design/icons';
 import { get } from "lodash";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { actionGetPermissions, actionGetUserPermissions, actionSetUserPermissions, PermistionType } from "store/permissions/slice";
 import { RootState, useAppDispatch } from "store/store";
-import { getPermissionDes } from "utils/ultil";
+import { converRoleNameToVN, getPermissionDes } from "utils/ultil";
 
 interface GrantedPermissionType {
     object: string,
@@ -290,13 +290,13 @@ export function SetUserPermissions(): JSX.Element {
                 onBack={() => history.push("/users")}
                 title={<>Phân quyền cho <span style={{ color: "#d35400", marginRight:10 }}> {get(userPermissions, "profile.name", "")}</span>
                     {
-                        get(userPermissions,"roles",[]).map((role) => <Tag key={role.id} color="orange">{role.name}</Tag>)
+                        get(userPermissions,"roles",[]).map((role) => <Tag key={role.id} color="blue">{converRoleNameToVN(role.name)}</Tag>)
                     }
                 </>}
                 subTitle=""
                 extra={[
                     // <Button key="2">Làm lại</Button>,
-                    <Button key="1" type="primary" onClick={() => handleSubmit()} loading={submitting}>
+                    <Button key="1" type="primary" icon={<SaveOutlined />} onClick={() => handleSubmit()} loading={submitting}>
                         Lưu thay đổi
                     </Button>,
                 ]}

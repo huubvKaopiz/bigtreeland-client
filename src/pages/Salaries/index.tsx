@@ -22,10 +22,20 @@ export default function Salaries(): JSX.Element {
 
     const salaries = useSelector((state: RootState) => state.salariesReducer.salaries);
     const getSalariesState = useSelector((state: RootState) => state.salariesReducer.getSalaries);
+    const paymentConfirmState = useSelector((state: RootState) => state.salariesReducer.updateSalaryStatus);
+    const deleteState = useSelector((state: RootState) => state.salariesReducer.deleteSalaryStatus);
+
+
 
     useEffect(() => {
         dispatch(actionGetSalaries({}))
     }, [dispatch])
+
+    useEffect(() => {
+        if (paymentConfirmState === 'success' || deleteState === 'success') {
+            dispatch(actionGetSalaries({}))
+        }
+    }, [paymentConfirmState, deleteState])
 
     function handleShowDetail(index: number) {
         setShowDetail(true);
@@ -36,10 +46,9 @@ export default function Salaries(): JSX.Element {
         confirm({
             title: "Bạn muốn xoá bảng lương này!",
             icon: <ExclamationCircleOutlined />,
+            cancelText: "Huỷ bỏ",
             onOk() {
-                dispatch(actionDeleteSalary(salary.id)).finally(() => {
-                    dispatch(actionGetSalaries({}))
-                })
+                dispatch(actionDeleteSalary(salary.id));
             }
         })
     }
@@ -48,11 +57,10 @@ export default function Salaries(): JSX.Element {
         confirm({
             title: "Xác nhận đã thanh toán lương?",
             content: "Lưu ý khi đã xác nhận thanh toán thì không thể sửa bảng lương được nữa!",
+            cancelText: "Huỷ bỏ",
             icon: <ExclamationCircleOutlined />,
             onOk() {
-                dispatch(actionSalaryPaymentConfirmed(salary.id)).finally(() => {
-                    dispatch(actionGetSalaries({}))
-                })
+                dispatch(actionSalaryPaymentConfirmed(salary.id));
             }
         })
     }
@@ -62,9 +70,9 @@ export default function Salaries(): JSX.Element {
             title: "Họ tên",
             dataIndex: "user",
             key: "name",
-            render: function nameCol(val: { id: number, name: string, phone: string, profile:{name:string} }): JSX.Element {
+            render: function nameCol(val: { id: number, name: string, phone: string, profile: { name: string } }): JSX.Element {
                 return (
-                    <strong>{val.profile.name}</strong>
+                    <a>{val.profile.name}</a>
                 )
             }
         },
@@ -87,9 +95,11 @@ export default function Salaries(): JSX.Element {
             title: "Tổng",
             dataIndex: "amount",
             key: "amount",
-            render: function fineCol(val: string, record: SalaryType): JSX.Element {
+            render: function fineCol(_: string, record: SalaryType): JSX.Element {
                 return (
-                    <strong style={{ color: "#2980b9" }}>{numeral(parseFloat(record.basic_salary) + parseFloat(record.bonus) + parseFloat(record.revenue_salary) - parseFloat(record.fines)).format("0,0")}</strong>
+                    <strong style={{ color: "#2980b9" }}>
+                        {numeral(+record.basic_salary + +record.bonus + +record.revenue_salary - +record.fines).format("0,0")}
+                    </strong>
                 )
             }
         },
@@ -174,8 +184,8 @@ function DetailSalary(props: { salaryInfo: SalaryType, show: boolean, setShow: (
                 dispatch(actionGetRevenues(
                     {
                         employee_id: salaryInfo.employee_id,
-                        fromDate: moment(salaryInfo.from_date).format("YYYY-MM-DD"),
-                        toDate: moment(salaryInfo.to_date).format("YYYY-MM-DD"),
+                        from_date: moment(salaryInfo.from_date).format("YYYY-MM-DD"),
+                        to_date: moment(salaryInfo.to_date).format("YYYY-MM-DD"),
                     }))
                 setAmount(parseFloat(salaryInfo.basic_salary) + parseFloat(salaryInfo.revenue_salary) + parseFloat(salaryInfo.bonus) - parseFloat(salaryInfo.fines))
             } else if (salaryInfo.type === 1) {
@@ -268,14 +278,14 @@ function DetailSalary(props: { salaryInfo: SalaryType, show: boolean, setShow: (
                     <Collapse accordion>
                         <Panel header="Chi tiết doanh thu" key="1">
                             {
-                                salaryInfo.type == 0  && receipts ?
+                                salaryInfo.type == 0 && receipts ?
                                     <List
                                         rowKey="id"
                                         itemLayout="horizontal"
                                         // header={<div style={{ justifyContent: "space-between", display: "flex" }}><div>Chi tiết doanh thu</div><div>{numeral(0).format("0,0")}</div></div>}
                                         loading={getReceiptStatus === "loading" ? true : false}
                                         dataSource={receipts && get(receipts, "data", [])}
-                                        renderItem={(item:RevenueType) => (
+                                        renderItem={(item: RevenueType) => (
                                             <List.Item>
                                                 <List.Item.Meta
                                                     title={<a href="#">{item.created_at}</a>}
@@ -284,17 +294,17 @@ function DetailSalary(props: { salaryInfo: SalaryType, show: boolean, setShow: (
                                                 <div style={{ color: "#2980b9" }}>{numeral(item.amount).format("0,0")}</div>
                                             </List.Item>
                                         )}
-                                    /> : salaryInfo.type === 1 && lessons?
+                                    /> : salaryInfo.type === 1 && lessons ?
                                         <List rowKey="id"
                                             itemLayout="horizontal"
                                             // header={<div style={{ justifyContent: "end", display: "flex", fontWeight: 600 }}>{numeral(0).format("0,0")}</div>}
                                             loading={getLessonsStatus === "loading" ? true : false}
                                             dataSource={get(lessons, "data", [])}
-                                            renderItem={(item:LessonType) => (
+                                            renderItem={(item: LessonType) => (
                                                 <List.Item>
                                                     <List.Item.Meta
                                                         title={<a href="#">{item.tuition_period.class.name}</a>}
-                                                        // description={`Chu kỳ học phí: `}
+                                                    // description={`Chu kỳ học phí: `}
                                                     />
                                                     <div style={{ color: "#2980b9" }}>{item.date}</div>
 

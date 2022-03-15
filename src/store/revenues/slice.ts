@@ -44,8 +44,8 @@ export interface RevenuesRequestUpdateType {
 
 export interface RevenuesSearchParam {
 	search?: string;
-	fromDate?: string;
-	toDate?: string;
+	from_date?: string;
+	to_date?: string;
 	page?: number;
 	employee_id?: number;
 }

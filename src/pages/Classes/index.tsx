@@ -91,7 +91,7 @@ function Classes(): JSX.Element {
 			dataIndex: "fee_per_session",
 			key: "fee_per_session",
 			render: function feeCol(amount: number): JSX.Element {
-				return <span style={{ color: "#e67e22" }}>{numeral(amount).format("0,0")}</span>;
+				return <span style={{ color: "#3498db" }}>{numeral(amount).format("0,0")}</span>;
 			},
 		},
 		{
@@ -128,7 +128,7 @@ function Classes(): JSX.Element {
 		<Layout.Content>
 			<Row style={{ marginBottom: 20, marginTop: 20 }} justify="start">
 				<Col span={10}>
-					<Input.Search allowClear onChange={({ target: { value } }) => searchClass(value)} />
+					<Input.Search allowClear onChange={({ target: { value } }) => searchClass(value)} placeholder="Tìm theo tên lớp..."/>
 				</Col>
 				<Col span={6} style={{ marginLeft: 20 }}>
 					<AddClassModal teachers={teachers} />

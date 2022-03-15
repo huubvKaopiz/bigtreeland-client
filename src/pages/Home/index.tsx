@@ -296,7 +296,7 @@ function Home(): JSX.Element {
 							<Timeline>
 								{
 									revenuesData?.data?.map((item, index) => index < 5 && (
-										<Timeline.Item>
+										<Timeline.Item key={index}>
 											<a>{`${RevenuesTypeList[item.type]}`} - {numeral(item.amount).format("0,0")}</a>
 											<p>
 												<small>{moment(item.date).format("DD-MM-YYYY HH:mm")}</small>

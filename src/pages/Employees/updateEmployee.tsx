@@ -1,7 +1,7 @@
 import { UploadOutlined } from "@ant-design/icons";
 import {
 	Button, DatePicker,
-	Divider, Form, Input, Modal, Select, Upload
+	Divider, Form, Input, Modal, Select, Tag, Upload
 } from "antd";
 import { EmployeeType, RoleType } from "interface";
 import { get } from "lodash";
@@ -129,6 +129,18 @@ export default function UpdateEmplyeeForm(props: {
 					>
 						<Input />
 					</Form.Item>
+					<Form.Item name="role_id" label="Vị trí" rules={[{ required: true, message: "Vị trí không được để trống!" }]}>
+						<Select>
+							<Select.Option value={0}>Nhân viên</Select.Option>
+							{roles.map((role: RoleType) => {
+								return (
+									<Select.Option key={role.id} value={role.id}>
+										<Tag color="blue">{converRoleNameToVN(role.name as ROLE_NAMES)}</Tag>
+									</Select.Option>
+								);
+							})}
+						</Select>
+					</Form.Item>
 					<Form.Item name="gender" label="Giới tính">
 						<Select>
 							<Select.Option value={1}>Nam</Select.Option>
@@ -162,18 +174,7 @@ export default function UpdateEmplyeeForm(props: {
 					<Form.Item name="sales_salary" label="Lương doanh số">
 						<Input />
 					</Form.Item>
-					<Form.Item name="role_id" label="Vị trí">
-						<Select>
-							<Select.Option value={0}>Nhân viên</Select.Option>
-							{roles.map((role: RoleType) => {
-								return (
-									<Select.Option key={role.id} value={role.id}>
-										{converRoleNameToVN(role.name as ROLE_NAMES)}
-									</Select.Option>
-								);
-							})}
-						</Select>
-					</Form.Item>
+					
 					<Form.Item name="working_date" label="Ngày vào làm">
 						<DatePicker format={dateFormat} />
 					</Form.Item>

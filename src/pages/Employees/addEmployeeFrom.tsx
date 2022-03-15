@@ -1,8 +1,8 @@
 import { PlusOutlined, UploadOutlined } from "@ant-design/icons";
-import { Button, Checkbox, DatePicker, Divider, Form, Input, Modal, Select, Upload } from "antd";
+import { Button, Checkbox, DatePicker, Divider, Form, Input, Modal, Select, Tag, Upload } from "antd";
 import { RoleType } from "interface";
 import moment from "moment";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { actionAddEmployee, actionGetEmployees } from "store/employees/slice";
 import { RootState, useAppDispatch } from "store/store";
@@ -11,21 +11,20 @@ import { converRoleNameToVN } from "utils/ultil";
 
 const IsNumeric = { pattern: /^-{0,1}\d*\.{0,1}\d+$/, message: "Giá trị nhập phải là số" };
 
-export default function AddEmplyeeForm(props: { roles: RoleType[], selectedRole:string }): JSX.Element {
+export default function AddEmplyeeForm(props: { roles: RoleType[], selectedRole: string }): JSX.Element {
 	const { roles, selectedRole } = props;
 	const [aForm] = Form.useForm();
 	const [show, setShow] = useState(false);
-	const [keepShow,setKeepShow] =  useState(false);
+	const [keepShow, setKeepShow] = useState(false);
 	const dispatch = useAppDispatch();
 	const status = useSelector((state: RootState) => state.employeeReducer.addEmployeeStatus);
 
-	// useEffect(() => {
-	// 	if (status === "success") {
-	// 		setShow(false);
-	// 		dispatch(actionGetEmployees({}));
-	// 		dispatch(actionResetAddEmployeeStatus());
-	// 	}
-	// }, [status, dispatch]);
+	useEffect(() => {
+		if (status === "success") {
+			if (keepShow === false) setShow(false);
+			dispatch(actionGetEmployees({ role_name: selectedRole }));
+		}
+	}, [status, dispatch]);
 
 	const submitForm = (values: any) => {
 		const data = {
@@ -34,10 +33,7 @@ export default function AddEmplyeeForm(props: { roles: RoleType[], selectedRole:
 			working_day: moment(values.working_day).format("YYYY-MM-DD"),
 		};
 
-		dispatch(actionAddEmployee(data)).finally(()=>{
-			if(keepShow === false) setShow(false);
-			dispatch(actionGetEmployees({role_name:selectedRole}));
-		})
+		dispatch(actionAddEmployee(data));
 	};
 
 	const reFresh = () => {
@@ -66,7 +62,7 @@ export default function AddEmplyeeForm(props: { roles: RoleType[], selectedRole:
 			<Modal
 				centered
 				width={800}
-				bodyStyle={{height: '80vh'}}
+				bodyStyle={{ height: '80vh' }}
 				style={{ marginTop: "-80px" }}
 				visible={show}
 				closable={true}
@@ -105,6 +101,17 @@ export default function AddEmplyeeForm(props: { roles: RoleType[], selectedRole:
 					>
 						<Input />
 					</Form.Item>
+					<Form.Item name="role_id" label="Vị trí" rules={[{ required: true, message: "Vị trí không được để trống!" }]}>
+						<Select>
+							{roles.map((role: RoleType) => {
+								return (
+									<Select.Option key={role.id} value={role.id}>
+										<Tag color="blue">{converRoleNameToVN(role.name as ROLE_NAMES)}</Tag>
+									</Select.Option>
+								);
+							})}
+						</Select>
+					</Form.Item>
 					<Form.Item
 						name="gender"
 						label="Giới tính"
@@ -142,18 +149,7 @@ export default function AddEmplyeeForm(props: { roles: RoleType[], selectedRole:
 					<Form.Item name="sales_salary" label="Lương doanh số" rules={[IsNumeric]}>
 						<Input />
 					</Form.Item>
-					<Form.Item name="role_id" label="Vị trí">
-						<Select>
-							<Select.Option value={0}>Nhân viên</Select.Option>
-							{roles.map((role: RoleType) => {
-								return (
-									<Select.Option key={role.id} value={role.id}>
-										{converRoleNameToVN(role.name as ROLE_NAMES)}
-									</Select.Option>
-								);
-							})}
-						</Select>
-					</Form.Item>
+					
 					<Form.Item name="working_day" label="Ngày vào làm">
 						<DatePicker />
 					</Form.Item>
@@ -161,7 +157,7 @@ export default function AddEmplyeeForm(props: { roles: RoleType[], selectedRole:
 						name="contract_file"
 						label="File đính kèm"
 						valuePropName="fileList"
-						// getValueFromEvent={normFile}
+					// getValueFromEvent={normFile}
 					>
 						<Upload name="logo" action="/upload.do" listType="picture">
 							<Button icon={<UploadOutlined />}>Click to upload</Button>

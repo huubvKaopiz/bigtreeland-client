@@ -168,6 +168,9 @@ export const salariesSlice = createSlice({
 		actionSetDeleteSalaryStateIdle(state) {
 			state.deleteSalaryStatus = "idle";
 		},
+		actionSetAddSalaryStateIdle(state) {
+			state.addSalaryStatus = 'idle';
+		},
 	},
 	extraReducers: (builder) => {
 		builder
@@ -266,6 +269,7 @@ export const salariesSlice = createSlice({
 export const {
 	actionSetDeleteSalaryStateIdle,
 	actionSetUpdateSalaryStateIdle,
+	actionSetAddSalaryStateIdle,
 } = salariesSlice.actions;
 
 export default salariesSlice.reducer;

@@ -14,8 +14,8 @@ export default function EditClassModal(props: {
 	teachers: GetResponseType<EmployeeType> | null;
 	searchTeacher: (search: string) => void;
 	searchStatus: string;
-	show:boolean;
-	setShow:(param:boolean) => void;
+	show: boolean;
+	setShow: (param: boolean) => void;
 }): JSX.Element {
 	const { classInfo, teachers, show, setShow } = props;
 	const [uFrom] = Form.useForm();
@@ -32,7 +32,7 @@ export default function EditClassModal(props: {
 				name: classInfo.name,
 				employee_id: get(classInfo, "user.id", 0),
 				fee_per_session: classInfo.fee_per_session,
-				type:classInfo.type,
+				type: classInfo.type,
 				schedule: classInfo.schedule,
 				schedule_time: scheduleTime.length > 0 ? [moment(scheduleTime[0], "HH:mm:ss"), moment(scheduleTime[1], "HH:mm:ss")] : null
 			});
@@ -56,15 +56,19 @@ export default function EditClassModal(props: {
 
 	return (
 		<div>
-			
+
 			<Modal
 				visible={show}
 				title="Thay đổi thông tin lớp học"
 				onCancel={() => setShow(false)}
 				footer={[
+					<Button key="btncancel" onClick={() => setShow(false)}>
+						Huỷ bỏ
+					</Button>,
 					<Button loading={submiting} key="btnsubmit" type="primary" htmlType="submit" form={`uclassForm`}>
 						Lưu lại
 					</Button>,
+					
 				]}
 				width={800}
 			>
@@ -76,16 +80,16 @@ export default function EditClassModal(props: {
 					layout="horizontal"
 					onFinish={handleSubmit}
 				>
-					<Form.Item label="Tên lớp" name="name" required>
+					<Form.Item label="Tên lớp" name="name" rules={[{ required: true, message: "Tên không được để trống!" }]}>
 						<Input />
 					</Form.Item>
 					<Form.Item label="Giáo viên" name="employee_id">
 						<Select
-						showSearch
-						allowClear
-						filterOption={(input, option) =>
-							(option?.label as string)?.toLowerCase().indexOf(input.toLowerCase()) >= 0
-						}
+							showSearch
+							allowClear
+							filterOption={(input, option) =>
+								(option?.label as string)?.toLowerCase().indexOf(input.toLowerCase()) >= 0
+							}
 						>
 							<Select.Option value={0} label="Chọn sau">Chọn sau</Select.Option>
 							{teachers &&
@@ -93,7 +97,7 @@ export default function EditClassModal(props: {
 									return (
 										<Select.Option value={tc.id} key={tc.id} label={`${get(tc, "profile.name", "")} (${tc.phone})`}>
 											<Space>
-												{get(tc, "roles", []).map((role: { id: number, name: string }) => <Tag color="orange" key={role.id}>{converRoleNameToVN(role.name as ROLE_NAMES)}</Tag>)}
+												{get(tc, "roles", []).map((role: { id: number, name: string }) => <Tag color="blue" key={role.id}>{converRoleNameToVN(role.name as ROLE_NAMES)}</Tag>)}
 												<a>{get(tc, "profile.name", "")}</a> ({tc.phone})
 											</Space>
 										</Select.Option>
@@ -102,16 +106,16 @@ export default function EditClassModal(props: {
 						</Select>
 					</Form.Item>
 
-					<Form.Item name="type" label="Loại" wrapperCol={{ span: 2 }} required>
-						<Select style={{width:120}}>
+					<Form.Item name="type" label="Loại" wrapperCol={{ span: 2 }} rules={[{ required: true, message: "Không được để trống!" }]}>
+						<Select style={{ width: 120 }}>
 							<Select.Option value={1}>Online</Select.Option>
 							<Select.Option value={0}>Offline</Select.Option>
 						</Select>
 					</Form.Item>
-					<Form.Item label="Học phí/buổi" name="fee_per_session" required>
+					<Form.Item label="Học phí/buổi" name="fee_per_session" rules={[{ required: true, message: "Không được để trống!" }]}>
 						<InputNumber formatter={(value) => numeral(value).format()} style={{ width: "100%" }} />
 					</Form.Item>
-					<Form.Item label="Lịch học" name="schedule" required>
+					<Form.Item label="Lịch học" name="schedule" rules={[{ required: true, message: "Không được để trống!" }]}>
 						<Select mode="multiple" placeholder="Chọn lịch học">
 							{dayOptions.map((day, value) => (
 								<Select.Option value={value} key={value}>

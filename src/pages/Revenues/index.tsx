@@ -67,9 +67,9 @@ function Revenues(): JSX.Element {
 	).current;
 
 	useEffect(() => {
-		const [fromDate, toDate] = searchObj.searchRange;
+		const [from_date, to_date] = searchObj.searchRange;
 		const search = searchObj.search;
-		dispatch(actionGetRevenues({ fromDate, toDate, search }));
+		dispatch(actionGetRevenues({ from_date, to_date, search }));
 	}, [dispatch, searchObj]);
 
 	useEffect(() => {
