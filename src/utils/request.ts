@@ -1,15 +1,19 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 
 export const api = axios.create();
-api.defaults.baseURL = import.meta.env.VITE_API;
+api.defaults.baseURL = process.env.REACT_APP_API;
 api.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest";
 api.defaults.headers.common["Content-Type"] = "application/json";
 
-export default function request(options: AxiosRequestConfig): Promise<AxiosResponse> {
+export default function request(
+	options: AxiosRequestConfig
+): Promise<AxiosResponse> {
 	return api(options);
 }
 
-export function uploadFile(file: File | FileList | File[]): Promise<AxiosResponse> {
+export function uploadFile(
+	file: File | FileList | File[]
+): Promise<AxiosResponse> {
 	const formData = new FormData();
 	if (file instanceof File) {
 		formData.append("files[]", file);
