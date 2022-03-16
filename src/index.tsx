@@ -46,8 +46,8 @@ function Root() {
 	);
 
 	useEffect(() => {
+		console.log(process.env);
 		if (!getFireBaseListApp()) {
-			console.log("init firebase");
 			initializeFirebase();
 		}
 	}, []);
