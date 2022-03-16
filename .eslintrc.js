@@ -30,5 +30,6 @@ module.exports = {
 		"react/display-name": "off",
 		"react/jsx-key": "off",
 		"no-unsafe-optional-chaining": "off",
+		"no-debugger": "warn",
 	},
 };
