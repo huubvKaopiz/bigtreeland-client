@@ -112,11 +112,3 @@ export default function (props: {
         </div>
     )
 }
-
-function dispatch(arg0: any) {
-    throw new Error('Function not implemented.');
-}
-function setShow(arg0: boolean) {
-    throw new Error('Function not implemented.');
-}
-
