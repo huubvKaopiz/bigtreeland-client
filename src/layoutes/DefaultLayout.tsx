@@ -13,25 +13,33 @@ function DefaultLayout(): JSX.Element {
 		<Layout>
 			<Sider
 				collapsed={collapsed}
+				width="250"
 				style={{
-					overflow: "auto",
 					height: "100vh",
 					position: "sticky",
 					background: "#fff",
-					borderRight: 'solid 1px',
+					borderRight: "solid 1px",
 					borderRightColor: "#ecf0f1",
 					top: 0,
 					left: 0,
 				}}
 			>
-				<Space style={{ paddingLeft: 20, marginBottom: 10, marginTop: 10, fontWeight: 'bold', color: "#109444", fontSize: 22 }}>
+				<Space
+					style={{
+						paddingLeft: 20,
+						marginBottom: 10,
+						marginTop: 10,
+						fontWeight: "bold",
+						color: "#109444",
+						fontSize: "3rem",
+					}}
+				>
 					{collapsed ? "" : "Bigtreeland"}
 				</Space>
 				<LeftMenu />
 			</Sider>
 
 			<Layout className="site-layout">
-
 				<TopHeader onClickMenu={() => setCollapsed(!collapsed)} />
 
 				<Content style={{ padding: "0 16px", backgroundColor: "#fff" }}>
@@ -41,7 +49,6 @@ function DefaultLayout(): JSX.Element {
 					Bigtreeland 1.0.0 ©{new Date().getFullYear()} Developed by FreeTeam
 				</Footer>
 			</Layout>
-
 		</Layout>
 	);
 }

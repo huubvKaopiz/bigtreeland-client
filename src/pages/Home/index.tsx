@@ -1,10 +1,17 @@
 import { Line } from "@ant-design/charts";
 import { GiftOutlined } from "@ant-design/icons";
 import {
-	Button, Calendar,
+	Button,
+	Calendar,
 	Card,
-	Col, DatePicker, Layout, Popover, Row, Space, Tag,
-	Timeline
+	Col,
+	DatePicker,
+	Layout,
+	Popover,
+	Row,
+	Space,
+	Tag,
+	Timeline,
 } from "antd";
 import { ClassType, StudentType, UserType } from "interface";
 import { get } from "lodash";
@@ -13,9 +20,14 @@ import numeral from "numeral";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
-import { RevenuesTypeList } from "store/revenues/slice";
+import { actionGetRevenues, RevenuesTypeList } from "store/revenues/slice";
 import { actionGetDayoffs } from "store/settings/dayoff";
-import { actionGetBirthdayList, actionGetClassesToday, actionGetRevenueStat, actionGetStudentStat } from "store/statistical/slice";
+import {
+	actionGetBirthdayList,
+	actionGetClassesToday,
+	actionGetRevenueStat,
+	actionGetStudentStat,
+} from "store/statistical/slice";
 // import { useTranslation } from "react-i18next";
 import { RootState, useAppDispatch } from "store/store";
 const { RangePicker } = DatePicker;
@@ -29,7 +41,7 @@ interface ChartDataType {
 function Home(): JSX.Element {
 	const dispatch = useAppDispatch();
 	const history = useHistory();
-	const [stChartData, setStChartData] = useState<ChartDataType[]>([])
+	const [stChartData, setStChartData] = useState<ChartDataType[]>([]);
 
 	const dayoffs = useSelector(
 		(state: RootState) => state.dayoffReducer.dayoffs
@@ -50,26 +62,39 @@ function Home(): JSX.Element {
 		(state: RootState) => state.statisticalReducer.birthdayList
 	);
 
-	const revenuesData = useSelector((state: RootState) => state.revenuesReducer.revenues);
-
+	const revenuesData = useSelector(
+		(state: RootState) => state.revenuesReducer.revenues
+	);
 
 	useEffect(() => {
-		const from_date = moment(moment().startOf('month')).startOf("week");
-		const to_date = moment(from_date).day(+41)
-		dispatch(actionGetDayoffs({
-			from_date: moment(from_date).format('YYYY-MM-DD'),
-			to_date: moment(to_date).format('YYYY-MM-DD')
-		}));
+		const from_date = moment().startOf("month").format("YYYY-MM-DD");
+		const to_date = moment().endOf("month").format("YYYY-MM-DD");
+		dispatch(actionGetRevenues({ from_date, to_date }));
+	}, [])
+
+	useEffect(() => {
+		const from_date = moment(moment().startOf("month")).startOf("week");
+		const to_date = moment(from_date).day(+41);
+		dispatch(
+			actionGetDayoffs({
+				from_date: moment(from_date).format("YYYY-MM-DD"),
+				to_date: moment(to_date).format("YYYY-MM-DD"),
+			})
+		);
 		dispatch(actionGetRevenueStat({}));
 		dispatch(actionGetClassesToday({}));
-		dispatch(actionGetStudentStat({
-			from_date: moment().startOf('year').format("YYYY-MM"),
-			to_date: moment().format("YYYY-MM")
-		}));
-		dispatch(actionGetBirthdayList({
-			from_date: moment(from_date).format('YYYY-MM-DD'),
-			to_date: moment(to_date).format('YYYY-MM-DD')
-		}));
+		dispatch(
+			actionGetStudentStat({
+				from_date: moment().startOf("year").format("YYYY-MM"),
+				to_date: moment().format("YYYY-MM"),
+			})
+		);
+		dispatch(
+			actionGetBirthdayList({
+				from_date: moment(from_date).format("YYYY-MM-DD"),
+				to_date: moment(to_date).format("YYYY-MM-DD"),
+			})
+		);
 	}, [dispatch]);
 
 	useEffect(() => {
@@ -79,54 +104,73 @@ function Home(): JSX.Element {
 				data.push({
 					month: key,
 					total: studentsStat.total_student[key],
-					type: "in"
-				}));
+					type: "Nhập học",
+				})
+			);
 			Object.keys(studentsStat.total_student_off).map((key: string) =>
 				data.push({
 					month: key,
 					total: studentsStat.total_student_off[key],
-					type: "out"
+					type: "Nghỉ học"
 				}));
 			setStChartData(data)
 		}
-	}, [studentsStat])
+	}, [studentsStat]);
 
 	const config = {
 		data: stChartData,
 		height: 250,
 		xField: "month",
 		yField: "total",
-		seriesField: 'type',
-		color: ['#1979C9', '#e74c3c'],
+		seriesField: "type",
+		color: ["#1979C9", "#e74c3c"],
 		point: {
 			size: 5,
 			shape: "diamond",
 		},
 	};
 
-	function onChangeStatisticalDateRange(dates: any, dateStrings: [string, string]) {
+	function onChangeStatisticalDateRange(
+		dates: any,
+		dateStrings: [string, string]
+	) {
 		if (dates === null) {
-			dispatch(actionGetRevenueStat({}))
+			dispatch(actionGetRevenueStat({}));
 		} else {
-			dispatch(actionGetRevenueStat({ from_date: dateStrings[0], to_date: dateStrings[1] }))
+			dispatch(
+				actionGetRevenueStat({
+					from_date: dateStrings[0],
+					to_date: dateStrings[1],
+				})
+			);
 		}
 	}
 
-	function onChangeStudentStatDateRang(dates: any, dateStrings: [string, string]) {
-		if (dates === null) return
+	function onChangeStudentStatDateRang(
+		dates: any,
+		dateStrings: [string, string]
+	) {
+		if (dates === null) return;
 		else {
-			dispatch(actionGetStudentStat({ from_date: dateStrings[0], to_date: dateStrings[1] }))
+			dispatch(
+				actionGetStudentStat({
+					from_date: dateStrings[0],
+					to_date: dateStrings[1],
+				})
+			);
 		}
 	}
 
-	function onPanelChange(value:Moment, mode: any) {
+	function onPanelChange(value: Moment, mode: any) {
 		console.log(value.format("YYYY-MM-DD"), mode);
-		const from_date = moment(value.startOf('month')).startOf("week");
-		const to_date = moment(from_date).day(+41)
-		dispatch(actionGetBirthdayList({
-			from_date: moment(from_date).format('YYYY-MM-DD'),
-			to_date: moment(to_date).format('YYYY-MM-DD')
-		}));
+		const from_date = moment(value.startOf("month")).startOf("week");
+		const to_date = moment(from_date).day(+41);
+		dispatch(
+			actionGetBirthdayList({
+				from_date: moment(from_date).format("YYYY-MM-DD"),
+				to_date: moment(to_date).format("YYYY-MM-DD"),
+			})
+		);
 	}
 
 	function scheduleCellRender(value: Moment) {
@@ -144,79 +188,121 @@ function Home(): JSX.Element {
 		let students_birthday: StudentType[] = [];
 		if (birthdayList) {
 			birthdayList.students.forEach((st) => {
-				if (moment(dateValue).format('M') === moment(st.birthday).format('M')
-					&& moment(dateValue).format('D') === moment(st.birthday).format('D'))
+				if (
+					moment(dateValue).format("M") === moment(st.birthday).format("M") &&
+					moment(dateValue).format("D") === moment(st.birthday).format("D")
+				)
 					students_birthday.push(st);
-			})
+			});
 			birthdayList.users.forEach((user) => {
-				if (moment(dateValue).format('M') === moment(user.profile?.birthday).format('M')
-					&& moment(dateValue).format('D') === moment(user.profile?.birthday).format('D'))
+				if (
+					moment(dateValue).format("M") ===
+						moment(user.profile?.birthday).format("M") &&
+					moment(dateValue).format("D") ===
+						moment(user.profile?.birthday).format("D")
+				)
 					employees_birthday.push(user);
-			})
+			});
 		}
 		return (
 			<>
-				{isDayoff && <Tag style={{fontSize:10, marginBottom:5}} color="#ff7979">Ngày nghỉ</Tag>}
-				{
-					employees_birthday.map((emp) =>
-						<div key={emp.id} style={{ fontSize: 10, backgroundColor: "#f6e58d", paddingLeft: 4, paddingRight: 4, marginBottom: 4 }}>
-							<Popover
-								title={<><GiftOutlined style={{ color: "#e84393" }} /> Sinh nhật nhân viên</>}
-								content={
-									<div>
-										<a>{emp.profile?.name}</a>
-										<p>Phone: {emp.phone}</p>
-									</div>
-								}
-							>
-								<GiftOutlined style={{ color: "#e84393" }} />
-								<span> {emp.profile?.name}</span>
-							</Popover>
-						</div>)
-				}
-				{
-					students_birthday.map((st) =>
-						<div
-							key={st.id}
-							style={{ fontSize: 10, backgroundColor: "#dff9fb", paddingLeft: 4, paddingRight: 4, marginBottom: 4 }}
+				{isDayoff && (
+					<Tag style={{ fontSize: "1.4rem", marginBottom: 5 }} color="#ff7979">
+						Ngày nghỉ
+					</Tag>
+				)}
+				{employees_birthday.map((emp) => (
+					<div
+						key={emp.id}
+						style={{
+							fontSize: "1.4rem",
+							backgroundColor: "#f6e58d",
+							paddingLeft: 4,
+							paddingRight: 4,
+							marginBottom: 4,
+						}}
+					>
+						<Popover
+							title={
+								<>
+									<GiftOutlined style={{ color: "#e84393" }} /> Sinh nhật nhân
+									viên
+								</>
+							}
+							content={
+								<div>
+									<a>{emp.profile?.name}</a>
+									<p>Phone: {emp.phone}</p>
+								</div>
+							}
 						>
-							<Popover
-								title={<><GiftOutlined style={{ color: "#e84393" }} /> Sinh nhật học sinh</>}
-								content={
-									<div>
-										<a>{st.name}</a>
-										<p>Lớp: {get(st, "class.name", "")}</p>
-									</div>
-								}
-							>
-								<GiftOutlined style={{ color: "#e84393" }} />
-								<span> {st.name}</span>
-							</Popover>
-
-						</div>)
-				}
+							<GiftOutlined style={{ color: "#e84393" }} />
+							<span> {emp.profile?.name}</span>
+						</Popover>
+					</div>
+				))}
+				{students_birthday.map((st) => (
+					<div
+						key={st.id}
+						style={{
+							fontSize: "1.4rem",
+							backgroundColor: "#dff9fb",
+							paddingLeft: 4,
+							paddingRight: 4,
+							marginBottom: 4,
+						}}
+					>
+						<Popover
+							title={
+								<>
+									<GiftOutlined style={{ color: "#e84393" }} /> Sinh nhật học
+									sinh
+								</>
+							}
+							content={
+								<div>
+									<a>{st.name}</a>
+									<p>Lớp: {get(st, "class.name", "")}</p>
+								</div>
+							}
+						>
+							<GiftOutlined style={{ color: "#e84393" }} />
+							<span> {st.name}</span>
+						</Popover>
+					</div>
+				))}
 			</>
 		);
 	}
 
-
 	return (
 		<Layout.Content>
 			<div className="site-card-wrapper">
-				<h3>Thống kê</h3>
-				<Space style={{ justifyContent: "flex-end", width: "100%", marginBottom: 20 }}>
-					<RangePicker onChange={onChangeStatisticalDateRange} allowEmpty={[true, true]} />
+				<h2>Thống kê</h2>
+				<Space
+					style={{
+						justifyContent: "flex-end",
+						width: "100%",
+						marginBottom: 20,
+					}}
+				>
+					<RangePicker
+						onChange={onChangeStatisticalDateRange}
+						allowEmpty={[true, true]}
+					/>
 				</Space>
 				<Row gutter={16}>
 					<Col span={8}>
 						<Card
 							title={<span style={{ color: "#fff" }}>Số lượng học sinh</span>}
 							bordered={true}
-							style={{ backgroundColor: "#3498db", color: "#fff" }}
+							style={{
+								backgroundColor: "#3498db",
+								color: "#fff",
+								fontSize: "2rem",
+							}}
 						>
-							{
-								studentsStat?.total
-							}
+							{studentsStat?.total}
 						</Card>
 					</Col>
 					<Col span={8}>
@@ -224,31 +310,39 @@ function Home(): JSX.Element {
 							title={
 								<Space>
 									<span style={{ color: "#fff" }}>Danh thu</span>
-
 								</Space>
 							}
 							bordered={true}
-							style={{ backgroundColor: "#27ae60", color: "#fff" }}
+							style={{
+								backgroundColor: "#27ae60",
+								color: "#fff",
+								fontSize: "2rem",
+							}}
 						>
-							{
-								numeral(revenueAmount?.receipts).format("0,0 $")
-							}
+							{numeral(revenueAmount?.receipts).format("0,0 $")}
 						</Card>
 					</Col>
 					<Col span={8}>
 						<Card
 							title={<span style={{ color: "#fff" }}>Chi tiêu</span>}
 							bordered={true}
-							style={{ backgroundColor: "#e67e22", color: "#fff" }}
+							style={{
+								backgroundColor: "#e67e22",
+								color: "#fff",
+								fontSize: "2rem",
+							}}
 						>
-							{
-								numeral(revenueAmount?.payment_slips).format("0,0 $")
-							}
+							{numeral(revenueAmount?.payment_slips).format("0,0 $")}
 						</Card>
 					</Col>
 				</Row>
-				<Row gutter={16} style={{padding:10}}>
-					<Card type="inner" title="Lịch trung tâm" bordered={true} style={{ marginTop: 20}}>
+				<Row gutter={16} style={{ padding: 10 }}>
+					<Card
+						type="inner"
+						title="Lịch trung tâm"
+						bordered={true}
+						style={{ marginTop: 20 }}
+					>
 						<Calendar
 							fullscreen={true}
 							onPanelChange={onPanelChange}
@@ -264,46 +358,62 @@ function Home(): JSX.Element {
 							title="Thống kê học sinh"
 							type="inner"
 							bordered={true}
-							extra={<RangePicker picker="month" defaultValue={[moment().startOf("year"), moment()]} onChange={onChangeStudentStatDateRang} />}
+							extra={
+								<RangePicker
+									picker="month"
+									defaultValue={[moment().startOf("year"), moment()]}
+									onChange={onChangeStudentStatDateRang}
+								/>
+							}
 						>
 							<Line {...config} />
 						</Card>
-
 					</Col>
 					<Col span={8}>
 						<Card title="Lịch học hôm nay" type="inner" bordered={true}>
-							{
-								classesToday.map((cl: ClassType) =>
-									<div className="daily-schedule" key={cl.id}>
-										<div
-											style={{ display: "flex", justifyContent: "space-between" }}
-										>
-											<strong>{cl.name}</strong>
-											<strong>{cl.schedule_time}</strong>
-										</div>
-										<a>{get(cl, "user.profile.name")}</a>
+							{classesToday.map((cl: ClassType) => (
+								<div className="daily-schedule" key={cl.id} style={{marginBottom: 10}}>
+									<div
+										style={{ display: "flex", justifyContent: "space-between" }}
+									>
+										<strong>{cl.name}</strong>
+										<strong>{cl.schedule_time}</strong>
 									</div>
-								)
-							}
+									<a>{get(cl, "user.profile.name")}</a>
+								</div>
+							))}
 						</Card>
 						<Card
 							title="Doanh thu gần đây"
 							type="inner"
 							bordered={true}
 							style={{ marginTop: 20 }}
-							extra={<Button type="link" onClick={() => history.push("/payments/revenue")}>Xem thêm</Button>}
+							extra={
+								<Button
+									type="link"
+									onClick={() => history.push("/payments/revenue")}
+								>
+									Xem thêm
+								</Button>
+							}
 						>
 							<Timeline>
-								{
-									revenuesData?.data?.map((item, index) => index < 5 && (
-										<Timeline.Item key={index}>
-											<a>{`${RevenuesTypeList[item.type]}`} - {numeral(item.amount).format("0,0")}</a>
-											<p>
-												<small>{moment(item.date).format("DD-MM-YYYY HH:mm")}</small>
-											</p>
-										</Timeline.Item>
-									))
-								}
+								{revenuesData?.data?.map(
+									(item, index) =>
+										index < 5 && (
+											<Timeline.Item key={index}>
+												<a>
+													{`${RevenuesTypeList[item.type]}`} -{" "}
+													{numeral(item.amount).format("0,0")}
+												</a>
+												<p>
+													<small>
+														{moment(item.date).format("DD-MM-YYYY HH:mm")}
+													</small>
+												</p>
+											</Timeline.Item>
+										)
+								)}
 							</Timeline>
 						</Card>
 					</Col>

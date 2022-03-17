@@ -1,11 +1,9 @@
-import { EditOutlined, QuestionCircleOutlined } from "@ant-design/icons";
+import { EditOutlined } from "@ant-design/icons";
 import {
 	Button,
 	Col,
 	Input,
-	Layout,
-	Radio,
-	Row,
+	Layout, Row,
 	Select,
 	Space,
 	Table,
@@ -90,7 +88,7 @@ function Employees(): JSX.Element {
 
 	const columns = [
 		{
-			width: "15%",
+			width: "20%",
 			title: "Họ tên",
 			key: "name",
 			render: function NameCol(user: User): JSX.Element {
@@ -128,7 +126,7 @@ function Employees(): JSX.Element {
 			// },
 		},
 		{
-			width: "25%",
+			width: "30%",
 			title: "Địa chỉ",
 			key: "address",
 			render: function col(user: UserType): JSX.Element {
@@ -136,7 +134,7 @@ function Employees(): JSX.Element {
 			},
 		},
 		{
-			width: "10%",
+			width: "20%",
 			title: "Vai trò",
 			key: "employee_contract",
 			render: function PhoneCol(user: UserType): JSX.Element {
@@ -156,7 +154,7 @@ function Employees(): JSX.Element {
 			},
 		},
 		{
-			width: "15%",
+			width: "5%",
 			title: "Action",
 			key: "action",
 			render: function ColActionn(

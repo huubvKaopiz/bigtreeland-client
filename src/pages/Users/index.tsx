@@ -7,17 +7,13 @@ import { useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { RootState, useAppDispatch } from "store/store";
 import {
-	actionAddUser,
-	actionChangePassworfOfUser,
-	actionDeactiveUser,
+	actionAddUser, actionDeactiveUser,
 	actionGetUsers,
 	actionResetStatusDeactiveUser,
-	actionRestoreUser,
-	actionSetPermissionsForUser
+	actionRestoreUser
 } from "store/users/slice";
 import { converRoleNameToVN } from "utils/ultil";
 import AddNewUserForm from "./AddNewUserForm";
-import ChangePassword from "./ChangePassword";
 // import ChangePermisstion from "./ChangePermisstion";
 
 const { confirm } = Modal;
@@ -178,6 +174,7 @@ export default function Users(): JSX.Element {
 			},
 		},
 		{
+			width: 100,
 			title: "Action",
 			key: "action",
 			render: ColActions,

@@ -62,7 +62,7 @@ function Classes(): JSX.Element {
 
 	const columns = [
 		{
-			width: "20%",
+			width: "25%",
 			title: "Tên lớp",
 			dataIndex: "name",
 			key: "name",
@@ -71,7 +71,7 @@ function Classes(): JSX.Element {
 			},
 		},
 		{
-			width: "15%",
+			width: "25%",
 			title: "Giáo viên",
 			dataIndex: "user",
 			key: "user",
@@ -105,7 +105,7 @@ function Classes(): JSX.Element {
 			},
 		},
 		{
-			width: "15%",
+			width: "10%",
 			title: "Action",
 			key: "action",
 			render: function ActionCol(text: string, record: ClassType, index: number): JSX.Element {

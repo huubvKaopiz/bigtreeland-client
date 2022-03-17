@@ -69,8 +69,8 @@ export default function Students(): JSX.Element {
 
 	const columns = [
 		{
+			width: 350,
 			title: "Họ tên",
-			with: 120,
 			dataIndex: "name",
 			key: "name",
 			render: function nameCol(value: string, record: StudentType): JSX.Element {
@@ -78,7 +78,7 @@ export default function Students(): JSX.Element {
 			},
 		},
 		{
-			width: 120,
+			width: 150,
 			title: "Ngày sinh",
 			dataIndex: "birthday",
 			key: "birthday",
@@ -106,6 +106,7 @@ export default function Students(): JSX.Element {
 			},
 		},
 		{
+			width: 200,
 			title: "Action",
 			key: "action",
 			render: function ActionCol(text: string, student: StudentType, index: number): JSX.Element {
