@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { notification } from "antd";
 import { AxiosError } from "axios";
-import { ClassPhotoType, ClassType, FileType, GetResponseType } from "interface";
+import { ClassPhotoType, ClassType, FileType, GetResponseType, StudentType } from "interface";
 import { get } from "lodash";
 import { STUDY_TABS } from "utils/const";
 import request from "utils/request";
@@ -48,7 +48,7 @@ export interface AddTestParms {
 const initialState: ClassReducerState = {
 	classes: null,
 	classInfo: null,
-	classDetailTabKey: STUDY_TABS.LESSON,
+	classDetailTabKey: STUDY_TABS.STUDENTS,
 	recentTestAdded: null,
 	photos: null,
 	getClassStatus: "idle",

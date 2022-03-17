@@ -1,4 +1,3 @@
-import { ImportOutlined, SwapOutlined } from "@ant-design/icons";
 import { Button, Select, Space, Spin, Tooltip } from "antd";
 import Modal from "antd/lib/modal/Modal";
 import { ClassType, GetResponseType, StudentType } from "interface";
@@ -8,24 +7,26 @@ import { useSelector } from "react-redux";
 import { RootState, useAppDispatch } from "store/store";
 import { actionUpdateStudent, StudentParams } from "store/students/slice";
 
+
 export default function ImportClass(props: {
 	student: StudentType;
 	classesList: GetResponseType<ClassType> | null;
 	searchClass: (search: string) => void;
 	searchStatus: string;
+	show: boolean;
+	setShow: (param: boolean) => void;
 }): JSX.Element {
-	const { student, classesList, searchClass, searchStatus } = props;
-	const [show, setShow] = useState(false);
+	const { student, classesList, searchClass, searchStatus, show, setShow } = props;
 	const [classID, setClassID] = useState(null);
 	const dispatch = useAppDispatch();
 
-	const updateState = useSelector((state:RootState) => state.studentReducer.updateStudentStatus);
-	
+	const updateState = useSelector((state: RootState) => state.studentReducer.updateStudentStatus);
+
 	useEffect(() => {
-		if(updateState === 'success'){
+		if (updateState === 'success') {
 			setShow(false);
 		}
-	},[updateState])
+	}, [updateState])
 
 	const handleSelected = (value: any) => {
 		setClassID(value);
@@ -45,23 +46,17 @@ export default function ImportClass(props: {
 			);
 		}
 	};
+
 	return (
 		<>
-			{
-				student.class === null ?
-					<Tooltip placement="top" title="Nhập lớp">
-						<Button onClick={() => setShow(true)} type="link" icon={<ImportOutlined />} />
-					</Tooltip>
-					:
-					<Tooltip title="Chuyển lớp">
-						<Button icon={<SwapOutlined onClick={() => setShow(true)}/>} type="link" />
-					</Tooltip>
-			}
 			<Modal
 				title="Nhập lớp học"
 				visible={show}
 				closable={true}
-				onCancel={() => setShow(false)}
+				onCancel={() => {
+					setClassID(null);
+					setShow(false)
+				}}
 				footer={[
 					<Button key="btnSubmit" type="primary" onClick={handleSubmit} loading={updateState === 'loading'}>
 						Lưu lại
@@ -72,6 +67,7 @@ export default function ImportClass(props: {
 					<Select
 						style={{ width: "100%" }}
 						placeholder="Chọn lớp"
+						filterOption={false}
 						onChange={handleSelected}
 						showSearch
 						onSearch={(e) => searchClass(e)}

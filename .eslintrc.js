@@ -30,6 +30,11 @@ module.exports = {
 		"react/display-name": "off",
 		"react/jsx-key": "off",
 		"no-unsafe-optional-chaining": "off",
+<<<<<<< HEAD
 		"no-debugger": "warn",
+=======
+		"@typescript-eslint/no-extra-semi":"off"
+		// "semicolon": ["warn", "always", "ignore-bound-class-methods"],
+>>>>>>> fix issue, update class histories
 	},
 };

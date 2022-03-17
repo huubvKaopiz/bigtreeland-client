@@ -7,12 +7,14 @@ import request from "utils/request";
 
 export interface StudentReducerState {
 	students: GetResponseType<StudentType> | null;
-	studentProfile: StudentParams | null;
+	studentProfile: StudentType | null;
 	getStudentsStatus: "idle" | "loading" | "success" | "error";
 	getStudentStatus: "idle" | "loading" | "success" | "error";
 	addStudentStatus: "idle" | "loading" | "success" | "error";
 	updateStudentStatus: "idle" | "loading" | "success" | "error";
 	updateStudentStatusStatus: "idle" | "loading" | "success" | "error";
+	updateStudentClasHistoryStatus: "idle" | "loading" | "success" | "error";
+
 }
 
 export interface GetStudentPrams {
@@ -52,6 +54,7 @@ const initialState: StudentReducerState = {
 	addStudentStatus: "idle",
 	updateStudentStatus: "idle",
 	updateStudentStatusStatus: "idle",
+	updateStudentClasHistoryStatus:'idle'
 };
 
 export const actionGetStudentProfile = createAsyncThunk(
@@ -151,6 +154,23 @@ export const updateStudentStatus = createAsyncThunk(
 	}
 );
 
+export const actionUpdateStudentClassHistory = createAsyncThunk(
+	"actionUpdateStudentClassHistory",
+	async (data:{chId:number, date:string}, { rejectWithValue }) => {
+		try {
+			const {chId, date} = data;
+			const response = await request({
+				url: `/api/class-histories/${chId}`,
+				method: "put",
+				data:{date},
+			});
+			return response.data;
+		} catch (error) {
+			rejectWithValue(error);
+		}
+	}
+);
+
 export const studentSlice = createSlice({
 	name: "student",
 	initialState,
@@ -174,6 +194,9 @@ export const studentSlice = createSlice({
 			state.studentProfile = null;
 			state.getStudentStatus = "idle";
 		},
+		actionUpdateStudentClassHistory(state){
+			state.updateStudentClasHistoryStatus = 'idle';
+		}
 	},
 	extraReducers: (builder) => {
 		//Het list of students
@@ -186,7 +209,7 @@ export const studentSlice = createSlice({
 				state.getStudentsStatus = "success";
 			})
 			.addCase(actionGetStudents.rejected, (state, action) => {
-				state.getStudentStatus = "error";
+				state.getStudentsStatus = "error";
 				const error = action.payload as AxiosError;
 				notification.error({
 					message: get(error, "response.data", "Có lỗi xảy ra!"),
@@ -198,7 +221,7 @@ export const studentSlice = createSlice({
 			})
 			.addCase(actionGetStudentProfile.fulfilled, (state, action) => {
 				state.studentProfile = action.payload as StudentType;
-				state.getStudentsStatus = "success";
+				state.getStudentStatus = "success";
 			})
 			.addCase(actionGetStudentProfile.rejected, (state, action) => {
 				state.getStudentStatus = "error";
@@ -252,6 +275,21 @@ export const studentSlice = createSlice({
 			})
 			.addCase(updateStudentStatus.rejected, (state, action) => {
 				state.updateStudentStatusStatus = "error";
+				const error = action.payload as AxiosError;
+				notification.error({
+					message: get(error, "response.data", "Có lỗi xảy ra!"),
+				});
+			})
+			//Update class history
+			.addCase(actionUpdateStudentClassHistory.pending, (state) => {
+				state.updateStudentClasHistoryStatus = "loading";
+			})
+			.addCase(actionUpdateStudentClassHistory.fulfilled, (state) => {
+				state.updateStudentClasHistoryStatus = "success";
+				notification.success({ message: "Cập nhật thành công!" });
+			})
+			.addCase(actionUpdateStudentClassHistory.rejected, (state, action) => {
+				state.updateStudentClasHistoryStatus = "error";
 				const error = action.payload as AxiosError;
 				notification.error({
 					message: get(error, "response.data", "Có lỗi xảy ra!"),

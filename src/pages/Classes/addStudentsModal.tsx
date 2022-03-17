@@ -14,15 +14,17 @@ export default function AddStudentsModal(props: { class_id: string | null }): JS
     const { class_id } = props;
     const dispatch = useAppDispatch();
     const [show, setShow] = useState(false);
+    const [selectedStudents, setSelectedStudents] = useState([])
     const students = useSelector((state: RootState) => state.studentReducer.students);
     const status = useSelector((state:RootState) => state.classReducer.addStudentsStatus);
-    const [selectedStudents, setSelectedStudents] = useState([])
 
     useEffect(() => {
         // dispatch(actionGetStudents({ class_id: 0 }))
         if(status === "success"){
             setShow(false);
-            dispatch(actionResetAddStudent())
+            setSelectedStudents([]);
+            dispatch(actionResetAddStudent());
+            dispatch(actionGetStudents({ class_id: 0 }))
         }
     }, [dispatch, status])
 
@@ -56,7 +58,7 @@ export default function AddStudentsModal(props: { class_id: string | null }): JS
                 closable
                 onCancel={() => setShow(false)}
                 footer={[
-                    <Button type="primary" key="btnSubmit" onClick={handleSubmit}>Lưu lại</Button>
+                    <Button type="primary" key="btnSubmit" onClick={handleSubmit}  loading={status === 'loading'}>Lưu lại</Button>
                 ]}
             >
 
@@ -65,6 +67,7 @@ export default function AddStudentsModal(props: { class_id: string | null }): JS
                     style={{ width: '100%' }}
                     placeholder="Chọn học sinh"
                     onChange={handleChange}
+                    value={selectedStudents}
                     options={options}
                 />
 

@@ -1,4 +1,4 @@
-import { EditOutlined, SnippetsOutlined } from '@ant-design/icons';
+import { EditOutlined, SnippetsOutlined, ImportOutlined, SwapOutlined } from '@ant-design/icons';
 import { Button, Col, Input, Layout, Row, Space, Table, Tag, Tooltip } from "antd";
 import { debounce, get } from "lodash";
 import moment from "moment";
@@ -22,6 +22,8 @@ export default function Students(): JSX.Element {
 	const [searchInput, setSearchInput] = useState("");
 	const [showEdit, setShowEdit] = useState(false);
 	const [editIndex, setEditIndex] = useState(-1);
+	const [showImportModal, setShowImportModal] = useState(false);
+	const [importClassStudentIndex, setImportClassStudentIndex] = useState(-1);
 	//application states
 	const loadListStatus = useSelector((state: RootState) => state.studentReducer.getStudentsStatus);
 	const students = useSelector((state: RootState) => state.studentReducer.students);
@@ -68,11 +70,11 @@ export default function Students(): JSX.Element {
 	const columns = [
 		{
 			title: "Họ tên",
-			with:120,
+			with: 120,
 			dataIndex: "name",
 			key: "name",
-			render: function nameCol(value: string, record:StudentType): JSX.Element {
-				return  <Space><strong>{value}</strong><Tag style={{fontSize:10}} color={record.type === 0 ? "red" : "green"}>{record.type === 0 ? "Offline" : "Online"}</Tag></Space>;
+			render: function nameCol(value: string, record: StudentType): JSX.Element {
+				return <Space><strong>{value}</strong><Tag style={{ fontSize: 10 }} color={record.type === 0 ? "red" : "green"}>{record.type === 0 ? "Offline" : "Online"}</Tag></Space>;
 			},
 		},
 		{
@@ -100,21 +102,31 @@ export default function Students(): JSX.Element {
 			dataIndex: "class",
 			key: "class",
 			render: function parentCol(value?: { id: number; name: string }): JSX.Element {
-				return <span style={{color:"#2980b9"}}>{get(value, "name", "")}</span>;
+				return <span style={{ color: "#2980b9" }}>{get(value, "name", "")}</span>;
 			},
 		},
 		{
 			title: "Action",
-			key:"action",
+			key: "action",
 			render: function ActionCol(text: string, student: StudentType, index: number): JSX.Element {
 				return (
 					<Space key={student.id}>
-						<ImportClass
-							student={student}
-							classesList={classesList}
-							searchClass={debounceSearchClass}
-							searchStatus={searchClassStatus}
-						/>
+						{
+							student.class === null ?
+								<Tooltip placement="top" title="Nhập lớp">
+									<Button onClick={() => {
+										setImportClassStudentIndex(index);
+										setShowImportModal(true)
+									}} type="link" icon={<ImportOutlined />} />
+								</Tooltip>
+								:
+								<Tooltip title="Chuyển lớp">
+									<Button icon={<SwapOutlined onClick={() => {
+										setImportClassStudentIndex(index);
+										setShowImportModal(true)
+									}} />} type="link" />
+								</Tooltip>
+						}
 						{/* <Profile student={student} /> */}
 						<Tooltip placement="top" title="Hồ sơ học tập">
 							<Button icon={<SnippetsOutlined onClick={() => history.push(`/students-study-profile/${student.id}`)} />} type="link" />
@@ -165,6 +177,14 @@ export default function Students(): JSX.Element {
 				searchStatus={searchParentStatus}
 				show={showEdit}
 				setShow={setShowEdit}
+			/>
+			<ImportClass
+				student={get(students, "data", [])[importClassStudentIndex]}
+				classesList={classesList}
+				show={showImportModal}
+				setShow={setShowImportModal}
+				searchClass={debounceSearchClass}
+				searchStatus={searchClassStatus}
 			/>
 		</Layout.Content>
 	);

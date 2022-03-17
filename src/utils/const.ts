@@ -58,5 +58,6 @@ export enum STUDY_TABS {
 	TEST = '2',
 	LESSON = '1',
 	ALBUM = '3',
-	SUMMARY = '4'
+	SUMMARY = '4',
+	STUDENTS = '5'
 }

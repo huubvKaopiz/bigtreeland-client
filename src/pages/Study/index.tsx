@@ -14,6 +14,7 @@ import { actionGetStudents } from "store/students/slice";
 import { dayOptions, STUDY_TABS } from "utils/const";
 import { ClassPhotos } from "./Album";
 import { Lesson } from "./Lesson";
+import StudentsOfClass from "./Students/StudentsOfClass";
 import { StudySumaryBoard } from "./Summary";
 import { CreateStudySummary } from "./Summary/createModal";
 import { Tests } from "./Test";
@@ -35,16 +36,15 @@ export default function Test(): JSX.Element {
 		(state: RootState) => state.classReducer.getClassStatus
 	);
 
-	const students = useSelector(
-		(state: RootState) => state.studentReducer.students
-	);
+	const addStudentState = useSelector((state:RootState) => state.classReducer.addStudentsStatus);
+
 
 	useEffect(() => {
-		if (params.class_id) {
-			dispatch(actionGetClass({ class_id: parseInt(params.class_id) }));
-			dispatch(actionGetStudents({ class_id: parseInt(params.class_id) }));
+		if (params.class_id || addStudentState === 'success') {
+			dispatch(actionGetClass({ class_id: parseInt(params.class_id), params: { students: true, active_periodinfo: false } }));
+			// dispatch(actionGetStudents({ class_id: parseInt(params.class_id) }));
 		}
-	}, [dispatch, params]);
+	}, [dispatch, params, addStudentState]);
 
 	return (
 		<Layout.Content>
@@ -54,10 +54,10 @@ export default function Test(): JSX.Element {
 					onBack={() => window.history.back()}
 					title={classInfo?.name}
 					subTitle="Quản lý học tập"
-					extra={[
-						<AddStudentsModal key="addStudents" class_id={params.class_id} />,
-						// <Button key="2">In danh sách</Button>,
-					]}
+					// extra={[
+					// 	<AddStudentsModal key="addStudents" class_id={params.class_id} />,
+					// 	// <Button key="2">In danh sách</Button>,
+					// ]}
 				></PageHeader>
 				<Descriptions
 					size="small"
@@ -101,14 +101,17 @@ export default function Test(): JSX.Element {
 						dispatch(actionSetClassDetailTabKey(activeKey))
 					}
 				>
+					<TabPane tab="DS học sinh" key={STUDY_TABS.STUDENTS}>
+						<StudentsOfClass students={get(classInfo, "students", [])} class_id={get(classInfo,"id",0)} />
+					</TabPane>
 					<TabPane tab="DS buổi học" key={STUDY_TABS.LESSON}>
 						<Lesson
 							classInfo={classInfo}
-							students={get(students, "data", [])}
+							students={get(classInfo, "students", [])}
 						/>
 					</TabPane>
 					<TabPane tab="Bài tập" key={STUDY_TABS.TEST}>
-						<Tests classInfo={classInfo} students={get(students, "data", [])} />
+						<Tests classInfo={classInfo} students={get(classInfo, "students", [])} />
 					</TabPane>
 					<TabPane tab="Album ảnh" key={STUDY_TABS.ALBUM}>
 						<ClassPhotos class_id={params.class_id} />
