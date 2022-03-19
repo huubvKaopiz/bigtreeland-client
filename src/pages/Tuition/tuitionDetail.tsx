@@ -12,6 +12,7 @@ import {
 	Checkbox,
 	Descriptions,
 	Input,
+	InputNumber,
 	Layout,
 	Modal,
 	PageHeader,
@@ -76,10 +77,11 @@ export default function TuitionDetail(): JSX.Element {
 	const [paymentCount, setPaymentCount] = useState<number>(0);
 	const [showNotiForm, setShowNotiForm] = useState(false);
 	const [showAddTuitionFee, setShowAddTuitionFee] = useState(false);
-	const [addTuitionFeeStudent, setAddTuitionFeeStudent] =
-		useState<StudentType | null>(null);
-	const [notiIndex, setNotiIndex] = useState(-1);
+	const [showPaymentForm, setShowPaymentForm] = useState(false);
+	const [actionIndex, setActionIndex] = useState(-1);
+	const [addTuitionFeeStudent, setAddTuitionFeeStudent] = useState<StudentType | null>(null);
 
+	// application states
 	const tuitionPeriodInfo = useSelector(
 		(state: RootState) => state.periodTuitionReducer.periodTuition
 	);
@@ -98,6 +100,10 @@ export default function TuitionDetail(): JSX.Element {
 	useEffect(() => {
 		if (params.tuition_id || tuitionFeePaymentState === "success") {
 			dispatch(actionGetPeriodTuion(parseInt(params.tuition_id)));
+			if(tuitionFeePaymentState === 'success'){
+				setShowPaymentForm(false);
+				setActionIndex(-1)
+			}
 		}
 	}, [dispatch, params.tuition_id, tuitionFeePaymentState]);
 
@@ -200,36 +206,6 @@ export default function TuitionDetail(): JSX.Element {
 		});
 	}
 
-	function handlePaidConfirm(tuition: TuitionFeeType) {
-		if (tuition) {
-			const amount =
-				feesPerStudent[tuition.id]! +
-				+tuition.prev_debt -
-				+tuition.fixed_deduction -
-				+tuition.flexible_deduction -
-				+tuition.residual || 0;
-			const tuition_fee_id = tuition.id;
-			const payload = {
-				tuition_fee_id,
-				amount: String(amount),
-			};
-			confirm({
-				title: "Xác nhận đã thanh toán",
-				content:
-					"Lưu ý sau khi xác nhận đã thanh toán sẽ không thể sửa được bảng học phí!",
-				icon: <ExclamationCircleOutlined />,
-				onOk() {
-					dispatch(actionTuitionFeePayment(payload));
-				},
-			});
-		}
-	}
-
-	function handleSendNotification(index: number) {
-		setShowNotiForm(true);
-		setNotiIndex(index);
-	}
-
 	//render ui
 	const renderContent = (column = 2) => (
 		<Descriptions size="middle" column={column}>
@@ -312,7 +288,7 @@ export default function TuitionDetail(): JSX.Element {
 			render: function nameCol(_: string, record: TuitionFeeType): JSX.Element {
 				return (
 					<>
-						<a>{record.student.name}</a> {record.student.birthday}
+						<a>{record.student.name}</a> <i style={{ color: "#7f8c8d" }}>{moment(record.student.birthday).format("DD-MM-YYYY")}</i>
 					</>
 				);
 			},
@@ -346,13 +322,15 @@ export default function TuitionDetail(): JSX.Element {
 			render: function statusCol(status: number): JSX.Element {
 				return (
 					<>
-						{status === 0 ? (
-							<Tag color="red">Chư nộp</Tag>
-						) : status === 1 ? (
-							<Tag color="green">Đã nộp</Tag>
-						) : (
-							<Tag color="orange">Chuyển nợ</Tag>
-						)}
+						{
+							status === 0 ? (
+								<Tag color="red">Chư nộp</Tag>
+							) : status === 1 ? (
+								<Tag color="green">Đã nộp</Tag>
+							) : status === 2 ? (
+								<Tag color="blue">Nộp một phần</Tag>
+							) : <Tag color="orange">Chuyển nợ</Tag>
+						}
 					</>
 				);
 			},
@@ -383,12 +361,13 @@ export default function TuitionDetail(): JSX.Element {
 									type="link"
 									onClick={() => {
 										setShowNotiForm(true);
-										setNotiIndex(index);
+										setActionIndex(index);
 									}}
 									icon={<NotificationOutlined />}
 								/>
 							</Tooltip>
-							{get(tuitionPeriodInfo, "active", 0) === 0 ? (
+							{
+								tuitionPeriodInfo?.active === 0 &&
 								<Tooltip title="Chuyển nợ">
 									<Button
 										disabled={record.status === 0 ? false : true}
@@ -403,21 +382,23 @@ export default function TuitionDetail(): JSX.Element {
 										onClick={() => handleTraferDebt(record)}
 									/>
 								</Tooltip>
-							) : (
-								""
-							)}
-							<Tooltip title="Xác nhận đã nộp">
+							}
+
+							<Tooltip title="Xác nhận thanh toán">
 								<Button
-									disabled={record.status === 0 ? false : true}
+									disabled={record.status === 1}
 									icon={
 										<CreditCardOutlined
 											style={{
-												color: record.status === 0 ? "#27ae60" : "#bdc3c7",
+												color: record.status === 1 ? "#bdc3c7" : "#27ae60",
 											}}
 										/>
 									}
 									type="link"
-									onClick={() => handlePaidConfirm(record)}
+									onClick={() => {
+										setActionIndex(index);
+										setShowPaymentForm(true);
+									}}
 								/>
 							</Tooltip>
 						</Space>
@@ -460,7 +441,7 @@ export default function TuitionDetail(): JSX.Element {
 							icon={<NotificationOutlined />}
 							onClick={() => {
 								setShowNotiForm(true);
-								setNotiIndex(-1);
+								setActionIndex(-1)
 							}}
 						>
 							Thông báo
@@ -591,15 +572,95 @@ export default function TuitionDetail(): JSX.Element {
 					setShow={setShowAddTuitionFee}
 				/>
 				<SendNotiModal
-					tuitionIndex={notiIndex}
+					tuitionIndex={actionIndex}
 					periodTuitionInfo={tuitionPeriodInfo}
 					show={showNotiForm}
 					setShow={setShowNotiForm}
 					students={studentList}
 				/>
+				<PaymentModal
+					tuition_fee={actionIndex !== -1 ? get(tuitionPeriodInfo, "tuition_fees", [])[actionIndex] : null}
+					fee_per_student={actionIndex !== -1 ? feesPerStudent[get(tuitionPeriodInfo, "tuition_fees", [])[actionIndex].id] : 0}
+					show={showPaymentForm}
+					setShow={setShowPaymentForm}
+				/>
 			</PageHeader>
 		</Layout.Content>
 	);
+}
+
+function PaymentModal(props: {
+	tuition_fee: TuitionFeeType | null;
+	fee_per_student: number;
+	show: boolean;
+	setShow: (param: boolean) => void;
+}): JSX.Element {
+
+	const { tuition_fee, fee_per_student, show, setShow } = props;
+	const dispatch = useAppDispatch();
+	const [paid, setPaid] = useState(0);
+	const [paidFull, setPaidFull] = useState(0);
+	const tuitionFeePaymentState = useSelector(
+		(state: RootState) => state.tuitionFeeReducer.tuitionFeePaymentState
+	);
+
+	useEffect(() => {
+		if (tuition_fee) {
+			const amount = fee_per_student +
+				+tuition_fee.prev_debt -
+				+tuition_fee.fixed_deduction -
+				+tuition_fee.flexible_deduction -
+				+tuition_fee.residual || 0
+			setPaidFull(amount)
+			setPaid(0    )
+		}
+	}, [tuition_fee])
+
+	function handleSubmit() {
+		if (paid === 0) return;
+		const tuition_fee_id = get(tuition_fee, "id", 0)
+		const payload = {
+			tuition_fee_id,
+			amount: String(paid),
+			status: paid === paidFull - +get(tuition_fee, "paid_amount", 0) ? 1 : 2
+		}
+		dispatch(actionTuitionFeePayment(payload))
+	}
+	return (
+		<Modal
+			title={<>Xác nhận đã thanh toán cho học sinh <a>{get(tuition_fee, "student.name", "")}</a></>}
+			visible={show}
+			width={600}
+			onCancel={() => {
+				setShow(false);
+				setPaid(0)
+			}}
+			cancelText="Huỷ bỏ"
+			okText="Gửi lên"
+			onOk={() => handleSubmit()}
+			okButtonProps={{
+				loading: tuitionFeePaymentState === 'loading'
+			}}
+		>
+			<div style={{ marginBottom: 20 }}>
+				<span>Tổng:</span> <strong style={{ color: "#d35400", marginRight: 10 }}>{numeral(paidFull).format("0,0")}</strong>
+				<span>Đã nộp:</span> <strong style={{ color: "#27ae60", marginRight: 10 }}>{numeral(tuition_fee?.paid_amount).format("0,0")}</strong>
+				<span>Còn lại:</span> <strong style={{ color: "#d35400" }}>{numeral(paidFull - +get(tuition_fee, "paid_amount", 0) - paid).format("0,0")}</strong>
+			</div>
+			<Space>
+				<span>Số tiền nộp lần này: </span>
+				<InputNumber value={numeral(paid).format("0,0")} onChange={(value) => setPaid(+value)} style={{fontWeight:"bold", width: 180, color: "#2980b9" }} />
+				<Button
+					type="primary"
+					ghost
+					onClick={() => setPaid(paidFull - +get(tuition_fee, "paid_amount", 0))}
+				>
+					Nộp hết
+				</Button>
+			</Space>
+			<Alert style={{ marginTop: 20 }} type="warning" message="Lưu ý sau khi xác nhận đã thanh toán hết thì sẽ không thể sửa được bảng học phí!" />
+		</Modal>
+	)
 }
 
 // SendNotiModal component

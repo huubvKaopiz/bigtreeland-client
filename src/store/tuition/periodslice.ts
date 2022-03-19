@@ -4,6 +4,7 @@ import { AxiosError } from "axios";
 import { GetResponseType, PeriodTuitionType } from "interface";
 import { get } from "lodash";
 import request from "utils/request";
+import { handleResponseError } from "utils/ultil";
 
 export interface PeriodTuitionReducerState {
 	periodTuitions: GetResponseType<PeriodTuitionType> | null;
@@ -182,9 +183,7 @@ export const periodTuitionSlice = createSlice({
 			.addCase(actionGetPeriodTuion.rejected, (state, action) => {
 				state.getPeriodTuitionStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 
 			.addCase(actionGetPeriodTuions.pending, (state) => {
@@ -198,9 +197,7 @@ export const periodTuitionSlice = createSlice({
 			.addCase(actionGetPeriodTuions.rejected, (state, action) => {
 				state.getPeriodTuitionsStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 
 			.addCase(actionAddPeriodTuion.pending, (state) => {
@@ -213,9 +210,7 @@ export const periodTuitionSlice = createSlice({
 			.addCase(actionAddPeriodTuion.rejected, (state, action) => {
 				state.addPeriodTuitionStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 
 			.addCase(actionUpdatePeriodTuion.pending, (state) => {
@@ -230,9 +225,7 @@ export const periodTuitionSlice = createSlice({
 			.addCase(actionUpdatePeriodTuion.rejected, (state, action) => {
 				state.updatePeriodTuitionStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 
 			.addCase(actionDeletePeriodTuion.pending, (state) => {
@@ -245,9 +238,7 @@ export const periodTuitionSlice = createSlice({
 			.addCase(actionDeletePeriodTuion.rejected, (state, action) => {
 				state.deletePeriodTuitionStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			});
 	},
 });

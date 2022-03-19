@@ -4,6 +4,7 @@ import { AxiosError } from "axios";
 import { GetResponseType, NewsType } from "interface";
 import { get } from "lodash";
 import request from "utils/request";
+import { handleResponseError } from "utils/ultil";
 
 export interface NewsReducerState {
     newsList: GetResponseType<NewsType> | null;
@@ -132,9 +133,7 @@ export const newsSlice = createSlice({
             .addCase(actionGetNewsInfo.rejected, (state, action) => {
                 state.getNewsInfoStatus = "error";
                 const error = action.payload as AxiosError;
-                notification.error({
-                    message: get(error, "response.data", "Có lỗi xảy ra!"),
-                });
+                handleResponseError(error);
             })
         //get news list
         builder
@@ -148,9 +147,7 @@ export const newsSlice = createSlice({
             .addCase(actionGetNewsList.rejected, (state, action) => {
                 state.getNewsListStatus = "error";
                 const error = action.payload as AxiosError;
-                notification.error({
-                    message: get(error, "response.data", "Có lỗi xảy ra!"),
-                });
+                handleResponseError(error);
             })
 
             // add news
@@ -164,9 +161,7 @@ export const newsSlice = createSlice({
             .addCase(actionAddNews.rejected, (state, action) => {
                 state.addNewsStatus = "error";
                 const error = action.payload as AxiosError;
-                notification.error({
-                    message: get(error, "response.data", "Có lỗi xảy ra!"),
-                });
+                handleResponseError(error);
             })
 
             //update news infomation
@@ -182,9 +177,7 @@ export const newsSlice = createSlice({
             .addCase(actionUpdateNews.rejected, (state, action) => {
                 state.updateNewsStatus = "error";
                 const error = action.payload as AxiosError;
-                notification.error({
-                    message: get(error, "response.data", "Có lỗi xảy ra!"),
-                });
+                handleResponseError(error);
             })
 
             // delete news
@@ -198,9 +191,7 @@ export const newsSlice = createSlice({
             .addCase(actionDeleteNews.rejected, (state, action) => {
                 state.deleteNewsStatus = "error";
                 const error = action.payload as AxiosError;
-                notification.error({
-                    message: get(error, "response.data", "Có lỗi xảy ra!"),
-                });
+                handleResponseError(error);
             });
     },
 });

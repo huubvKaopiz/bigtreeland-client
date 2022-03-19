@@ -24,12 +24,13 @@ export function EditTuitionFeeModal(prop: { periodInfo: PeriodTuitionType | null
 			const est_fee = est_session_num * get(periodInfo, "fee_per_session", 0);
 			uFrom.setFieldsValue(
 				{
-					"stname": stName,
+					"stname": get(tuitionFeeInfo, "student.name", ""),
 					"est_fee": est_fee,
 					"prev_debt": get(tuitionFeeInfo, "prev_debt", "0"),
 					"residual": get(tuitionFeeInfo, "residual", "0"),
 					"fixed_deduction": get(tuitionFeeInfo, "fixed_deduction", "0"),
 					"flexible_deduction": 100 * +get(tuitionFeeInfo, "flexible_deduction", '0') / est_fee,
+					"paid_amount":+get(tuitionFeeInfo,"paid_amount",0),
 					"amount": est_fee + +get(tuitionFeeInfo, "prev_debt", "0") - +get(tuitionFeeInfo, "residual", "0") - +get(tuitionFeeInfo, "fixed_deduction", "0") - +get(tuitionFeeInfo, "flexible_deduction", '0'),
 					"note": get(tuitionFeeInfo, "note", ""),
 				}
@@ -96,8 +97,8 @@ export function EditTuitionFeeModal(prop: { periodInfo: PeriodTuitionType | null
 				<Form
 					id="uForm"
 					form={uFrom}
-					labelCol={{ span: 6 }}
-					wrapperCol={{ span: 16 }}
+					labelCol={{ span: 7 }}
+					wrapperCol={{ span: 15 }}
 					layout="horizontal"
 					onValuesChange={handleValuesChange}
 					onFinish={handleSubmit}
@@ -123,7 +124,10 @@ export function EditTuitionFeeModal(prop: { periodInfo: PeriodTuitionType | null
 							/>
 					</Form.Item>
 					<Form.Item label="Thành tiền" name="amount">
-						<InputNumber formatter={(value) => numeral(value).format()} style={{ width: "50%", color: "#3498db" }} disabled />
+						<InputNumber formatter={(value) => numeral(value).format("0,0")} style={{ width: "50%", color: "#3498db" }} disabled />
+					</Form.Item>
+					<Form.Item label="Đã thanh toán" name="paid_amount">
+						<InputNumber formatter={(value) => numeral(value).format("0,0")} style={{ width: "100%", color: "#e74c3c", fontWeight: 700 }} disabled />
 					</Form.Item>
 					<Form.Item label="Ghi chú" name="note">
 						<TextArea

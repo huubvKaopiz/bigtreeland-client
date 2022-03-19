@@ -5,6 +5,7 @@ import { ClassPhotoType, ClassType, FileType, GetResponseType, StudentType } fro
 import { get } from "lodash";
 import { STUDY_TABS } from "utils/const";
 import request from "utils/request";
+import { handleResponseError } from "utils/ultil";
 
 export interface ClassReducerState {
 	classes: GetResponseType<ClassType> | null;
@@ -246,9 +247,7 @@ export const classSlice = createSlice({
 			.addCase(actionGetClasses.rejected, (state, action) => {
 				state.getClassesStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 			//get class infomation
 			.addCase(actionGetClass.pending, (state) => {
@@ -261,9 +260,7 @@ export const classSlice = createSlice({
 			.addCase(actionGetClass.rejected, (state, action) => {
 				state.getClassStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 
 			// add Class
@@ -277,9 +274,7 @@ export const classSlice = createSlice({
 			.addCase(actionAddClass.rejected, (state, action) => {
 				state.addClassStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 
 			//update Class infomation
@@ -293,9 +288,7 @@ export const classSlice = createSlice({
 			.addCase(actionUpdateClass.rejected, (state, action) => {
 				state.updateClassStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 
 			// add students
@@ -309,9 +302,7 @@ export const classSlice = createSlice({
 			.addCase(actionAddStudents.rejected, (state, action) => {
 				state.addStudentsStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 			
 			// get class photos
@@ -325,9 +316,7 @@ export const classSlice = createSlice({
 			.addCase(actionGetClassPhotos.rejected, (state, action) => {
 				state.getClassPhotosStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 
 			// add class photos
@@ -341,9 +330,7 @@ export const classSlice = createSlice({
 			.addCase(actionAddClassPhotos.rejected, (state, action) => {
 				state.addClassPhotosStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 
 			// delete class photo
@@ -357,9 +344,7 @@ export const classSlice = createSlice({
 			.addCase(actionDeleteClassPhoto.rejected, (state, action) => {
 				state.deleteClassPhotosStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			});
 	},
 });

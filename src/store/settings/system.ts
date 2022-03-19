@@ -4,6 +4,7 @@ import { AxiosError } from "axios";
 import { SystemSettingsType } from "interface";
 import { get } from "lodash";
 import request from "utils/request";
+import { handleResponseError } from "utils/ultil";
 
 interface SystemSettingReducerState {
 	systemSettingInfo: SystemSettingsType | null;
@@ -81,7 +82,7 @@ export const systemSettingSlice = createSlice({
 			.addCase(actionGetSystemSettingInfo.rejected, (state, action) => {
 				state.getSystemSettingState = "error";
 				const error = action.payload as AxiosError;
-				notification.error({message:get(error,"response.data","Có lỗi xảy ra!")})
+				handleResponseError(error);
 			})
 
             .addCase(actionUpdateSystemSetting.pending, state => {
@@ -90,9 +91,10 @@ export const systemSettingSlice = createSlice({
                 state.updateSystemSettingState = "success";
                 state.systemSettingInfo = action.payload as SystemSettingsType;
                 notification.success({ message: "Cập nhật thông tin hệ thống thành công" });
-            }).addCase(actionUpdateSystemSetting.rejected, state => {
-                state.updateSystemSettingState = "error";
-                notification.error({ message: "Cập nhật thông tin hệ thống bị lỗi!" });
+            }).addCase(actionUpdateSystemSetting.rejected, (state, action) => {
+				state.updateSystemSettingState = "error";
+				const error = action.payload as AxiosError;
+                handleResponseError(error);
             })
     }
 })

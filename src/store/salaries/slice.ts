@@ -4,6 +4,7 @@ import { AxiosError } from "axios";
 import { GetResponseType, SalaryType } from "interface";
 import { get } from "lodash";
 import request from "utils/request";
+import { handleResponseError } from "utils/ultil";
 
 interface SalariesReducerState {
 	salary: SalaryType | null;
@@ -184,9 +185,7 @@ export const salariesSlice = createSlice({
 			.addCase(actionGetSalary.rejected, (state, action) => {
 				state.getSalary = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 
 			.addCase(actionGetSalaries.pending, (state) => {
@@ -199,9 +198,7 @@ export const salariesSlice = createSlice({
 			.addCase(actionGetSalaries.rejected, (state, action) => {
 				state.getSalaries = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 
 			.addCase(actionAddSalary.pending, (state) => {
@@ -214,9 +211,7 @@ export const salariesSlice = createSlice({
 			.addCase(actionAddSalary.rejected, (state, action) => {
 				state.addSalaryStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 
 			.addCase(actionUpdateSalary.pending, (state) => {
@@ -229,9 +224,7 @@ export const salariesSlice = createSlice({
 			.addCase(actionUpdateSalary.rejected, (state, action) => {
 				state.updateSalaryStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 
 			.addCase(actionSalaryPaymentConfirmed.pending, (state) => {
@@ -244,9 +237,7 @@ export const salariesSlice = createSlice({
 			.addCase(actionSalaryPaymentConfirmed.rejected, (state, action) => {
 				state.updateSalaryStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 
 			.addCase(actionDeleteSalary.pending, (state) => {
@@ -259,9 +250,7 @@ export const salariesSlice = createSlice({
 			.addCase(actionDeleteSalary.rejected, (state, action) => {
 				state.deleteSalaryStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			});
 	},
 });

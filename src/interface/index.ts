@@ -46,7 +46,7 @@ export interface UserType {
 		id: 1;
 		name: "parent";
 		email: "parent@gmail.com";
-		birthday:string;
+		birthday: string;
 		deleted_at: null;
 		created_at: null;
 		updated_at: null;
@@ -120,8 +120,8 @@ export interface AddNewUser {
 }
 
 export interface EmployeeContractType {
-	id: 1;
-	employee_id: 2;
+	id: number;
+	employee_id: number;
 	basic_salary: "10000000";
 	sales_salary: null;
 	working_day: null;
@@ -138,7 +138,7 @@ export interface EmployeeType {
 		email: "admin@gmail.com";
 		email_verified_at: null;
 		employee: null;
-		id: 1;
+		id: number;
 		name: "admin";
 		address: "1";
 		birthday: "2021-12-14";
@@ -153,11 +153,11 @@ export interface EmployeeType {
 }
 
 export interface StudentType {
-	id: 1;
+	id: number;
 	name: "dfsdf";
 	birthday: "1990-12-14";
 	admission_date: " 1990-12-14";
-	gender: 0;
+	gender: number;
 	class: {
 		id: number;
 		name: string;
@@ -165,14 +165,14 @@ export interface StudentType {
 	parent: {
 		id: number;
 		name: string;
-		profile:{
-			name:string;
+		profile: {
+			name: string;
 		}
 	};
-	class_histories:{
-		id:number;
-		class_id:number;
-		date:string
+	class_histories: {
+		id: number;
+		class_id: number;
+		date: string
 	}[];
 	type: number; // 0 offline, 1 online
 	school: null;
@@ -268,11 +268,11 @@ export interface RoleCreateFormType {
 
 
 export interface PeriodTuitionType {
-	id: 1;
-	class_id: 1;
-	est_session_num: 1;
+	id: number;
+	class_id: number;
+	est_session_num: number;
 	fee_per_session: number;
-	active: 1;
+	active: number;
 	from_date: "";
 	to_date: "";
 	dayoffs: string[];
@@ -282,9 +282,9 @@ export interface PeriodTuitionType {
 }
 
 export interface TuitionFeeType {
-	id: 1;
-	period_tuition_id: 1;
-	student_id: 1;
+	id: number;
+	period_tuition_id: number;
+	student_id: number;
 	fixed_deduction: "null";
 	flexible_deduction: "null";
 	prev_debt: "null";
@@ -294,6 +294,7 @@ export interface TuitionFeeType {
 	from_date: "null";
 	to_date: "null";
 	est_session_num: number;
+	paid_amount:string;
 	dayoffs: string[];
 	student: {
 		id: number;
@@ -319,8 +320,8 @@ export interface DayoffType {
 }
 
 export interface LessonType {
-	id: 1;
-	tuition_period_id: 1;
+	id: number;
+	tuition_period_id: number;
 	date: "";
 	lesson_feedback: {
 		id: number;
@@ -345,23 +346,23 @@ export interface LessonType {
 		id: number;
 		from_date: string;
 		to_date: string;
-		class:{
-			id:number;
-			name:string;
+		class: {
+			id: number;
+			name: string;
 		}
 	}
-	tests:TestType[];
+	tests: TestType[];
 }
 
 export interface SalaryType {
-	id: 1;
-	employee_id: 1;
+	id: number;
+	employee_id: number;
 	basic_salary: "";
 	revenue_salary: "";
 	debt: "";
 	bonus: "";
 	fines: "";
-	period_id: 1;
+	period_id: number;
 	note: "";
 	status: number;
 	from_date: "";
@@ -432,8 +433,9 @@ export interface NewsType {
 	id: number;
 	employee_id: number;
 	title: string;
+	photo: FileType;
 	content: string;
-	created_at: "2022-02-09 15:57:42",
+	created_at: "2022-02-09 15:57:42";
 	creator: {
 		id: number;
 		phone: string;
@@ -458,7 +460,7 @@ export interface GiftType {
 	description: string;
 	status: number;
 	quantity: number;
-	condition_point:string;
+	condition_point: string;
 }
 
 export interface StudentGiftType {
@@ -503,10 +505,10 @@ export interface TestResultsType {
 	teacher_comment: string;
 	parent_feedback: string;
 	updated_at: string;
-	student:StudentType
+	student: StudentType
 }
 
 export interface BirthdayListType {
-	students:StudentType[];
-	users:UserType[];
+	students: StudentType[];
+	users: UserType[];
 }

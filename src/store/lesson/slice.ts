@@ -4,6 +4,7 @@ import { AxiosError } from "axios";
 import { GetResponseType, LessonType } from "interface";
 import { get } from "lodash";
 import request from "utils/request";
+import { handleResponseError } from "utils/ultil";
 
 interface LessionReducerState {
 	lessonInfo: LessonType | null;
@@ -84,9 +85,7 @@ export const lessonSlice = createSlice({
 			.addCase(actionGetLessonInfo.rejected, (state, action) => {
 				state.getLessonInfoSate = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 			.addCase(actionGetLessons.pending, (state) => {
 				state.getLessonsState = "loading";
@@ -98,9 +97,7 @@ export const lessonSlice = createSlice({
 			.addCase(actionGetLessons.rejected, (state, action) => {
 				state.getLessonsState = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			});
 	},
 });

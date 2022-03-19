@@ -5,6 +5,7 @@ import { GetResponseType, ParentType, UserType } from "interface";
 import { get } from "lodash";
 import { ROLE_NAMES } from "utils/const";
 import request from "utils/request";
+import { handleResponseError } from "utils/ultil";
 
 export interface ParentReducerState {
 	parents: GetResponseType<ParentType> | null;
@@ -70,7 +71,7 @@ export const actionUpdateParent = createAsyncThunk(
 	"actionUpdateParent",
 	async (
 		params: {
-			data: { name: string; email: string; gender: number };
+			data: { name: string; email: string; phone?: string };
 			uID: number;
 		},
 		{ rejectWithValue }
@@ -125,9 +126,7 @@ export const parentSlice = createSlice({
 			.addCase(actionGetParents.rejected, (state, action) => {
 				state.getParentsStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error)
 			})
 
 			// add parent
@@ -141,9 +140,7 @@ export const parentSlice = createSlice({
 			.addCase(actionAddParent.rejected, (state, action) => {
 				state.addParentStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 
 			//update parent infomation
@@ -159,9 +156,7 @@ export const parentSlice = createSlice({
 			.addCase(actionUpdateParent.rejected, (state, action) => {
 				state.updateParentStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error)
 			})
 
 			.addCase(actionDeleteParent.pending, (state) => {
@@ -174,9 +169,7 @@ export const parentSlice = createSlice({
 			.addCase(actionDeleteParent.rejected, (state, action) => {
 				state.deleteParentStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error)
 			});
 	},
 });

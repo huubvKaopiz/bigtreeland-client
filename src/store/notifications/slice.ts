@@ -1,9 +1,10 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { notification } from "antd";
 import { AxiosError } from "axios";
-import {NotificationType, GetResponseType } from "interface";
+import { NotificationType, GetResponseType } from "interface";
 import { get } from "lodash";
 import request from "utils/request";
+import { handleResponseError } from "utils/ultil";
 
 export interface NotificationReducerState {
     notificationList: GetResponseType<NotificationType> | null;
@@ -23,14 +24,14 @@ export interface GetNotificationListPrams {
 
 export interface AddNotificationParams {
     user_ids: number[];
-    message:{
-        title:string;
-        body:string;
-        data:{
-            uri:string | null;
+    message: {
+        title: string;
+        body: string;
+        data: {
+            uri: string | null;
         }
     }
-    role_id?:number
+    role_id?: number
 }
 const initialState: NotificationReducerState = {
     notificationList: null,
@@ -139,9 +140,7 @@ export const notificationSlice = createSlice({
             .addCase(actionGetNotificationInfo.rejected, (state, action) => {
                 state.getNotificationInfoStatus = "error";
                 const error = action.payload as AxiosError;
-                notification.error({
-                    message: get(error, "response.data", "Có lỗi xảy ra!"),
-                });
+                handleResponseError(error);
             })
         //get Notification list
         builder
@@ -155,9 +154,7 @@ export const notificationSlice = createSlice({
             .addCase(actionGetNotificationList.rejected, (state, action) => {
                 state.getNotificationListStatus = "error";
                 const error = action.payload as AxiosError;
-                notification.error({
-                    message: get(error, "response.data", "Có lỗi xảy ra!"),
-                });
+                handleResponseError(error);
             })
 
             // add Notification
@@ -171,9 +168,7 @@ export const notificationSlice = createSlice({
             .addCase(actionAddNotification.rejected, (state, action) => {
                 state.addNotificationStatus = "error";
                 const error = action.payload as AxiosError;
-                notification.error({
-                    message: get(error, "response.data", "Có lỗi xảy ra!"),
-                });
+                handleResponseError(error);
             })
 
             //update Notification infomation
@@ -189,9 +184,7 @@ export const notificationSlice = createSlice({
             .addCase(actionUpdateNotification.rejected, (state, action) => {
                 state.updateNotificationStatus = "error";
                 const error = action.payload as AxiosError;
-                notification.error({
-                    message: get(error, "response.data", "Có lỗi xảy ra!"),
-                });
+                handleResponseError(error);
             })
 
             // delete Notification
@@ -205,9 +198,7 @@ export const notificationSlice = createSlice({
             .addCase(actionDeleteNotification.rejected, (state, action) => {
                 state.deleteNotificationStatus = "error";
                 const error = action.payload as AxiosError;
-                notification.error({
-                    message: get(error, "response.data", "Có lỗi xảy ra!"),
-                });
+                handleResponseError(error);
             });
     },
 });

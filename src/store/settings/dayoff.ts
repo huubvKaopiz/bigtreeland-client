@@ -4,6 +4,7 @@ import { AxiosError } from "axios";
 import { DayoffType, GetResponseType } from "interface";
 import { get } from "lodash";
 import request from "utils/request";
+import { handleResponseError } from "utils/ultil";
 
 interface DayoffReducerState {
 	dayoffs: GetResponseType<DayoffType> | null;
@@ -109,9 +110,7 @@ export const dayoffSlice = createSlice({
 			.addCase(actionGetDayoffs.rejected, (state, action) => {
 				state.getDayoffsState = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 
 			.addCase(actionAddDayoff.pending, (state) => {
@@ -124,9 +123,7 @@ export const dayoffSlice = createSlice({
 			.addCase(actionAddDayoff.rejected, (state, action) => {
 				state.addDayoffState = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 
 			.addCase(actionDeleteDayoff.pending, (state) => {
@@ -139,9 +136,7 @@ export const dayoffSlice = createSlice({
 			.addCase(actionDeleteDayoff.rejected, (state, action) => {
 				state.deleteDayoffState = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			});
 	},
 });

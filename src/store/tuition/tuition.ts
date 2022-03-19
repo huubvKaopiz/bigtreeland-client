@@ -4,6 +4,7 @@ import { AxiosError } from "axios";
 import { GetResponseType, TuitionFeeType } from "interface";
 import { get } from "lodash";
 import request from "utils/request";
+import { handleResponseError } from "utils/ultil";
 
 interface TuitionFeeReducerState {
 	tuitionFee: TuitionFeeType | null;
@@ -109,7 +110,7 @@ export const actionUpdateTuitionFee = createAsyncThunk(
 export const actionTuitionFeePayment = createAsyncThunk(
 	"actionTuitionFeePayment",
 	async (
-		data: { tuition_fee_id: number, amount: string },
+		data: { tuition_fee_id: number, amount: string, status:number },
 		{ rejectWithValue }
 	) => {
 		try {
@@ -253,9 +254,7 @@ export const tuitionFeeSlice = createSlice({
 			.addCase(actionTuitionFeeTranferDebt.rejected, (state, action) => {
 				state.updateTuitionFeeState = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error)
 			})
 
 			.addCase(actionTuitionFeePayment.pending, (state) => {

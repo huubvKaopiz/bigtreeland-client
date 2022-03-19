@@ -1,4 +1,6 @@
-import { AxiosResponse } from "axios";
+import { message, notification } from "antd";
+import { AxiosError, AxiosResponse } from "axios";
+import { get } from "lodash";
 import numeral from "numeral";
 import { imageExtensionsList, ROLE_NAMES } from "./const";
 import request from "./request";
@@ -75,6 +77,23 @@ export function converRoleNameToVN(role: ROLE_NAMES): string {
 			break;
 	}
 	return res;
+}
+
+export function handleResponseError(error: AxiosError) {
+	let msg = "";
+	if (error.response) {
+		// The request was made and the server responded with a status code
+		if(error.response.status === 500) msg = "Lỗi server 5000"
+		msg = `${get(error,"response.data.message",get(error,"response.data",""))} `;
+	} else if (error.request) {
+		// The request was made but no response was received
+		msg="Không có phản hồi từ server!"
+		console.log(error.request);
+	} else {
+		// Something happened in setting up the request that triggered an Error
+		msg = error.message;
+	}
+	notification.error({ message: msg })
 }
 
 export function getPermissionDes(name: string): string {

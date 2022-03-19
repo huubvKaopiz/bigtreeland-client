@@ -18,6 +18,7 @@ interface EditPayloadType {
 	user_id: number,
 	name: string,
 	email: string,
+	phone?:string,
 }
 
 export default function Parents(): JSX.Element {
@@ -57,13 +58,12 @@ export default function Parents(): JSX.Element {
 
 	useEffect(() => {
 		dispatch(actionGetParents({ page, search }));
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [dispatch, page]);
 
 	useEffect(() => {
 		if (updateParentStatus === 'success') {
 			handleSetEdit(-1, null);
-			dispatch(actionGetParents({ page: 1, search }))
+			dispatch(actionGetParents({ page, search }))
 		}
 	}, [updateParentStatus]);
 
@@ -74,7 +74,8 @@ export default function Parents(): JSX.Element {
 			if (record) setEditPayload({
 				user_id: record.id,
 				name: get(record, "profile.name", ""),
-				email: get(record, "profile.email", "")
+				email: get(record, "profile.email", ""),
+				phone:record.phone
 			})
 
 		}
@@ -84,16 +85,12 @@ export default function Parents(): JSX.Element {
 		if (editIndex === index && editPayload) {
 			// console.log(editPayload)
 			dispatch(actionUpdateParent({
-				data: { name: editPayload.name, email: editPayload.email, gender: 0 },
+				data: { name: editPayload.name, email: editPayload.email, phone: editPayload.phone },
 				uID: editPayload.user_id
 			}));
 		}
 	}
 
-	// function handleShowAddStudent(index:number){
-	// 	setShowAddStudentIndex(index);
-	// 	setShowAddStudent(true);
-	// }
 	const columns = [
 		{
 			width: "15%",
@@ -134,8 +131,15 @@ export default function Parents(): JSX.Element {
 			title: "Điện thoại",
 			key: "phone",
 			editable: true,
-			render: function UserCol(text: string, record: ParentType): JSX.Element {
-				return (
+			render: function UserCol(text: string, record: ParentType, index: number): JSX.Element {
+				return editIndex === index && record.phone_verified_at === null ?
+					<Input value={editPayload?.phone} onChange={(e) => {
+						if (editPayload) {
+							editPayload.phone = e.target.value;
+							setEditPayload({ ...editPayload });
+						}
+					}} />
+					:
 					<Space>
 						{record.phone}{" "}
 						{record.phone_verified_at == null ? (
@@ -144,7 +148,6 @@ export default function Parents(): JSX.Element {
 							""
 						)}
 					</Space>
-				);
 			},
 		},
 		{
@@ -158,7 +161,6 @@ export default function Parents(): JSX.Element {
 
 						<span>
 							<Button
-								size="small"
 								type="primary"
 								onClick={() => handleUpdate(index)}
 								style={{ marginRight: 8 }}
@@ -166,7 +168,6 @@ export default function Parents(): JSX.Element {
 								Lưu lại
 							</Button>
 							<Button
-								size="small"
 								type="primary"
 								danger
 								onClick={() => handleSetEdit(-1, record)}>

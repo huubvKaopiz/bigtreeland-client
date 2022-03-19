@@ -3,6 +3,7 @@ import { notification } from "antd";
 import { AxiosError } from "axios";
 import { FileType, GetResponseType } from "interface";
 import { get } from "lodash";
+import { handleResponseError } from "utils/ultil";
 import request, { uploadFile } from "../../utils/request";
 
 export interface FileListType {
@@ -109,9 +110,7 @@ export const slice = createSlice({
 			.addCase(actionGetListFile.rejected, (state, action) => {
 				state.statusGetFiles = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 			// Upload
 			.addCase(actionUploadFile.fulfilled, (state) => {
@@ -124,9 +123,7 @@ export const slice = createSlice({
 			.addCase(actionUploadFile.rejected, (state, action) => {
 				state.statusUploadFile = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 
 			// Upload File Test
@@ -142,9 +139,7 @@ export const slice = createSlice({
 			.addCase(actionUploadFileTest.rejected, (state, action) => {
 				state.statusUploadFile = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 
 			// delete
@@ -157,9 +152,7 @@ export const slice = createSlice({
 			.addCase(actionDeleteUploadFile.rejected, (state, action) => {
 				state.statusDeleteFile = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			});
 	},
 });

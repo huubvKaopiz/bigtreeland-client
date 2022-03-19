@@ -24,7 +24,7 @@ export default function SendNotificationModal(prop: {
         setShow(false);
         const user_ids: number[] = [];
         students.forEach((st)=>{
-            const userID = get(st, "parent.id", 0);
+            const userID = get(st, "parent_id", 0);
             if (userID > 0) user_ids.push(userID)
         })
         const payload = {

@@ -3,6 +3,7 @@ import { notification } from "antd";
 import { AxiosError } from "axios";
 import { RoleCreateFormType, RoleType } from "interface";
 import { get } from "lodash";
+import { handleResponseError } from "utils/ultil";
 import request from "../../utils/request";
 
 export interface RoleState {
@@ -227,9 +228,7 @@ export const slice = createSlice({
 			.addCase(actionGetRoles.rejected, (state, action) => {
 				state.statusGetRole = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 
 			//Get RoleInfo
@@ -243,9 +242,7 @@ export const slice = createSlice({
 			.addCase(actionGetRoleInfo.rejected, (state, action) => {
 				state.statusGetRoleInfo = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 
 			//Create role
@@ -259,9 +256,7 @@ export const slice = createSlice({
 			.addCase(actionCreateRole.rejected, (state, action) => {
 				state.statusCreateRole = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 
 			// Delete Row
@@ -275,9 +270,7 @@ export const slice = createSlice({
 			.addCase(actionDeleteRoles.rejected, (state, action) => {
 				state.statusDeleteRole = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 
 			.addCase(actionSetRoleForUsers.fulfilled, (state) => {
@@ -292,9 +285,7 @@ export const slice = createSlice({
 			.addCase(actionSetRoleForUsers.rejected, (state, action) => {
 				state.statusDeleteRole = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 
 			// updte Row
@@ -310,9 +301,7 @@ export const slice = createSlice({
 			.addCase(actionUpdateRole.rejected, (state, action) => {
 				state.statusUpdateRole = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 
 			.addCase(actionUpdateSettingMenuOfRole.fulfilled, (state) => {
@@ -325,9 +314,7 @@ export const slice = createSlice({
 			.addCase(actionUpdateSettingMenuOfRole.rejected, (state, action) => {
 				state.statusUpdateRole = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			});
 	},
 });

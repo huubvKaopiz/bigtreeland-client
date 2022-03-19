@@ -294,7 +294,7 @@ function Home(): JSX.Element {
 				<Row gutter={16}>
 					<Col span={8}>
 						<Card
-							title={<span style={{ color: "#fff" }}>Số lượng học sinh</span>}
+							title={<h3 style={{ color: "#fff" }}>Số lượng học sinh</h3>}
 							bordered={true}
 							style={{
 								backgroundColor: "#3498db",
@@ -309,7 +309,7 @@ function Home(): JSX.Element {
 						<Card
 							title={
 								<Space>
-									<span style={{ color: "#fff" }}>Danh thu</span>
+									<h3 style={{ color: "#fff" }}>Danh thu</h3>
 								</Space>
 							}
 							bordered={true}
@@ -324,7 +324,7 @@ function Home(): JSX.Element {
 					</Col>
 					<Col span={8}>
 						<Card
-							title={<span style={{ color: "#fff" }}>Chi tiêu</span>}
+							title={<h3 style={{ color: "#fff" }}>Chi tiêu</h3>}
 							bordered={true}
 							style={{
 								backgroundColor: "#e67e22",

@@ -4,6 +4,7 @@ import { AxiosError } from "axios";
 import { GetResponseType, User, UserType } from "interface";
 import { get } from "lodash";
 import React from "react";
+import { handleResponseError } from "utils/ultil";
 import request from "../../utils/request";
 
 export interface PermistionType {
@@ -134,7 +135,7 @@ export const permissionSlice = createSlice({
 			.addCase(actionGetPermissions.rejected, (state, action) => {
 				state.getPermissionsState = "error";
 				const error = action.payload as AxiosError;
-				notification.error({message:get(error,"response.data","Có lỗi xảy ra!")})
+				handleResponseError(error);
 			})
 
 			.addCase(actionGetUserPermissions.pending, (state) => {
@@ -147,7 +148,7 @@ export const permissionSlice = createSlice({
 			.addCase(actionGetUserPermissions.rejected, (state, action) => {
 				state.getUserPermissionsState = "error";
 				const error = action.payload as AxiosError;
-				notification.error({message:get(error,"response.data","Có lỗi xảy ra!")})
+				handleResponseError(error);
 			})
 
 			.addCase(actionSetRolePermissions.pending, (state) => {
@@ -160,7 +161,7 @@ export const permissionSlice = createSlice({
 			.addCase(actionSetRolePermissions.rejected, (state, action) => {
 				state.setPermissionsState = "error";
 				const error = action.payload as AxiosError;
-				notification.error({message:get(error,"response.data","Có lỗi xảy ra!")})
+				handleResponseError(error);
 			})
 
 			.addCase(actionSetUserPermissions.pending, (state) => {
@@ -173,7 +174,7 @@ export const permissionSlice = createSlice({
 			.addCase(actionSetUserPermissions.rejected, (state, action) => {
 				state.setPermissionsState = "error";
 				const error = action.payload as AxiosError;
-				notification.error({message:get(error,"response.data","Có lỗi xảy ra!")})
+				handleResponseError(error);
 			});
 	},
 });

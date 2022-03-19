@@ -4,6 +4,7 @@ import { AxiosError } from "axios";
 import { BirthdayListType, ClassType, StudentStatType } from "interface";
 import { get } from "lodash";
 import request from "utils/request";
+import { handleResponseError } from "utils/ultil";
 
 export interface StatisticalState {
 	revenueStat: { receipts: number, payment_slips: number } | null;
@@ -125,9 +126,7 @@ const statisticalSlice = createSlice({
 			.addCase(actionGetRevenueStat.rejected, (state, action) => {
 				state.getRevenueStatStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 			// get
 			.addCase(actionGetStudentStat.fulfilled, (state, action) => {
@@ -140,9 +139,7 @@ const statisticalSlice = createSlice({
 			.addCase(actionGetStudentStat.rejected, (state, action) => {
 				state.getStudentStatStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 			// get
 			.addCase(actionGetClassesToday.fulfilled, (state, action) => {
@@ -155,9 +152,7 @@ const statisticalSlice = createSlice({
 			.addCase(actionGetClassesToday.rejected, (state, action) => {
 				state.getClassesTodayStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 			// get
 			.addCase(actionGetBirthdayList.fulfilled, (state, action) => {
@@ -170,9 +165,7 @@ const statisticalSlice = createSlice({
 			.addCase(actionGetBirthdayList.rejected, (state, action) => {
 				state.getBirthdayListStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			});
 	}
 });

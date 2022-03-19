@@ -3,6 +3,7 @@ import { notification } from "antd";
 import { AxiosError } from "axios";
 import { EmployeeType, GetResponseType } from "interface";
 import { get } from "lodash";
+import { handleResponseError } from "utils/ultil";
 import request from "../../utils/request";
 
 export interface UserReducerState {
@@ -172,7 +173,7 @@ export const employeeSlice = createSlice({
 				state.getEmployeeInfoStatus = "error";
 				state.employeeInfo = null;
 				const error = action.payload as AxiosError;
-				notification.error({message:get(error,"response.data","Có lỗi xảy ra!")})
+				handleResponseError(error);
 			})
 			//get employees
 			.addCase(actionGetEmployees.pending, (state) => {
@@ -186,7 +187,7 @@ export const employeeSlice = createSlice({
 				state.getEmployeesStatus = "error";
 				state.employees = null;
 				const error = action.payload as AxiosError;
-				notification.error({message:get(error,"response.data","Có lỗi xảy ra!")})
+				handleResponseError(error);
 			})
 			//add employee
 			.addCase(actionAddEmployee.pending, (state) => {
@@ -199,7 +200,7 @@ export const employeeSlice = createSlice({
 			.addCase(actionAddEmployee.rejected, (state, action) => {
 				state.addEmployeeStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({message:get(error,"response.data","Có lỗi xảy ra!")})
+				handleResponseError(error);
 			})
 
 			//update employee
@@ -215,7 +216,7 @@ export const employeeSlice = createSlice({
 			.addCase(actionUpdateEmployee.rejected, (state, action) => {
 				state.updateEmployeeStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({message:get(error,"response.data","Có lỗi xảy ra!")})
+				handleResponseError(error);
 			})
 
 			//delete employee
@@ -231,7 +232,7 @@ export const employeeSlice = createSlice({
 			.addCase(actionDeleteEmployee.rejected, (state, action) => {
 				state.deleteEmployeeStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({message:get(error,"response.data","Có lỗi xảy ra!")})
+				handleResponseError(error);
 			});
 	},
 });

@@ -3,6 +3,7 @@ import { notification } from "antd";
 import { AxiosError } from "axios";
 import { GetResponseType } from "interface";
 import { get } from "lodash";
+import { handleResponseError } from "utils/ultil";
 import request from "../../utils/request";
 
 export interface PaymentType {
@@ -158,9 +159,7 @@ export const slice = createSlice({
 			.addCase(actionGetPayments.rejected, (state, action) => {
 				state.getPaymentStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 			.addCase(actionGetPayments.pending, (state) => {
 				state.getPaymentStatus = "loading";
@@ -176,9 +175,7 @@ export const slice = createSlice({
 			.addCase(actionAddNewPayment.rejected, (state, action) => {
 				state.addPaymentStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 
 			.addCase(actionUpdatePaymentStatus.fulfilled, (state) => {
@@ -190,9 +187,7 @@ export const slice = createSlice({
 			.addCase(actionUpdatePaymentStatus.rejected, (state, action) => {
 				state.updatePaymentStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 
 			.addCase(actionDeletePayment.pending, (state) => {
@@ -205,9 +200,7 @@ export const slice = createSlice({
 			.addCase(actionDeletePayment.rejected, (state, action) => {
 				state.deletePaymentStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			});
 	},
 });

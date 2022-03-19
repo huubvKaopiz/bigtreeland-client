@@ -1,8 +1,9 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { notification } from "antd";
-import { AxiosError } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import { AddNewUser, GetResponseType, UserType } from "interface";
 import { get } from "lodash";
+import { handleResponseError } from "utils/ultil";
 import request from "../../utils/request";
 
 export interface UserReducerState {
@@ -166,9 +167,7 @@ export const slice = createSlice({
 				state.statusGetUser = "error";
 				state.users = null;
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error)
 			})
 
 			// CHANGE PASSWORD FOR USER
@@ -182,9 +181,7 @@ export const slice = createSlice({
 			.addCase(actionChangePassworfOfUser.rejected, (state, action) => {
 				state.statusChangePassword = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error)
 			})
 
 			//  DEACTIVE USER
@@ -198,9 +195,7 @@ export const slice = createSlice({
 			.addCase(actionDeactiveUser.rejected, (state, action) => {
 				state.statusUpdateUserState = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error)
 			})
 
 			//  RESTORE USER
@@ -213,10 +208,8 @@ export const slice = createSlice({
 			})
 			.addCase(actionRestoreUser.rejected, (state, action) => {
 				state.statusUpdateUserState = "error";
-				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				const error = action.payload as AxiosError<AxiosResponse>;
+				handleResponseError(error)
 			})
 
 			// SET PERMISSIONS FOR USER
@@ -232,9 +225,7 @@ export const slice = createSlice({
 			.addCase(actionSetPermissionsForUser.rejected, (state, action) => {
 				state.statusSetPermissionsForUser = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error)
 			})
 
 			// ADD USER
@@ -243,14 +234,12 @@ export const slice = createSlice({
 			})
 			.addCase(actionAddUser.fulfilled, (state) => {
 				state.statusAddUser = "success";
-				notification.success({ message: "Thêm user thành công" });
+				notification.success({ message: "Thêm người dùng thành công" });
 			})
 			.addCase(actionAddUser.rejected, (state, action) => {
 				state.statusAddUser = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error)
 			});
 	},
 });

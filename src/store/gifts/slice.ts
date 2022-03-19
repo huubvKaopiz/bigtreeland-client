@@ -4,6 +4,7 @@ import { AxiosError } from "axios";
 import { GetResponseType, GiftType } from "interface";
 import { get } from "lodash";
 import request from "utils/request";
+import { handleResponseError } from "utils/ultil";
 
 export interface NewsReducerState {
     giftList: GetResponseType<GiftType> | null;
@@ -19,16 +20,16 @@ export interface GetGiftListPrams {
     search?: string;
     page?: number;
     per_page?: number;
-    type?:number
+    type?: number
 }
 
 export interface AddGiftParams {
     name: string;
     type: number;
-    photo:number;
-    description:string;
-    status:0;
-    quantity:number
+    photo: number;
+    description: string;
+    status: 0;
+    quantity: number
 }
 const initialState: NewsReducerState = {
     giftList: null,
@@ -137,9 +138,7 @@ export const giftstSlice = createSlice({
             .addCase(actionGetGiftInfo.rejected, (state, action) => {
                 state.getGiftInfoStatus = "error";
                 const error = action.payload as AxiosError;
-                notification.error({
-                    message: get(error, "response.data", "Có lỗi xảy ra!"),
-                });
+                handleResponseError(error);
             })
         //get gift list
         builder
@@ -153,9 +152,7 @@ export const giftstSlice = createSlice({
             .addCase(actionGetGiftList.rejected, (state, action) => {
                 state.getGiftListStatus = "error";
                 const error = action.payload as AxiosError;
-                notification.error({
-                    message: get(error, "response.data", "Có lỗi xảy ra!"),
-                });
+                handleResponseError(error);
             })
 
             // add gift
@@ -169,9 +166,7 @@ export const giftstSlice = createSlice({
             .addCase(actionAddGift.rejected, (state, action) => {
                 state.addGiftStatus = "error";
                 const error = action.payload as AxiosError;
-                notification.error({
-                    message: get(error, "response.data", "Có lỗi xảy ra!"),
-                });
+                handleResponseError(error);
             })
 
             //update gift infomation
@@ -187,9 +182,7 @@ export const giftstSlice = createSlice({
             .addCase(actionUpdateGift.rejected, (state, action) => {
                 state.updateGiftStatus = "error";
                 const error = action.payload as AxiosError;
-                notification.error({
-                    message: get(error, "response.data", "Có lỗi xảy ra!"),
-                });
+                handleResponseError(error);
             })
 
             // delete gift
@@ -203,9 +196,7 @@ export const giftstSlice = createSlice({
             .addCase(actionDeleteGift.rejected, (state, action) => {
                 state.deleteGiftStatus = "error";
                 const error = action.payload as AxiosError;
-                notification.error({
-                    message: get(error, "response.data", "Có lỗi xảy ra!"),
-                });
+                handleResponseError(error);
             });
     },
 });

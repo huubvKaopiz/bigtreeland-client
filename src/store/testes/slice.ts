@@ -5,6 +5,7 @@ import { AxiosError } from "axios";
 import { GetResponseType, TestType } from "interface";
 import { get } from "lodash";
 import request from "utils/request";
+import { handleResponseError } from "utils/ultil";
 
 export interface TestReducerState {
 	testes: GetResponseType<TestType> | null;
@@ -152,7 +153,7 @@ export const testSlice = createSlice({
 			.addCase(actionGetTest.rejected, (state, action) => {
 				state.getTestStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({message:get(error,"response.data","Có lỗi xảy ra!")})
+				handleResponseError(error);
 			})
 			//get class infomation
 			.addCase(actionGetTestes.pending, (state) => {
@@ -165,7 +166,7 @@ export const testSlice = createSlice({
 			.addCase(actionGetTestes.rejected, (state, action) => {
 				state.getTestesStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({message:get(error,"response.data","Có lỗi xảy ra!")})
+				handleResponseError(error);
 			})
 
 			// add test
@@ -179,7 +180,7 @@ export const testSlice = createSlice({
 			.addCase(actionAddTest.rejected, (state, action) => {
 				state.addTestStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({message:get(error,"response.data","Có lỗi xảy ra!")})
+				handleResponseError(error);
 			})
 			//
 			.addCase(actionUpdateTest.pending, (state) => {
@@ -188,7 +189,7 @@ export const testSlice = createSlice({
 			.addCase(actionUpdateTest.rejected, (state, action) => {
 				state.updateTestStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({message:get(error,"response.data","Có lỗi xảy ra!")})
+				handleResponseError(error);
 			})
 			.addCase(actionUpdateTest.fulfilled, (state) => {
 				state.updateTestStatus = "success";

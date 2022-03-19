@@ -1,5 +1,5 @@
 import { PlusOutlined } from "@ant-design/icons";
-import { Button, Checkbox, Form, Input } from "antd";
+import { Button, Checkbox, Form, Input, InputNumber } from "antd";
 import Modal from "antd/lib/modal/Modal";
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
@@ -48,11 +48,17 @@ export default function AddParent(): JSX.Element {
 				]}
 			>
 				<Form form={addFrom} id="aForm" labelCol={{ span: 6 }} wrapperCol={{ span: 14 }} onFinish={handleSubmit}>
-					<Form.Item label="Họ tên" name="name">
+					<Form.Item label="Họ tên" name="name" rules={[{ required: true, message: "Tên không được để trống!" }]}>
 						<Input />
 					</Form.Item>
-					<Form.Item label="Số điện thoại" name="phone">
-						<Input />
+					<Form.Item 
+						label="Số điện thoại" 
+						name="phone"
+						rules={[
+							{ required: true, message: "Số điện thoại không được để trống!" },
+							]}
+					>
+						<InputNumber style={{width:"100%"}} max={9999999999}/>
 					</Form.Item>
 					<Form.Item label="Email" name="email">
 						<Input />

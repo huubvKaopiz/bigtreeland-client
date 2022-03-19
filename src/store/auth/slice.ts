@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { notification } from "antd";
 import { AxiosError, AxiosResponse } from "axios";
 import { get, merge } from "lodash";
+import { handleResponseError } from "utils/ultil";
 import request from "../../utils/request";
 export interface User {
 	access_token: string;
@@ -120,8 +121,7 @@ export const slice = createSlice({
 			.addCase(actionChangePassword.rejected, (state, action) => {
 				state.statusChangePassword="error";
 				const error = action.payload as AxiosError<AxiosResponse>;
-				console.log(error.response);
-				notification.error({message:get(error,"response.data.message","Có lỗi xảy ra!")})
+				handleResponseError(error)
 			});
 	},
 });

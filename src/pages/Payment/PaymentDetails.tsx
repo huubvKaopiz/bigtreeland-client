@@ -49,13 +49,13 @@ function PaymentDetails({
 				<Descriptions bordered>
 					<Descriptions.Item span={2} label="Người lập"><a href="#">{get(data, "creator.profile.name")}</a></Descriptions.Item>
 					<Descriptions.Item label="Ngày lập">{moment(data?.created_at).format("DD-MM-YYYY HH:mm")}</Descriptions.Item>
-					<Descriptions.Item label="Số tiền">
+					<Descriptions.Item span={2}  label="Số tiền">
 						<strong style={{ color: "#cf1322" }}> {formatCurrency(data?.amount || 0)}</strong>
 					</Descriptions.Item>
 					<Descriptions.Item label="Loại chi">
 						<Tag color={data?.type === 1 ? "#3498db" : "#d35400"}>{data && PaymentTypeEnum[data?.type]}</Tag>
 					</Descriptions.Item>
-					<Descriptions.Item label="Trạng thái">
+					<Descriptions.Item  span={4} label="Trạng thái">
 						<Tag color={data.status === 1 ? "green" : "red"}>{PaymentStatusList[data?.status]}</Tag>
 					</Descriptions.Item>
 					<Descriptions.Item label="Lý do" span={4}>

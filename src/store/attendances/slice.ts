@@ -4,6 +4,7 @@ import { AxiosError } from "axios";
 import { ListAttendancesType } from "interface";
 import { get, isPlainObject } from "lodash";
 import request from "utils/request";
+import { handleResponseError } from "utils/ultil";
 
 export interface AttendanceReducerState {
 	attendances: ListAttendancesType | null;
@@ -115,9 +116,7 @@ export const attendanceSlice = createSlice({
 			.addCase(actionGetAttendances.rejected, (state, action) => {
 				state.getAttendancesStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 			// add attendance
 			.addCase(actionAddAttendance.pending, (state) => {
@@ -130,9 +129,7 @@ export const attendanceSlice = createSlice({
 			.addCase(actionAddAttendance.rejected, (state, action) => {
 				state.addAttendanceStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 			// update attendance
 			.addCase(actionUpdateAttendance.pending, (state) => {
@@ -147,14 +144,7 @@ export const attendanceSlice = createSlice({
 			.addCase(actionUpdateAttendance.rejected, (state, action) => {
 				state.updateAttendanceStatus = "error";
 				const error = action.payload as AxiosError;
-				const err_message = get(error, "response.data", "Có lỗi xảy ra!");
-				if (isPlainObject(err_message)) {
-					notification.error({ message: "Có lỗi xảy ra!" });
-				} else {
-					notification.error({
-						message: err_message,
-					});
-				}
+				handleResponseError(error);
 			});
 	},
 });

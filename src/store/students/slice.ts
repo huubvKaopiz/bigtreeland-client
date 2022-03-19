@@ -4,6 +4,7 @@ import { AxiosError } from "axios";
 import { GetResponseType, StudentType } from "interface";
 import { get } from "lodash";
 import request from "utils/request";
+import { handleResponseError } from "utils/ultil";
 
 export interface StudentReducerState {
 	students: GetResponseType<StudentType> | null;
@@ -211,9 +212,7 @@ export const studentSlice = createSlice({
 			.addCase(actionGetStudents.rejected, (state, action) => {
 				state.getStudentsStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 			// get student profile
 			.addCase(actionGetStudentProfile.pending, (state) => {
@@ -226,9 +225,7 @@ export const studentSlice = createSlice({
 			.addCase(actionGetStudentProfile.rejected, (state, action) => {
 				state.getStudentStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 
 			//Add new Student
@@ -244,9 +241,7 @@ export const studentSlice = createSlice({
 			.addCase(actionAddStudent.rejected, (state, action) => {
 				state.addStudentStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 
 			//Update Student infromation
@@ -260,9 +255,7 @@ export const studentSlice = createSlice({
 			.addCase(actionUpdateStudent.rejected, (state, action) => {
 				state.updateStudentStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 
 			//Update Student status
@@ -276,9 +269,7 @@ export const studentSlice = createSlice({
 			.addCase(updateStudentStatus.rejected, (state, action) => {
 				state.updateStudentStatusStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 			//Update class history
 			.addCase(actionUpdateStudentClassHistory.pending, (state) => {
@@ -291,9 +282,7 @@ export const studentSlice = createSlice({
 			.addCase(actionUpdateStudentClassHistory.rejected, (state, action) => {
 				state.updateStudentClasHistoryStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			});
 	},
 });

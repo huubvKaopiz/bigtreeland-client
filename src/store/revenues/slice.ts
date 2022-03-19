@@ -5,6 +5,7 @@ import { GetResponseType } from "interface";
 import { get } from "lodash";
 import { removeEmpty } from "utils/objectUtils";
 import request from "utils/request";
+import { handleResponseError } from "utils/ultil";
 export interface RevenueType {
 	id: number;
 	creator_id: number;
@@ -193,9 +194,7 @@ export const slice = createSlice({
 			.addCase(actionGetRevenues.rejected, (state, action) => {
 				state.getRevenuesStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 			// add
 			.addCase(actionAddNewRevenues.fulfilled, (state) => {
@@ -208,9 +207,7 @@ export const slice = createSlice({
 			.addCase(actionAddNewRevenues.rejected, (state, action) => {
 				state.addRevenuesStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 			// update
 			.addCase(actionUpdateRevenues.fulfilled, (state) => {
@@ -223,9 +220,7 @@ export const slice = createSlice({
 			.addCase(actionUpdateRevenues.rejected, (state, action) => {
 				state.updateRevenuesStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 
 			// update status
@@ -239,9 +234,7 @@ export const slice = createSlice({
 			.addCase(actionUpdateRevenueStatus.rejected, (state, action) => {
 				state.updateRevenuesStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 			// delete
 			.addCase(actionDeleteRevenue.fulfilled, (state) => {
@@ -254,9 +247,7 @@ export const slice = createSlice({
 			.addCase(actionDeleteRevenue.rejected, (state, action) => {
 				state.deleteRevenuesStatus = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			});
 	},
 });
