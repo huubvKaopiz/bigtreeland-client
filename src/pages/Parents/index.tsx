@@ -177,13 +177,6 @@ export default function Parents(): JSX.Element {
 					</Space>
 				) : (
 					<Space>
-						{record.phone_verified_at == null ? (
-							<Tooltip placement="top" title="Xác minh">
-								<Button type="link" icon={<CheckCircleOutlined />} />
-							</Tooltip>
-						) : (
-							""
-						)}
 						<Button type="link" icon={<EditOutlined />} disabled={editIndex !== -1} onClick={() => handleSetEdit(index, record)} />
 					</Space>
 				);

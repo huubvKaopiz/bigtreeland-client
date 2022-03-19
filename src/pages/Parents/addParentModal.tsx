@@ -56,9 +56,10 @@ export default function AddParent(): JSX.Element {
 						name="phone"
 						rules={[
 							{ required: true, message: "Số điện thoại không được để trống!" },
+							{ pattern: /^-{0,1}\d*\.{0,1}\d+$/, message: "Giá trị nhập phải là số" }
 							]}
 					>
-						<InputNumber style={{width:"100%"}} max={9999999999}/>
+						<Input />
 					</Form.Item>
 					<Form.Item label="Email" name="email">
 						<Input />

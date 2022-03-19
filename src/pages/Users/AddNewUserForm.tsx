@@ -109,7 +109,7 @@ function AddNewUserForm({
 					<Form.Item
 						name={"phone"}
 						label="Phone"
-						rules={[{ required: true, message: validateMessage.REQUIRE }]}
+						rules={[{ required: true, message: validateMessage.REQUIRE },  { pattern: /^-{0,1}\d*\.{0,1}\d+$/, message: "Giá trị nhập phải là số" }]}
 					>
 						<Input />
 					</Form.Item>
