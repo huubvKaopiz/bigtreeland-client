@@ -2,7 +2,6 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { notification } from "antd";
 import { AxiosError } from "axios";
 import { GetResponseType, GiftType } from "interface";
-import { get } from "lodash";
 import request from "utils/request";
 import { handleResponseError } from "utils/ultil";
 
@@ -123,6 +122,15 @@ export const giftstSlice = createSlice({
     name: "gifts",
     initialState,
     reducers: {
+        actionAddGift(state){
+            state.addGiftStatus = 'idle';
+        },
+        actionUpdateGift(state){
+            state.updateGiftStatus = 'idle';
+        },
+        actionDeleteGift(state){
+            state.deleteGiftStatus = 'idle';
+        }
 
     },
     extraReducers: (builder) => {

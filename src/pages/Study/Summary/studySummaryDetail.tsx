@@ -2,7 +2,6 @@ import { GiftOutlined } from "@ant-design/icons";
 import {
 	Button,
 	Descriptions,
-	Divider,
 	Image,
 	Layout,
 	PageHeader,
@@ -12,10 +11,10 @@ import {
 	Typography,
 } from "antd";
 import Modal from "antd/lib/modal/Modal";
-import { StudentGiftType, StudentType, StudySummaryType } from "interface";
+import { StudentGiftType, StudySummaryType } from "interface";
 import { get } from "lodash";
 import moment from "moment";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useHistory, useLocation } from "react-router-dom";
 import { actionGetLessons } from "store/lesson/slice";
@@ -98,7 +97,7 @@ export function StudySummaryDetail(): JSX.Element {
 	// update summary_data_list
 	useEffect(() => {
 		if (students && lessons && testes) {
-			const conduct: number[] = [];
+			// const conduct: number[] = [];
 			const summaryStudentData: SummaryStudentType[] = [];
 			get(students, "data", []).forEach((st) => {
 				// if (st.class_histories.length > 1) {
@@ -224,7 +223,7 @@ export function StudySummaryDetail(): JSX.Element {
 			},
 		},
 		{
-			title: "Điểm BT",
+			title: "Điểm HT",
 			dataIndex: "test_point_avg",
 			key: "test_point_avg",
 			width: 80,

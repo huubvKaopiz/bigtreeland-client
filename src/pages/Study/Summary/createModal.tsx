@@ -2,8 +2,9 @@ import { PlusOutlined } from "@ant-design/icons";
 import { Button, DatePicker, Form, Modal, notification, Select } from "antd";
 import { ClassType } from "interface";
 import moment from "moment";
-import React, { useState } from "react";
-import { useAppDispatch } from "store/store";
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { RootState, useAppDispatch } from "store/store";
 import {
 	actionAddStudySummary,
 	actionGetStudySummaryList,
@@ -11,6 +12,7 @@ import {
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
+
 export function CreateStudySummary(prop: {
 	classList: ClassType[] | null;
 	class_id: number;
@@ -19,6 +21,16 @@ export function CreateStudySummary(prop: {
 	const dispatch = useAppDispatch();
 	const [show, setShow] = useState(false);
 	const [submitting, setSubmitting] = useState(false);
+
+	const createStudySummaryState = useSelector((state: RootState) => state.studySummaryReducer.addStudySummaryState);
+
+	useEffect(() => {
+		if (createStudySummaryState === 'success') {
+			setShow(false);
+			setSubmitting(false);
+			dispatch(actionGetStudySummaryList({ class_id }));
+		}
+	},[createStudySummaryState])
 
 	function submit(values: any) {
 		if (values.dateRange == null) {
@@ -32,11 +44,7 @@ export function CreateStudySummary(prop: {
 		};
 		console.log(payload);
 		setSubmitting(true);
-		dispatch(actionAddStudySummary(payload)).finally(() => {
-			setShow(false);
-			setSubmitting(false);
-			dispatch(actionGetStudySummaryList({}));
-		});
+		dispatch(actionAddStudySummary(payload));
 	}
 
 	return (

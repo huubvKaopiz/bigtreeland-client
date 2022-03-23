@@ -43,26 +43,26 @@ export function AddGiftModal(props: {
                 type: null,
                 description: "",
                 quantity: 0,
-                condition_point:0,
+                condition_point: 0,
             })
             setFileSelected([])
         }
-    },[editMode, giftInfo])
+    }, [editMode, giftInfo])
 
-    useEffect(()=>{
-        if(updateGiftStatus === 'success' || addGiftStatus === 'success'){
+    useEffect(() => {
+        if (updateGiftStatus === 'success' || addGiftStatus === 'success') {
             setShow(false);
             setEditMode(false);
             dispatch(actionGetGiftList({}))
         }
-    },[updateGiftStatus, addGiftStatus])
+    }, [updateGiftStatus, addGiftStatus])
 
     function handleFileSelected(filesSelected: Array<FileType>) {
         setFileSelected(filesSelected);
     }
 
     function handleSubmit(values: any) {
-        const payload = { ...values, photo: fileSelected.length > 0 && fileSelected[0].id }
+        const payload = { ...values, type: 1, photo: fileSelected.length > 0 && fileSelected[0].id }
         if (editMode && giftInfo) {
             dispatch(actionUpdateGift({ giftId: giftInfo.id, data: payload }));
         } else {
@@ -86,7 +86,7 @@ export function AddGiftModal(props: {
                     type="primary"
                     htmlType="submit"
                     loading={
-                        editMode ? updateGiftStatus === "loading" ? true : false : addGiftStatus === "loading" ? true : false
+                        editMode ? updateGiftStatus === "loading" : addGiftStatus === "loading"
                     }
                     form="gift_form">{editMode ? "Cập nhật" : "Lưu lại"}</Button>,
             ]}
@@ -102,13 +102,13 @@ export function AddGiftModal(props: {
                 <Form.Item label="Tên quà tặng" name="name">
                     <Input />
                 </Form.Item>
-                <Form.Item label="Xếp loại" name="type">
+                {/* <Form.Item label="Xếp loại" name="type">
                     <Select>
                         <Select.Option value={1}>Loại 1</Select.Option>
                         <Select.Option value={2}>Loại 2</Select.Option>
                         <Select.Option value={3}>Loại 3</Select.Option>
                     </Select>
-                </Form.Item>
+                </Form.Item> */}
                 <Form.Item label="Điểm điều kiện" name="condition_point">
                     <InputNumber />
                 </Form.Item>
@@ -119,7 +119,6 @@ export function AddGiftModal(props: {
                     <Input.TextArea />
                 </Form.Item>
                 <Form.Item name="photo" label="Hình ảnh">
-                    
                     <FileSelectModal
                         defaultSelected={fileSelected}
                         isShow={showSelect}
@@ -130,7 +129,8 @@ export function AddGiftModal(props: {
                     >
                         <Button
                             onClick={() => setShowSelect(true)}
-                            type="default"
+                            type="primary"
+                            ghost
                             size="middle"
                             icon={<UploadOutlined />}
                         >
@@ -138,7 +138,7 @@ export function AddGiftModal(props: {
                         </Button>
                     </FileSelectModal>
                 </Form.Item>
-              
+
             </Form>
 
         </Modal >

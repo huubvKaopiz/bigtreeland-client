@@ -3,8 +3,8 @@ import { notification } from "antd";
 import { AxiosError } from "axios";
 import { StudySummaryType, GetResponseType } from "interface";
 import { StudentGiftType } from "interface";
-import { get } from "lodash";
 import request from "utils/request";
+import { handleResponseError } from "utils/ultil";
 
 interface StudySummaryReducerState {
 	studySummaryList: GetResponseType<StudySummaryType> | null;
@@ -146,9 +146,7 @@ export const studySummarySlice = createSlice({
 			.addCase(actionGetStudySummaryList.rejected, (state, action) => {
 				state.getStudySummaryListState = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 
 			.addCase(actionGetStudyGifts.pending, (state) => {
@@ -162,9 +160,7 @@ export const studySummarySlice = createSlice({
 			.addCase(actionGetStudyGifts.rejected, (state, action) => {
 				state.getStudyGiftsState = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 
 			.addCase(actionAddStudySummary.pending, (state) => {
@@ -177,9 +173,7 @@ export const studySummarySlice = createSlice({
 			.addCase(actionAddStudySummary.rejected, (state, action) => {
 				state.addStudySummaryState = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			})
 
 			.addCase(actionDeleteStudySummary.pending, (state) => {
@@ -192,9 +186,7 @@ export const studySummarySlice = createSlice({
 			.addCase(actionDeleteStudySummary.rejected, (state, action) => {
 				state.deleteStudySummaryState = "error";
 				const error = action.payload as AxiosError;
-				notification.error({
-					message: get(error, "response.data", "Có lỗi xảy ra!"),
-				});
+				handleResponseError(error);
 			});
 	},
 });

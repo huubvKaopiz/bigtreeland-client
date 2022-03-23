@@ -1,18 +1,17 @@
-import { CheckCircleOutlined, EditOutlined, UsergroupAddOutlined } from "@ant-design/icons";
+import {EditOutlined } from "@ant-design/icons";
 import {
-	Button, Col, Form, Input, Layout, Popconfirm, Row, Space, Table, Tag,
-	Tooltip
+	Button, Col, Form, Input, Layout, Row, Space, Table, Tag,
 } from "antd";
 import useDebouncedCallback from "hooks/useDebounceCallback";
 import { ParentType } from "interface";
 import { get } from "lodash";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { actionGetParents, actionUpdateParent } from "store/parents/slice";
 import { RootState, useAppDispatch } from "store/store";
-import { actionGetStudents } from "store/students/slice";
+// import { actionGetStudents } from "store/students/slice";
 import AddParent from "./addParentModal";
-import AddStudent from "./addStudents";
+// import AddStudent from "./addStudents";
 
 interface EditPayloadType {
 	user_id: number,
@@ -26,8 +25,8 @@ export default function Parents(): JSX.Element {
 	const [page, setPage] = useState(1);
 	const [search, setSearch] = useState('')
 	const [editIndex, setEditIndex] = useState(-1);
-	const [showAddStudent, setShowAddStudent] = useState(false);
-	const [parentAddStudentIndex, setShowAddStudentIndex] = useState(-1);
+	// const [showAddStudent, setShowAddStudent] = useState(false);
+	// const [parentAddStudentIndex, setShowAddStudentIndex] = useState(-1);
 
 	const [editPayload, setEditPayload] = useState<EditPayloadType | null>(null)
 	const [form] = Form.useForm();
@@ -42,23 +41,21 @@ export default function Parents(): JSX.Element {
 		(state: RootState) => state.parentReducer.updateParentStatus
 	);
 
-	const students = useSelector(
-		(state: RootState) => state.studentReducer.students
-	);
+	// const students = useSelector((state: RootState) => state.studentReducer.students);
 
 	const searchParent = useDebouncedCallback(search => {
 		setSearch(search)
 		dispatch(actionGetParents({ page: 1, search }))
 	}, 500)
 
-	const searchStudent = useDebouncedCallback(search => {
-		setSearch(search)
-		dispatch(actionGetStudents({ page: 1, search }))
-	}, 500)
+	// const searchStudent = useDebouncedCallback(search => {
+	// 	setSearch(search)
+	// 	dispatch(actionGetStudents({ page: 1, search }))
+	// }, 500)
 
 	useEffect(() => {
 		dispatch(actionGetParents({ page, search }));
-	}, [dispatch, page]);
+	}, []);
 
 	useEffect(() => {
 		if (updateParentStatus === 'success') {
@@ -83,7 +80,6 @@ export default function Parents(): JSX.Element {
 
 	function handleUpdate(index: number) {
 		if (editIndex === index && editPayload) {
-			// console.log(editPayload)
 			dispatch(actionUpdateParent({
 				data: { name: editPayload.name, email: editPayload.email, phone: editPayload.phone },
 				uID: editPayload.user_id
@@ -210,12 +206,12 @@ export default function Parents(): JSX.Element {
 					}}
 				/>
 			</Form>
-			<AddStudent
+			{/* <AddStudent
 				parentInfo={get(parents, "data", [])[parentAddStudentIndex]}
 				students={get(students, "data", [])}
 				searchStudent={searchStudent}
 				show={showAddStudent}
-				setShow={setShowAddStudent} />
+				setShow={setShowAddStudent} /> */}
 		</Layout.Content>
 	);
 }

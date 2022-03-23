@@ -17,13 +17,17 @@ export function Gifts(): JSX.Element {
 
     const giftList = useSelector((state: RootState) => state.giftReducer.giftList);
     const getGiftListStatus = useSelector((state: RootState) => state.giftReducer.getGiftListStatus);
-
+    const deleteGiftStatus = useSelector((state: RootState) => state.giftReducer.deleteGiftStatus);
 
     useEffect(() => {
         dispatch(actionGetGiftList({ per_page: 20 }));
     }, [dispatch])
 
-
+    useEffect(()=>{
+        if(deleteGiftStatus === 'success'){
+            dispatch(actionGetGiftList({ per_page: 20 }))
+        }
+    },[deleteGiftStatus])
     function handleUpdate(record: GiftType) {
         setEditingGift(record);
         setShowModal(true);
@@ -34,10 +38,10 @@ export function Gifts(): JSX.Element {
         confirm({
             title: "Xác nhận xoá quà tặng?",
             icon: <ExclamationCircleOutlined />,
+            okText:"Xoá",
+            cancelText:"Huỷ bỏ",
             onOk() {
-                dispatch(actionDeleteGift(ID)).finally(() => {
-                    dispatch(actionGetGiftList({ per_page: 20 }))
-                })
+                dispatch(actionDeleteGift(ID));
             }
         })
     }
