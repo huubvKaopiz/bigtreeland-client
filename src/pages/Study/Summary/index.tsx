@@ -50,7 +50,11 @@ export function StudySumaryBoard(props: { class_id?: number }): JSX.Element {
             icon: <CheckCircleOutlined />,
             onOk() {
                 dispatch(actionDeleteStudySummary(sID)).finally(() => {
-                    dispatch(actionGetStudySummaryList({}))
+                    if (class_id) {
+                        dispatch(actionGetStudySummaryList({ class_id }));
+                    } else {
+                        dispatch(actionGetStudySummaryList({}));
+                    }
                 })
             },
             onCancel() {

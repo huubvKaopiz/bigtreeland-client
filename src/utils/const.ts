@@ -45,7 +45,8 @@ export enum DEFAULT_ROLE_IDS {
 	SALE = 3,
 	PARENT = 5,
 	ON_MANAGER = 6,
-	EMPLOYEE = 7
+	CLASS_ASSISTANT = 8,
+	EMPLOYEE = 0
 }
 
 export enum NOTIFI_URIS {

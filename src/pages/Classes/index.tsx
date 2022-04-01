@@ -3,8 +3,9 @@ import { Button, Col, Input, Layout, Row, Space, Table, Tag } from "antd";
 import { get } from "lodash";
 import numeral from "numeral";
 import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector, useStore } from "react-redux";
 import { useHistory } from "react-router-dom";
+import { User } from "store/auth/slice";
 import { actionGetClasses } from "store/classes/slice";
 import { actionGetEmployees } from "store/employees/slice";
 import { dayOptions, DEFAULT_ROLE_IDS } from "utils/const";
@@ -20,41 +21,25 @@ function Classes(): JSX.Element {
 
 	const [page, setPage] = useState(1);
 	const [search, setSearch] = useState('')
-	const [teacher_id, setTeacherId] = useState<number | undefined>(undefined)
 	const [showEdit, setShowEdit] = useState(false);
 	const [editIndex, setEditIndex] = useState(-1);
 
 	const getStatus = useSelector((state: RootState) => state.classReducer.getClassesStatus);
 	const classes = useSelector((state: RootState) => state.classReducer.classes);
 	const seachStatus = useSelector((state: RootState) => state.employeeReducer.getEmployeesStatus);
-	const userStore = useSelector((state: RootState) => state.auth.user);
-
 
 	const searchClass = useDebouncedCallback((searchParam) => {
 		setSearch(searchParam)
-		dispatch(actionGetClasses({ page: 1, search: searchParam, teacher_id }))
+		dispatch(actionGetClasses({ page, search: searchParam }))
 	}, 500)
 
 	useEffect(() => {
-		const teacher = (get(userStore, 'roles', []) as RoleType[]).find(role => role.id === DEFAULT_ROLE_IDS.TEACHER || role.id === DEFAULT_ROLE_IDS.TEACHER2)
-		if (teacher) {
-			setTeacherId(get(userStore, 'id', void 0));
-		}
-	}, [userStore])
-
-	useEffect(() => {
-		dispatch(actionGetClasses({ page: 1, teacher_id }));
-		dispatch(actionGetEmployees({ role_ids: `${DEFAULT_ROLE_IDS.TEACHER},${DEFAULT_ROLE_IDS.TEACHER2}` })); //role_id of teacher and teacher2
-	}, [dispatch, teacher_id]);
-
-	useEffect(() => {
-		dispatch(actionGetClasses({ page, search, teacher_id }))
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [dispatch, page])
+		dispatch(actionGetClasses({ page, search }))
+	}, [page])
 
 	const searchTeacher = (search: string) => {
-		if (search.length >= 3 || search.length === 0) 
-		dispatch(actionGetEmployees({ role_ids: `${DEFAULT_ROLE_IDS.TEACHER},${DEFAULT_ROLE_IDS.TEACHER2}`, search }));
+		if (search.length >= 3 || search.length === 0)
+			dispatch(actionGetEmployees({ role_ids: `${DEFAULT_ROLE_IDS.TEACHER},${DEFAULT_ROLE_IDS.TEACHER2}`, search }));
 	};
 
 	function handleEdit(index: number) {
@@ -142,7 +127,7 @@ function Classes(): JSX.Element {
 					<Input.Search allowClear onChange={({ target: { value } }) => searchClass(value)} placeholder="Tìm theo tên lớp..." />
 				</Col>
 				<Col span={6} style={{ marginLeft: 20 }}>
-					<AddClassModal  />
+					<AddClassModal />
 				</Col>
 			</Row>
 			<Table
@@ -167,6 +152,7 @@ function Classes(): JSX.Element {
 				searchStatus={seachStatus}
 				show={showEdit}
 				setShow={setShowEdit}
+				searchClass={search}
 			/>
 		</Layout.Content>
 	);

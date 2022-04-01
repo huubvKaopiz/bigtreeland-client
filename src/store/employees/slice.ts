@@ -245,7 +245,7 @@ export const employeeSlice = createSlice({
 			.addCase(actionGetTeachers.rejected, (state, action) => {
 				state.getEmployeesStatus = "error";
 				const error = action.payload as AxiosError;
-				handleResponseError(error);
+				handleResponseError(error,"lấy ds giáo viên");
 			})
 
 			//get assistants
@@ -259,7 +259,7 @@ export const employeeSlice = createSlice({
 			.addCase(actionGetClassAssistants.rejected, (state, action) => {
 				state.getEmployeesStatus = "error";
 				const error = action.payload as AxiosError;
-				handleResponseError(error);
+				handleResponseError(error, "lấy ds trợ giảng");
 			})
 			//add employee
 			.addCase(actionAddEmployee.pending, (state) => {

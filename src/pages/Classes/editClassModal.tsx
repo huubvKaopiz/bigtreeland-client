@@ -15,15 +15,18 @@ export default function EditClassModal(props: {
 	// teachers: GetResponseType<EmployeeType> | null;
 	searchTeacher: (search: string) => void;
 	searchStatus: string;
+	searchClass: string;
 	show: boolean;
 	setShow: (param: boolean) => void;
 }): JSX.Element {
-	const { classInfo, show, setShow } = props;
+	const { classInfo, show, setShow, searchClass } = props;
 	const [uFrom] = Form.useForm();
 	const dispatch = useAppDispatch();
 	const [submiting, setSubmiting] = useState(false);
 	const teachers = useSelector((state: RootState) => state.employeeReducer.teachers);
 	const classAssistants = useSelector((state: RootState) => state.employeeReducer.assistants)
+	const updateState = useSelector((state: RootState) => state.classReducer.updateClassStatus)
+
 
 	useEffect(() => {
 		if (classInfo) {
@@ -34,7 +37,7 @@ export default function EditClassModal(props: {
 			uFrom.setFieldsValue({
 				name: classInfo.name,
 				employee_id: get(classInfo, "user.id", 0),
-				assistant_id:get(classInfo,"assistant_id",null),
+				assistant_id: get(classInfo, "assistant_id", 0),
 				fee_per_session: classInfo.fee_per_session,
 				type: classInfo.type,
 				schedule: classInfo.schedule,
@@ -44,6 +47,14 @@ export default function EditClassModal(props: {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [classInfo]);
 
+	useEffect(() => {
+		if (updateState === 'success') {
+			setShow(false);
+			setSubmiting(false);
+			dispatch(actionGetClasses({ search: searchClass }));
+		}
+	},[updateState])
+
 	function handleSubmit(values: any) {
 		setSubmiting(true);
 		let scheduleTime = '';
@@ -51,16 +62,8 @@ export default function EditClassModal(props: {
 			scheduleTime = moment(values.schedule_time[0]).format("HH:mm:ss") + "-" + moment(values.schedule_time[1]).format("HH:mm:ss")
 		}
 		console.log(values)
-		// const payload = {
-			
-		// }
-		
-		dispatch(actionUpdateClass({ data: { ...values, schedule_time: scheduleTime }, cID: classInfo.id }))
-			.finally(() => {
-				dispatch(actionGetClasses({ page: 1 }));
-				setShow(false);
-				setSubmiting(false);
-			});
+
+		dispatch(actionUpdateClass({ data: { ...values, schedule_time: scheduleTime }, cID: classInfo.id }));
 	}
 
 	return (
@@ -114,7 +117,7 @@ export default function EditClassModal(props: {
 								})}
 						</Select>
 					</Form.Item>
-					<Form.Item label="Giáo viên" name="assistant_id">
+					<Form.Item label="Trợ giảng" name="assistant_id">
 						<Select
 							showSearch
 							// allowClear

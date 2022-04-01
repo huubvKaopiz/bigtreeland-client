@@ -45,9 +45,9 @@ export function isRoleDefault(role: string): boolean {
 		role === ROLE_NAMES.TEACHER2 ||
 		role === ROLE_NAMES.PARENT ||
 		role === ROLE_NAMES.SALE ||
-		role === ROLE_NAMES.ON_MANAGER
+		role === ROLE_NAMES.ON_MANAGER || 
+		role === ROLE_NAMES.CLASS_ASSISTANT
 }
-
 
 export function converRoleNameToVN(role: ROLE_NAMES): string {
 	let res = role as string;
@@ -82,12 +82,14 @@ export function converRoleNameToVN(role: ROLE_NAMES): string {
 	return res;
 }
 
-export function handleResponseError(error: AxiosError) {
+export function handleResponseError(error: AxiosError, action?:string) {
 	let msg = "";
 	if (error.response) {
+		console.log(error.response)
 		// The request was made and the server responded with a status code
 		if (error.response.status === 500) msg = "Lỗi server 500"
-		if (error.response.status === 404) msg = "404 Not found"
+		else if (error.response.status === 403) msg = `Bạn không có quyền ${action ? action : '' }` 
+		else if (error.response.status === 404) msg = "404 Not found"
 		else msg = `${get(error, "response.data.message", get(error, "response.data", ""))} `;
 	} else if (error.request) {
 		// The request was made but no response was received

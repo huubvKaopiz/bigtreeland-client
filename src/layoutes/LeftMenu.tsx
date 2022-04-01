@@ -32,9 +32,8 @@ function LeftMenu(): JSX.Element {
 
 	useEffect(() => {
 
-		
 		//user
-		if (pathname.includes("/users")) {
+		if (pathname.includes("/users") || pathname.includes("/user-set-permissions/")) {
 			setOpenKeys([""]);
 			setSelectedKeys(["2"]);
 			return;
@@ -45,18 +44,18 @@ function LeftMenu(): JSX.Element {
 			setSelectedKeys(["3"]);
 			return;
 		}
-		if (pathname.includes("/salaries")) {
+		if (pathname.includes("/salaries") || pathname.includes("/salaries-create")) {
 			setOpenKeys(["employees"]);
 			setSelectedKeys(["4"]);
 			return;
 		}
 		// study
-		if (pathname.includes("/classes")) {
+		if (pathname.includes("/classes") || pathname.includes("/study")) {
 			setOpenKeys(["classes"]);
 			setSelectedKeys(["5"]);
 			return;
 		}
-		if (pathname.includes("/students")) {
+		if (pathname.includes("/students") || pathname.includes("/students-study-profile")) {
 			setOpenKeys(["classes"]);
 			setSelectedKeys(["6"]);
 			return;
@@ -66,7 +65,7 @@ function LeftMenu(): JSX.Element {
 			setSelectedKeys(["7"]);
 			return;
 		}
-		if (pathname.includes("/study-summary")) {
+		if (pathname.includes("/study-summary") || pathname.includes("/study-summary-detail")) {
 			setOpenKeys(["classes"]);
 			setSelectedKeys(["8"]);
 			return;
@@ -128,12 +127,13 @@ function LeftMenu(): JSX.Element {
 		}
 
 	}, [pathname]);
-	console.log(pathname, selectedKeys)
+	// console.log(pathname, selectedKeys)
 
 	useEffect(() => {
 		const menuItem: number[] = [];
 		get(userStore, "roles", []).map(({ id, menues }: RoleType) => {
 			// admin === 1
+			console.log(menues)
 			if (id === 1) {
 				menuItem.push(...MenuList.map((menu) => menu.value));
 			} else {
@@ -149,11 +149,9 @@ function LeftMenu(): JSX.Element {
 			}
 		});
 		setMenuItemGranted([...new Set(menuItem)]);
-	}, [userStore]);
 
-	useEffect(() => {
-		// console.log(menuItemGranted)
-	});
+		history.push("/classes")
+	}, [userStore]);
 
 	return (
 		<Menu

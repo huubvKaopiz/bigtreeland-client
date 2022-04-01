@@ -5,7 +5,6 @@ export const leftMenu = [
 	{ id: 4, name: "sale", menuItem: [1, 3, 8, 9, 13] },
 ];
 
-
 export const MenuList = [
 	{
 		value: 1,
@@ -37,19 +36,19 @@ export const MenuList = [
 	},
 	{
 		value: 8,
-		label: 'Quản lý chi tiêu'
+		label: 'Bảng tổng kết'
 	},
 	{
 		value: 9,
-		label: 'Quản lý doanh thu'
+		label: 'Quản lý chi tiêu'
 	},
 	{
 		value: 10,
-		label: 'Quản lý học phí'
+		label: 'Quản lý doanh thu'
 	},
 	{
 		value: 11,
-		label: 'Bảng tổng kết'
+		label: 'Quản lý học phí'
 	},
 	{
 		value: 12,

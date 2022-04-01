@@ -1,7 +1,7 @@
 import { CheckCircleOutlined, FileOutlined, QuestionCircleOutlined } from "@ant-design/icons";
 import {
 	Alert, Button, Checkbox, DatePicker, Descriptions, Input, InputNumber, Layout, Modal, PageHeader, Select,
-	Table, Tooltip
+	Table, Tag, Tooltip
 } from "antd";
 import { DayoffType, StudentType } from "interface";
 import { get } from "lodash";
@@ -94,6 +94,7 @@ export default function CreateTuitionPeriod(): JSX.Element {
 					dayoff_in_period = dayoff_in_period.concat(getSameDates(dateListInRang, dayoffList))
 				}
 				count -= dayoff_in_period.length;
+				console.log(dayoff_in_period)
 				setDayoffsInPeriod(dayoff_in_period)
 				setEstSessionNum(count);
 			}
@@ -538,6 +539,11 @@ export default function CreateTuitionPeriod(): JSX.Element {
 						}
 					>
 						<strong style={{ color: "#e74c3c" }}>{residualSessionNum}</strong>
+					</Descriptions.Item>
+					<Descriptions.Item label="Các ngày nghỉ lễ">
+						{
+							dayoffsInPeriod.map((day:string) => <Tag key={day} color="red">{moment(day).format("DD-MM-YYYY")}</Tag>)
+						}
 					</Descriptions.Item>
 				</Descriptions>
 				{

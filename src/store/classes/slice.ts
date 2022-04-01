@@ -207,6 +207,11 @@ export const classSlice = createSlice({
 	name: "parent",
 	initialState,
 	reducers: {
+		actionGetClasses(state){
+			console.log("get classes")
+			state.classes = null;
+			state.getClassesStatus = 'idle';
+		},
 		actionResetGetParents(state) {
 			state.getClassesStatus = "idle";
 		},
@@ -248,7 +253,7 @@ export const classSlice = createSlice({
 			.addCase(actionGetClasses.rejected, (state, action) => {
 				state.getClassesStatus = "error";
 				const error = action.payload as AxiosError;
-				handleResponseError(error);
+				handleResponseError(error,"lấy ds lớp");
 			})
 			//get class infomation
 			.addCase(actionGetClass.pending, (state) => {
@@ -261,7 +266,7 @@ export const classSlice = createSlice({
 			.addCase(actionGetClass.rejected, (state, action) => {
 				state.getClassStatus = "error";
 				const error = action.payload as AxiosError;
-				handleResponseError(error);
+				handleResponseError(error, "lấy thông tin lớp");
 			})
 
 			// add Class
@@ -275,7 +280,7 @@ export const classSlice = createSlice({
 			.addCase(actionAddClass.rejected, (state, action) => {
 				state.addClassStatus = "error";
 				const error = action.payload as AxiosError;
-				handleResponseError(error);
+				handleResponseError(error, "thêm lớp");
 			})
 
 			//update Class infomation
@@ -289,7 +294,7 @@ export const classSlice = createSlice({
 			.addCase(actionUpdateClass.rejected, (state, action) => {
 				state.updateClassStatus = "error";
 				const error = action.payload as AxiosError;
-				handleResponseError(error);
+				handleResponseError(error,"cập nhật thông tin lớp");
 			})
 
 			// add students

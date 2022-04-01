@@ -194,7 +194,7 @@ function Employees(): JSX.Element {
 							return (
 								role.name !== ROLE_NAMES.PARENT &&
 								<Select.Option key={role.id} value={role.name}>
-									<span>{converRoleNameToVN(role.name as ROLE_NAMES)}</span>
+									{role.description ? role.description : <span>{converRoleNameToVN(role.name as ROLE_NAMES)}</span>}
 								</Select.Option>
 							);
 						})}

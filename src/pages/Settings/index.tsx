@@ -1,4 +1,4 @@
-import { CloseCircleOutlined, FieldTimeOutlined, UploadOutlined } from '@ant-design/icons';
+import { CloseCircleOutlined, FieldTimeOutlined, UploadOutlined, CloseOutlined } from '@ant-design/icons';
 import { Alert, Button, Calendar, Collapse, Form, Input, Layout, Space, Tag, Upload } from 'antd';
 import FileSelectModal from 'components/FileSelectModal';
 import { FileType } from 'interface';
@@ -9,6 +9,7 @@ import { useSelector } from 'react-redux';
 import { actionAddDayoff, actionDeleteDayoff, actionGetDayoffs, actionSetAddDayoffStateIdle, actionSetDeleteDayoffStateIdle } from 'store/settings/dayoff';
 import { actionGetSystemSettingInfo, actionUpdateSystemSetting } from 'store/settings/system';
 import { RootState, useAppDispatch } from 'store/store';
+import { submitDateFormat } from 'utils/const';
 const { Panel } = Collapse;
 
 const layout = {
@@ -18,7 +19,7 @@ const layout = {
 
 export default function Settings(): JSX.Element {
     const dispatch = useAppDispatch();
-    const [daySelected, setDaySelected] = useState(moment(new Date()));
+    const [daySelected, setDaySelected] = useState(moment(new Date(), submitDateFormat));
     const [calandarValue, setCalendarValue] = useState(moment("2021-12-01"));
     const [resultFilesModal, setResultFilesModal] = useState(false);
     const [slideFilesSelected, setSlideFilesSelected] = useState<Array<FileType>>([]);
@@ -53,8 +54,8 @@ export default function Settings(): JSX.Element {
             systemInfoForm.setFieldsValue(systemInfo);
             setSlideFilesSelected(get(systemInfo, "app_slide_files", []))
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    },[systemInfo])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [systemInfo])
 
 
     function dateCellRender(value: Moment) {
@@ -69,7 +70,9 @@ export default function Settings(): JSX.Element {
         if (isDayoff) {
             return (
                 <>
-                    <Tag color="#f50">Ngày nghỉ</Tag>
+                    <Space >
+                        <Tag color="red"> Ngày nghỉ <Button danger type="link" icon={<CloseOutlined />} /></Tag>
+                    </Space>
                 </>
             )
         }
@@ -78,9 +81,10 @@ export default function Settings(): JSX.Element {
     function checkDayOff(): number {
         let isDayoff = -1;
         get(dayoffs, "data", []).forEach((element: { id: number, from_date: string, to_date: string }) => {
-            if (daySelected.isSame(moment(element.from_date)) ||
-                daySelected.isSame(moment(element.to_date)) ||
-                daySelected.isBetween(moment(element.from_date), moment(element.to_date))) {
+            // console.log(element.from_date, "---", daySelected)
+            if (moment(daySelected, submitDateFormat).isSame(moment(element.from_date, submitDateFormat)) ||
+                moment(daySelected).isSame(moment(element.to_date)) ||
+                moment(daySelected).isBetween(moment(element.from_date), moment(element.to_date))) {
                 isDayoff = element.id;
             }
         });
@@ -132,7 +136,7 @@ export default function Settings(): JSX.Element {
         <Layout.Content>
             <Collapse defaultActiveKey={['1']} >
                 <Panel header={
-                    <Space style={{width:"100%", display: "flex", justifyContent: "space-between", alignItems:"center" }}>
+                    <Space style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                         <span>Thông tin trung tâm</span>
                     </Space>
                 } key="1">
@@ -186,22 +190,20 @@ export default function Settings(): JSX.Element {
                         </Form.Item>
                     </Form>
                 </Panel>
-                <Panel header="Lịch trung tâm" key="2">
+                {/* <Panel header="Lịch trung tâm" key="2">
                     <Space>
                         <Alert message={`Ngày đã chọn: ${daySelected && daySelected.format('YYYY-MM-DD')}`} />
-                        {
-                            checkDayOff() > -1 ? <Button loading={deleteDayoffState === "loading"} type="primary" danger icon={<CloseCircleOutlined />} onClick={handleSubmitDeleteDayoff}>Xoá ngày nghỉ</Button> :
-                                <Button type="primary"
-                                    icon={<FieldTimeOutlined />}
-                                    onClick={handleSubmitDayOff}
-                                    loading={addDayoffState === "loading"}
-                                >
-                                    Đặt ngày nghỉ
-                                </Button>
-                        }
+
+                        <Button type="primary"
+                            icon={<FieldTimeOutlined />}
+                            onClick={handleSubmitDayOff}
+                            loading={addDayoffState === "loading"}
+                        >
+                            Đặt ngày nghỉ
+                        </Button>
                     </Space>
                     <Calendar dateCellRender={dateCellRender} onSelect={onSelectDay} onPanelChange={onPanelChange} />
-                </Panel>
+                </Panel> */}
                 {/* <Panel header="This is panel header 3" key="3">
                 </Panel> */}
             </Collapse>

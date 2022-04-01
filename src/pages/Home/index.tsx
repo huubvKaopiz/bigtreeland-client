@@ -1,5 +1,5 @@
 import { Line } from "@ant-design/charts";
-import { GiftOutlined } from "@ant-design/icons";
+import { GiftOutlined, CloseOutlined } from "@ant-design/icons";
 import {
 	Button,
 	Calendar,
@@ -21,7 +21,7 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { actionGetRevenues, RevenuesTypeList } from "store/revenues/slice";
-import { actionGetDayoffs } from "store/settings/dayoff";
+import { actionAddDayoff, actionDeleteDayoff, actionGetDayoffs, actionSetAddDayoffStateIdle, actionSetDeleteDayoffStateIdle } from "store/settings/dayoff";
 import {
 	actionGetBirthdayList,
 	actionGetClassesToday,
@@ -30,6 +30,7 @@ import {
 } from "store/statistical/slice";
 // import { useTranslation } from "react-i18next";
 import { RootState, useAppDispatch } from "store/store";
+import { submitDateFormat } from "utils/const";
 const { RangePicker } = DatePicker;
 
 interface ChartDataType {
@@ -42,6 +43,7 @@ function Home(): JSX.Element {
 	const dispatch = useAppDispatch();
 	const history = useHistory();
 	const [stChartData, setStChartData] = useState<ChartDataType[]>([]);
+	const [daySelected, setDaySelected] = useState(moment(new Date(), submitDateFormat));
 
 	const dayoffs = useSelector(
 		(state: RootState) => state.dayoffReducer.dayoffs
@@ -65,6 +67,9 @@ function Home(): JSX.Element {
 	const revenuesData = useSelector(
 		(state: RootState) => state.revenuesReducer.revenues
 	);
+
+	const addDayoffState = useSelector((state: RootState) => state.dayoffReducer.addDayoffState);
+	const deleteDayoffState = useSelector((state: RootState) => state.dayoffReducer.deleteDayoffState);
 
 	useEffect(() => {
 		const from_date = moment().startOf("month").format("YYYY-MM-DD");
@@ -96,6 +101,14 @@ function Home(): JSX.Element {
 			})
 		);
 	}, [dispatch]);
+
+	useEffect(() => {
+		if (addDayoffState === "success" || deleteDayoffState === "success") {
+			dispatch(actionGetDayoffs({}));
+			dispatch(actionSetAddDayoffStateIdle());
+			dispatch(actionSetDeleteDayoffStateIdle());
+		}
+	}, [dispatch, addDayoffState, deleteDayoffState])
 
 	useEffect(() => {
 		if (studentsStat) {
@@ -173,17 +186,27 @@ function Home(): JSX.Element {
 		);
 	}
 
+	function handleSubmitDayOff() {
+		if (daySelected) {
+			dispatch(actionAddDayoff(
+				{ from_date: moment(daySelected).format("YYYY-MM-DD"), to_date: moment(daySelected).format("YYYY-MM-DD") }))
+		}
+	}
+
 	function scheduleCellRender(value: Moment) {
 		let isDayoff = false;
 		// console.log(value,dayoffs);
+		let dayoff_id = 0;
 		const dateValue = moment(value).format("YYYY-MM-DD");
-		get(dayoffs, "data", []).forEach(
-			(element: { from_date: string; to_date: string }) => {
-				if (moment(dateValue).isSame(moment(element.from_date))) {
-					isDayoff = true;
-				}
+		for (let index = 0; index < get(dayoffs, "data", []).length; index++) {
+			const element = get(dayoffs, "data", [])[index];
+			if (moment(dateValue).isSame(moment(element.from_date))) {
+				isDayoff = true;
+				dayoff_id = element.id;
+				break;
 			}
-		);
+		}
+
 		let employees_birthday: UserType[] = [];
 		let students_birthday: StudentType[] = [];
 		if (birthdayList) {
@@ -197,20 +220,32 @@ function Home(): JSX.Element {
 			birthdayList.users.forEach((user) => {
 				if (
 					moment(dateValue).format("M") ===
-						moment(user.profile?.birthday).format("M") &&
+					moment(user.profile?.birthday).format("M") &&
 					moment(dateValue).format("D") ===
-						moment(user.profile?.birthday).format("D")
+					moment(user.profile?.birthday).format("D")
 				)
 					employees_birthday.push(user);
 			});
 		}
 		return (
 			<>
-				{isDayoff && (
-					<Tag style={{ fontSize: "1.4rem", marginBottom: 5 }} color="#ff7979">
+				{isDayoff ? (
+					<Tag style={{ fontSize: "1.4rem", marginBottom: 5 }} color="red">
 						Ngày nghỉ
+						<Button
+							danger
+							size="small"
+							type="link"
+							icon={<CloseOutlined />}
+							onClick={() => {
+								dispatch(actionDeleteDayoff(dayoff_id));
+							}}
+						/>
 					</Tag>
-				)}
+				)
+					: value.isSame(daySelected, "day") && <Button loading={addDayoffState === "loading"} type="primary" onClick={() => handleSubmitDayOff()}>Đặt ngày nghỉ</Button>
+
+				}
 				{employees_birthday.map((emp) => (
 					<div
 						key={emp.id}
@@ -347,6 +382,7 @@ function Home(): JSX.Element {
 							fullscreen={true}
 							onPanelChange={onPanelChange}
 							dateCellRender={scheduleCellRender}
+							onSelect={(value: Moment) => setDaySelected(value)}
 						/>
 					</Card>
 				</Row>
@@ -372,7 +408,7 @@ function Home(): JSX.Element {
 					<Col span={8}>
 						<Card title="Lịch học hôm nay" type="inner" bordered={true}>
 							{classesToday.map((cl: ClassType) => (
-								<div className="daily-schedule" key={cl.id} style={{marginBottom: 10}}>
+								<div className="daily-schedule" key={cl.id} style={{ marginBottom: 10 }}>
 									<div
 										style={{ display: "flex", justifyContent: "space-between" }}
 									>
