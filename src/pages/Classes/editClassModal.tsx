@@ -37,7 +37,7 @@ export default function EditClassModal(props: {
 			uFrom.setFieldsValue({
 				name: classInfo.name,
 				employee_id: get(classInfo, "user.id", 0),
-				assistant_id: get(classInfo, "assistant_id", 0),
+				assistant_id: classInfo.assistant ? classInfo.assistant_id : 0,
 				fee_per_session: classInfo.fee_per_session,
 				type: classInfo.type,
 				schedule: classInfo.schedule,
@@ -50,10 +50,10 @@ export default function EditClassModal(props: {
 	useEffect(() => {
 		if (updateState === 'success') {
 			setShow(false);
-			setSubmiting(false);
+			setSubmiting(false)
 			dispatch(actionGetClasses({ search: searchClass }));
-		}
-	},[updateState])
+		} else if (updateState === 'error') setSubmiting(false);
+	}, [updateState])
 
 	function handleSubmit(values: any) {
 		setSubmiting(true);

@@ -7,6 +7,8 @@ import React, { useState } from 'react';
 import { actionLeaveClass } from 'store/students/slice';
 import { useAppDispatch } from 'store/store';
 import { actionGetClass } from 'store/classes/slice';
+import { get } from 'lodash';
+import { useHistory } from 'react-router-dom';
 const { confirm } = Modal;
 
 export default function (props: {
@@ -14,6 +16,7 @@ export default function (props: {
     class_id: number | null;
 }): JSX.Element {
     const { students, class_id } = props;
+    const history = useHistory();
     const dispatch = useAppDispatch();
     const [loading, setLoading] = useState(false);
     
@@ -54,7 +57,7 @@ export default function (props: {
             dataIndex: "name",
             key: "name",
             render: function col(val: string, record:StudentType): JSX.Element {
-                return (<a href={`/students-study-profile/${record.id}`}>{val}</a>)
+                return (<Button type="link" onClick={()=>history.push(`/students-study-profile/${record.id}`)} >{val}</Button>)
             }
         },
         {
@@ -79,6 +82,14 @@ export default function (props: {
             key: "admission_date",
             render: function col(val: string): JSX.Element {
                 return (<span>{moment(val).format("DD-MM-YYYY")}</span>)
+            }
+        },
+        {
+            title: "ĐT liên hệ",
+            dataIndex: "parent",
+            key: "phone",
+            render: function col(_: string, record:StudentType): JSX.Element {
+            return (<span style={{color:"#2980b9"}}>{get(record,"parent.phone","")}</span>)
             }
         },
         {

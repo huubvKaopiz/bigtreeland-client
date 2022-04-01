@@ -267,7 +267,7 @@ export default function (props: {
 
                         </div>
                 }}
-                pagination={{ pageSize: 20 }}
+                pagination={{ pageSize: 40 }}
             />
             <UpdateModal
                 key="cmt"

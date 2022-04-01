@@ -167,6 +167,7 @@ export interface StudentType {
 	parent: {
 		id: number;
 		name: string;
+		phone:string;
 		profile: {
 			name: string;
 		}

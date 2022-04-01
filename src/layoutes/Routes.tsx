@@ -241,7 +241,7 @@ function Routes(): JSX.Element {
 				routes.map((route) =>
 					menuItemGranted.findIndex((item) => item === route.menuID) !== -1 || route.menuID === -1
 						?
-						<Route exact path={route.path} component={route.component} />
+						<Route exact={route.isExact} path={route.path} component={route.component} />
 						: null
 				)
 			}
