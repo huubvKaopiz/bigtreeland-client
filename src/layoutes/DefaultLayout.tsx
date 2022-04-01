@@ -1,13 +1,19 @@
-import { SmileFilled } from "@ant-design/icons";
 import { Layout, Space } from "antd";
-import { useState } from "react";
-import TopHeader from "./TopHeader";
+import { useEffect, useState } from "react";
+// import { useDispatch } from "react-redux";
+// import { actionGetRoles } from "store/roles/slice";
 import LeftMenu from "./LeftMenu";
 import Routes from "./Routes";
+import TopHeader from "./TopHeader";
 const { Content, Footer, Sider } = Layout;
 
 function DefaultLayout(): JSX.Element {
 	const [collapsed, setCollapsed] = useState(false);
+	// const dispatch = useDispatch();
+
+	// useEffect(() => {
+	// 	dispatch(actionGetRoles(0));
+	// }, [dispatch]);
 
 	return (
 		<Layout>

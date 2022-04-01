@@ -32,8 +32,9 @@ function LoginForm(): JSX.Element {
 	const isMounted = useIsMounted();
 
 	const onFinish = (values: PayloadLogin) => {
+		const formValue = { phone: values.phone.trim(), password: values.password.trim()}
 		setLoading(true);
-		dispatch(actionLogin(values)).then((res) => {
+		dispatch(actionLogin(formValue)).then((res) => {
 			if (isMounted.current) setLoading(false);
 			if (get(res, "payload", null)) {
 				if (res.meta.requestStatus === "fulfilled")

@@ -1,7 +1,9 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { notification } from "antd";
 import { AxiosError, AxiosResponse } from "axios";
+import { RoleType } from "interface";
 import { get, merge } from "lodash";
+import { PermistionType } from "store/permissions/slice";
 import { handleResponseError } from "utils/ultil";
 import request from "../../utils/request";
 export interface User {
@@ -15,6 +17,8 @@ export interface User {
 	id: number;
 	name: string;
 	updated_at: string;
+	permissions: PermistionType[];
+	roles: RoleType[];
 }
 
 export interface AuthState {
