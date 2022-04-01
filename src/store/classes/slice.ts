@@ -33,7 +33,8 @@ export interface ClassParams {
 	name?: string;
 	sessions_num?: 24;
 	fee_per_session?: number;
-	employee_id?: 1;
+	employee_id?: number | undefined;
+	assistant_id?: number | undefined;
 	schedule?: number[];
 	schedule_time?: string;
 	albums?: number[];
@@ -304,7 +305,7 @@ export const classSlice = createSlice({
 				const error = action.payload as AxiosError;
 				handleResponseError(error);
 			})
-			
+
 			// get class photos
 			.addCase(actionGetClassPhotos.pending, (state) => {
 				state.getClassPhotosStatus = "loading";

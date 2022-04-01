@@ -29,6 +29,8 @@ export interface AttendanceStudentComment {
 export interface AddAttendenceParams {
 	class_id?: number;
 	teacher_id?: number;
+	assistant_id?:number | null;
+	lesson_title:string;
 	students: AttendanceStudentComment[];
 	lesson_id?: number;
 	date?:string;

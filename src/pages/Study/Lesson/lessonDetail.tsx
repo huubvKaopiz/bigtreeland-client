@@ -1,4 +1,4 @@
-import { CheckCircleOutlined, CloseOutlined, FormOutlined, NotificationOutlined, SaveOutlined } from "@ant-design/icons";
+import { CheckCircleOutlined, CloseOutlined, FormOutlined, SaveOutlined } from "@ant-design/icons";
 import {
 	Button,
 	Checkbox,
@@ -9,24 +9,24 @@ import {
 	PageHeader,
 	Space,
 	Spin,
-	Table, Tooltip
+	Table, Tooltip,
+	DatePicker
 } from "antd";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import TextArea from "antd/lib/input/TextArea";
 import { get } from "lodash";
-import moment from "moment";
+import moment, { Moment } from "moment";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useHistory, useLocation, useParams } from "react-router-dom";
 import {
-	actionGetAttendances,
 	actionUpdateAttendance,
 	AttendanceStudentComment
 } from "store/attendances/slice";
 import { actionGetClass } from "store/classes/slice";
 import { actionGetLessonInfo } from "store/lesson/slice";
 import { RootState, useAppDispatch } from "store/store";
-import { dayOptions } from "utils/const";
+import { dateFormat, dayOptions, submitDateFormat } from "utils/const";
 
 interface AttendanceDetailType {
 	id: number;
@@ -48,6 +48,11 @@ function LessonDetails(): JSX.Element {
 	const [editMode, setEditMode] = useState(false);
 	const history = useHistory();
 	const dispatch = useAppDispatch();
+	const [lessonName, setLessonName] = useState("");
+	const [date, setDate] = useState(moment(new Date()).format(dateFormat));
+	const [hasAssistant, setHasAssistant] = useState(false);
+
+
 	//state
 	const [checkAll, setCheckAll] = useState(false);
 	const [studentList, setStudentList] = useState<AttendanceDetailType[]>([]);
@@ -72,17 +77,30 @@ function LessonDetails(): JSX.Element {
 	useEffect(() => {
 		dispatch(actionGetLessonInfo(+lesson_id))
 		dispatch(actionGetClass({ class_id: parseInt(class_id), params: { students: true, active_periodinfo: false } }));
-	// eslint-disable-next-line react-hooks/exhaustive-deps
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [dispatch, class_id]);
 
 	useEffect(() => {
 		pathname.includes("edit-attendace") && setEditMode(true);
 	}, [pathname]);
 
+	useEffect(() => {
+		lessonInfoDataHandler();
+	}, [lessonInfo, classInfo]);
 
 
 	useEffect(() => {
+		if (storeUpdateAttendanceStatus === "success") {
+			setEditMode(false)
+			dispatch(actionGetLessonInfo(+lesson_id));
+		}
+	}, [class_id, dispatch, storeUpdateAttendanceStatus]);
+
+	const lessonInfoDataHandler = () => {
 		if (lessonInfo && classInfo) {
+			setLessonName(lessonInfo.title);
+			setDate(moment(lessonInfo.date).format(dateFormat));
+			setHasAssistant(lessonInfo.assistant_id ? true : false)
 			const { students = [] } = classInfo;
 			const { attendances = [], review_lessons = [] } = lessonInfo;
 			const studentList = students.reduce(
@@ -125,17 +143,11 @@ function LessonDetails(): JSX.Element {
 			setStudentList(studentList);
 			setCheckAll(attendances.length === students.length);
 		}
-	}, [lessonInfo, classInfo]);
+	}
 
+	console.log(date)
 
-	useEffect(() => {
-		if (storeUpdateAttendanceStatus === "success") {
-			setEditMode(false)
-			dispatch(actionGetLessonInfo(+class_id));
-		}
-	}, [class_id, dispatch, storeUpdateAttendanceStatus]);
-
-	function handleCheckAll(e: CheckboxChangeEvent) {
+	const handleCheckAll = (e: CheckboxChangeEvent) => {
 		const checked = e.target.checked;
 		setStudentList(
 			studentList.map((student) => {
@@ -147,7 +159,7 @@ function LessonDetails(): JSX.Element {
 		);
 		setCheckAll(checked);
 	}
-	function handleCheckbox(index: number) {
+	const handleCheckbox = (index: number) => {
 		studentList[index].isAttendance = !studentList[index].isAttendance;
 		const checkedNumber = studentList.reduce((checkedNumber, student) => {
 			if (student.isAttendance) {
@@ -159,36 +171,35 @@ function LessonDetails(): JSX.Element {
 		setCheckAll(checkedNumber === studentList.length);
 	}
 
-	function handleChangeCoductPoint(
+	const handleChangeCoductPoint = (
 		e: React.ChangeEvent<HTMLInputElement>,
 		index: number
-	) {
+	) => {
 		const conduct_point = e.target.value;
 		studentList[index].conduct_point = conduct_point;
 	}
 
-	function handleChangeReminder(reminder: string, index: number) {
+	const handleChangeReminder = (reminder: string, index: number) => {
 		studentList[index].reminder = reminder;
 	}
 
-	function handleChangeComment(comment: string, index: number) {
+	const handleChangeComment = (comment: string, index: number) => {
 		studentList[index].comment = comment;
 	}
 
-	function handleCancelEdit() {
-		dispatch(actionGetAttendances({ class_id: parseInt(class_id) }));
+	const handleCancelEdit = () => {
+		// dispatch(actionGetAttendances({ class_id: parseInt(class_id) }));
+		lessonInfoDataHandler();
 		setEditMode(false);
 	}
 
-	function handleSubmit() {
+	const handleSubmit = () => {
 		if (!classInfo) {
 			notification.warn({
 				message: "Thông tin lớp học bị lỗi, xin hãy thử lại",
 			});
 			return;
 		}
-
-
 		const students = studentList.reduce<AttendanceStudentComment[]>(
 			(list, student) => {
 				if (student.isAttendance) {
@@ -206,16 +217,15 @@ function LessonDetails(): JSX.Element {
 		if (students.length > 0 && lessonInfo) {
 			const params = {
 				lesson_id: lessonInfo.id,
+				lesson_title: lessonName,
+				assistant_id: hasAssistant ? classInfo.assistant_id : 0,
 				students,
+				date:moment(date, dateFormat).format(submitDateFormat)
 			};
 			dispatch(actionUpdateAttendance(params));
 		} else {
 			notification.warn({ message: "Danh sách điểm danh trống" });
 		}
-	}
-
-	function handleNotityToParent() {
-		//
 	}
 
 	const attendance_columns: any = [
@@ -225,7 +235,7 @@ function LessonDetails(): JSX.Element {
 			key: "name",
 			with: 100,
 			fixed: 'left',
-			render: function col(value: string, record:{name:string, birthday:string}): JSX.Element {
+			render: function col(value: string, record: { name: string, birthday: string }): JSX.Element {
 				return <Tooltip title={`Ngày sinh: ${moment(record.birthday).format("DD-MM-YYYY")}`}><strong>{value}</strong></Tooltip>;
 			},
 		},
@@ -288,7 +298,7 @@ function LessonDetails(): JSX.Element {
 			},
 		},
 		{
-			title: "Reminder",
+			title: "Nhắc nhở",
 			key: "reminder",
 			dataIndex: "reminder",
 			render: function col(
@@ -335,25 +345,24 @@ function LessonDetails(): JSX.Element {
 				);
 			},
 		},
-
-		{
-			title: "",
-			key: "action",
-			dataIndex: "",
-			width: 80,
-			render: function col(student: AttendanceDetailType): JSX.Element {
-				return (
-					<Space>
-						{" "}
-						<Button
-							icon={<NotificationOutlined />}
-							type="link"
-							onClick={() => handleNotityToParent()}
-						/>
-					</Space>
-				);
-			},
-		},
+		// {
+		// 	title: "",
+		// 	key: "action",
+		// 	dataIndex: "",
+		// 	width: 80,
+		// 	render: function col(student: AttendanceDetailType): JSX.Element {
+		// 		return (
+		// 			<Space>
+		// 				{" "}
+		// 				<Button
+		// 					icon={<NotificationOutlined />}
+		// 					type="link"
+		// 					onClick={() => handleNotityToParent()}
+		// 				/>
+		// 			</Space>
+		// 		);
+		// 	},
+		// },
 	];
 
 	return (
@@ -361,7 +370,7 @@ function LessonDetails(): JSX.Element {
 			<PageHeader
 				className="site-page-header-responsive"
 				onBack={() => history.goBack()}
-				title={moment(lessonInfo?.date || "").format("DD-MM-YYYY")}
+				title={moment(lessonInfo?.date || "").format(dateFormat)}
 				subTitle={`Chi tiết buổi học`}
 				extra={
 					<Space style={{ paddingTop: 20, marginBottom: 20 }}>
@@ -373,7 +382,7 @@ function LessonDetails(): JSX.Element {
 						)}
 						{
 							editMode
-								? <Button type="primary" icon={<CloseOutlined />} danger onClick={() => handleCancelEdit()}>Huỷ bỏ cập nhật</Button>
+								? <Button type="primary" icon={<CloseOutlined />} danger onClick={handleCancelEdit}>Huỷ bỏ cập nhật</Button>
 								: <Button type="primary" icon={<FormOutlined />} onClick={() => setEditMode(true)}>Cập nhật</Button>
 						}
 					</Space>
@@ -385,6 +394,36 @@ function LessonDetails(): JSX.Element {
 							storeUpdateAttendanceStatus === "loading"
 						}
 					>
+						<Space style={{ marginTop: 15, marginBottom: 15 }}>
+							<span>Ngày học:</span>
+							<DatePicker
+								disabledDate={(current) =>
+									current && current > moment().endOf("day")
+								}
+								disabled={!editMode}
+								allowClear={false}
+								value={moment(date, dateFormat)}
+								format={dateFormat}
+								onChange={(date: any, dateStr: string) => setDate(dateStr)}
+							/>
+							<span>Tên buổi học:</span>
+							<Input
+								style={{ width: 260, color: "#34495e" }}
+								placeholder="Nhập tên buổi học"
+								value={lessonName}
+								onChange={(e) => setLessonName(e.target.value)}
+								disabled={!editMode}
+							/>
+							<Tooltip title={classInfo?.assistant_id === null ? "Lớp này chưa có trợ giảng" : "Điểm danh cho trợ giảng"}>
+								<Checkbox
+									checked={hasAssistant}
+									disabled={classInfo?.assistant_id === null || !editMode}
+									onChange={(e) => setHasAssistant(e.target.checked)}
+								>
+									<span style={{ color: "#2980b9" }}>Có trợ giảng</span>
+								</Checkbox>
+							</Tooltip>
+						</Space>
 						<Table
 							dataSource={studentList}
 							columns={attendance_columns}

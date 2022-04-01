@@ -24,7 +24,7 @@ export function AddNewsModal(props: {
     const [content, setContent] = useState("");
     const [fileSelected, setFileSelected] = useState<Array<FileType>>([]);
     const [showSelect, setShowSelect] = useState(false);
-    const editorRef = useRef(null);
+    // const editorRef = useRef(null);
 
     const submitting = useSelector((state: RootState) => state.newsReducer.addNewsStatus)
     const updateting = useSelector((state: RootState) => state.newsReducer.updateNewsStatus)
@@ -53,7 +53,7 @@ export function AddNewsModal(props: {
 
     function handleSubmit() {
         if (title.length === 0) {
-            notification.error({ message: "Tiêu đề không  được để trống!" })
+            notification.error({ message: "Tiêu đề không được để trống!" })
             return;
         }
         const payload = {
@@ -96,11 +96,11 @@ export function AddNewsModal(props: {
                 ]}
             >
                 <div style={{ marginBottom: 20 }}>
-                    <Text style={{ marginBottom: 10 }}>Tiêu đề</Text>
+                    <Text style={{ marginBottom: 15, fontWeight:'bold' }}>Tiêu đề</Text>
                     <Input  placeholder="Tiêu đề" value={title} onChange={(e) => setTitle(e.target.value)} required />
                 </div>
                 <div style={{marginBottom:20}}>
-                    <Text style={{ marginRight:15 }}>Ảnh cover</Text>
+                    <Text style={{ marginRight:15, fontWeight:'bold' }}>Ảnh cover</Text>
                     <FileSelectModal
                         defaultSelected={fileSelected}
                         isShow={showSelect}
@@ -121,7 +121,7 @@ export function AddNewsModal(props: {
                     </FileSelectModal>
                 </div>
                 <div>
-                    <Text style={{ marginBottom: 10 }}>Nội dung</Text>
+                    <Text style={{ marginBottom: 15, fontWeight:'bold' }}>Nội dung</Text>
                     <Editor
                         // onInit={(evt, editor) => editorRef.current = editor}
                         initialValue={content}
@@ -137,6 +137,7 @@ export function AddNewsModal(props: {
                             toolbar: 'undo redo | formatselect | ' +
                                 'bold italic backcolor | alignleft aligncenter ' +
                                 'alignright alignjustify | bullist numlist outdent indent | ' +
+                                'link |' +
                                 'removeformat | help',
                             content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
                         }}

@@ -8,6 +8,7 @@ import {
     Image,
     List,
     Space,
+    DatePicker
 } from "antd";
 import { ClassType, StudentType, TestType } from "interface";
 import { get } from "lodash";
@@ -18,39 +19,49 @@ import { RootState, useAppDispatch } from "store/store";
 import { actionGetTestes } from "store/testes/slice";
 import { defaul_image_base64, STUDY_TABS } from "utils/const";
 import AddTest from "./addTestModal";
+const { RangePicker } = DatePicker;
 
 export function Tests(props: {
     classInfo: ClassType | null;
-    students:StudentType[];
+    students: StudentType[];
 }): JSX.Element {
 
     const { classInfo, students } = props;
     const dispatch = useAppDispatch();
     const history = useHistory();
-    
+
     const testList = useSelector((state: RootState) => state.testReducer.testes);
     const getTestListState = useSelector((state: RootState) => state.testReducer.getTestesStatus);
 
     const activeTab = useSelector(
         (state: RootState) => state.classReducer.classDetailTabKey
     );
-    useEffect(()=>{
-        if(classInfo && activeTab === STUDY_TABS.TEST){
+    useEffect(() => {
+        if (classInfo && activeTab === STUDY_TABS.TEST) {
             dispatch(actionGetTestes({ class_id: classInfo.id }));
         }
-    },[classInfo, activeTab])
+    }, [classInfo, activeTab])
     /* For Test */
     function handleChangePageOfTest(page: number) {
         dispatch(actionGetTestes({ class_id: get(classInfo, "id", 0), page }));
     }
+
+    const handleChangeDateRange = (_: any, dateString: string[]) => {
+        const from_date = dateString[0] || void 0;
+        const to_date = dateString[1] || void 0;
+        if (classInfo) {
+            dispatch(
+                actionGetTestes({ class_id: classInfo.id, from_date, to_date })
+            );
+        }
+    }
     return (
         <>
-            <Space
-                style={{
-                    paddingTop: 20,
-                    marginBottom: 20,
-                }}
-            >
+            <Space >
+                <RangePicker
+                    style={{ marginTop: 20, marginBottom: 20 }}
+                    onChange={handleChangeDateRange}
+                />
                 <AddTest classInfo={classInfo} />
             </Space>
             <List

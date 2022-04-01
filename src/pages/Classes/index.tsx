@@ -17,16 +17,17 @@ import EditClassModal from "./editClassModal";
 function Classes(): JSX.Element {
 	const dispatch = useDispatch();
 	const history = useHistory();
-	const getStatus = useSelector((state: RootState) => state.classReducer.getClassesStatus);
-	const classes = useSelector((state: RootState) => state.classReducer.classes);
-	const teachers = useSelector((state: RootState) => state.employeeReducer.employees);
-	const seachStatus = useSelector((state: RootState) => state.employeeReducer.getEmployeesStatus);
-	const userStore = useSelector((state: RootState) => state.auth.user);
+
 	const [page, setPage] = useState(1);
 	const [search, setSearch] = useState('')
 	const [teacher_id, setTeacherId] = useState<number | undefined>(undefined)
 	const [showEdit, setShowEdit] = useState(false);
 	const [editIndex, setEditIndex] = useState(-1);
+
+	const getStatus = useSelector((state: RootState) => state.classReducer.getClassesStatus);
+	const classes = useSelector((state: RootState) => state.classReducer.classes);
+	const seachStatus = useSelector((state: RootState) => state.employeeReducer.getEmployeesStatus);
+	const userStore = useSelector((state: RootState) => state.auth.user);
 
 
 	const searchClass = useDebouncedCallback((searchParam) => {
@@ -52,7 +53,8 @@ function Classes(): JSX.Element {
 	}, [dispatch, page])
 
 	const searchTeacher = (search: string) => {
-		if (search.length >= 3 || search.length === 0) dispatch(actionGetEmployees({ role_ids: `${DEFAULT_ROLE_IDS.TEACHER},${DEFAULT_ROLE_IDS.TEACHER2}`, search }));
+		if (search.length >= 3 || search.length === 0) 
+		dispatch(actionGetEmployees({ role_ids: `${DEFAULT_ROLE_IDS.TEACHER},${DEFAULT_ROLE_IDS.TEACHER2}`, search }));
 	};
 
 	function handleEdit(index: number) {
@@ -62,16 +64,16 @@ function Classes(): JSX.Element {
 
 	const columns = [
 		{
-			width: "25%",
+			width: 200,
 			title: "Tên lớp",
 			dataIndex: "name",
 			key: "name",
-			render: function nameCol(name: string, record:{id:number, type:number}): JSX.Element {
-				return <><strong>{name}</strong>  <Tag style={{fontSize:10}} color={record.type === 0 ? "red" : "green"}>{record.type === 0 ? "Offline" : "Online"}</Tag></>
+			render: function nameCol(name: string, record: { id: number, type: number }): JSX.Element {
+				return <><strong>{name}</strong>  <Tag style={{ fontSize: 10 }} color={record.type === 0 ? "red" : "green"}>{record.type === 0 ? "Offline" : "Online"}</Tag></>
 			},
 		},
 		{
-			width: "25%",
+			// width: "25%",
 			title: "Giáo viên",
 			dataIndex: "user",
 			key: "user",
@@ -80,13 +82,22 @@ function Classes(): JSX.Element {
 			},
 		},
 		{
-			width: "10%",
-			title: "Số học sinh",
+			// width: "25%",
+			title: "Trợ giảng",
+			dataIndex: "assistant",
+			key: "assistant",
+			render: function TeacherCol(value: { id: number, profile: { name: string } }): JSX.Element {
+				return <Button type="link">{get(value, "profile.name", "")}</Button>;
+			},
+		},
+		{
+			width: 80,
+			title: "Số hs",
 			dataIndex: "students_num",
 			key: "students_num",
 		},
 		{
-			width: "10%",
+			// width: "10%",
 			title: "Học phí / buổi",
 			dataIndex: "fee_per_session",
 			key: "fee_per_session",
@@ -95,7 +106,7 @@ function Classes(): JSX.Element {
 			},
 		},
 		{
-			width: "20%",
+			// width: "20%",
 			title: "Lịch học",
 			dataIndex: "schedule",
 			key: "schedule",
@@ -128,10 +139,10 @@ function Classes(): JSX.Element {
 		<Layout.Content>
 			<Row style={{ marginBottom: 20, marginTop: 20 }} justify="start">
 				<Col span={10}>
-					<Input.Search allowClear onChange={({ target: { value } }) => searchClass(value)} placeholder="Tìm theo tên lớp..."/>
+					<Input.Search allowClear onChange={({ target: { value } }) => searchClass(value)} placeholder="Tìm theo tên lớp..." />
 				</Col>
 				<Col span={6} style={{ marginLeft: 20 }}>
-					<AddClassModal teachers={teachers} />
+					<AddClassModal  />
 				</Col>
 			</Row>
 			<Table
@@ -151,7 +162,7 @@ function Classes(): JSX.Element {
 			/>
 			<EditClassModal
 				classInfo={get(classes, "data", [])[editIndex]}
-				teachers={teachers}
+				// teachers={teachers}
 				searchTeacher={searchTeacher}
 				searchStatus={seachStatus}
 				show={showEdit}

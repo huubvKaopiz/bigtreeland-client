@@ -1,4 +1,4 @@
-import { message, notification } from "antd";
+import { notification } from "antd";
 import { AxiosError, AxiosResponse } from "axios";
 import { get } from "lodash";
 import numeral from "numeral";
@@ -73,6 +73,9 @@ export function converRoleNameToVN(role: ROLE_NAMES): string {
 		case ROLE_NAMES.ON_MANAGER:
 			res = "Quản lý HS online";
 			break;
+		case ROLE_NAMES.CLASS_ASSISTANT:
+			res = "Trợ giảng";
+			break;
 		default:
 			break;
 	}
@@ -83,11 +86,12 @@ export function handleResponseError(error: AxiosError) {
 	let msg = "";
 	if (error.response) {
 		// The request was made and the server responded with a status code
-		if(error.response.status === 500) msg = "Lỗi server 5000"
-		msg = `${get(error,"response.data.message",get(error,"response.data",""))} `;
+		if (error.response.status === 500) msg = "Lỗi server 500"
+		if (error.response.status === 404) msg = "404 Not found"
+		else msg = `${get(error, "response.data.message", get(error, "response.data", ""))} `;
 	} else if (error.request) {
 		// The request was made but no response was received
-		msg="Không có phản hồi từ server!"
+		msg = "Không có phản hồi từ server!"
 		console.log(error.request);
 	} else {
 		// Something happened in setting up the request that triggered an Error

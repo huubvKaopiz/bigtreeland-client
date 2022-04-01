@@ -31,6 +31,7 @@ import newsReducer from './news/slice';
 import notificationReducer from './notifications/slice';
 import giftReducer from './gifts/slice';
 import statisticalReducer from './statistical/slice';
+import documentReducer from './documents/slice';
 
 const rootReducer = combineReducers({
 	auth,
@@ -57,7 +58,8 @@ const rootReducer = combineReducers({
 	newsReducer,
 	notificationReducer,
 	giftReducer,
-	statisticalReducer
+	statisticalReducer,
+	documentReducer
 });
 
 const persistConfig = {

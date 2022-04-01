@@ -6,7 +6,7 @@ import { Button, Checkbox, Col, DatePicker, Input, notification, Row, Space, Tab
 import { CheckboxChangeEvent } from 'antd/lib/checkbox';
 import TextArea from 'antd/lib/input/TextArea';
 import SendNotificationModal from 'components/SendNotificationModal';
-import { StudentType } from 'interface';
+import { ClassType, StudentType } from 'interface';
 import { get } from 'lodash';
 import moment from 'moment';
 import React, { useState } from 'react';
@@ -18,18 +18,20 @@ import { NOTIFI_URIS } from 'utils/const';
 const dateFormat = "DD-MM-YYYY";
 
 export default function CreateLesson(props: {
-    classID: number,
+    classInfo: ClassType | null,
     students: StudentType[],
     setCreateMode: (param: boolean) => void;
 }): JSX.Element {
-    const { classID, students, setCreateMode } = props;
+    const { classInfo, students, setCreateMode } = props;
     const dispatch = useAppDispatch();
     const [listComments, setListComments] = useState<AttendanceStudentComment[]>([]);
     const [today, setToday] = useState(moment(new Date()).format(dateFormat));
+    const [lessonName, setLessonName] = useState("");
     const [attendantList, setAttendantList] = useState<number[]>([]);
     const [checkAll, setCheckAll] = useState(false);
     const [showNotiForm, setShowNotiForm] = useState(false);
     const [notiIndex, setNotiIndex] = useState(-1);
+    const [hasAssistant, setHasAssistant] = useState(false);
 
     const userInfo = useSelector(
         (state: RootState) => state.auth.user
@@ -116,7 +118,7 @@ export default function CreateLesson(props: {
     }
 
     function handleSubmit() {
-        if (!classID) return;
+        if (!classInfo) return;
         const teacher_id = get(userInfo, "id", null);
         if (!teacher_id) {
             notification.warn({ message: "Chưa có thông tin giáo viên!" });
@@ -134,8 +136,10 @@ export default function CreateLesson(props: {
                     });
             });
             const payload = {
-                class_id: classID,
+                class_id: classInfo.id,
+                lesson_title: lessonName,
                 teacher_id: teacher_id,
+                assistant_id: hasAssistant ? classInfo.assistant_id : null,
                 students: studentAttendanceList,
                 date: moment(today, "DD-MM-YYYY").format("YYYY-MM-DD"),
             };
@@ -253,7 +257,7 @@ export default function CreateLesson(props: {
     return (
         <div key={1}>
             <Space style={{ paddingTop: 20, marginBottom: 20 }}>
-                Ngày học:
+                <span>Ngày học:</span>
                 <DatePicker
                     disabledDate={(current) =>
                         current && current > moment().endOf("day")
@@ -262,6 +266,22 @@ export default function CreateLesson(props: {
                     format={dateFormat}
                     onChange={(e) => setToday(moment(e).format("DD/MM/YYYY"))}
                 />
+                <span>Tên buổi học:</span>
+                <Input
+                    style={{ width: 260 }}
+                    placeholder="Nhập tên buổi học"
+                    value={lessonName}
+                    onChange={(e) => setLessonName(e.target.value)}
+                />
+                <Tooltip title={classInfo?.assistant_id === null ? "Lớp này chưa có trợ giảng" : "Điểm danh cho trợ giảng"}>
+                    <Checkbox
+                        checked={hasAssistant}
+                        disabled={classInfo?.assistant_id === null}
+                        onChange={(e) => setHasAssistant(e.target.checked)}
+                    >
+                        <span style={{ color: "#2980b9" }}>Có trợ giảng</span>
+                    </Checkbox>
+                </Tooltip>
                 <Button type="primary" icon={<SaveOutlined />} onClick={() => handleSubmit()} loading={addAttendanceStatus === "loading"}>
                     Lưu lại
                 </Button>

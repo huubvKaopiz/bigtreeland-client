@@ -51,18 +51,35 @@ const okFunction = (filesSelect: Array<FileType>) => {
 
 export function FileSelectedListRender(props: FileSelectRenderProps): JSX.Element {
 	const { listFileSelected: data, handleRemoveFileSelected, review } = props;
+
+	const filePreviewImageUrl = (file: FileType): string => {
+		if (isImageType(file.type || "")) return file.url
+		else return fileIconList[Object.keys(fileIconList).find((k) => k === file.type) as keyof typeof fileIconList];
+	}
 	return data.length > 0 ? (
 		<List
 			style={{ marginTop: 20 }}
 			itemLayout="horizontal"
 			dataSource={data}
 			renderItem={(item) => (
-				<Space style={{ marginRight: 20, marginBottom:10 }}>
-					{review ? <Image width={60} src={item.url} /> : ""}
-					<span style={{ display: "block" }}>
-						{item.name}
+				<Space style={{ marginRight: 20, marginBottom: 10 }}>
+					{review
+						?
+						<Image width={60} src={filePreviewImageUrl(item)} />
+						:
+						""}
+					<Space>
+						<p style={{
+							paddingTop: 10,
+							maxWidth: 300,
+							whiteSpace: 'nowrap',
+							textOverflow: 'ellipsis',
+							overflow: 'hidden'
+						}}>
+							{item.name}
+						</p>
 						<Button type={"link"} icon={<CloseOutlined style={{ color: "red" }} />} onClick={() => handleRemoveFileSelected(item.id)} />
-					</span>
+					</Space>
 				</Space>
 			)}
 		/>

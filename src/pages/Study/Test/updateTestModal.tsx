@@ -5,8 +5,9 @@ import {
 	Form,
 	DatePicker,
 	Select,
+	Space,
 } from "antd";
-import { UploadOutlined, FormOutlined} from "@ant-design/icons";
+import { UploadOutlined, FormOutlined } from "@ant-design/icons";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Modal from "antd/lib/modal/Modal";
@@ -21,6 +22,7 @@ import moment from "moment";
 import FileSelectModal from "components/FileSelectModal";
 import { FileType, LessonType, TestType } from "interface";
 import { get } from "lodash";
+import { actionGetLessons } from "store/lesson/slice";
 
 export default function UpdateTestModal(props: { testInfo: TestType | null }): JSX.Element {
 	const { testInfo } = props;
@@ -29,14 +31,17 @@ export default function UpdateTestModal(props: { testInfo: TestType | null }): J
 	const [show, setShow] = useState(false);
 	const [resultFilesModal, setResultFilesModal] = useState(false);
 	const [showSelect, setShowSelect] = useState(false);
+	const [resultFiles, setResultFiles] = useState<Array<FileType>>([]);
+	const [contentFiles, setContentFiles] = useState<Array<FileType>>([]);
+
 	const storeUpdateTestState = useSelector(
 		(state: RootState) => state.testReducer.updateTestStatus
 	);
 	const lessonList = useSelector(
 		(state: RootState) => state.lessonReducer.lessons
 	);
-	const [resultFiles, setResultFiles] = useState<Array<FileType>>([]);
-	const [contentFiles, setContentFiles] = useState<Array<FileType>>([]);
+	const getLessonListState = useSelector((state: RootState) => state.lessonReducer.getLessonsState);
+
 
 	useEffect(() => {
 		if (testInfo && storeUpdateTestState === "success") {
@@ -129,32 +134,44 @@ export default function UpdateTestModal(props: { testInfo: TestType | null }): J
 					>
 						<Input />
 					</Form.Item>
-					<Form.Item label="Bài học ngày" name="lesson_id">
-						<Select
-							showSearch
-							allowClear
-							filterOption={(input, option) =>
-								(option?.label as string)
-									?.toLowerCase()
-									.indexOf(input.toLowerCase()) >= 0
-							}
-						>
-							{get(lessonList, "data", []).map((lesson: LessonType) => {
-								return (
-									<Select.Option
-										key={lesson.id}
-										value={lesson.id}
-										label={moment(lesson.date, "YYYY-MM-DD").format(
-											"DD-MM-YYYY"
-										)}
-									>
-										<a>
-											{moment(lesson.date, "YYYY-MM-DD").format("DD-MM-YYYY")}{" "}
-										</a>
-									</Select.Option>
-								);
-							})}
-						</Select>
+					<Form.Item label="Buổi học">
+						<Space>
+							<Form.Item>
+								<DatePicker picker="month" format={"MMMM"} defaultValue={moment()} onChange={(value) => {
+									if (value && testInfo) {
+										const from_date = value.startOf('month').format('YYYY-MM-DD');
+										const to_date = value.endOf('month').format('YYYY-MM-DD');
+										dispatch(actionGetLessons({ from_date, to_date, class_id: testInfo.class_id }))
+									}
+								}} />
+							</Form.Item>
+							<Form.Item name="lesson_id">
+								<Select
+									placeholder="Chọn buổi học"
+									style={{ width: 300 }}
+									allowClear
+									loading={getLessonListState === 'loading'}
+									disabled={getLessonListState === 'loading'}
+									filterOption={(input, option) =>
+										(option?.label as string)
+											?.toLowerCase()
+											.indexOf(input.toLowerCase()) >= 0
+									}
+								>
+									{get(lessonList, 'data', []).map((lesson: LessonType) => {
+										return (
+											<Select.Option
+												key={lesson.id}
+												value={lesson.id}
+											// label={}
+											>
+												<><a>{lesson.title} </a> <span style={{ fontStyle: "italic", color: "#7f8c8d" }}>{moment(lesson.date, 'YYYY-MM-DD').format('DD-MM-YYYY')}</span></>
+											</Select.Option>
+										);
+									})}
+								</Select>
+							</Form.Item>
+						</Space>
 					</Form.Item>
 					<Form.Item label="Ngày" name="date">
 						<DatePicker format="DD-MM-YYYY" />

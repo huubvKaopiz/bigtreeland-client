@@ -53,6 +53,12 @@ export function Lesson(props: { classInfo: ClassType | null, students:StudentTyp
 
     const cols: any[] = [
         {
+            title: 'Tên buổi học', dataIndex: 'title', key: 'title',
+            render: function col(text: string): JSX.Element {
+                return (<a>{text}</a>)
+            }
+        },
+        {
             title: 'Ngày học', dataIndex: 'date', key: 'name',
             render: function col(text: string): JSX.Element {
                 return (<strong>{moment(text).format("DD-MM-YYYY")}</strong>)
@@ -102,7 +108,7 @@ export function Lesson(props: { classInfo: ClassType | null, students:StudentTyp
             {
                 createMode
                     ?
-                    <CreateLesson classID={get(classInfo, "id", 0)} setCreateMode={setCreateMode} students={students || []} />
+                    <CreateLesson classInfo={classInfo} setCreateMode={setCreateMode} students={students || []} />
                     :
                     <>
                         <Space>

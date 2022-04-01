@@ -4,24 +4,32 @@ import { EmployeeType, GetResponseType } from "interface";
 import { get } from "lodash";
 import moment from "moment";
 import numeral from "numeral";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { actionAddClass, actionGetClasses } from "store/classes/slice";
+import { actionGetClassAssistants, actionGetTeachers } from "store/employees/slice";
 import { RootState, useAppDispatch } from "store/store";
 import { dayOptions, ROLE_NAMES } from "utils/const";
 import { converRoleNameToVN } from "utils/ultil";
 
 export default function AddClassModal(props: {
-	teachers: GetResponseType<EmployeeType> | null;
+	// teachers: GetResponseType<EmployeeType> | null;
 }): JSX.Element {
 
-	const { teachers } = props;
+	// const { teachers } = props;
 	const dispatch = useAppDispatch();
 	const [addForm] = Form.useForm();
 	const [show, setShow] = useState(false);
 	const [keepShow, setKeepShow] = useState(false);
 
+	const teachers = useSelector((state: RootState) => state.employeeReducer.teachers);
+	const classAssistants = useSelector((state:RootState) => state.employeeReducer.assistants)
 	const addStatus = useSelector((state: RootState) => state.classReducer.addClassStatus);
+
+	useEffect(()=>{
+		dispatch(actionGetTeachers({}));
+		dispatch(actionGetClassAssistants({}))
+	},[])
 
 	function handleSubmit(values: any) {
 		let scheduleTime = '';
@@ -32,7 +40,8 @@ export default function AddClassModal(props: {
 			if (keepShow === false) setShow(false);
 			addForm.setFieldsValue({
 				name: "",
-				employee_id: null,
+				employee_id: 0,
+				assistant_id:0,
 				fee_per_session: "",
 				schedule: [],
 				schedule_time: null,
@@ -74,7 +83,7 @@ export default function AddClassModal(props: {
 					<Form.Item label="Giáo viên" name="employee_id">
 						<Select
 							showSearch
-							allowClear
+							// allowClear
 							filterOption={(input, option) =>
 								(option?.label as string)?.toLowerCase().indexOf(input.toLowerCase()) >= 0
 							}
@@ -85,7 +94,29 @@ export default function AddClassModal(props: {
 									return (
 										<Select.Option value={tc.id} key={tc.id} label={`${get(tc, "profile.name", "")} (${tc.phone})`}>
 											<Space>
-											{get(tc,"roles",[]).map((role:{id:number, name:string}) => <Tag color="orange" key={role.id}>{converRoleNameToVN(role.name as ROLE_NAMES)}</Tag>)}
+											{get(tc,"roles",[]).map((role:{id:number, name:string}) => <Tag color="blue" key={role.id}>{converRoleNameToVN(role.name as ROLE_NAMES)}</Tag>)}
+											<a>{get(tc, "profile.name", "")}</a>{tc.phone}
+											</Space>
+										</Select.Option>
+									);
+								})}
+						</Select>
+					</Form.Item>
+					<Form.Item label="Trợ giảng" name="assistant_id">
+						<Select
+							showSearch
+							// allowClear
+							filterOption={(input, option) =>
+								(option?.label as string)?.toLowerCase().indexOf(input.toLowerCase()) >= 0
+							}
+						>
+							<Select.Option value={0} label="Chọn sau" >Chọn sau</Select.Option>
+							{classAssistants &&
+								get(classAssistants, "data", []).map((tc: EmployeeType) => {
+									return (
+										<Select.Option value={tc.id} key={tc.id} label={`${get(tc, "profile.name", "")} (${tc.phone})`}>
+											<Space>
+											{get(tc,"roles",[]).map((role:{id:number, name:string}) => <Tag color="blue" key={role.id}>{converRoleNameToVN(role.name as ROLE_NAMES)}</Tag>)}
 											<a>{get(tc, "profile.name", "")}</a>{tc.phone}
 											</Space>
 										</Select.Option>

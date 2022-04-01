@@ -3,12 +3,15 @@ import { notification } from "antd";
 import { AxiosError } from "axios";
 import { EmployeeType, GetResponseType } from "interface";
 import { get } from "lodash";
+import { DEFAULT_ROLE_IDS, ROLE_NAMES } from "utils/const";
 import { handleResponseError } from "utils/ultil";
 import request from "../../utils/request";
 
 export interface UserReducerState {
 	employeeInfo: EmployeeType | null;
 	employees: GetResponseType<EmployeeType> | null;
+	teachers: GetResponseType<EmployeeType> | null;
+	assistants: GetResponseType<EmployeeType> | null;
 	getEmployeeInfoStatus: "idle" | "loading" | "success" | "error";
 	getEmployeesStatus: "idle" | "loading" | "success" | "error";
 	addEmployeeStatus: "idle" | "loading" | "success" | "error";
@@ -43,6 +46,8 @@ export interface EmployeeParams {
 const initialState: UserReducerState = {
 	employeeInfo: null,
 	employees: null,
+	teachers: null,
+	assistants: null,
 	getEmployeeInfoStatus: "idle",
 	getEmployeesStatus: "idle",
 	addEmployeeStatus: "idle",
@@ -71,6 +76,37 @@ export const actionGetEmployees = createAsyncThunk(
 		try {
 			const response = await request({
 				url: "/api/users",
+				method: "get",
+				params,
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
+	}
+);
+
+export const actionGetTeachers = createAsyncThunk(
+	"employee/teachers",
+	async (params: ParamGetUsers, { rejectWithValue }) => {
+		try {
+			const response = await request({
+				url: `/api/users?role_ids=${DEFAULT_ROLE_IDS.TEACHER},${DEFAULT_ROLE_IDS.TEACHER2}`,
+				method: "get",
+				params
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
+	}
+);
+export const actionGetClassAssistants = createAsyncThunk(
+	"employee/assistants",
+	async (params: ParamGetUsers, { rejectWithValue }) => {
+		try {
+			const response = await request({
+				url: `/api/users?role_name=${ROLE_NAMES.CLASS_ASSISTANT}`,
 				method: "get",
 				params,
 			});
@@ -158,6 +194,14 @@ export const employeeSlice = createSlice({
 			state.getEmployeesStatus = "idle";
 			state.employees = null;
 		},
+		actionGetTeachers(state) {
+			state.getEmployeesStatus = "idle";
+			state.teachers = null;
+		},
+		actionGetClassAssistants(state) {
+			state.getEmployeesStatus = "idle";
+			state.assistants = null;
+		},
 	},
 
 	extraReducers: (builder) => {
@@ -186,6 +230,34 @@ export const employeeSlice = createSlice({
 			.addCase(actionGetEmployees.rejected, (state, action) => {
 				state.getEmployeesStatus = "error";
 				state.employees = null;
+				const error = action.payload as AxiosError;
+				handleResponseError(error);
+			})
+
+			//get teachers
+			.addCase(actionGetTeachers.pending, (state) => {
+				state.getEmployeesStatus = "loading";
+			})
+			.addCase(actionGetTeachers.fulfilled, (state, action) => {
+				state.teachers = action.payload as GetResponseType<EmployeeType>;
+				state.getEmployeesStatus = "success";
+			})
+			.addCase(actionGetTeachers.rejected, (state, action) => {
+				state.getEmployeesStatus = "error";
+				const error = action.payload as AxiosError;
+				handleResponseError(error);
+			})
+
+			//get assistants
+			.addCase(actionGetClassAssistants.pending, (state) => {
+				state.getEmployeesStatus = "loading";
+			})
+			.addCase(actionGetClassAssistants.fulfilled, (state, action) => {
+				state.assistants = action.payload as GetResponseType<EmployeeType>;
+				state.getEmployeesStatus = "success";
+			})
+			.addCase(actionGetClassAssistants.rejected, (state, action) => {
+				state.getEmployeesStatus = "error";
 				const error = action.payload as AxiosError;
 				handleResponseError(error);
 			})

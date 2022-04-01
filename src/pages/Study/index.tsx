@@ -1,8 +1,10 @@
-import { Descriptions, Layout, PageHeader, Spin, Tabs } from "antd";
+import { Button, Descriptions, Layout, PageHeader, Spin, Tabs } from "antd";
+import { NotificationOutlined } from '@ant-design/icons';
+import SendNotificationModal from "components/SendNotificationModal";
 import { get } from "lodash";
 import moment from "moment";
 import AddStudentsModal from "pages/Classes/addStudentsModal";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import {
@@ -11,19 +13,20 @@ import {
 } from "store/classes/slice";
 import { RootState, useAppDispatch } from "store/store";
 import { actionGetStudents } from "store/students/slice";
-import { dayOptions, STUDY_TABS } from "utils/const";
+import { dayOptions, NOTIFI_URIS, STUDY_TABS } from "utils/const";
 import { ClassPhotos } from "./Album";
 import { Lesson } from "./Lesson";
 import StudentsOfClass from "./Students/StudentsOfClass";
 import { StudySumaryBoard } from "./Summary";
 import { CreateStudySummary } from "./Summary/createModal";
 import { Tests } from "./Test";
+import Documents from "./Documents";
 
 export default function Test(): JSX.Element {
 	const params = useParams() as { class_id: string };
 	const dispatch = useAppDispatch();
 	const { TabPane } = Tabs;
-
+	const [showNotiform, setShowNotiForm] = useState(false);
 	// application states
 	const activeTab = useSelector(
 		(state: RootState) => state.classReducer.classDetailTabKey
@@ -36,7 +39,7 @@ export default function Test(): JSX.Element {
 		(state: RootState) => state.classReducer.getClassStatus
 	);
 
-	const addStudentState = useSelector((state:RootState) => state.classReducer.addStudentsStatus);
+	const addStudentState = useSelector((state: RootState) => state.classReducer.addStudentsStatus);
 
 
 	useEffect(() => {
@@ -54,10 +57,15 @@ export default function Test(): JSX.Element {
 					onBack={() => window.history.back()}
 					title={classInfo?.name}
 					subTitle="Quản lý học tập"
-					// extra={[
-					// 	<AddStudentsModal key="addStudents" class_id={params.class_id} />,
-					// 	// <Button key="2">In danh sách</Button>,
-					// ]}
+					extra={[
+						<Button
+							type="primary"
+							icon={<NotificationOutlined />}
+							onClick={() => setShowNotiForm(true)}
+						>
+							Gửi thông báo
+						</Button>
+					]}
 				></PageHeader>
 				<Descriptions
 					size="small"
@@ -96,13 +104,14 @@ export default function Test(): JSX.Element {
 					</Descriptions.Item>
 				</Descriptions>
 				<Tabs
+					style={{ marginTop: 20 }}
 					activeKey={activeTab}
 					onChange={(activeKey) =>
 						dispatch(actionSetClassDetailTabKey(activeKey))
 					}
 				>
 					<TabPane tab="DS học sinh" key={STUDY_TABS.STUDENTS}>
-						<StudentsOfClass students={get(classInfo, "students", [])} class_id={get(classInfo,"id",0)} />
+						<StudentsOfClass students={get(classInfo, "students", [])} class_id={get(classInfo, "id", 0)} />
 					</TabPane>
 					<TabPane tab="DS buổi học" key={STUDY_TABS.LESSON}>
 						<Lesson
@@ -112,6 +121,9 @@ export default function Test(): JSX.Element {
 					</TabPane>
 					<TabPane tab="Bài tập" key={STUDY_TABS.TEST}>
 						<Tests classInfo={classInfo} students={get(classInfo, "students", [])} />
+					</TabPane>
+					<TabPane tab="Tài liệu" key={STUDY_TABS.DOCUMENTS}>
+						<Documents classInfo={classInfo} />
 					</TabPane>
 					<TabPane tab="Album ảnh" key={STUDY_TABS.ALBUM}>
 						<ClassPhotos class_id={params.class_id} />
@@ -126,6 +138,12 @@ export default function Test(): JSX.Element {
 						<StudySumaryBoard class_id={+params.class_id} />
 					</TabPane>
 				</Tabs>
+				<SendNotificationModal
+					show={showNotiform}
+					setShow={setShowNotiForm}
+					students={get(classInfo, "students", [])}
+					uri={NOTIFI_URIS.STUDY}
+				/>
 			</Spin>
 		</Layout.Content>
 	);

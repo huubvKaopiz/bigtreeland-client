@@ -4,23 +4,26 @@ import { get } from "lodash";
 import moment from "moment";
 import numeral from "numeral";
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { actionGetClasses, actionUpdateClass } from "store/classes/slice";
-import { useAppDispatch } from "store/store";
+import { RootState, useAppDispatch } from "store/store";
 import { dayOptions, ROLE_NAMES } from "utils/const";
 import { converRoleNameToVN } from "utils/ultil";
 
 export default function EditClassModal(props: {
 	classInfo: ClassType;
-	teachers: GetResponseType<EmployeeType> | null;
+	// teachers: GetResponseType<EmployeeType> | null;
 	searchTeacher: (search: string) => void;
 	searchStatus: string;
 	show: boolean;
 	setShow: (param: boolean) => void;
 }): JSX.Element {
-	const { classInfo, teachers, show, setShow } = props;
+	const { classInfo, show, setShow } = props;
 	const [uFrom] = Form.useForm();
 	const dispatch = useAppDispatch();
 	const [submiting, setSubmiting] = useState(false);
+	const teachers = useSelector((state: RootState) => state.employeeReducer.teachers);
+	const classAssistants = useSelector((state: RootState) => state.employeeReducer.assistants)
 
 	useEffect(() => {
 		if (classInfo) {
@@ -31,6 +34,7 @@ export default function EditClassModal(props: {
 			uFrom.setFieldsValue({
 				name: classInfo.name,
 				employee_id: get(classInfo, "user.id", 0),
+				assistant_id:get(classInfo,"assistant_id",null),
 				fee_per_session: classInfo.fee_per_session,
 				type: classInfo.type,
 				schedule: classInfo.schedule,
@@ -46,6 +50,11 @@ export default function EditClassModal(props: {
 		if (values.schedule_time) {
 			scheduleTime = moment(values.schedule_time[0]).format("HH:mm:ss") + "-" + moment(values.schedule_time[1]).format("HH:mm:ss")
 		}
+		console.log(values)
+		// const payload = {
+			
+		// }
+		
 		dispatch(actionUpdateClass({ data: { ...values, schedule_time: scheduleTime }, cID: classInfo.id }))
 			.finally(() => {
 				dispatch(actionGetClasses({ page: 1 }));
@@ -68,7 +77,7 @@ export default function EditClassModal(props: {
 					<Button loading={submiting} key="btnsubmit" type="primary" htmlType="submit" form={`uclassForm`}>
 						Lưu lại
 					</Button>,
-					
+
 				]}
 				width={800}
 			>
@@ -86,7 +95,7 @@ export default function EditClassModal(props: {
 					<Form.Item label="Giáo viên" name="employee_id">
 						<Select
 							showSearch
-							allowClear
+							// allowClear
 							filterOption={(input, option) =>
 								(option?.label as string)?.toLowerCase().indexOf(input.toLowerCase()) >= 0
 							}
@@ -105,6 +114,29 @@ export default function EditClassModal(props: {
 								})}
 						</Select>
 					</Form.Item>
+					<Form.Item label="Giáo viên" name="assistant_id">
+						<Select
+							showSearch
+							// allowClear
+							filterOption={(input, option) =>
+								(option?.label as string)?.toLowerCase().indexOf(input.toLowerCase()) >= 0
+							}
+						>
+							<Select.Option value={0} label="Chọn sau">Chọn sau</Select.Option>
+							{classAssistants &&
+								get(classAssistants, "data", []).map((tc: EmployeeType) => {
+									return (
+										<Select.Option value={tc.id} key={tc.id} label={`${get(tc, "profile.name", "")} (${tc.phone})`}>
+											<Space>
+												{get(tc, "roles", []).map((role: { id: number, name: string }) => <Tag color="blue" key={role.id}>{converRoleNameToVN(role.name as ROLE_NAMES)}</Tag>)}
+												<a>{get(tc, "profile.name", "")}</a> ({tc.phone})
+											</Space>
+										</Select.Option>
+									);
+								})}
+						</Select>
+					</Form.Item>
+
 
 					<Form.Item name="type" label="Loại" wrapperCol={{ span: 2 }} rules={[{ required: true, message: "Không được để trống!" }]}>
 						<Select style={{ width: 120 }}>

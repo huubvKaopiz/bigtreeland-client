@@ -90,6 +90,8 @@ export interface ClassType {
 	act_session_num: 1;
 	active_period_tuition?: PeriodTuitionType;
 	students?: StudentType[];
+	assistant_id: number | null;
+	assistant: UserType;
 }
 
 export interface User {
@@ -294,7 +296,7 @@ export interface TuitionFeeType {
 	from_date: "null";
 	to_date: "null";
 	est_session_num: number;
-	paid_amount:string;
+	paid_amount: string;
 	dayoffs: string[];
 	student: {
 		id: number;
@@ -322,7 +324,9 @@ export interface DayoffType {
 export interface LessonType {
 	id: number;
 	tuition_period_id: number;
+	title: string;
 	date: "";
+	assistant_id:number | null;
 	lesson_feedback: {
 		id: number;
 		parent_id: number;
@@ -511,4 +515,13 @@ export interface TestResultsType {
 export interface BirthdayListType {
 	students: StudentType[];
 	users: UserType[];
+}
+
+export interface DocumentType {
+	id: number;
+	title: string;
+	class_id: number;
+	link: string;
+	files: FileType[];
+	created_at: string;
 }

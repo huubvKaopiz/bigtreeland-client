@@ -45,7 +45,7 @@ export default function UpdateEmplyeeForm(props: {
 				disklikes: get(employee, "profile.disklikes", ""),
 				basic_salary: get(employee, "employee_contract.basic_salary", ""),
 				sales_salary: get(employee, "employee_contract.sales_salary", ""),
-				role_id: get(employee, "roles[0].id", 0),
+				// role_id: get(employee, "roles[0].id", 0),
 				working_day: moment(get(employee, "employee_contract.working_day", "")),
 			});
 		}
@@ -129,7 +129,7 @@ export default function UpdateEmplyeeForm(props: {
 					>
 						<Input />
 					</Form.Item>
-					<Form.Item name="role_id" label="Vị trí" rules={[{ required: true, message: "Vị trí không được để trống!" }]}>
+					{/* <Form.Item name="role_id" label="Vị trí" rules={[{ required: true, message: "Vị trí không được để trống!" }]}>
 						<Select>
 							<Select.Option value={0}>Nhân viên</Select.Option>
 							{roles.map((role: RoleType) => {
@@ -140,7 +140,7 @@ export default function UpdateEmplyeeForm(props: {
 								);
 							})}
 						</Select>
-					</Form.Item>
+					</Form.Item> */}
 					<Form.Item name="gender" label="Giới tính">
 						<Select>
 							<Select.Option value={1}>Nam</Select.Option>
