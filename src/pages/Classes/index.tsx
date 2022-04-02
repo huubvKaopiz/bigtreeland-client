@@ -49,7 +49,7 @@ function Classes(): JSX.Element {
 
 	const columns = [
 		{
-			width: 200,
+			width: 350,
 			title: "Tên lớp",
 			dataIndex: "name",
 			key: "name",
