@@ -58,15 +58,14 @@ export default function Tuition(): JSX.Element {
 	useEffect(() => {
 		const classData = get(classesList, "data", []);
 		const periodList = get(periodTuitionList, "data", []).map((period) => {
-			const classOfPeriod = classData.find((cl) => cl.id === period.class_id);
 			let deleteAble = true;
-			if (get(classOfPeriod, "act_session_num", 0) > 0) deleteAble = false;
+			if (get(period, "act_session_num", 0) > 0) deleteAble = false;
 			const tuitionsCount = get(period, "tuition_fees", []).length;
 			let amount = 0;
 			let paidCount = 0;
 			//cal total of fees and total of paid
 			get(period, "tuition_fees", []).forEach((tuition) => {
-				const est_fee = period.est_session_num * get(classOfPeriod, "fee_per_session", 0);
+				const est_fee = period.est_session_num * get(period, "fee_per_session", 0);
 				const deduce_amount =
 					+get(tuition, "residual", 0) +
 					+get(tuition, "fixed_deduction", 0) +
@@ -79,7 +78,7 @@ export default function Tuition(): JSX.Element {
 			if (paidCount > 0) deleteAble = false
 			return {
 				key: period.id,
-				class_name: classOfPeriod?.name ?? "",
+				class_name: get(period,"class.name",""),
 				fromDate: period.from_date,
 				toDate: period.to_date,
 				active: period.active,

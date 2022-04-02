@@ -28,6 +28,7 @@ const { confirm } = Modal;
 
 
 export interface TuitionFeeType {
+	id?:number;
 	student_id: number;
 	residual?: string;
 	fixed_deduction: string;

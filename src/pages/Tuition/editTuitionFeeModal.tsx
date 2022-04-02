@@ -4,19 +4,28 @@ import { PeriodTuitionType } from 'interface';
 import { get } from 'lodash';
 import numeral from 'numeral';
 import React, { useEffect, useState } from 'react';
-import { useAppDispatch } from 'store/store';
+import { useSelector } from 'react-redux';
+import { RootState, useAppDispatch } from 'store/store';
 import { actionGetPeriodTuion } from 'store/tuition/periodslice';
 import { actionUpdateTuitionFee } from 'store/tuition/tuition';
 import { TuitionFeeType } from './createTuitionPeriod';
 const { TextArea } = Input;
 
-export function EditTuitionFeeModal(prop: { periodInfo: PeriodTuitionType | null, tuitionFeeInfo: TuitionFeeType, stName?: string }): JSX.Element {
+export function EditTuitionFeeModal(prop: {
+	periodInfo: PeriodTuitionType | null,
+	tuitionFeeInfo: TuitionFeeType | null,
+	stName?: string;
+	show: boolean,
+	setShow: (param: boolean) => void
+}): JSX.Element {
 
-	const { periodInfo, tuitionFeeInfo, stName } = prop;
+	const { periodInfo, tuitionFeeInfo, stName, show, setShow } = prop;
 	const dispatch = useAppDispatch();
-	const [show, setShow] = useState(false);
 	const [uFrom] = Form.useForm();
 	const [submiting, setSubmiting] = useState(false);
+
+	const updateStatus = useSelector((state: RootState) => state.tuitionFeeReducer.updateTuitionFeeState)
+
 
 	useEffect(() => {
 		if (tuitionFeeInfo) {
@@ -30,18 +39,33 @@ export function EditTuitionFeeModal(prop: { periodInfo: PeriodTuitionType | null
 					"residual": get(tuitionFeeInfo, "residual", "0"),
 					"fixed_deduction": get(tuitionFeeInfo, "fixed_deduction", "0"),
 					"flexible_deduction": 100 * +get(tuitionFeeInfo, "flexible_deduction", '0') / est_fee,
-					"paid_amount":+get(tuitionFeeInfo,"paid_amount",0),
-					"amount": est_fee + +get(tuitionFeeInfo, "prev_debt", "0") - +get(tuitionFeeInfo, "residual", "0") - +get(tuitionFeeInfo, "fixed_deduction", "0") - +get(tuitionFeeInfo, "flexible_deduction", '0'),
+					"paid_amount": +get(tuitionFeeInfo, "paid_amount", 0),
+					"amount": est_fee + +get(tuitionFeeInfo, "prev_debt", "0") - 
+										+get(tuitionFeeInfo, "residual", "0") - 
+										+get(tuitionFeeInfo, "fixed_deduction", "0") - 
+										+get(tuitionFeeInfo, "flexible_deduction", '0'),
 					"note": get(tuitionFeeInfo, "note", ""),
 				}
 			)
 		}
-	}, [tuitionFeeInfo, uFrom, periodInfo, stName])
+	}, [tuitionFeeInfo, uFrom, periodInfo])
+
+	useEffect(() => {
+		if (updateStatus === 'success') {
+			dispatch(actionGetPeriodTuion(get(periodInfo, "id", 0)));
+			setShow(false)
+			setSubmiting(false)
+		} else if (updateStatus === 'error') setSubmiting(false)
+	}, [updateStatus])
 
 	function handleValuesChange(changeValue: any, allValues: any) {
 		if (changeValue.note) return;
 		uFrom.setFieldsValue({
-			amount: +allValues.est_fee - +allValues.fixed_deduction - +(allValues.est_fee * allValues.flexible_deduction / 100)
+			amount: +allValues.est_fee + 
+					+allValues.prev_debt  - 
+					+allValues.residual - 
+					+allValues.fixed_deduction - 
+					+(allValues.est_fee * allValues.flexible_deduction / 100)
 		})
 	}
 
@@ -51,8 +75,8 @@ export function EditTuitionFeeModal(prop: { periodInfo: PeriodTuitionType | null
 		uFrom.setFieldsValue(
 			{
 				"fixed_deduction": get(tuitionFeeInfo, "fixed_deduction", "0"),
-				"flexible_deduction":100 * +get(tuitionFeeInfo, "flexible_deduction", '0') / est_fee,
-				"note":get(tuitionFeeInfo,"note","")
+				"flexible_deduction": 100 * +get(tuitionFeeInfo, "flexible_deduction", '0') / est_fee,
+				"note": get(tuitionFeeInfo, "note", "")
 			}
 		)
 		setShow(false)
@@ -60,6 +84,7 @@ export function EditTuitionFeeModal(prop: { periodInfo: PeriodTuitionType | null
 
 	function handleSubmit(values: any) {
 		setSubmiting(true);
+		console.log(tuitionFeeInfo)
 		const est_fee = +values.flexible_deduction * get(periodInfo, "est_session_num", 0) * get(periodInfo, "fee_per_session", 0) / 100
 		dispatch(actionUpdateTuitionFee({
 			data: {
@@ -67,16 +92,10 @@ export function EditTuitionFeeModal(prop: { periodInfo: PeriodTuitionType | null
 				flexible_deduction: String(est_fee),
 				note: values.note,
 			}, tuition_id: get(tuitionFeeInfo, "id", 0)
-		})).then(() => {
-			setShow(false);
-			dispatch(actionGetPeriodTuion(get(periodInfo, "id", 0)));
-		}).finally(() => setSubmiting(false));
+		}));
 	}
 	return (
 		<>
-			<Tooltip title="Chi tiết bảng học phí">
-				<Button onClick={() => setShow(true)} icon={<FileTextOutlined />} type="link"  />
-			</Tooltip>
 
 			<Modal title="Bảng học phí cho học sinh"
 				visible={show}
@@ -85,10 +104,10 @@ export function EditTuitionFeeModal(prop: { periodInfo: PeriodTuitionType | null
 				width={800}
 				cancelText="Huỷ bỏ"
 				footer={[
-					<Button key="btnPrint" onClick={handleCancel}>
-						In
-					</Button>,
-					<Button loading={submiting} key="btnsubmit" type="primary" htmlType="submit" form="uForm" disabled={tuitionFeeInfo.status === 1 ? true : false}>
+					// <Button key="btnPrint" onClick={handleCancel}>
+					// 	In
+					// </Button>,
+					<Button loading={submiting} key="btnsubmit" type="primary" htmlType="submit" form="uForm" disabled={tuitionFeeInfo && tuitionFeeInfo.status === 1 || tuitionFeeInfo?.status === 3 ? true : false}>
 						Cập nhật
 					</Button>,
 				]}
@@ -119,9 +138,9 @@ export function EditTuitionFeeModal(prop: { periodInfo: PeriodTuitionType | null
 						<InputNumber formatter={(value) => numeral(value).format()} style={{ width: "50%", color: "#e74c3c" }} />
 					</Form.Item>
 					<Form.Item label="Giảm trừ theo đợt(%)" name="flexible_deduction" >
-						<InputNumber  
-							style={{ width: "20%", color: "#e67e22" }} 
-							/>
+						<InputNumber
+							style={{ width: "20%", color: "#e67e22" }}
+						/>
 					</Form.Item>
 					<Form.Item label="Thành tiền" name="amount">
 						<InputNumber formatter={(value) => numeral(value).format("0,0")} style={{ width: "50%", color: "#3498db" }} disabled />

@@ -5,6 +5,7 @@ import {
 	NotificationOutlined,
 	QuestionCircleOutlined,
 	TransactionOutlined,
+	FileTextOutlined
 } from "@ant-design/icons";
 import {
 	Alert,
@@ -35,7 +36,7 @@ import { actionAddNotification } from "store/notifications/slice";
 import { RootState, useAppDispatch } from "store/store";
 import { actionGetStudents } from "store/students/slice";
 import { actionGetPeriodTuion } from "store/tuition/periodslice";
-import {
+import tuition, {
 	actionTuitionFeePayment,
 	actionTuitionFeeTranferDebt,
 } from "store/tuition/tuition";
@@ -77,6 +78,7 @@ export default function TuitionDetail(): JSX.Element {
 	const [paymentCount, setPaymentCount] = useState<number>(0);
 	const [showNotiForm, setShowNotiForm] = useState(false);
 	const [showAddTuitionFee, setShowAddTuitionFee] = useState(false);
+	const [showEditTuitionFee, setShowEditTuitionFee] = useState(false);
 	const [showPaymentForm, setShowPaymentForm] = useState(false);
 	const [actionIndex, setActionIndex] = useState(-1);
 	const [addTuitionFeeStudent, setAddTuitionFeeStudent] = useState<StudentType | null>(null);
@@ -99,8 +101,9 @@ export default function TuitionDetail(): JSX.Element {
 	//get period information
 	useEffect(() => {
 		if (params.tuition_id || tuitionFeePaymentState === "success") {
-			dispatch(actionGetPeriodTuion(parseInt(params.tuition_id)));
-			if(tuitionFeePaymentState === 'success'){
+			
+			dispatch(actionGetPeriodTuion(+params.tuition_id));
+			if (tuitionFeePaymentState === 'success') {
 				setShowPaymentForm(false);
 				setActionIndex(-1)
 			}
@@ -190,7 +193,9 @@ export default function TuitionDetail(): JSX.Element {
 			icon: <ExclamationCircleOutlined />,
 			onOk() {
 				const debt_tranfer =
-					feesPerStudent[tuition.id] -
+					feesPerStudent[tuition.id] +
+					+tuition.prev_debt - 
+					+tuition.paid_amount -
 					+tuition.fixed_deduction -
 					+tuition.flexible_deduction -
 					+tuition.residual || 0;
@@ -306,6 +311,7 @@ export default function TuitionDetail(): JSX.Element {
 						{numeral(
 							feesPerStudent[feeItem.id]! +
 							+feeItem.prev_debt -
+							// +feeItem.paid_amount -
 							+feeItem.fixed_deduction -
 							+feeItem.flexible_deduction -
 							+feeItem.residual || 0
@@ -347,15 +353,13 @@ export default function TuitionDetail(): JSX.Element {
 				return (
 					<>
 						<Space>
-							<Tooltip title="Chỉnh sửa">
-								<EditTuitionFeeModal
-									tuitionFeeInfo={record}
-									periodInfo={tuitionPeriodInfo}
-									stName={
-										studentList.find((st) => st.id === record.student_id)?.name
-									}
-								/>
+							<Tooltip title="Chi tiết bảng học phí">
+								<Button onClick={() => {
+									setShowEditTuitionFee(true);
+									setActionIndex(index)
+								}} icon={<FileTextOutlined />} type="link" />
 							</Tooltip>
+
 							<Tooltip title="Gửi thông báo cho phụ huynh">
 								<Button
 									type="link"
@@ -565,6 +569,12 @@ export default function TuitionDetail(): JSX.Element {
 				}
 			>
 				<Content extra={extraContent}>{renderContent()}</Content>
+				<EditTuitionFeeModal
+					tuitionFeeInfo={actionIndex > -1 ? get(tuitionPeriodInfo,"tuition_fees",[])[actionIndex] : null}
+					show={showEditTuitionFee}
+					setShow={setShowEditTuitionFee}
+					periodInfo={tuitionPeriodInfo}
+				/>
 				<CreateTuitionFeeModal
 					periodInfo={tuitionPeriodInfo}
 					studentInfo={addTuitionFeeStudent}
@@ -612,7 +622,7 @@ function PaymentModal(props: {
 				+tuition_fee.flexible_deduction -
 				+tuition_fee.residual || 0
 			setPaidFull(amount)
-			setPaid(0    )
+			setPaid(0)
 		}
 	}, [tuition_fee])
 
@@ -649,7 +659,7 @@ function PaymentModal(props: {
 			</div>
 			<Space>
 				<span>Số tiền nộp lần này: </span>
-				<InputNumber value={numeral(paid).format("0,0")} onChange={(value) => setPaid(+value)} style={{fontWeight:"bold", width: 180, color: "#2980b9" }} />
+				<InputNumber value={numeral(paid).format("0,0")} onChange={(value) => setPaid(+value)} style={{ fontWeight: "bold", width: 180, color: "#2980b9" }} />
 				<Button
 					type="primary"
 					ghost
