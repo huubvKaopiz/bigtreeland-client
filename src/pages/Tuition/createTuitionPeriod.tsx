@@ -1,8 +1,10 @@
 import { CheckCircleOutlined, FileOutlined, QuestionCircleOutlined } from "@ant-design/icons";
 import {
 	Alert, Button, Checkbox, DatePicker, Descriptions, Input, InputNumber, Layout, Modal, PageHeader, Select,
+	Spin,
 	Table, Tag, Tooltip
 } from "antd";
+import useDebouncedCallback from "hooks/useDebounceCallback";
 import { DayoffType, StudentType } from "interface";
 import { get } from "lodash";
 import moment from "moment";
@@ -43,6 +45,7 @@ export default function CreateTuitionPeriod(): JSX.Element {
 
 	const [fromDate, setFromDate] = useState("");
 	const [toDate, setToDate] = useState("");
+	const [search, setSearch] = useState("");
 	const [estSessionNum, setEstSessionNum] = useState(0);
 	const [residualSessionNum, setrResidualSessionNum] = useState(0);
 	const [tuitionFees, setTuitionFees] = useState<TuitionFeeType[]>([]);
@@ -57,6 +60,7 @@ export default function CreateTuitionPeriod(): JSX.Element {
 
 	// aplication state
 	const classesList = useSelector((state: RootState) => state.classReducer.classes);
+	const searchClassState = useSelector((state: RootState) => state.classReducer.getClassesStatus);
 	const classInfo = useSelector((state: RootState) => state.classReducer.classInfo);
 	const getClassInfoStatus = useSelector((state: RootState) => state.classReducer.getClassStatus);
 	const dayoffs = useSelector((state: RootState) => state.dayoffReducer.dayoffs);
@@ -66,10 +70,15 @@ export default function CreateTuitionPeriod(): JSX.Element {
 	const flexible_deductions_ref = useRef<any>([]);
 	const notes_ref = useRef<any>([]);
 
+	const searchClass = useDebouncedCallback((searchParam) => {
+		setSearch(searchParam)
+		dispatch(actionGetClasses({ search }))
+	}, 500)
+
 	//UI Logic	
 	// initialize
 	useEffect(() => {
-		dispatch(actionGetClasses({}));
+		dispatch(actionGetClasses({ search }));
 		dispatch(actionSetClassStateNull());
 		dispatch(actionSetStudentsStateNull());
 	}, [dispatch]);
@@ -179,7 +188,7 @@ export default function CreateTuitionPeriod(): JSX.Element {
 				}
 			})
 		}
-	// eslint-disable-next-line react-hooks/exhaustive-deps
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [addPeriodTuitionState])
 
 
@@ -480,7 +489,15 @@ export default function CreateTuitionPeriod(): JSX.Element {
 			>
 				<Descriptions size="default" column={2} layout="horizontal" bordered>
 					<Descriptions.Item label="Lớp học">
-						<Select defaultValue={0} style={{ width: 280 }} onChange={handleChangeClass}>
+						<Select
+							defaultValue={0}
+							style={{ width: 280 }}
+							onChange={handleChangeClass}
+							showSearch
+							onSearch={(e) => searchClass(e)}
+							filterOption={false}
+							notFoundContent={searchClassState === "loading" ? <Spin size="small" /> : null}
+						>
 							<Option key={0} value={0}>
 								Chọn lớp học...
 							</Option>
@@ -542,7 +559,7 @@ export default function CreateTuitionPeriod(): JSX.Element {
 					</Descriptions.Item>
 					<Descriptions.Item label="Các ngày nghỉ lễ">
 						{
-							dayoffsInPeriod.map((day:string) => <Tag key={day} color="red">{moment(day).format("DD-MM-YYYY")}</Tag>)
+							dayoffsInPeriod.map((day: string) => <Tag key={day} color="red">{moment(day).format("DD-MM-YYYY")}</Tag>)
 						}
 					</Descriptions.Item>
 				</Descriptions>

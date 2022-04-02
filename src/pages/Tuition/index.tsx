@@ -1,5 +1,6 @@
 import { CheckCircleOutlined, DeleteOutlined, ExclamationCircleOutlined, MinusCircleOutlined, PlusOutlined, UnorderedListOutlined } from "@ant-design/icons";
-import { Button, DatePicker, Layout, Modal, Select, Space, Table, Tag, Tooltip } from "antd";
+import { Button, DatePicker, Layout, Modal, Select, Space, Spin, Table, Tag, Tooltip } from "antd";
+import useDebouncedCallback from "hooks/useDebounceCallback";
 import { ClassType } from "interface";
 import { get } from "lodash";
 import moment from "moment";
@@ -26,19 +27,27 @@ type TableDataType = {
 	amout: number;
 	status: string;
 	id: number;
-	deleteAble:boolean;
+	deleteAble: boolean;
 };
 
 export default function Tuition(): JSX.Element {
 	const dispatch = useAppDispatch();
 	const history = useHistory();
-	const periodTuitionList = useSelector((state: RootState) => state.periodTuitionReducer.periodTuitions);
-	const getTuitionListState = useSelector((state: RootState) => state.periodTuitionReducer.getPeriodTuitionsStatus);
 
-	const classesList = useSelector((state: RootState) => state.classReducer.classes);
 	const [periodTableData, setPeriodTableData] = useState<TableDataType[]>([]);
 	const [classInfoList, setClassInfoList] = useState<ClassType[]>([]);
 	const [searchParam, setSearchParam] = useState<GetPeriodTuionsPrams>({});
+	const [search, setSearch] = useState("");
+
+	const periodTuitionList = useSelector((state: RootState) => state.periodTuitionReducer.periodTuitions);
+	const getTuitionListState = useSelector((state: RootState) => state.periodTuitionReducer.getPeriodTuitionsStatus);
+	const searchClassState = useSelector((state: RootState) => state.classReducer.getClassesStatus);
+	const classesList = useSelector((state: RootState) => state.classReducer.classes);
+
+	const searchClass = useDebouncedCallback((searchText) => {
+		setSearch(searchText)
+		dispatch(actionGetClasses({ search }))
+	}, 500)
 
 	useEffect(() => {
 		dispatch(actionGetPeriodTuions(searchParam));
@@ -74,7 +83,7 @@ export default function Tuition(): JSX.Element {
 				fromDate: period.from_date,
 				toDate: period.to_date,
 				active: period.active,
-				estact_session_num: `${get(period,"lessons",[]).length}/${period.est_session_num}`,
+				estact_session_num: `${get(period, "lessons", []).length}/${period.est_session_num}`,
 				amout: amount,
 				status: `${paidCount}` + '/' + `${tuitionsCount}`,
 				id: period.id,
@@ -108,7 +117,7 @@ export default function Tuition(): JSX.Element {
 	}
 
 	//handle active/deactive period tuition
-	function handleActive(period:TableDataType) {
+	function handleActive(period: TableDataType) {
 		confirm({
 			title: period.active === 1 ? "Bỏ kích hoạt chu kỳ học phí" : "Kích hoạt chu kỳ học phí",
 			icon: <ExclamationCircleOutlined />,
@@ -141,7 +150,12 @@ export default function Tuition(): JSX.Element {
 		<Layout.Content>
 			<Space style={{ marginBottom: 20, marginTop: 20 }}>
 				<DatePicker style={{ width: 200 }} placeholder="Lọc theo quý" onChange={onChangeDateFilter} picker="quarter" />
-				<Select defaultValue={0} style={{ width: 280 }} onChange={handleChangeClass}>
+				<Select defaultValue={0} style={{ width: 280 }} onChange={handleChangeClass}
+					showSearch
+					onSearch={(e) => searchClass(e)}
+					filterOption={false}
+					notFoundContent={searchClassState === "loading" ? <Spin size="small" /> : null}
+					>
 					<Option value={0}>Tất cả</Option>
 					{classInfoList.map((cl) => (
 						<Option value={cl.id} key={cl.id}>
