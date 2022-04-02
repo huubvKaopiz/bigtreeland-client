@@ -149,8 +149,6 @@ function LeftMenu(): JSX.Element {
 			}
 		});
 		setMenuItemGranted([...new Set(menuItem)]);
-
-		history.push("/classes")
 	}, [userStore]);
 
 	return (

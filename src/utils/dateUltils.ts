@@ -38,11 +38,13 @@ export function getDatesInRange(startDate: string, endDate: string, day: number)
 }
 
 export function getSameDates(dateList1: string[], dateList2: string[]): string[] {
+	console.log("getSameDates:",dateList1, dateList2);
 	const dateSameList:string[] = [];
 	if(dateList1.length == 0 || dateList2.length == 0) return dateSameList;
 	dateList1.forEach(date1 => {
 		dateList2.forEach(date2 => {
 			if (moment(date1).isSame(moment(date2))){
+				console.log("getSameDates: same ", date1, date2)
 				dateSameList.push(date1)
 			}
 		});

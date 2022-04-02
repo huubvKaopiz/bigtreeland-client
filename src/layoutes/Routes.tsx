@@ -2,7 +2,7 @@ import Payment from "pages/Payment";
 import Parents from "pages/Parents";
 import Roles from "pages/Roles";
 import Students from "pages/Students";
-import { Route, useHistory } from "react-router-dom";
+import { Route, useHistory, useLocation } from "react-router-dom";
 import Classes from "../pages/Classes";
 import Employees from "../pages/Employees";
 import Home from "../pages/Home";
@@ -42,6 +42,7 @@ interface RouteElementType {
 
 function Routes(): JSX.Element {
 	const history = useHistory();
+	const location = useLocation();
 	const userStore = useSelector((state: RootState) => state.auth.user);
 	const [menuItemGranted, setMenuItemGranted] = useState<number[]>([]);
 
@@ -231,17 +232,15 @@ function Routes(): JSX.Element {
 		});
 		setMenuItemGranted([...new Set(menuItem)]);
 		const first_path = routes.find((route) => route.menuID == menuItem[0])?.path
-		if (first_path) history.push(first_path)
-	}, [userStore]);
-
-
+		if (first_path && location.pathname === '/') history.push(first_path)
+	}, []);
 	return (
 		<>
 			{
 				routes.map((route) =>
 					menuItemGranted.findIndex((item) => item === route.menuID) !== -1 || route.menuID === -1
 						?
-						<Route exact={route.isExact} path={route.path} component={route.component} />
+						<Route key={route.path} exact={route.isExact} path={route.path} component={route.component} />
 						: null
 				)
 			}
