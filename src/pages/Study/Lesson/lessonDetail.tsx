@@ -216,6 +216,7 @@ function LessonDetails(): JSX.Element {
 		);
 		if (students.length > 0 && lessonInfo) {
 			const params = {
+				// class_id:classInfo.id,
 				lesson_id: lessonInfo.id,
 				lesson_title: lessonName,
 				assistant_id: hasAssistant ? classInfo.assistant_id : 0,
@@ -430,7 +431,9 @@ function LessonDetails(): JSX.Element {
 							bordered
 							rowKey="id"
 							size="small"
-							pagination={false}
+							pagination={{
+								pageSize:50
+							}}
 						/>
 					</Spin>
 				}

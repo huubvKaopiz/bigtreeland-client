@@ -296,7 +296,11 @@ export default function CreateLesson(props: {
                         bordered
                         rowKey="id"
                         size="small"
-                        pagination={false}
+                        pagination={{
+                            pageSize:50
+                        }}
+                        
+                        
                     />
                 </Col>
             </Row>
