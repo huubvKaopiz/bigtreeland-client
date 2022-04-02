@@ -25,6 +25,7 @@ export interface UpdateTestResultsParam {
 	teacher_comment?: string;
 	point?: string;
 	parent_feedback?: string;
+	correct_link?:string;
 }
 
 export interface AddTestResultParam {
@@ -33,6 +34,7 @@ export interface AddTestResultParam {
 	teacher_comment?: string;
 	point?: string;
 	correct_files?:number[];
+	correct_link?:string;
 }
 
 export const actionGetTestResults = createAsyncThunk(

@@ -29,6 +29,7 @@ export default function UpdateModal(props: {
     const dispatch = useDispatch();
     const [comment, setComment] = useState("");
     const [point, setPoint] = useState("");
+    const [correctLink, setCorrectLink] = useState("");
     const [fileSelected, setFileSelected] = useState<FileType[]>([]);
     const [showSelect, setShowSelect] = useState(false);
 
@@ -45,9 +46,11 @@ export default function UpdateModal(props: {
             setComment(testResultInfo.test_result.teacher_comment)
             setPoint(testResultInfo.test_result.point)
             setFileSelected(testResultInfo.test_result.correct_files)
+            setCorrectLink(testResultInfo.test_result.correct_link)
         } else {
             setComment("")
             setPoint("")
+            setCorrectLink("")
             setFileSelected([])
         }
     }, [testResultInfo])
@@ -60,6 +63,7 @@ export default function UpdateModal(props: {
                     id: testResultInfo.test_result.id,
                     teacher_comment: comment,
                     point,
+                    correct_link:correctLink,
                     correct_files: fileSelected.map((file) => file.id),
                 };
                 dispatch(actionUpdateTestResult(data));
@@ -68,6 +72,7 @@ export default function UpdateModal(props: {
                     test_id,
                     student_id: testResultInfo.student.id,
                     teacher_comment: comment,
+                    correct_link:correctLink,
                     point,
                     correct_files: fileSelected.map((file) => file.id),
                 }
@@ -109,7 +114,7 @@ export default function UpdateModal(props: {
                         style={{ height: 100 }}
                     />
                     <p style={{ marginBottom: 10, marginTop: 10 }}>Link bài chữa</p>
-                    <Input placeholder="Dán đường dẫn bài chữa nếu có..." />
+                    <Input placeholder="Dán đường dẫn bài chữa nếu có..." onChange={(e)=>setCorrectLink(e.target.value)} value={correctLink}/>
                     <p style={{ marginTop: 20 }}>Ảnh bài chữa</p>
                     <FileSelectModal
                         defaultSelected={fileSelected}

@@ -173,9 +173,7 @@ export default function TuitionDetail(): JSX.Element {
 				if (index === -1) {
 					if (st.class_histories.length >= 1) {
 						if (
-							moment(
-								st.class_histories[st.class_histories.length - 1].date
-							).isSameOrAfter(moment(get(tuitionPeriodInfo, "from_date", "")))
+							moment(st.class_histories[st.class_histories.length - 1].date).isSameOrAfter(moment(get(tuitionPeriodInfo, "from_date", "")))
 						)
 							newList.push(st);
 					}

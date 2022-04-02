@@ -45,7 +45,7 @@ export default function (props: {
     // get the testinfo following the test_id
     useEffect(() => {
         if (testInfo) {
-            dispatch(actionGetStudents({ class_id: testInfo.class_id }))
+            dispatch(actionGetStudents({ class_id: testInfo.class_id, per_page:50 }))
         }
     }, [testInfo]);
 
