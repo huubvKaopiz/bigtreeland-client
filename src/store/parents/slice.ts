@@ -126,7 +126,7 @@ export const parentSlice = createSlice({
 			.addCase(actionGetParents.rejected, (state, action) => {
 				state.getParentsStatus = "error";
 				const error = action.payload as AxiosError;
-				handleResponseError(error)
+				handleResponseError(error, "xem danh sách phụ huynh")
 			})
 
 			// add parent
@@ -140,7 +140,7 @@ export const parentSlice = createSlice({
 			.addCase(actionAddParent.rejected, (state, action) => {
 				state.addParentStatus = "error";
 				const error = action.payload as AxiosError;
-				handleResponseError(error);
+				handleResponseError(error, "thêm phụ huynh");
 			})
 
 			//update parent infomation

@@ -7,7 +7,7 @@ import { actionGetStudents } from 'store/students/slice';
 import { Button, Space, Table, Tag, Tooltip, Image } from 'antd';
 import { NotificationOutlined, IssuesCloseOutlined, PauseCircleFilled, PlayCircleFilled } from "@ant-design/icons";
 import moment from 'moment';
-import { get } from 'lodash';
+import get from 'lodash/get';
 import { defaul_image_base64, NOTIFI_URIS } from 'utils/const';
 import UpdateModal from './updateModal';
 import { resetUpdateTestResultsStatus } from 'store/test-results/slice';

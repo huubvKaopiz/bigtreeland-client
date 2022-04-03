@@ -19,10 +19,12 @@ import {
 } from "store/testes/slice";
 import moment from "moment";
 import { dayOptions, fileIconList } from "utils/const";
-import { isImageType } from "utils/ultil";
-import { get } from "lodash";
+import { isHavePermission, isImageType } from "utils/ultil";
+import get from "lodash/get";
 import UpdateTestModal from "./updateTestModal";
 import TestResults from "./TestResults";
+import usePermissionList from "hooks/usePermissionList";
+import useIsAdmin from "hooks/useIsAdmin";
 
 const { Title } = Typography;
 const dateFormat = "DD-MM-YYYY";
@@ -30,6 +32,8 @@ const dateFormat = "DD-MM-YYYY";
 export function TestDetail(): JSX.Element {
 	const params = useParams() as { test_id: string; class_id: string };
 	const dispatch = useDispatch();
+	const permissionList = usePermissionList();
+	const isAdmin = useIsAdmin();
 	const [videoPlaying, setVideoPlaying] = useState(false);
 	const testInfo = useSelector(
 		(state: RootState) => state.testReducer.testInfo
@@ -56,6 +60,7 @@ export function TestDetail(): JSX.Element {
 					onBack={() => window.history.back()}
 					style={{ backgroundColor: "white", marginTop: 20 }}
 					extra={[
+						(isAdmin || isHavePermission(permissionList, "tests.update")) &&
 						<UpdateTestModal
 							testInfo={testInfo}
 						/>,

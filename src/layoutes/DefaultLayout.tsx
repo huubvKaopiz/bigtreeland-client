@@ -1,7 +1,7 @@
 import { Layout, Space } from "antd";
 import { useEffect, useState } from "react";
-// import { useDispatch } from "react-redux";
-// import { actionGetRoles } from "store/roles/slice";
+import { useDispatch } from "react-redux";
+import { actionGetRoles } from "store/roles/slice";
 import LeftMenu from "./LeftMenu";
 import Routes from "./Routes";
 import TopHeader from "./TopHeader";
@@ -9,11 +9,11 @@ const { Content, Footer, Sider } = Layout;
 
 function DefaultLayout(): JSX.Element {
 	const [collapsed, setCollapsed] = useState(false);
-	// const dispatch = useDispatch();
+	const dispatch = useDispatch();
 
-	// useEffect(() => {
-	// 	dispatch(actionGetRoles(0));
-	// }, [dispatch]);
+	useEffect(() => {
+		dispatch(actionGetRoles(0));
+	}, [dispatch]);
 
 	return (
 		<Layout>

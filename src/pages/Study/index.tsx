@@ -1,30 +1,34 @@
-import { Button, Descriptions, Layout, PageHeader, Spin, Tabs } from "antd";
 import { NotificationOutlined } from '@ant-design/icons';
+import { Button, Descriptions, Layout, PageHeader, Spin, Tabs } from "antd";
 import SendNotificationModal from "components/SendNotificationModal";
-import { get } from "lodash";
+import useIsAdmin from 'hooks/useIsAdmin';
+import usePermissionList from 'hooks/usePermissionList';
+import get from "lodash/get";
 import moment from "moment";
-import AddStudentsModal from "pages/Classes/addStudentsModal";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import {
 	actionGetClass,
-	actionSetClassDetailTabKey,
+	actionSetClassDetailTabKey
 } from "store/classes/slice";
 import { RootState, useAppDispatch } from "store/store";
-import { actionGetStudents } from "store/students/slice";
 import { dayOptions, NOTIFI_URIS, STUDY_TABS } from "utils/const";
+import { isHavePermission } from 'utils/ultil';
 import { ClassPhotos } from "./Album";
+import Documents from "./Documents";
 import { Lesson } from "./Lesson";
 import StudentsOfClass from "./Students/StudentsOfClass";
 import { StudySumaryBoard } from "./Summary";
 import { CreateStudySummary } from "./Summary/createModal";
 import { Tests } from "./Test";
-import Documents from "./Documents";
 
 export default function Test(): JSX.Element {
 	const params = useParams() as { class_id: string };
 	const dispatch = useAppDispatch();
+	const permissionList = usePermissionList();
+	const isAdmin = useIsAdmin();
+
 	const { TabPane } = Tabs;
 	const [showNotiform, setShowNotiForm] = useState(false);
 	// application states
@@ -58,6 +62,7 @@ export default function Test(): JSX.Element {
 					title={classInfo?.name}
 					subTitle="Quản lý học tập"
 					extra={[
+						(isAdmin || isHavePermission(permissionList, "notifications.store")) &&
 						<Button
 							type="primary"
 							icon={<NotificationOutlined />}
@@ -129,12 +134,15 @@ export default function Test(): JSX.Element {
 						<ClassPhotos class_id={params.class_id} />
 					</TabPane>
 					<TabPane tab="Bảng tổng kết" key={STUDY_TABS.SUMMARY}>
-						<div style={{ marginTop: 10, marginBottom: 20 }}>
-							<CreateStudySummary
-								class_id={+params.class_id}
-								classList={null}
-							/>
-						</div>
+						{
+							(isAdmin || isHavePermission(permissionList, "study-summary-boards.store")) &&
+							<div style={{ marginTop: 10, marginBottom: 20 }}>
+								<CreateStudySummary
+									class_id={+params.class_id}
+									classList={null}
+								/>
+							</div>
+						}
 						<StudySumaryBoard class_id={+params.class_id} />
 					</TabPane>
 				</Tabs>

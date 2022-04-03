@@ -220,7 +220,7 @@ function LeftMenu(): JSX.Element {
 								Phụ huynh
 							</Menu.Item>
 						)}
-						{menuItemGranted.includes(11) && (
+						{menuItemGranted.includes(8) && (
 							<Menu.Item key="8" onClick={() => history.push("/study-summary")}>
 								Bảng tổng kết
 							</Menu.Item>

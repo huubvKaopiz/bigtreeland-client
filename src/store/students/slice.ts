@@ -117,7 +117,7 @@ export const actionUpdateStudent = createAsyncThunk(
 			});
 			return response.data;
 		} catch (error) {
-			rejectWithValue(error);
+			return rejectWithValue(error);
 		}
 	}
 );
@@ -134,7 +134,7 @@ export const actionLeaveClass = createAsyncThunk(
 			});
 			return response.data;
 		} catch (error) {
-			rejectWithValue(error);
+			return rejectWithValue(error);
 		}
 	}
 );
@@ -150,7 +150,7 @@ export const updateStudentStatus = createAsyncThunk(
 			});
 			return response.data;
 		} catch (error) {
-			rejectWithValue(error);
+			return rejectWithValue(error);
 		}
 	}
 );
@@ -167,7 +167,7 @@ export const actionUpdateStudentClassHistory = createAsyncThunk(
 			});
 			return response.data;
 		} catch (error) {
-			rejectWithValue(error);
+			return rejectWithValue(error);
 		}
 	}
 );

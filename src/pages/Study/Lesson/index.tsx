@@ -1,5 +1,7 @@
 import { PlusOutlined, UnorderedListOutlined } from "@ant-design/icons";
 import { Button, Comment, DatePicker, List, Space, Table, Tooltip } from "antd";
+import useIsAdmin from "hooks/useIsAdmin";
+import usePermissionList from "hooks/usePermissionList";
 import { ClassType, LessonType, StudentType } from "interface";
 import { get } from "lodash";
 import moment from "moment";
@@ -9,6 +11,7 @@ import { useHistory } from "react-router-dom";
 import { actionGetLessons } from "store/lesson/slice";
 import { RootState, useAppDispatch } from "store/store";
 import { STUDY_TABS } from "utils/const";
+import { isHavePermission } from "utils/ultil";
 import CreateLesson from "./createLesson";
 
 const { RangePicker } = DatePicker;
@@ -25,6 +28,9 @@ export function Lesson(props: { classInfo: ClassType | null, students:StudentTyp
     const addAttendanceStatus = useSelector(
         (state: RootState) => state.attendanceReducer.addAttendanceStatus
     );
+    
+	const permissionList = usePermissionList();
+	const isAdmin = useIsAdmin();
 
     useEffect(() => {
         if (classInfo && activeTab === STUDY_TABS.LESSON) {
@@ -116,7 +122,10 @@ export function Lesson(props: { classInfo: ClassType | null, students:StudentTyp
                                 style={{ marginTop: 20, marginBottom: 20 }}
                                 onChange={handleChangeLessonRange}
                             />
-                            <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateMode(true)}>Buổi học mới</Button>
+                            {
+                                (isAdmin || isHavePermission(permissionList, "lessons.store")) &&
+                                <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateMode(true)}>Buổi học mới</Button>
+                                }
                         </Space>
                         <Table
                             rowKey="id"

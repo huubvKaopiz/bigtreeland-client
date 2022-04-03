@@ -2,6 +2,7 @@ import { notification } from "antd";
 import { AxiosError, AxiosResponse } from "axios";
 import { get } from "lodash";
 import numeral from "numeral";
+import { PermistionType } from "store/permissions/slice";
 import { imageExtensionsList, ROLE_NAMES } from "./const";
 import request from "./request";
 
@@ -73,8 +74,14 @@ export function converRoleNameToVN(role: ROLE_NAMES): string {
 		case ROLE_NAMES.ON_MANAGER:
 			res = "Quản lý HS online";
 			break;
+		case ROLE_NAMES.OFF_MANAGER:
+			res = "Quản lý HS ofline";
+			break;
 		case ROLE_NAMES.CLASS_ASSISTANT:
 			res = "Trợ giảng";
+			break;
+		case ROLE_NAMES.RECEPTIONIST:
+			res = "Lễ tân";
 			break;
 		default:
 			break;
@@ -82,10 +89,9 @@ export function converRoleNameToVN(role: ROLE_NAMES): string {
 	return res;
 }
 
-export function handleResponseError(error: AxiosError, action?:string) {
+export function handleResponseError(error: AxiosError, action?:string) : void {
 	let msg = "";
 	if (error.response) {
-		console.log(error.response)
 		// The request was made and the server responded with a status code
 		if (error.response.status === 500) msg = "Lỗi server 500"
 		else if (error.response.status === 403) msg = `Bạn không có quyền ${action ? action : '' }` 
@@ -242,4 +248,11 @@ export function getPermissionDes(name: string): string {
 			break;
 	}
 	return res;
+}
+
+export function isHavePermission(permissionList: PermistionType[], ...permissionName: string[]): boolean {
+	return permissionName.every(per => 
+		!!permissionList.find(permission => permission.name === per)
+		)
+	// return !!permissionList.find(permission => permission.name === permissionName);
 }

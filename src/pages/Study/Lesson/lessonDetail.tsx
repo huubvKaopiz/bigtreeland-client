@@ -14,7 +14,9 @@ import {
 } from "antd";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import TextArea from "antd/lib/input/TextArea";
-import { get } from "lodash";
+import useIsAdmin from "hooks/useIsAdmin";
+import usePermissionList from "hooks/usePermissionList";
+import get from "lodash/get";
 import moment, { Moment } from "moment";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -27,6 +29,7 @@ import { actionGetClass } from "store/classes/slice";
 import { actionGetLessonInfo } from "store/lesson/slice";
 import { RootState, useAppDispatch } from "store/store";
 import { dateFormat, dayOptions, submitDateFormat } from "utils/const";
+import { isHavePermission } from "utils/ultil";
 
 interface AttendanceDetailType {
 	id: number;
@@ -51,6 +54,8 @@ function LessonDetails(): JSX.Element {
 	const [lessonName, setLessonName] = useState("");
 	const [date, setDate] = useState(moment(new Date()).format(dateFormat));
 	const [hasAssistant, setHasAssistant] = useState(false);
+	const permissionList = usePermissionList();
+	const isAdmin = useIsAdmin();
 
 
 	//state
@@ -374,6 +379,7 @@ function LessonDetails(): JSX.Element {
 				title={moment(lessonInfo?.date || "").format(dateFormat)}
 				subTitle={`Chi tiết buổi học`}
 				extra={
+					(isAdmin || isHavePermission(permissionList, "lessons.update")) &&
 					<Space style={{ paddingTop: 20, marginBottom: 20 }}>
 						{/* Ngày điểm danh: {moment(attendanceDate).format("DD-MM-YYYY")} */}
 						{editMode && (

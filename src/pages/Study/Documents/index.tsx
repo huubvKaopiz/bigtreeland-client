@@ -7,10 +7,12 @@ import { useSelector } from 'react-redux';
 import { actionDeleteDocument, actionGetDocuments } from 'store/documents/slice';
 import { RootState, useAppDispatch } from 'store/store';
 import AddDocument from './addDocument';
-import { formatFileSize, isImageType } from 'utils/ultil';
+import { formatFileSize, isHavePermission, isImageType } from 'utils/ultil';
 import { fileIconList } from 'utils/const';
 import moment from 'moment';
 import UpdateDocument from './updateDocument';
+import usePermissionList from 'hooks/usePermissionList';
+import useIsAdmin from 'hooks/useIsAdmin';
 const { RangePicker } = DatePicker;
 const { confirm } = Modal;
 
@@ -27,7 +29,8 @@ export default function (props: {
     const dispatch = useAppDispatch();
     const [editIndex, setEditIndex] = useState(-1)
     const [showEdit, setShowEdit] = useState(false)
-
+    const permissionList = usePermissionList();
+	const isAdmin = useIsAdmin();
     const documentsData = useSelector((state: RootState) => state.documentReducer.documents);
     const deleteDocumentState = useSelector((state: RootState) => state.documentReducer.deleteDocumentStatus);
 
@@ -81,7 +84,9 @@ export default function (props: {
                     style={{ marginTop: 20, marginBottom: 20 }}
                     onChange={handleChangeDateRange}
                 />
+                { (isAdmin || isHavePermission(permissionList, "documents.store")) &&
                 <AddDocument class_id={classInfo?.id || 0} />
+                }
             </Space>
 
             {

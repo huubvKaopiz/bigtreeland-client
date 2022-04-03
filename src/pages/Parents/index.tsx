@@ -3,12 +3,15 @@ import {
 	Button, Col, Form, Input, Layout, Row, Space, Table, Tag,
 } from "antd";
 import useDebouncedCallback from "hooks/useDebounceCallback";
+import useIsAdmin from "hooks/useIsAdmin";
+import usePermissionList from "hooks/usePermissionList";
 import { ParentType } from "interface";
-import { get } from "lodash";
+import get from "lodash/get";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { actionGetParents, actionUpdateParent } from "store/parents/slice";
 import { RootState, useAppDispatch } from "store/store";
+import { isHavePermission } from "utils/ultil";
 // import { actionGetStudents } from "store/students/slice";
 import AddParent from "./addParentModal";
 // import AddStudent from "./addStudents";
@@ -25,8 +28,8 @@ export default function Parents(): JSX.Element {
 	const [page, setPage] = useState(1);
 	const [search, setSearch] = useState('')
 	const [editIndex, setEditIndex] = useState(-1);
-	// const [showAddStudent, setShowAddStudent] = useState(false);
-	// const [parentAddStudentIndex, setShowAddStudentIndex] = useState(-1);
+	const permissionList = usePermissionList();
+	const isAdmin = useIsAdmin();
 
 	const [editPayload, setEditPayload] = useState<EditPayloadType | null>(null)
 	const [form] = Form.useForm();
@@ -47,11 +50,6 @@ export default function Parents(): JSX.Element {
 		setSearch(search)
 		dispatch(actionGetParents({ page: 1, search }))
 	}, 500)
-
-	// const searchStudent = useDebouncedCallback(search => {
-	// 	setSearch(search)
-	// 	dispatch(actionGetStudents({ page: 1, search }))
-	// }, 500)
 
 	useEffect(() => {
 		dispatch(actionGetParents({ page, search }));
@@ -150,6 +148,7 @@ export default function Parents(): JSX.Element {
 			width: "15%",
 			title: "Action",
 			key: "action",
+			hidden: !(isAdmin || isHavePermission(permissionList, "users.update")),
 			render: function ActionCol(text: string, record: ParentType, index: number): JSX.Element {
 				return editIndex === index ? (
 					<Space>
@@ -186,15 +185,17 @@ export default function Parents(): JSX.Element {
 				<Col span={10}>
 					<Input.Search allowClear onChange={({ target: { value } }) => searchParent(value)} placeholder="Tìm theo tên, email hoặc số điện thoại..." />
 				</Col>
-				<Col span={6} style={{ marginLeft: 20 }}>
-					<AddParent />
-				</Col>
+				{ (isAdmin || isHavePermission(permissionList, "users.store")) &&
+					<Col span={6} style={{ marginLeft: 20 }}>
+						<AddParent />
+					</Col>
+				}
 			</Row>
 			<Form form={form} component={false}>
 				<Table
 					bordered
 					loading={getParentsStatus === "loading"}
-					columns={columns}
+					columns={columns.filter((item) => !item.hidden)}
 					rowKey="id"
 					dataSource={get(parents, "data", [])}
 					pagination={{

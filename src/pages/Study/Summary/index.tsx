@@ -1,5 +1,7 @@
 import { CheckCircleOutlined } from '@ant-design/icons';
 import { Button, DatePicker, Layout, List, Modal, Select, Space } from 'antd';
+import useIsAdmin from 'hooks/useIsAdmin';
+import usePermissionList from 'hooks/usePermissionList';
 import { StudySummaryType } from 'interface';
 import { get } from 'lodash';
 import moment, { Moment } from 'moment';
@@ -9,6 +11,7 @@ import { useHistory } from 'react-router-dom';
 import { actionGetClasses } from 'store/classes/slice';
 import { RootState, useAppDispatch } from 'store/store';
 import { actionDeleteStudySummary, actionGetStudySummaryList } from 'store/study-summary/slice';
+import { isHavePermission } from 'utils/ultil';
 import { CreateStudySummary } from './createModal';
 
 const { confirm } = Modal;
@@ -17,6 +20,8 @@ export function StudySumaryBoard(props: { class_id?: number }): JSX.Element {
     const { class_id } = props;
     const history = useHistory();
     const dispatch = useAppDispatch();
+    const permissionList = usePermissionList();
+	const isAdmin = useIsAdmin();
 
     const classList = useSelector((state: RootState) => state.classReducer.classes)
     const studySummaryList = useSelector((state: RootState) => state.studySummaryReducer.studySummaryList)
@@ -78,7 +83,9 @@ export function StudySumaryBoard(props: { class_id?: number }): JSX.Element {
                             </Option>
                         ))}
                     </Select>
-                    <CreateStudySummary classList={get(classList, "data", [])} class_id={0} />
+                    { (isAdmin || isHavePermission(permissionList, "study-summary-boards.store")) && 
+                        <CreateStudySummary classList={get(classList, "data", [])} class_id={0} />
+                    }
                 </Space>
             }
             <List
@@ -88,8 +95,12 @@ export function StudySumaryBoard(props: { class_id?: number }): JSX.Element {
                 renderItem={(item: StudySummaryType) => (
                     <List.Item
                         actions={[
-                            <Button type="link" key="list-loadmore-edit" onClick={() => history.push({ pathname: `/study-summary-detail/${item.id}`, state: { summaryInfo: item } })}>Chi tiết</Button>,
-                            <Button danger type="link" key="list-loadmore-edit" onClick={() => handleDelete(item.id)}>Xoá</Button>
+                            (
+                                (isAdmin || isHavePermission(permissionList, "study-summary-boards.index")) && 
+                                <Button type="link" key="list-loadmore-edit" onClick={() => history.push({ pathname: `/study-summary-detail/${item.id}`, state: { summaryInfo: item } })}>Chi tiết</Button>),
+                            (
+                                (isAdmin || isHavePermission(permissionList, "study-summary-boards.destroy")) &&
+                                <Button danger type="link" key="list-loadmore-edit" onClick={() => handleDelete(item.id)}>Xoá</Button>)
                         ]}
                     >
                         <List.Item.Meta

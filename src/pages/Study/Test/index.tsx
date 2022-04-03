@@ -10,6 +10,8 @@ import {
     Space,
     DatePicker
 } from "antd";
+import useIsAdmin from "hooks/useIsAdmin";
+import usePermissionList from "hooks/usePermissionList";
 import { ClassType, StudentType, TestType } from "interface";
 import { get } from "lodash";
 import { useEffect } from "react";
@@ -18,6 +20,7 @@ import { useHistory } from "react-router-dom";
 import { RootState, useAppDispatch } from "store/store";
 import { actionGetTestes } from "store/testes/slice";
 import { defaul_image_base64, STUDY_TABS } from "utils/const";
+import { isHavePermission } from "utils/ultil";
 import AddTest from "./addTestModal";
 const { RangePicker } = DatePicker;
 
@@ -32,7 +35,9 @@ export function Tests(props: {
 
     const testList = useSelector((state: RootState) => state.testReducer.testes);
     const getTestListState = useSelector((state: RootState) => state.testReducer.getTestesStatus);
-
+    const permissionList = usePermissionList();
+	const isAdmin = useIsAdmin();
+    
     const activeTab = useSelector(
         (state: RootState) => state.classReducer.classDetailTabKey
     );
@@ -62,7 +67,10 @@ export function Tests(props: {
                     style={{ marginTop: 20, marginBottom: 20 }}
                     onChange={handleChangeDateRange}
                 />
-                <AddTest classInfo={classInfo} />
+                {
+                    (isAdmin || isHavePermission(permissionList, "tests.store")) &&
+                        <AddTest classInfo={classInfo} />
+                    }
             </Space>
             <List
                 itemLayout="vertical"

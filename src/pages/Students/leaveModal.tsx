@@ -22,12 +22,13 @@ export default function LeaveModal(props: { studen_id: number }): JSX.Element {
 			})
 		)
 			.then((res) => {
+				console.log(res)
 				if (res.meta.requestStatus === "fulfilled") {
-					notification.success({ message: "Thành công" });
+					notification.success({ message: "Đổi trạng thái nghỉ thành công" });
 					setShow(false);
 					return;
 				}
-				notification.error({ message: "Thất bại" });
+				notification.error({ message: "Đổi trạng thái nghỉ thất bại" });
 			})
 			.finally(() => {
 				setLoading(false);

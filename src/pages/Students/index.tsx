@@ -1,5 +1,7 @@
 import { EditOutlined, SnippetsOutlined, ImportOutlined, SwapOutlined } from '@ant-design/icons';
 import { Button, Col, Input, Layout, Row, Space, Table, Tag, Tooltip } from "antd";
+import useIsAdmin from 'hooks/useIsAdmin';
+import usePermissionList from 'hooks/usePermissionList';
 import { debounce, get } from "lodash";
 import moment from "moment";
 import React, { useEffect, useRef, useState } from "react";
@@ -9,6 +11,7 @@ import { actionGetClasses } from "store/classes/slice";
 import { actionGetParents } from "store/parents/slice";
 import { RootState, useAppDispatch } from "store/store";
 import { actionGetStudents, actionResetGetStudents, actionResetUpdateStudent } from "store/students/slice";
+import { isHavePermission } from 'utils/ultil';
 import { StudentType } from "../../interface";
 import AddStudentModal from "./addStudentModal";
 import EditStudentModal from "./editStudentModal";
@@ -32,6 +35,8 @@ export default function Students(): JSX.Element {
 	const searchParentStatus = useSelector((state: RootState) => state.parentReducer.getParentsStatus);
 	const searchClassStatus = useSelector((state: RootState) => state.classReducer.getClassesStatus);
 	const updateStudentStatus = useSelector((state: RootState) => state.studentReducer.updateStudentStatus);
+	const permissionList = usePermissionList();
+	const isAdmin = useIsAdmin();
 
 	useEffect(() => {
 		if (loadListStatus === "error" || loadListStatus === "success") {
@@ -40,7 +45,8 @@ export default function Students(): JSX.Element {
 	}, [dispatch, loadListStatus]);
 
 	useEffect(() => {
-		dispatch(actionGetParents({ per_page: 100 }));
+		if(isAdmin || isHavePermission(permissionList, "students.store") || isHavePermission(permissionList, "students.update"))
+			dispatch(actionGetParents({ per_page: 100 }));
 		dispatch(actionGetClasses({}));
 	}, [dispatch]);
 
@@ -113,7 +119,8 @@ export default function Students(): JSX.Element {
 				return (
 					<Space key={student.id}>
 						{
-							student.class === null ?
+							(isAdmin || isHavePermission(permissionList, "students.update")) &&
+							(student.class === null ?
 								<Tooltip placement="top" title="Nhập lớp">
 									<Button onClick={() => {
 										setImportClassStudentIndex(index);
@@ -126,19 +133,27 @@ export default function Students(): JSX.Element {
 										setImportClassStudentIndex(index);
 										setShowImportModal(true)
 									}} />} type="link" />
-								</Tooltip>
+								</Tooltip>)
 						}
-						{/* <Profile student={student} /> */}
-						<Tooltip placement="top" title="Hồ sơ học tập">
-							<Button icon={<SnippetsOutlined onClick={() => history.push(`/students-study-profile/${student.id}`)} />} type="link" />
-						</Tooltip>
+						{ (isAdmin || isHavePermission(permissionList, "students.index")) &&
+							<Tooltip placement="top" title="Hồ sơ học tập">
+								<Button icon={<SnippetsOutlined onClick={() => history.push(`/students-study-profile/${student.id}`)} />} type="link" />
+							</Tooltip>
+						}
 
-						<Button type="link" icon={<EditOutlined />} onClick={() => {
-							setShowEdit(true);
-							setEditIndex(index)
-						}} />
+						{ 
+							(isAdmin || isHavePermission(permissionList, "students.update")) &&
+							<Button type="link" icon={<EditOutlined />} onClick={() => {
+								setShowEdit(true);
+								setEditIndex(index)
+							}} />
+						}
 
-						<LeaveModal studen_id={student.id} />
+						{ 
+							(isAdmin || isHavePermission(permissionList, "students.update-status") 
+							|| isHavePermission(permissionList, "students.update")) &&
+							<LeaveModal studen_id={student.id} />
+						}
 					</Space>
 				);
 			},
@@ -151,9 +166,11 @@ export default function Students(): JSX.Element {
 				<Col span={10}>
 					<Input.Search allowClear onChange={({ target: { value } }) => debounceSearchStudent(value)} placeholder='Tìm kiếm theo tên học sinh' />
 				</Col>
-				<Col span={6} style={{ marginLeft: 20 }}>
-					<AddStudentModal parents={parents} searchParent={debounceSearchParent} searchStatus={searchParentStatus} />
-				</Col>
+				{ (isAdmin || isHavePermission(permissionList, "students.store")) &&
+					<Col span={6} style={{ marginLeft: 20 }}>
+						<AddStudentModal parents={parents} searchParent={debounceSearchParent} searchStatus={searchParentStatus} />
+					</Col>
+				}
 			</Row>
 			<Table
 				columns={columns}

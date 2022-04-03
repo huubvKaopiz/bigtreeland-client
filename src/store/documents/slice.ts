@@ -143,7 +143,7 @@ export const documentSlice = createSlice({
             .addCase(actionGetDocuments.rejected, (state, action) => {
                 state.getDocumentsStatus = "error";
                 const error = action.payload as AxiosError;
-                handleResponseError(error);
+                handleResponseError(error, "xem danh sách tài liệu");
             })
 
             // add document
@@ -157,7 +157,7 @@ export const documentSlice = createSlice({
             .addCase(actionAddDocument.rejected, (state, action) => {
                 state.addDocumentStatus = "error";
                 const error = action.payload as AxiosError;
-                handleResponseError(error);
+                handleResponseError(error, "thêm tài liệu");
             })
             //update
             .addCase(actionUpdateDocument.pending, (state) => {

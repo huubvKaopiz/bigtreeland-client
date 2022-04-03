@@ -6,6 +6,8 @@ import {
 import { Button, Form, Image, Modal, Space, Spin } from "antd";
 import Dragger from "antd/lib/upload/Dragger";
 import { UploadFile } from "antd/lib/upload/interface";
+import useIsAdmin from "hooks/useIsAdmin";
+import usePermissionList from "hooks/usePermissionList";
 import { ClassPhotoType, FileType } from "interface";
 import { get } from "lodash";
 import { useEffect, useState } from "react";
@@ -22,7 +24,7 @@ import {
 	imageExtensionsList,
 	STUDY_TABS,
 } from "utils/const";
-import { dummyRequest } from "utils/ultil";
+import { dummyRequest, isHavePermission } from "utils/ultil";
 
 export function ClassPhotos(props: { class_id: string }): JSX.Element {
 	const { class_id } = props;
@@ -31,6 +33,8 @@ export function ClassPhotos(props: { class_id: string }): JSX.Element {
 	const [fileList, setFileList] = useState<UploadFile[]>([]);
 	const [form] = Form.useForm();
 	const [isLoading, setIsLoading] = useState(false);
+	const permissionList = usePermissionList();
+	const isAdmin = useIsAdmin();
 
 	const photos = useSelector((state: RootState) => state.classReducer.photos);
 	const deletePhotoState = useSelector(
@@ -88,7 +92,9 @@ export function ClassPhotos(props: { class_id: string }): JSX.Element {
 
 	return (
 		<>
-			<Button
+			{
+				(isAdmin || isHavePermission(permissionList, "albums.store")) &&
+				<Button
 				type="primary"
 				icon={<UploadOutlined />}
 				onClick={() => {
@@ -96,7 +102,7 @@ export function ClassPhotos(props: { class_id: string }): JSX.Element {
 				}}
 			>
 				Tải ảnh mới
-			</Button>
+			</Button>}
 			<Modal
 				title="Chọn ảnh để upload"
 				centered

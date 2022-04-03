@@ -7,6 +7,9 @@ import { useSelector } from 'react-redux';
 import { useHistory, useParams } from 'react-router-dom';
 import { RootState, useAppDispatch } from 'store/store';
 import { actionGetStudentProfile, actionUpdateStudentClassHistory } from 'store/students/slice';
+import usePermissionList from 'hooks/usePermissionList';
+import useIsAdmin from 'hooks/useIsAdmin';
+import { isHavePermission } from 'utils/ultil';
 
 export function StudyProfile(): JSX.Element {
     const params = useParams() as { student_id: string };
@@ -14,6 +17,8 @@ export function StudyProfile(): JSX.Element {
     const dispatch = useAppDispatch();
     const [editClassHistoryDateIndex, setEditClassHistoryDateIndex] = useState<number>(-1);
     const [editClassHistoryDate, setEditClassHistoryDate] = useState(moment(new Date).format("YYYY-MM-DD"));
+    const permissionList = usePermissionList();
+	const isAdmin = useIsAdmin();
 
     const studentProfile = useSelector((state: RootState) => state.studentReducer.studentProfile);
     const getStudentProfileState = useSelector((state: RootState) => state.studentReducer.getStudentStatus);
@@ -56,7 +61,7 @@ export function StudyProfile(): JSX.Element {
                         <Descriptions.Item label="Họ và tên"><strong>{get(studentProfile, "name", "")}</strong></Descriptions.Item>
                         <Descriptions.Item label="Ngày sinh">{moment(get(studentProfile, "birthday", "")).format("DD/MM/YYYY")}</Descriptions.Item>
                         <Descriptions.Item label="Giới tính">{get(studentProfile, "gender", 0) === 0 ? "Nữ" : "Nam"}</Descriptions.Item>
-                        <Descriptions.Item label="Lớp học"><a onClick={() => history.push(`/classes-detail/${get(studentProfile, "class.id", 0)}`)}>{get(studentProfile, "class.name", "")}</a></Descriptions.Item>
+                        <Descriptions.Item label="Lớp học"><a onClick={() => history.push(`/study/${get(studentProfile, "class.id", 0)}`)}>{get(studentProfile, "class.name", "")}</a></Descriptions.Item>
                         <Descriptions.Item label="Điểm đầu vào">{get(studentProfile, "knowledge_status", "")}</Descriptions.Item>
                         <Descriptions.Item label="Trường đang học" span={3}>{get(studentProfile, "school", "")}</Descriptions.Item>
                         <Descriptions.Item label="Địa chỉ" span={3}>{get(studentProfile, "address", "")}</Descriptions.Item>
@@ -79,10 +84,13 @@ export function StudyProfile(): JSX.Element {
                                                                 ?
                                                                 <>
                                                                     <span style={{ color: "#2980b9" }}>{moment(history.date).format("DD-MM-YYYY")}</span>
-                                                                    <Button icon={<EditOutlined />} type="link" onClick={() => {
-                                                                        setEditClassHistoryDateIndex(index);
-                                                                        setEditClassHistoryDate(history.date);
-                                                                    }} />
+                                                                    {
+                                                                        (isAdmin || isHavePermission(permissionList, "class-histories.update")) &&
+                                                                        <Button icon={<EditOutlined />} type="link" onClick={() => {
+                                                                            setEditClassHistoryDateIndex(index);
+                                                                            setEditClassHistoryDate(history.date);
+                                                                        }} />
+                                                                    }
                                                                 </>
                                                                 :
                                                                 <>

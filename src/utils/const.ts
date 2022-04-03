@@ -33,6 +33,7 @@ export enum ROLE_NAMES {
 	PARENT = 'parent',
 	EMPLOYEE = 'employee',
 	ON_MANAGER = 'on_manager',
+	OFF_MANAGER = 'off_manager',
 	CLASS_ASSISTANT = 'class_assistant',
 	GENERAL_ASSISTANT = '_assistant',
 	RECEPTIONIST = 'receptionist'
