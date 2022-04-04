@@ -14,6 +14,7 @@ export interface TestReducerState {
 	getTestesStatus: "idle" | "loading" | "success" | "error";
 	updateTestStatus: "idle" | "loading" | "success" | "error";
 	addTestStatus: "idle" | "loading" | "success" | "error";
+	deleteTestStatus: "idle" | "loading" | "success" | "error";
 }
 
 export interface GetTestsPrams {
@@ -54,6 +55,7 @@ const initialState: TestReducerState = {
 	getTestesStatus: "idle",
 	updateTestStatus: "idle",
 	addTestStatus: "idle",
+	deleteTestStatus: "idle",
 };
 
 export const actionGetTest = createAsyncThunk(
@@ -112,6 +114,20 @@ export const actionUpdateTest = createAsyncThunk(
 				url: `/api/tests/${id}`,
 				method: "put",
 				data,
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
+	}
+);
+export const actionDeleteTest = createAsyncThunk(
+	"actionDeleteTest",
+	async (id: number, { rejectWithValue }) => {
+		try {
+			const response = await request({
+				url: `/api/tests/${id}`,
+				method: "delete",
 			});
 			return response.data;
 		} catch (error) {
@@ -194,6 +210,19 @@ export const testSlice = createSlice({
 			.addCase(actionUpdateTest.fulfilled, (state) => {
 				state.updateTestStatus = "success";
 				notification.success({ message: "Cập nhật bài test thành công!" });
+			})
+			//Delete
+			.addCase(actionDeleteTest.pending, (state) => {
+				state.deleteTestStatus = "loading";
+			})
+			.addCase(actionDeleteTest.rejected, (state, action) => {
+				state.deleteTestStatus = "error";
+				const error = action.payload as AxiosError;
+				handleResponseError(error, "xoá bài test");
+			})
+			.addCase(actionDeleteTest.fulfilled, (state) => {
+				state.deleteTestStatus = "success";
+				notification.success({ message: "Xoá bài test thành công!" });
 			});
 	},
 });
