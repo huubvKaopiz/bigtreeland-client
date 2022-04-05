@@ -67,6 +67,14 @@ export default function (props: {
 
 	const cols = [
 		{
+			title:"STT",
+			dataIndex:"index",
+			key:"index",
+			render: function col(text: string, record: StudentType, index:number): JSX.Element {
+			return <span>{index + 1}</span>
+			}
+		},
+		{
 			title: "Họ tên",
 			dataIndex: "name",
 			key: "name",

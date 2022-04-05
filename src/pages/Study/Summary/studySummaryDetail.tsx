@@ -167,6 +167,20 @@ export function StudySummaryDetail(): JSX.Element {
 	}, [students, lessons, testes]);
 
 	let columns: any[] = [
+		// {
+		// 	title: "STT",
+		// 	key: "index",
+		// 	dataIndex: "",
+		// 	fixed: "left",
+		// 	with:10,
+		// 	render: function StudentCol(
+		// 		_: string,
+		// 		record: SummaryStudentType,
+		// 		index: number
+		// 	): JSX.Element {
+		// 		return <span>{index + 1}</span>
+		// 	},
+		// },
 		{
 			title: "Học sinh",
 			dataIndex: "student",
@@ -200,10 +214,9 @@ export function StudySummaryDetail(): JSX.Element {
 							<span style={{ color: "#3498db" }}>
 								{record.summaries[index].test_points.length > 0
 									? record.summaries[index].test_points.map((tp, index) => (
-											<span key={index}>{`${tp} ${
-												index < sm.test_points.length - 1 ? ", " : ""
+										<span key={index}>{`${tp} ${index < sm.test_points.length - 1 ? ", " : ""
 											}`}</span>
-									  ))
+									))
 									: "-"}
 							</span>
 						</div>
@@ -213,7 +226,7 @@ export function StudySummaryDetail(): JSX.Element {
 		});
 	columns = columns.concat([
 		{
-			title: "Tổng HK",
+			title: "Điểm HK",
 			dataIndex: "total_conduct_point",
 			key: "total_conduct_point",
 			width: 80,
@@ -245,10 +258,10 @@ export function StudySummaryDetail(): JSX.Element {
 					<strong style={{ color: "#27ae60" }}>
 						{record.test_point_avg > 0
 							? Math.floor(
-									((record.total_conduct_point + record.test_point_avg * 3) /
-										4) *
-										100
-							  ) / 100
+								((record.total_conduct_point + record.test_point_avg * 3) /
+									4) *
+								100
+							) / 100
 							: record.total_conduct_point}
 					</strong>
 				);
@@ -267,7 +280,18 @@ export function StudySummaryDetail(): JSX.Element {
 			<div style={{ paddingLeft: 20 }}>
 				<Descriptions bordered>
 					<Descriptions.Item label="Lớp">
-						<a>{get(summaryInfo, "class.name", "")}</a>
+						<Button
+							type="link"
+							onClick={() =>
+								history.push({
+									pathname: `/study/${get(summaryInfo, "class.id", "1")}`,
+									state: { classInfo: get(summaryInfo, "class", "") },
+								})
+							}
+						>
+							{get(summaryInfo, "class.name", "")}
+						</Button>
+
 					</Descriptions.Item>
 					{/* <Descriptions.Item label="Giáo viên">Hangzhou, Zhejiang</Descriptions.Item> */}
 					<Descriptions.Item label="Số học sinh">

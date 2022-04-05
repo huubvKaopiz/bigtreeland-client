@@ -1,5 +1,5 @@
-import { PlusOutlined, UnorderedListOutlined } from "@ant-design/icons";
-import { Button, Comment, DatePicker, List, Space, Table, Tooltip } from "antd";
+import { PlusOutlined, UnorderedListOutlined, IssuesCloseOutlined } from "@ant-design/icons";
+import { Button, Comment, DatePicker, List, Space, Table, Tag, Tooltip } from "antd";
 import useIsAdmin from "hooks/useIsAdmin";
 import usePermissionList from "hooks/usePermissionList";
 import { ClassType, LessonType, StudentType } from "interface";
@@ -57,6 +57,10 @@ export function Lesson(props: { classInfo: ClassType | null, students:StudentTyp
         }
     }
 
+    function handleUpdatePeriodTuionFeeForLesson(id:number){
+        console.log(id)
+    }
+
     const cols: any[] = [
         {
             title: 'Tên buổi học', dataIndex: 'title', key: 'title',
@@ -66,8 +70,13 @@ export function Lesson(props: { classInfo: ClassType | null, students:StudentTyp
         },
         {
             title: 'Ngày học', dataIndex: 'date', key: 'name',
-            render: function col(text: string): JSX.Element {
-                return (<strong>{moment(text).format("DD-MM-YYYY")}</strong>)
+            render: function col(text: string, record:LessonType): JSX.Element {
+                return (
+                    <div>
+                        <strong>{moment(text).format("DD-MM-YYYY")} </strong>
+                        {record.tuition_period_id === 0 && <Tag color="red">Không tính học phí</Tag>}
+                    </div>
+                )
             }
         },
         {
@@ -103,6 +112,12 @@ export function Lesson(props: { classInfo: ClassType | null, students:StudentTyp
                         <Tooltip title="Chi tiết">
                             <Button type="link" icon={<UnorderedListOutlined onClick={() => history.push(`/study/${get(classInfo, 'id', 0)}/lesson-detail/${record.id}`)} />} />
                         </Tooltip>
+                        {
+                            record.tuition_period_id === 0 && (isAdmin || isHavePermission(permissionList,"period-tuitions.store")) && 
+                            <Tooltip title={"Cập nhật chu kỳ học phí"}>
+                                <Button icon={<IssuesCloseOutlined />} type="link" onClick={() => handleUpdatePeriodTuionFeeForLesson(record.id)}/>
+                            </Tooltip>
+                        }
                     </Space>
                 )
             }

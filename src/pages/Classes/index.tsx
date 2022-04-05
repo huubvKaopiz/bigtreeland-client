@@ -1,5 +1,5 @@
 import { EditOutlined, UnorderedListOutlined } from "@ant-design/icons";
-import { Button, Col, Input, Layout, Row, Space, Table, Tag } from "antd";
+import { Button, Col, Input, Layout, Popover, Row, Space, Table, Tag } from "antd";
 import usePermissionList from "hooks/usePermissionList";
 import { get } from "lodash";
 import numeral from "numeral";
@@ -62,6 +62,8 @@ function Classes(): JSX.Element {
 		setEditIndex(index);
 	}
 
+	console.log(permissionList)
+
 	const columns = [
 		{
 			width: 350,
@@ -94,7 +96,16 @@ function Classes(): JSX.Element {
 				id: number;
 				profile: { name: string };
 			}): JSX.Element {
-				return <Button type="link">{get(value, "profile.name", "")}</Button>;
+				return (
+					<Popover content={
+						<div>
+							Số điện thoại: <span style={{color:"#2980b9"}}>{get(value, "phone", "")}</span>
+						</div>
+					} 
+					title="">
+						<Button type="link">{get(value, "profile.name", "")}</Button>
+					</Popover>
+				)
 			},
 		},
 		{
@@ -106,7 +117,17 @@ function Classes(): JSX.Element {
 				id: number;
 				profile: { name: string };
 			}): JSX.Element {
-				return <Button type="link">{get(value, "profile.name", "")}</Button>;
+				return (
+					<Popover content={
+						<div>
+							Số điện thoại: <span style={{color:"#2980b9"}}>{get(value, "phone", "")}</span>
+						</div>
+					} 
+					title="">
+						<Button type="link">{get(value, "profile.name", "")}</Button>
+					</Popover>
+				)
+
 			},
 		},
 		{
@@ -120,11 +141,7 @@ function Classes(): JSX.Element {
 			title: "Học phí / buổi",
 			dataIndex: "fee_per_session",
 			key: "fee_per_session",
-			hidden:
-				roleList.length === 1 &&
-				(roleList[0].name.includes("teacher") ||
-					(roleList[0].name.includes("assistant") &&
-						roleList[0].name !== "general_assistant")),
+			hidden: isHavePermission(permissionList, "period-tuitions.store") === false,
 			render: function feeCol(amount: number): JSX.Element {
 				return (
 					<span style={{ color: "#3498db" }}>
@@ -176,12 +193,12 @@ function Classes(): JSX.Element {
 						/>
 						{(isAdmin ||
 							isHavePermission(permissionList, "classes.update")) && (
-							<Button
-								type="link"
-								icon={<EditOutlined />}
-								onClick={() => handleEdit(index)}
-							/>
-						)}
+								<Button
+									type="link"
+									icon={<EditOutlined />}
+									onClick={() => handleEdit(index)}
+								/>
+							)}
 					</Space>
 				);
 			},

@@ -101,7 +101,7 @@ export default function TuitionDetail(): JSX.Element {
 	//get period information
 	useEffect(() => {
 		if (params.tuition_id || tuitionFeePaymentState === "success") {
-			
+
 			dispatch(actionGetPeriodTuion(+params.tuition_id));
 			if (tuitionFeePaymentState === 'success') {
 				setShowPaymentForm(false);
@@ -170,14 +170,15 @@ export default function TuitionDetail(): JSX.Element {
 				const index = get(tuitionPeriodInfo, "tuition_fees", []).findIndex(
 					(tuition) => tuition.student_id === st.id
 				);
-				if (index === -1) {
-					if (st.class_histories.length >= 1) {
-						if (
-							moment(st.class_histories[st.class_histories.length - 1].date).isSameOrAfter(moment(get(tuitionPeriodInfo, "from_date", "")))
-						)
-							newList.push(st);
-					}
-				}
+				if (index === -1) newList.push(st);
+				// if (index === -1) {
+				// 	if (st.class_histories.length >= 1) {
+				// 		if (
+				// 			moment(st.class_histories[st.class_histories.length - 1].date).isSameOrAfter(moment(get(tuitionPeriodInfo, "from_date", "")))
+				// 		)
+				// 			newList.push(st);
+				// 	}
+				// }
 			});
 			setNewStudentList(newList);
 		}
@@ -192,7 +193,7 @@ export default function TuitionDetail(): JSX.Element {
 			onOk() {
 				const debt_tranfer =
 					feesPerStudent[tuition.id] +
-					+tuition.prev_debt - 
+					+tuition.prev_debt -
 					+tuition.paid_amount -
 					+tuition.fixed_deduction -
 					+tuition.flexible_deduction -
@@ -482,80 +483,81 @@ export default function TuitionDetail(): JSX.Element {
 								pagination={{ pageSize: 50 }}
 							/>
 						</TabPane>
-						{newStudentList.length > 0 ? (
-							<TabPane
-								tab={
-									<span>
-										Học sinh mới (
-										<span style={{ color: "#e74c3c" }}>
-											{newStudentList.length}
+						{
+							newStudentList.length > 0 ? (
+								<TabPane
+									tab={
+										<span>
+											Học sinh mới (
+											<span style={{ color: "#e74c3c" }}>
+												{newStudentList.length}
+											</span>
+											)
 										</span>
-										)
-									</span>
-								}
-								key="newSt"
-							>
-								<Alert
-									style={{ marginBottom: 20, marginTop: 20 }}
-									message=""
-									description="DS học sinh mới là những học sinh vào lớp sau chu kỳ thu học phí và chưa lập bảng thu học phí cho chu kỳ này!"
-									type="warning"
-									closable
-								/>
-								<Table dataSource={newStudentList} rowKey="id">
-									<Column
-										title="Họ tên"
-										dataIndex="name"
-										key="name"
-										render={(val) => <a>{val}</a>}
+									}
+									key="newSt"
+								>
+									<Alert
+										style={{ marginBottom: 20, marginTop: 20 }}
+										message=""
+										description="DS học sinh mới là những học sinh vào lớp sau chu kỳ thu học phí và chưa lập bảng thu học phí cho chu kỳ này!"
+										type="warning"
+										closable
 									/>
-									<Column
-										title="Ngày sinh"
-										dataIndex="birthday"
-										key="birthday"
-										render={(val) => <>{moment(val).format("DD/MM/YYYY")}</>}
-									/>
-									<Column
-										title="Ngày nhập học"
-										dataIndex=""
-										key="admission_date"
-										render={(_: number, record: StudentType) => (
-											<strong>
-												{moment(
-													record.class_histories[
-														record.class_histories.length - 1
-													].date
-												).format("DD/MM/YYYY")}
-											</strong>
-										)}
-									/>
-									<Column
-										title="Aaction"
-										dataIndex="action"
-										key="action"
-										render={(_: number, record: StudentType) => (
-											<Space>
-												<Tooltip title="Tạo bảng học phí">
-													<Button
-														onClick={() => {
-															setShowAddTuitionFee(true);
-															setAddTuitionFeeStudent(record);
-														}}
-														icon={<FileAddOutlined />}
-														type="link"
-													/>
-												</Tooltip>
-											</Space>
-										)}
-									/>
-								</Table>
-							</TabPane>
-						) : (
-							""
-						)}
+									<Table dataSource={newStudentList} rowKey="id">
+										<Column
+											title="Họ tên"
+											dataIndex="name"
+											key="name"
+											render={(val) => <a>{val}</a>}
+										/>
+										<Column
+											title="Ngày sinh"
+											dataIndex="birthday"
+											key="birthday"
+											render={(val) => <>{moment(val).format("DD/MM/YYYY")}</>}
+										/>
+										<Column
+											title="Ngày nhập học"
+											dataIndex=""
+											key="admission_date"
+											render={(_: number, record: StudentType) => (
+												<strong>
+													{moment(
+														record.class_histories[
+															record.class_histories.length - 1
+														].date
+													).format("DD/MM/YYYY")}
+												</strong>
+											)}
+										/>
+										<Column
+											title="Aaction"
+											dataIndex="action"
+											key="action"
+											render={(_: number, record: StudentType) => (
+												<Space>
+													<Tooltip title="Tạo bảng học phí">
+														<Button
+															onClick={() => {
+																setShowAddTuitionFee(true);
+																setAddTuitionFeeStudent(record);
+															}}
+															icon={<FileAddOutlined />}
+															type="link"
+														/>
+													</Tooltip>
+												</Space>
+											)}
+										/>
+									</Table>
+								</TabPane>
+							) : (
+								""
+							)}
 						<TabPane tab="Danh sách buổi học" key="lessionInfo">
 							<Table
-								rowKey="lesson_id"
+								rowKey="id"
 								bordered
 								style={{ paddingTop: 20 }}
 								dataSource={get(tuitionPeriodInfo, "lessons", [])}
@@ -568,7 +570,7 @@ export default function TuitionDetail(): JSX.Element {
 			>
 				<Content extra={extraContent}>{renderContent()}</Content>
 				<EditTuitionFeeModal
-					tuitionFeeInfo={actionIndex > -1 ? get(tuitionPeriodInfo,"tuition_fees",[])[actionIndex] : null}
+					tuitionFeeInfo={actionIndex > -1 ? get(tuitionPeriodInfo, "tuition_fees", [])[actionIndex] : null}
 					show={showEditTuitionFee}
 					setShow={setShowEditTuitionFee}
 					periodInfo={tuitionPeriodInfo}

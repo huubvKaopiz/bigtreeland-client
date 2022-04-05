@@ -1,5 +1,5 @@
 import { NotificationOutlined } from '@ant-design/icons';
-import { Button, Descriptions, Layout, PageHeader, Spin, Tabs } from "antd";
+import { Alert, Button, Descriptions, Layout, notification, PageHeader, Spin, Tabs } from "antd";
 import SendNotificationModal from "components/SendNotificationModal";
 import useIsAdmin from 'hooks/useIsAdmin';
 import usePermissionList from 'hooks/usePermissionList';
@@ -31,6 +31,7 @@ export default function Test(): JSX.Element {
 
 	const { TabPane } = Tabs;
 	const [showNotiform, setShowNotiForm] = useState(false);
+	const [showActivePeriodTuitionWarning, setShowActivePeriodTuitionWarning] = useState(false)
 	// application states
 	const activeTab = useSelector(
 		(state: RootState) => state.classReducer.classDetailTabKey
@@ -52,6 +53,24 @@ export default function Test(): JSX.Element {
 			// dispatch(actionGetStudents({ class_id: parseInt(params.class_id) }));
 		}
 	}, [dispatch, params, addStudentState]);
+
+
+	useEffect(() => {
+		if (classInfo) {
+			const { period_tuition_lastest } = classInfo;
+			const today = moment().format("YYYY-MM-DD");
+			if (period_tuition_lastest) {
+				if (
+					moment(period_tuition_lastest.from_date).isSameOrBefore(moment(today))
+					&&
+					moment(period_tuition_lastest.to_date).isSameOrAfter(moment(today))
+				)
+					if (period_tuition_lastest.active === 0) {
+						setShowActivePeriodTuitionWarning(true)
+					}
+			} else setShowActivePeriodTuitionWarning(true)
+		}
+	}, [classInfo])
 
 	return (
 		<Layout.Content>
@@ -107,7 +126,33 @@ export default function Test(): JSX.Element {
 							({classInfo?.schedule_time ?? "Chưa có thời gian học"})
 						</strong>
 					</Descriptions.Item>
+
+					<Descriptions.Item label="Chu kỳ tính học phí">
+						{
+							classInfo?.period_tuition_lastest
+								&& classInfo.period_tuition_lastest.active === 1
+								&& moment().isSameOrAfter(moment(classInfo.period_tuition_lastest?.from_date)) 
+								&& moment().isSameOrBefore(moment(classInfo.period_tuition_lastest?.to_date)) 
+								?
+								<strong>
+									{moment(classInfo.period_tuition_lastest.from_date).format("DD-MM-YYYY")} &rarr;
+									{moment(classInfo.period_tuition_lastest.to_date).format("DD-MM-YYYY")}
+								</strong>
+								:
+								<Alert type="warning"
+									description="Hiện lớp học đang không có chu kỳ học phí được kích hoạt cho này hôm nay. 
+												Điều này đồng nghĩa với tạo buổi học hôm này sẽ không tính học phí cho học sinh.
+												Vui lòng xác nhận lại với quản lý để kích hoạt bảng học phí."
+								/>
+
+						}
+					</Descriptions.Item>
 				</Descriptions>
+				{
+					showActivePeriodTuitionWarning &&
+					<div style={{ marginBottom: 15, marginTop: 15 }}>
+
+					</div>}
 				<Tabs
 					style={{ marginTop: 20 }}
 					activeKey={activeTab}

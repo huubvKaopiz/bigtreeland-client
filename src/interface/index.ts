@@ -89,6 +89,7 @@ export interface ClassType {
 	updated_at: "2021-11-06T16:01:41.000000Z";
 	act_session_num: 1;
 	active_period_tuition?: PeriodTuitionType;
+	period_tuition_lastest?:PeriodTuitionType;
 	students?: StudentType[];
 	assistant_id: number | null;
 	assistant: UserType;

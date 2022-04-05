@@ -50,6 +50,7 @@ export function CreateTuitionFeeModal(prop: {
 					count += dateListInRang.length;
 					dayoff_list = dayoff_list.concat(getSameDates(dateListInRang, dayoffList))
 				})
+				console.log(count, dayoffList);
 				count -= dayoff_list.length;
 				setEstSessionNum(count);
 				setDayoffList(dayoff_list);
