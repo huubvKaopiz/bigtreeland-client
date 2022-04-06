@@ -11,6 +11,7 @@ interface LessionReducerState {
 	lessons: GetResponseType<LessonType> | null;
 	getLessonsState: "idle" | "loading" | "success" | "error";
 	getLessonInfoSate: "idle" | "loading" | "success" | "error";
+	updateLessonState: "idle" | "loading" | "success" | "error";
 }
 
 interface GetLessonsParmasType {
@@ -52,11 +53,28 @@ export const actionGetLessons = createAsyncThunk(
 	}
 );
 
+export const actionUpdatePeriodTuition = createAsyncThunk(
+	"lesson/update-period-tuition",
+	async (lID: number, { rejectWithValue }) => {
+		try {
+			const response = await request({
+				url: `/api/lessons/update-period`,
+				method: "put",
+				data: { lesson_id: lID }
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
+	}
+);
+
 const initialState: LessionReducerState = {
 	lessonInfo: null,
 	lessons: null,
 	getLessonsState: "idle",
-	getLessonInfoSate: "idle"
+	getLessonInfoSate: "idle",
+	updateLessonState:"idle"
 };
 
 export const lessonSlice = createSlice({
@@ -64,7 +82,7 @@ export const lessonSlice = createSlice({
 	initialState,
 	reducers: {
 		actionGetLessonInfo(state) {
-			state.getLessonInfoSate = "idle" ;
+			state.getLessonInfoSate = "idle";
 		},
 		actionResetGetLessionsStatus(state) {
 			state.getLessonsState = "idle";
@@ -72,6 +90,9 @@ export const lessonSlice = createSlice({
 		actionSetLessionsStateNull(state) {
 			state.lessons = null;
 		},
+		actionUpdatePeriodTuition(state){
+			state.updateLessonState = 'idle'
+		}
 	},
 	extraReducers: (builder) => {
 		builder
@@ -96,6 +117,18 @@ export const lessonSlice = createSlice({
 			})
 			.addCase(actionGetLessons.rejected, (state, action) => {
 				state.getLessonsState = "error";
+				const error = action.payload as AxiosError;
+				handleResponseError(error);
+			})
+			.addCase(actionUpdatePeriodTuition.pending, (state) => {
+				state.updateLessonState = "loading";
+			})
+			.addCase(actionUpdatePeriodTuition.fulfilled, (state, action) => {
+				state.updateLessonState = "success";
+				notification.success({message:"Cập nhật thành công"})
+			})
+			.addCase(actionUpdatePeriodTuition.rejected, (state, action) => {
+				state.updateLessonState = "error";
 				const error = action.payload as AxiosError;
 				handleResponseError(error);
 			});

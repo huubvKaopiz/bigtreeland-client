@@ -8,7 +8,7 @@ import moment from "moment";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
-import { actionGetLessons } from "store/lesson/slice";
+import { actionGetLessons, actionUpdatePeriodTuition } from "store/lesson/slice";
 import { RootState, useAppDispatch } from "store/store";
 import { STUDY_TABS } from "utils/const";
 import { isHavePermission } from "utils/ultil";
@@ -24,10 +24,12 @@ export function Lesson(props: { classInfo: ClassType | null, students:StudentTyp
     // application states
     const lessons = useSelector((state: RootState) => state.lessonReducer.lessons);
     const getLessonsState = useSelector((state: RootState) => state.lessonReducer.getLessonsState);
+    const updateLessonsState = useSelector((state: RootState) => state.lessonReducer.updateLessonState);
     const activeTab = useSelector((state: RootState) => state.classReducer.classDetailTabKey);
     const addAttendanceStatus = useSelector(
         (state: RootState) => state.attendanceReducer.addAttendanceStatus
     );
+    
     
 	const permissionList = usePermissionList();
 	const isAdmin = useIsAdmin();
@@ -39,12 +41,12 @@ export function Lesson(props: { classInfo: ClassType | null, students:StudentTyp
     }, [classInfo, activeTab, dispatch])
 
     useEffect(() => {
-        if (addAttendanceStatus === 'success') {
+        if (addAttendanceStatus === 'success' || updateLessonsState ==='success') {
             setCreateMode(false);
             if (classInfo) dispatch(actionGetLessons({ class_id: classInfo.id }))
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [addAttendanceStatus])
+    }, [addAttendanceStatus, updateLessonsState])
 
 
     function handleChangeLessonRange(_: any, dateString: string[]) {
@@ -58,7 +60,7 @@ export function Lesson(props: { classInfo: ClassType | null, students:StudentTyp
     }
 
     function handleUpdatePeriodTuionFeeForLesson(id:number){
-        console.log(id)
+        dispatch(actionUpdatePeriodTuition(id))
     }
 
     const cols: any[] = [
@@ -144,7 +146,7 @@ export function Lesson(props: { classInfo: ClassType | null, students:StudentTyp
                         </Space>
                         <Table
                             rowKey="id"
-                            loading={getLessonsState === 'loading'}
+                            loading={getLessonsState === 'loading' || updateLessonsState === 'loading' }
                             columns={cols}
                             expandable={{
                                 expandedRowRender: record =>

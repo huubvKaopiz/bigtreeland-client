@@ -25,7 +25,7 @@ export interface ClassReducerState {
 
 export interface GetClassesPrams {
 	search?: string;
-	per_page?:number;
+	per_page?: number;
 	page?: number;
 	teacher_id?: number | undefined;
 }
@@ -87,6 +87,39 @@ export const actionGetClass = createAsyncThunk(
 		}
 	}
 );
+
+export const actionGetMyClasses = createAsyncThunk(
+	"class/my-class",
+	async (params: GetClassesPrams, { rejectWithValue }) => {
+		try {
+			const response = await request({
+				url: `/api/classes/my-classes`,
+				method: "get",
+				params,
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
+	}
+);
+
+export const actionGetOnlineClasses = createAsyncThunk(
+	"class/online-class",
+	async (params: GetClassesPrams, { rejectWithValue }) => {
+		try {
+			const response = await request({
+				url: `/api/classes/online-classes`,
+				method: "get",
+				params,
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
+	}
+);
+
 
 export const actionGetClasses = createAsyncThunk(
 	"actionGetClasses",
@@ -208,7 +241,7 @@ export const classSlice = createSlice({
 	name: "parent",
 	initialState,
 	reducers: {
-		actionGetClasses(state){
+		actionGetClasses(state) {
 			console.log("get classes")
 			state.classes = null;
 			state.getClassesStatus = 'idle';
@@ -239,6 +272,14 @@ export const classSlice = createSlice({
 		},
 		actionGetClassPhotos(state) {
 			state.getClassPhotosStatus = 'idle';
+		},
+		actionGetMyClasses(state) {
+			state.classes = null;
+			state.getClassesStatus = 'idle';
+		},
+		actionGetOnlineClasses(state){
+			state.classes = null;
+			state.getClassesStatus = 'idle';
 		}
 	},
 	extraReducers: (builder) => {
@@ -254,7 +295,33 @@ export const classSlice = createSlice({
 			.addCase(actionGetClasses.rejected, (state, action) => {
 				state.getClassesStatus = "error";
 				const error = action.payload as AxiosError;
-				handleResponseError(error,"lấy ds lớp");
+				handleResponseError(error, "lấy ds lớp");
+			})
+
+			.addCase(actionGetMyClasses.pending, (state) => {
+				state.getClassesStatus = "loading";
+			})
+			.addCase(actionGetMyClasses.fulfilled, (state, action) => {
+				state.classes = action.payload as GetResponseType<ClassType>;
+				state.getClassesStatus = "success";
+			})
+			.addCase(actionGetMyClasses.rejected, (state, action) => {
+				state.getClassesStatus = "error";
+				const error = action.payload as AxiosError;
+				handleResponseError(error, "lấy ds lớp");
+			})
+
+			.addCase(actionGetOnlineClasses.pending, (state) => {
+				state.getClassesStatus = "loading";
+			})
+			.addCase(actionGetOnlineClasses.fulfilled, (state, action) => {
+				state.classes = action.payload as GetResponseType<ClassType>;
+				state.getClassesStatus = "success";
+			})
+			.addCase(actionGetOnlineClasses.rejected, (state, action) => {
+				state.getClassesStatus = "error";
+				const error = action.payload as AxiosError;
+				handleResponseError(error, "lấy ds lớp");
 			})
 			//get class infomation
 			.addCase(actionGetClass.pending, (state) => {
@@ -295,7 +362,7 @@ export const classSlice = createSlice({
 			.addCase(actionUpdateClass.rejected, (state, action) => {
 				state.updateClassStatus = "error";
 				const error = action.payload as AxiosError;
-				handleResponseError(error,"cập nhật thông tin lớp");
+				handleResponseError(error, "cập nhật thông tin lớp");
 			})
 
 			// add students

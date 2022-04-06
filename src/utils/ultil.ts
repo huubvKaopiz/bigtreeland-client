@@ -46,7 +46,7 @@ export function isRoleDefault(role: string): boolean {
 		role === ROLE_NAMES.TEACHER2 ||
 		role === ROLE_NAMES.PARENT ||
 		role === ROLE_NAMES.SALE ||
-		role === ROLE_NAMES.ON_MANAGER || 
+		role === ROLE_NAMES.ON_MANAGER ||
 		role === ROLE_NAMES.CLASS_ASSISTANT
 }
 
@@ -89,12 +89,12 @@ export function converRoleNameToVN(role: ROLE_NAMES): string {
 	return res;
 }
 
-export function handleResponseError(error: AxiosError, action?:string) : void {
+export function handleResponseError(error: AxiosError, action?: string): void {
 	let msg = "";
 	if (error.response) {
 		// The request was made and the server responded with a status code
 		if (error.response.status === 500) msg = "Lỗi server 500"
-		else if (error.response.status === 403) msg = `Bạn không có quyền ${action ? action : '' }` 
+		else if (error.response.status === 403) msg = `Bạn không có quyền ${action ? action : ''}`
 		else if (error.response.status === 404) msg = "404 Not found"
 		else msg = `${get(error, "response.data.message", get(error, "response.data", ""))} `;
 	} else if (error.request) {
@@ -244,6 +244,18 @@ export function getPermissionDes(name: string): string {
 		case 'update_status':
 			res = 'Cập nhật trạng thái';
 			break;
+		case 'update-period':
+			res = 'Cập nhật chu kỳ học phí cho buổi học';
+			break;
+		case 'online-classest':
+			res = 'Lấy ds lớp online';
+			break;
+		case 'my-classest':
+			res = 'Lấy ds lớp của mình quản lý';
+			break;
+		case 'class-histories':
+			res = "Lịch sử nhập học của hs";
+			break;
 		default:
 			break;
 	}
@@ -251,8 +263,8 @@ export function getPermissionDes(name: string): string {
 }
 
 export function isHavePermission(permissionList: PermistionType[], ...permissionName: string[]): boolean {
-	return permissionName.every(per => 
+	return permissionName.every(per =>
 		!!permissionList.find(permission => permission.name === per)
-		)
+	)
 	// return !!permissionList.find(permission => permission.name === permissionName);
 }

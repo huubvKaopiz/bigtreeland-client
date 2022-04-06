@@ -49,7 +49,7 @@ export default function Test(): JSX.Element {
 
 	useEffect(() => {
 		if (params.class_id || addStudentState === 'success') {
-			dispatch(actionGetClass({ class_id: parseInt(params.class_id), params: { students: true, active_periodinfo: false } }));
+			dispatch(actionGetClass({ class_id: parseInt(params.class_id), params: { students: true, active_periodinfo: true } }));
 			// dispatch(actionGetStudents({ class_id: parseInt(params.class_id) }));
 		}
 	}, [dispatch, params, addStudentState]);
@@ -129,14 +129,13 @@ export default function Test(): JSX.Element {
 
 					<Descriptions.Item label="Chu kỳ tính học phí">
 						{
-							classInfo?.period_tuition_lastest
-								&& classInfo.period_tuition_lastest.active === 1
-								&& moment().isSameOrAfter(moment(classInfo.period_tuition_lastest?.from_date)) 
-								&& moment().isSameOrBefore(moment(classInfo.period_tuition_lastest?.to_date)) 
+							classInfo?.active_period_tuition
+								&& moment().isSameOrAfter(moment(classInfo.active_period_tuition?.from_date))
+								&& moment().isSameOrBefore(moment(classInfo.active_period_tuition?.to_date))
 								?
 								<strong>
-									{moment(classInfo.period_tuition_lastest.from_date).format("DD-MM-YYYY")} &rarr;
-									{moment(classInfo.period_tuition_lastest.to_date).format("DD-MM-YYYY")}
+									{moment(classInfo.active_period_tuition.from_date).format("DD-MM-YYYY")} &rarr;
+									{moment(classInfo.active_period_tuition.to_date).format("DD-MM-YYYY")}
 								</strong>
 								:
 								<Alert type="warning"
@@ -144,7 +143,6 @@ export default function Test(): JSX.Element {
 												Điều này đồng nghĩa với tạo buổi học hôm này sẽ không tính học phí cho học sinh.
 												Vui lòng xác nhận lại với quản lý để kích hoạt bảng học phí."
 								/>
-
 						}
 					</Descriptions.Item>
 				</Descriptions>

@@ -6,7 +6,7 @@ import numeral from "numeral";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
-import { actionGetClasses } from "store/classes/slice";
+import { actionGetClasses, actionGetMyClasses, actionGetOnlineClasses } from "store/classes/slice";
 import { actionGetEmployees } from "store/employees/slice";
 import { dayOptions, DEFAULT_ROLE_IDS, ROLE_NAMES } from "utils/const";
 import useDebouncedCallback from "../../hooks/useDebounceCallback";
@@ -17,6 +17,7 @@ import EditClassModal from "./editClassModal";
 import { isHavePermission } from "utils/ultil";
 import useIsAdmin from "hooks/useIsAdmin";
 import useRoleList from "hooks/useRoleList";
+import useIsRole from "hooks/useIsRole";
 
 function Classes(): JSX.Element {
 	const dispatch = useDispatch();
@@ -24,6 +25,10 @@ function Classes(): JSX.Element {
 	const permissionList = usePermissionList();
 	const roleList = useRoleList();
 	const isAdmin = useIsAdmin();
+	const isOnlineManagent = useIsRole(ROLE_NAMES.ON_MANAGER);
+	const isTeacher = useIsRole(ROLE_NAMES.TEACHER);
+	const isTeacher2 = useIsRole(ROLE_NAMES.TEACHER2);
+	const isAssistant = useIsRole(ROLE_NAMES.CLASS_ASSISTANT);
 
 	const [page, setPage] = useState(1);
 	const [search, setSearch] = useState("");
@@ -40,12 +45,12 @@ function Classes(): JSX.Element {
 
 	const searchClass = useDebouncedCallback((searchParam) => {
 		setSearch(searchParam);
-		dispatch(actionGetClasses({ page, search: searchParam }));
+		onloadClasses(searchParam)
 	}, 500);
 
 	useEffect(() => {
-		dispatch(actionGetClasses({ page, search }));
-	}, [page]);
+		onloadClasses(search);
+	}, [page, isAdmin, isTeacher, isOnlineManagent, isTeacher2, isAssistant]);
 
 	const searchTeacher = (search: string) => {
 		if (search.length >= 3 || search.length === 0)
@@ -57,12 +62,23 @@ function Classes(): JSX.Element {
 			);
 	};
 
+	function onloadClasses(searchParam: string) {
+		if (!isAdmin) {
+			if (isOnlineManagent) {
+				dispatch(actionGetOnlineClasses({ page, search: searchParam }));
+			} else if (isTeacher2 || isTeacher || isAssistant) {
+				dispatch(actionGetMyClasses({ page, search: searchParam }));
+			} else if (isHavePermission(permissionList, "classes.index")) {
+				dispatch(actionGetClasses({ page, search: searchParam }));
+			}
+		} else dispatch(actionGetClasses({ page, search: searchParam }));
+	}
+
 	function handleEdit(index: number) {
 		setShowEdit(true);
 		setEditIndex(index);
 	}
-
-	console.log(permissionList)
+	console.log(isAdmin, isTeacher, isOnlineManagent)
 
 	const columns = [
 		{
@@ -99,10 +115,10 @@ function Classes(): JSX.Element {
 				return (
 					<Popover content={
 						<div>
-							Số điện thoại: <span style={{color:"#2980b9"}}>{get(value, "phone", "")}</span>
+							Số điện thoại: <span style={{ color: "#2980b9" }}>{get(value, "phone", "")}</span>
 						</div>
-					} 
-					title="">
+					}
+						title="">
 						<Button type="link">{get(value, "profile.name", "")}</Button>
 					</Popover>
 				)
@@ -120,10 +136,10 @@ function Classes(): JSX.Element {
 				return (
 					<Popover content={
 						<div>
-							Số điện thoại: <span style={{color:"#2980b9"}}>{get(value, "phone", "")}</span>
+							Số điện thoại: <span style={{ color: "#2980b9" }}>{get(value, "phone", "")}</span>
 						</div>
-					} 
-					title="">
+					}
+						title="">
 						<Button type="link">{get(value, "profile.name", "")}</Button>
 					</Popover>
 				)
@@ -251,3 +267,4 @@ function Classes(): JSX.Element {
 }
 
 export default Classes;
+
