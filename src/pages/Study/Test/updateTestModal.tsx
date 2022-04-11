@@ -97,7 +97,7 @@ export default function UpdateTestModal(props: { testInfo: TestType | null }): J
 				title="Cập nhật bài kiểm tra và đáp án"
 				visible={show}
 				closable
-				width={800}
+				width={1000}
 				onCancel={() => setShow(false)}
 				footer={[
 					<Button key="btncancle" onClick={() => setShow(false)}>
@@ -148,7 +148,7 @@ export default function UpdateTestModal(props: { testInfo: TestType | null }): J
 							<Form.Item name="lesson_id">
 								<Select
 									placeholder="Chọn buổi học"
-									style={{ width: 300 }}
+									style={{ width: 600 }}
 									allowClear
 									loading={getLessonListState === 'loading'}
 									disabled={getLessonListState === 'loading'}
@@ -190,7 +190,8 @@ export default function UpdateTestModal(props: { testInfo: TestType | null }): J
 						>
 							<Button
 								onClick={() => setShowSelect(true)}
-								type="default"
+								type="primary"
+								ghost
 								size="middle"
 								icon={<UploadOutlined />}
 							>
@@ -212,7 +213,8 @@ export default function UpdateTestModal(props: { testInfo: TestType | null }): J
 						>
 							<Button
 								onClick={() => setResultFilesModal(true)}
-								type="default"
+								type="primary"
+								ghost
 								size="middle"
 								icon={<UploadOutlined />}
 							>

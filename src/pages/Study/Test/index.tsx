@@ -77,6 +77,7 @@ export function Tests(props: {
 			<List
 				itemLayout="vertical"
 				size="large"
+				rowKey={(test => test.id)}
 				loading={getTestListState === "loading" || deleteTestStatus === "loading"}
 				pagination={{
 					onChange: handleChangePageOfTest,

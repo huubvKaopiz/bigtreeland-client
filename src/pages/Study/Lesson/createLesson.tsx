@@ -41,6 +41,8 @@ export default function CreateLesson(props: {
         (state: RootState) => state.attendanceReducer.addAttendanceStatus
     );
 
+    // console.log(students)
+
     function handleCheckAll(e: CheckboxChangeEvent) {
         setAttendantList([0]);
         const newList: number[] = [];
@@ -119,7 +121,7 @@ export default function CreateLesson(props: {
 
     function handleSubmit() {
         if (!classInfo) return;
-        const teacher_id = get(userInfo, "id", null);
+        const teacher_id = get(classInfo, "employee_id", null);
         if (!teacher_id) {
             notification.warn({ message: "Chưa có thông tin giáo viên!" });
         } else if (attendantList.length > 0) {
@@ -150,6 +152,16 @@ export default function CreateLesson(props: {
     }
     const attendance_columns: any[] = [
         {
+            title: "STT",
+            dataIndex: "stt",
+            key: "stt",
+            with: 10,
+            fixed: 'left',
+            render: function col(value: string, record: StudentType, index: number): JSX.Element {
+                return <span>{index}</span>
+            },
+        },
+        {
             title: "Họ tên",
             dataIndex: "name",
             key: "name",
@@ -157,6 +169,15 @@ export default function CreateLesson(props: {
             fixed: 'left',
             render: function col(value: string, record: StudentType): JSX.Element {
                 return <Tooltip title={`Ngày sinh: ${moment(record.birthday).format("DD-MM-YYYY")}`}><strong>{value}</strong></Tooltip>;
+            },
+        },
+        {
+            title: "ĐT liên hệ",
+            dataIndex: "phone",
+            key: "phone",
+            with: 100,
+            render: function col(value: string, record: StudentType): JSX.Element {
+            return <span style={{color: '#2980b9'}}>{get(record,"parent.phone","")}</span>
             },
         },
         {
@@ -268,7 +289,7 @@ export default function CreateLesson(props: {
                 />
                 <span>Tên buổi học:</span>
                 <Input
-                    style={{ width: 260 }}
+                    style={{ width: 460 }}
                     placeholder="Nhập tên buổi học"
                     value={lessonName}
                     onChange={(e) => setLessonName(e.target.value)}

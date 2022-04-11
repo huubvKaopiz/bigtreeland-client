@@ -1,5 +1,5 @@
 import { DeleteOutlined, DollarCircleOutlined, ExclamationCircleOutlined, PlusOutlined, ProfileOutlined } from '@ant-design/icons';
-import { Button, Collapse, Descriptions, Input, InputNumber, Layout, List, Modal, Space, Table, Tag, Tooltip } from 'antd';
+import { Alert, Button, Collapse, Descriptions, Input, InputNumber, Layout, List, Modal, Space, Table, Tag, Tooltip } from 'antd';
 import { LessonType, SalaryType } from 'interface';
 import { get } from 'lodash';
 import moment from 'moment';
@@ -11,6 +11,7 @@ import { actionGetLessons } from 'store/lesson/slice';
 import { actionGetRevenues, RevenueType } from 'store/revenues/slice';
 import { actionDeleteSalary, actionGetSalaries, actionSalaryPaymentConfirmed, actionUpdateSalary } from 'store/salaries/slice';
 import { RootState, useAppDispatch } from 'store/store';
+import { getSalaryTypeName } from 'utils/ultil';
 
 const { confirm } = Modal;
 const { Panel } = Collapse;
@@ -24,8 +25,6 @@ export default function Salaries(): JSX.Element {
     const getSalariesState = useSelector((state: RootState) => state.salariesReducer.getSalaries);
     const paymentConfirmState = useSelector((state: RootState) => state.salariesReducer.updateSalaryStatus);
     const deleteState = useSelector((state: RootState) => state.salariesReducer.deleteSalaryStatus);
-
-
 
     useEffect(() => {
         dispatch(actionGetSalaries({}))
@@ -65,6 +64,16 @@ export default function Salaries(): JSX.Element {
         })
     }
 
+    function calAmoutSalary(salary:SalaryType):number {
+        let amount = 0;
+        if(salary.type === 0 || salary.type === 2){
+           amount =  +salary.basic_salary + +salary.bonus + +salary.revenue_salary - +salary.fines
+        }else {
+            amount = +salary.bonus + +salary.revenue_salary - +salary.fines
+        }
+        return amount;
+    }
+
     const columns = [
         {
             title: "Họ tên",
@@ -87,7 +96,7 @@ export default function Salaries(): JSX.Element {
             key: "type",
             render: function fineCol(val: number): JSX.Element {
                 return (
-                    <span style={{ color: "#c0392b" }}>{val === 0 ? "Sale" : val === 1 ? "Giáo viên (2)" : "Giáo viên"}</span>
+                    <Tag color="#d35400">{getSalaryTypeName(val)}</Tag>
                 )
             }
         },
@@ -98,7 +107,7 @@ export default function Salaries(): JSX.Element {
             render: function fineCol(_: string, record: SalaryType): JSX.Element {
                 return (
                     <strong style={{ color: "#2980b9" }}>
-                        {numeral(+record.basic_salary + +record.bonus + +record.revenue_salary - +record.fines).format("0,0")}
+                        {numeral(calAmoutSalary(record)).format("0,0")}
                     </strong>
                 )
             }
@@ -165,40 +174,48 @@ function DetailSalary(props: { salaryInfo: SalaryType, show: boolean, setShow: (
     const getLessonsStatus = useSelector((state: RootState) => state.lessonReducer.getLessonsState);
     const updateSalaryStutus = useSelector((state: RootState) => state.salariesReducer.updateSalaryStatus);
 
-
     useEffect(() => {
         if (salaryInfo) {
             setEditPayload({
                 bonus: get(salaryInfo, "bonus", "0,0"),
                 fines: get(salaryInfo, "fines", "0,0"),
                 note: get(salaryInfo, "note", "")
-
             })
         }
     }, [salaryInfo])
 
     useEffect(() => {
+      if(salaryInfo){
+        let amount = 0;
+        if(salaryInfo.type === 0 || salaryInfo.type === 2){
+           amount =  +salaryInfo.basic_salary + +editPayload.bonus + +salaryInfo.revenue_salary - +editPayload.fines
+        }else {
+            amount = +editPayload.bonus + +salaryInfo.revenue_salary - +editPayload.fines
+        }
+        setAmount(amount)
+      }
+    },[editPayload])
+
+    useEffect(() => {
         if (show == true) {
-            if (salaryInfo.status === 0 || salaryInfo.type == null) {
-                console.log(salaryInfo.user.name)
+            if (salaryInfo.type === 0 || salaryInfo.type == null) {
+                // console.log(salaryInfo.user.name)
                 dispatch(actionGetRevenues(
                     {
                         employee_id: salaryInfo.employee_id,
                         from_date: moment(salaryInfo.from_date).format("YYYY-MM-DD"),
                         to_date: moment(salaryInfo.to_date).format("YYYY-MM-DD"),
                     }))
-                setAmount(parseFloat(salaryInfo.basic_salary) + parseFloat(salaryInfo.revenue_salary) + parseFloat(salaryInfo.bonus) - parseFloat(salaryInfo.fines))
-            } else if (salaryInfo.type === 1) {
+            } else{
                 dispatch(actionGetLessons(
                     {
-                        employee_id: salaryInfo.employee_id,
+                        user_id: salaryInfo.employee_id,
                         from_date: moment(salaryInfo.from_date).format("YYYY-MM-DD"),
                         to_date: moment(salaryInfo.to_date).format("YYYY-MM-DD"),
                     }))
-                setAmount(parseFloat(salaryInfo.revenue_salary) + parseFloat(salaryInfo.bonus) - parseFloat(salaryInfo.fines))
             }
         }
-    }, [salaryInfo, dispatch, show])
+    }, [salaryInfo, show])
 
     function handleSubmitEdit() {
         confirm({
@@ -221,6 +238,7 @@ function DetailSalary(props: { salaryInfo: SalaryType, show: boolean, setShow: (
             {
                 salaryInfo &&
                 <Modal
+                    title="Chi tiết bảng lương"
                     visible={show}
                     onCancel={() => { setShow(false); setEditing(false) }}
                     width={1000}
@@ -230,8 +248,8 @@ function DetailSalary(props: { salaryInfo: SalaryType, show: boolean, setShow: (
                         editing === true ? <Button key="submit" type="primary" onClick={() => handleSubmitEdit()}>Lưu lại</Button> : ""
                     ]}
                 >
+                    <Alert style={{ marginBottom:15}} type="warning" message="Với bảng lương của giáo viên hợp đồng hoặc nhân viên trợ giảng thì lương cơ bản là tiền công mỗi buổi học => doanh thu = lương cb * số buổi dạy" />
                     <Descriptions
-                        title="Chi tiết bảng lương"
                         bordered
                         column={{ xxl: 3, xl: 2, lg: 2, md: 2, sm: 2, xs: 1 }}
                         style={{ marginBottom: 20 }}
@@ -239,9 +257,9 @@ function DetailSalary(props: { salaryInfo: SalaryType, show: boolean, setShow: (
                         <Descriptions.Item span={3} label="Nhân viên"><strong>{get(salaryInfo, "user.profile.name", "")}</strong></Descriptions.Item>
                         <Descriptions.Item span={2} label="Ngày tạo">{moment(get(salaryInfo, "created_at", "")).format("YYYY-MM-DD")}</Descriptions.Item>
                         <Descriptions.Item span={2} label="Chu kỳ">{moment(get(salaryInfo, "from_date", "")).format("YYYY-MM-DD")} - {moment(salaryInfo.to_date).format("YYYY-MM-DD")} </Descriptions.Item>
-                        <Descriptions.Item label="Cơ bản"><strong>{numeral(get(salaryInfo, "basic_salary", "")).format("0,0")}</strong></Descriptions.Item>
-                        <Descriptions.Item label="Doanh thu"><strong>{numeral(get(salaryInfo, "revenue_salary", "")).format("0,0")}</strong></Descriptions.Item>
-                        <Descriptions.Item label="Thưởng">
+                        <Descriptions.Item span={2} label="Cơ bản"><span>{numeral(get(salaryInfo, "basic_salary", "")).format("0,0")}</span></Descriptions.Item>
+                        <Descriptions.Item label="Doanh thu"><span style={{color:"#27ae60"}}>{numeral(get(salaryInfo, "revenue_salary", "")).format("0,0")}</span></Descriptions.Item>
+                        <Descriptions.Item span={2}  label="Thưởng">
                             {
                                 editing === true ?
                                     <InputNumber
@@ -250,7 +268,7 @@ function DetailSalary(props: { salaryInfo: SalaryType, show: boolean, setShow: (
                                         formatter={(value) => numeral(value).format("0,0")}
                                         onChange={(value) => { editPayload.bonus = value; setEditPayload({ ...editPayload }) }}
                                     /> :
-                                    <strong>{numeral(salaryInfo.bonus).format("0,0")}</strong>
+                                    <span style={{color:"#27ae60"}}>{numeral(salaryInfo.bonus).format("0,0")}</span>
                             }
                         </Descriptions.Item>
                         <Descriptions.Item label="Phạt">
@@ -262,7 +280,7 @@ function DetailSalary(props: { salaryInfo: SalaryType, show: boolean, setShow: (
                                         formatter={(value) => numeral(value).format("0,0")}
                                         onChange={(value) => { editPayload.fines = value; setEditPayload({ ...editPayload }) }}
                                     /> :
-                                    <strong>{numeral(salaryInfo.fines).format("0,0")}</strong>
+                                    <span  style={{color: "#e74c3c" }}>{numeral(salaryInfo.fines).format("0,0")}</span>
                             }
 
                         </Descriptions.Item>
@@ -275,6 +293,7 @@ function DetailSalary(props: { salaryInfo: SalaryType, show: boolean, setShow: (
 
                         </Descriptions.Item>
                     </Descriptions>
+                    <Alert style={{ marginBottom:15}} type="warning" message="Danh sách doanh thu là danh sách phiếu thu của sale hoặc ds buổi học của giáo viên, trợ giảng" />
                     <Collapse accordion>
                         <Panel header="Chi tiết doanh thu" key="1">
                             {
@@ -294,7 +313,7 @@ function DetailSalary(props: { salaryInfo: SalaryType, show: boolean, setShow: (
                                                 <div style={{ color: "#2980b9" }}>{numeral(item.amount).format("0,0")}</div>
                                             </List.Item>
                                         )}
-                                    /> : salaryInfo.type === 1 && lessons ?
+                                    /> : lessons &&
                                         <List rowKey="id"
                                             itemLayout="horizontal"
                                             // header={<div style={{ justifyContent: "end", display: "flex", fontWeight: 600 }}>{numeral(0).format("0,0")}</div>}
@@ -310,8 +329,7 @@ function DetailSalary(props: { salaryInfo: SalaryType, show: boolean, setShow: (
 
                                                 </List.Item>
                                             )} />
-                                        :
-                                        ""
+                                        
                             }
                         </Panel>
                     </Collapse>

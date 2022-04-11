@@ -81,7 +81,7 @@ export default function AddTest(props: { classInfo: ClassType | null }): JSX.Ele
 				closable
 				onCancel={() => setShow(false)}
 				title="Tạo bài test mới"
-				width={800}
+				width={1000}
 				footer={[
 					<Button key="btncancle" onClick={() => setShow(false)}>
 						Huỷ bỏ
@@ -100,8 +100,8 @@ export default function AddTest(props: { classInfo: ClassType | null }): JSX.Ele
 				<Form
 					id="aForm"
 					initialValues={{ date: moment() }}
-					labelCol={{ span: 5 }}
-					wrapperCol={{ span: 14 }}
+					labelCol={{ span: 4 }}
+					wrapperCol={{ span: 18 }}
 					layout="horizontal"
 					onFinish={handleSubmit}
 				>
@@ -131,7 +131,7 @@ export default function AddTest(props: { classInfo: ClassType | null }): JSX.Ele
 							<Form.Item name="lesson_id">
 								<Select
 									placeholder="Chọn buổi học"
-									style={{ width: 300 }}
+									style={{ width: 600 }}
 									allowClear
 									loading={getLessonListState === 'loading'}
 									disabled={getLessonListState === 'loading'}
@@ -174,7 +174,8 @@ export default function AddTest(props: { classInfo: ClassType | null }): JSX.Ele
 						>
 							<Button
 								onClick={() => setShowSelect(true)}
-								type="default"
+								type="primary"
+								ghost
 								size="middle"
 								icon={<UploadOutlined />}
 							>

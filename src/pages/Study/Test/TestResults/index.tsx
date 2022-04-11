@@ -90,11 +90,23 @@ export default function (props: {
     }, [dispatch, updateTestResultState, addTestResultState]);
 
     const testResultCols: any[] = [
+        {
+            title: "STT",
+            dataIndex: "stt",
+            key: "stt",
+            with: 10,
+            fixed: 'left',
+            render: function col(_: string, record: TestResultDataType, index: number): JSX.Element {
+                return <span>{index}</span>
+            },
+        },
         Table.EXPAND_COLUMN,
         {
             title: 'Name',
             dataIndex: '',
             key: 'name',
+            width:240,
+            fixed: 'left',
             render: function nameCol(_: string, record: TestResultDataType): JSX.Element {
                 return <>
                     <strong>{record.student.name}</strong>
@@ -130,6 +142,7 @@ export default function (props: {
             title: '',
             dataIndex: 'action',
             key: 'address',
+            width:100,
             render: function actionCol(text: string, record: TestResultDataType): JSX.Element {
                 return (
                     <>
@@ -161,7 +174,7 @@ export default function (props: {
     return (
         <>
             <Table
-                bordered
+                // bordered
                 rowKey={(record) => record.student.id}
                 dataSource={testResultData}
                 columns={testResultCols}

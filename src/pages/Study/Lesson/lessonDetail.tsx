@@ -16,6 +16,7 @@ import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import TextArea from "antd/lib/input/TextArea";
 import useIsAdmin from "hooks/useIsAdmin";
 import usePermissionList from "hooks/usePermissionList";
+import { StudentType } from "interface";
 import get from "lodash/get";
 import moment, { Moment } from "moment";
 import React, { useEffect, useState } from "react";
@@ -236,6 +237,16 @@ function LessonDetails(): JSX.Element {
 
 	const attendance_columns: any = [
 		{
+            title: "STT",
+            dataIndex: "stt",
+            key: "stt",
+            with: 10,
+            fixed: 'left',
+            render: function col(value: string, record: StudentType, index: number): JSX.Element {
+                return <span>{index}</span>
+            },
+        },
+		{
 			title: "Họ tên",
 			dataIndex: "name",
 			key: "name",
@@ -245,6 +256,15 @@ function LessonDetails(): JSX.Element {
 				return <Tooltip title={`Ngày sinh: ${moment(record.birthday).format("DD-MM-YYYY")}`}><strong>{value}</strong></Tooltip>;
 			},
 		},
+		{
+            title: "ĐT liên hệ",
+            dataIndex: "phone",
+            key: "phone",
+            with: 100,
+            render: function col(value: string, record: StudentType): JSX.Element {
+            return <span style={{color: '#2980b9'}}>{get(record,"parent.phone","")}</span>
+            },
+        },
 		{
 			title: (
 				<Tooltip title="Điểm danh">
@@ -415,7 +435,7 @@ function LessonDetails(): JSX.Element {
 							/>
 							<span>Tên buổi học:</span>
 							<Input
-								style={{ width: 260, color: "#34495e" }}
+								style={{ width: 460, color: "#34495e" }}
 								placeholder="Nhập tên buổi học"
 								value={lessonName}
 								onChange={(e) => setLessonName(e.target.value)}

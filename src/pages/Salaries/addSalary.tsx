@@ -69,7 +69,7 @@ export default function AddSalary(): JSX.Element {
         }
     }, [employeeInfo, form])
 
-    //handle receipts state change
+    //handle receipts state change, call revenue for saler
     useEffect(() => {
         if (receipts && role === ROLE_NAMES.SALE) {
             let amount = 0;
@@ -81,26 +81,27 @@ export default function AddSalary(): JSX.Element {
             form.setFieldsValue({
                 revenue_salary: percent / 100 * amount
             })
-            setAmountSalary(parseFloat(form.getFieldValue("basic_salary"))
+            setAmountSalary(
+                +form.getFieldValue("basic_salary")
                 + percent / 100 * amount
-                + parseFloat(form.getFieldValue("bonus"))
-                - parseFloat(form.getFieldValue("fines")))
+                + +form.getFieldValue("bonus")
+                - +form.getFieldValue("fines"))
         }
     }, [receipts, form, role])
 
     // handle lessons state change, the list of lessons will be changed when the user clicks on the 'Get Revenue' button.
     useEffect(() => {
         if (get(lessons, "data", []).length > 0) {
-            //if the role is teacher2, cal Employee's revenue base on lessons and fee per session.
-            if (role === ROLE_NAMES.TEACHER2) {
+            //if the role is teacher2 or assistant, cal Employee's revenue base on lessons and fee per session.
+            if (role === ROLE_NAMES.TEACHER2 || ROLE_NAMES.CLASS_ASSISTANT) {
                 const count = get(lessons, "data", []).length;
                 setAmountRevenue(count)
                 form.setFieldsValue({
-                    revenue_salary: parseFloat(form.getFieldValue("basic_salary")) * count
+                    revenue_salary:+form.getFieldValue("basic_salary") * count
                 })
                 setAmountSalary(parseFloat(form.getFieldValue("basic_salary")) * count
-                    + parseFloat(form.getFieldValue("bonus"))
-                    - parseFloat(form.getFieldValue("fines")))
+                    + +form.getFieldValue("bonus")
+                    - +form.getFieldValue("fines"))
             }
             // if the role is 'teacher' 
             else if (role === ROLE_NAMES.TEACHER) {
@@ -156,22 +157,19 @@ export default function AddSalary(): JSX.Element {
     function handleGetRevenue() {
         if (form.getFieldValue('employee_id') > 0 && role != 'none') {
             setRevenueLoading(true);
-            switch (role) {
-                case ROLE_NAMES.SALE:
-                    dispatch(actionGetRevenues({ employee_id: form.getFieldValue('employee_id'), from_date: dateRange[0], to_date: dateRange[1] })).then(() => setRevenueLoading(false))
-                    break;
-                case ROLE_NAMES.TEACHER:
-                    dispatch(actionGetLessons({ employee_id: form.getFieldValue('employee_id'), from_date: dateRange[0], to_date: dateRange[1] })).then(() => setRevenueLoading(false));
-                    break;
-                case ROLE_NAMES.TEACHER2:
-                    dispatch(actionGetLessons({ employee_id: form.getFieldValue('employee_id'), from_date: dateRange[0], to_date: dateRange[1] })).then(() => setRevenueLoading(false));
-                    break;
-                case ROLE_NAMES.EMPLOYEE:
-                    break;
-                default:
-                    break;
+            if(role === ROLE_NAMES.SALE){
+                dispatch(actionGetRevenues({ 
+                    employee_id: form.getFieldValue('employee_id'), 
+                    from_date: dateRange[0], 
+                    to_date: dateRange[1] 
+                })).then(() => setRevenueLoading(false))
+            }else {
+                dispatch(actionGetLessons({ 
+                    user_id: form.getFieldValue('employee_id'), 
+                    from_date: dateRange[0], 
+                    to_date: dateRange[1] 
+                })).then(() => setRevenueLoading(false));
             }
-
         }
     }
 
@@ -192,13 +190,13 @@ export default function AddSalary(): JSX.Element {
     // handle form values change
     function handleChanegValues(changeValues: any, allValues: any) {
         if (allValues.employee_id > 0) {
-            const revenue = parseFloat(allValues.revenue_salary);
-            const basic = parseFloat(allValues.basic_salary);
-            const bonus = parseFloat(allValues.bonus);
-            const fines = parseFloat(allValues.fines);
+            const revenue = +allValues.revenue_salary;
+            const basic = +allValues.basic_salary;
+            const bonus = +allValues.bonus;
+            const fines = +allValues.fines;
             if (role === ROLE_NAMES.SALE || role === ROLE_NAMES.TEACHER) {
                 setAmountSalary(basic + revenue + bonus - fines);
-            } else if (role === ROLE_NAMES.TEACHER2) {
+            } else if (role === ROLE_NAMES.TEACHER2 || role === ROLE_NAMES.CLASS_ASSISTANT) {
                 setAmountSalary(basic * amountRevenue + bonus - fines);
             }
         }
@@ -229,7 +227,8 @@ export default function AddSalary(): JSX.Element {
                             revenue_salary_percent: '50',
                         })
                         break;
-                    case 'teacher2':
+                    case ROLE_NAMES.CLASS_ASSISTANT:
+                    case ROLE_NAMES.TEACHER2:
                         form.setFieldsValue({
                             revenue_salary_percent: '100',
                         })
@@ -259,7 +258,7 @@ export default function AddSalary(): JSX.Element {
             return;
         }
         if (changeValues.basic_salary) {
-            if (role === ROLE_NAMES.TEACHER2) {
+            if (role === ROLE_NAMES.TEACHER2 || role === ROLE_NAMES.CLASS_ASSISTANT) {
                 form.setFieldsValue({
                     revenue_salary: parseFloat(changeValues.basic_salary) * get(lessons, "data", []).length
                 })
@@ -291,12 +290,12 @@ export default function AddSalary(): JSX.Element {
             debt: "",
             bonus: values.bonus,
             fines: values.fines,
-            period_id: 0,
+            // period_id: 0,
             note: values.note,
             from_date: dateRange[0],
             to_date: dateRange[1],
             status: 0,
-            type: role === ROLE_NAMES.SALE ? 0 : role === ROLE_NAMES.TEACHER2 ? 1 : 2
+            type: role === ROLE_NAMES.SALE ? 0 : role === ROLE_NAMES.TEACHER2 ? 1 : role === ROLE_NAMES.TEACHER ? 2 : 3
         }
         dispatch(actionAddSalary(payload));
     }
@@ -326,7 +325,8 @@ export default function AddSalary(): JSX.Element {
                                 <Option value={ROLE_NAMES.TEACHER}>Giáo viên chính thức</Option>
                                 <Option value={ROLE_NAMES.TEACHER2}>Giáo viên hợp đồng</Option>
                                 <Option value={ROLE_NAMES.SALE}>Nhân viên sale</Option>
-                                <Option value={ROLE_NAMES.EMPLOYEE}>Khác</Option>
+                                <Option value={ROLE_NAMES.CLASS_ASSISTANT}>Trợ giảng</Option>
+                                {/* <Option value={ROLE_NAMES.EMPLOYEE}>Khác</Option> */}
                             </Select>
                         </Form.Item>
                         <Form.Item
@@ -423,10 +423,11 @@ export default function AddSalary(): JSX.Element {
                 </Col>
             </Row>
             {role === ROLE_NAMES.SALE ? <Alert closable style={{ marginBottom: 20 }} message="Với nhân viên sale, bảng doanh thu là bảng doanh thu bán khoá học trong khoảng thời gian tính lương" type="warning" /> : ""}
-            {role === ROLE_NAMES.TEACHER2 ? <Alert closable style={{ marginBottom: 20 }} message="Với nhân viên là giáo viên lương theo buổi, bảng doanh thu là danh sách các buổi dạy trong khoảng thời gian tính lương" type="warning" /> : ""}
-            {role === ROLE_NAMES.TEACHER ? <Alert closable style={{ marginBottom: 20 }} message="Với nhân viên là giáo viên lương theo doanh thu học phí, bảng doanh thu là danh số buổi dạy của từng học sinh trong khoảng thời gian tính lương" type="warning" /> : ""}
+            {role === ROLE_NAMES.TEACHER2 || role === ROLE_NAMES.CLASS_ASSISTANT ? <Alert closable style={{ marginBottom: 20 }} message="Với nhân viên là giáo viên lương theo buổi hoặc trợ giảng, bảng doanh thu là danh sách các buổi dạy trong khoảng thời gian tính lương" type="warning" /> : ""}
+            {role === ROLE_NAMES.TEACHER  ? <Alert closable style={{ marginBottom: 20 }} message="Với nhân viên là giáo viên lương theo doanh thu học phí, bảng doanh thu là danh số buổi dạy của từng học sinh trong khoảng thời gian tính lương" type="warning" /> : ""}
             {
-                role === ROLE_NAMES.SALE ?
+                role === ROLE_NAMES.SALE 
+                ?
                     <List
                         rowKey="id"
                         itemLayout="horizontal"
@@ -442,30 +443,32 @@ export default function AddSalary(): JSX.Element {
                                 <div style={{ color: "#2980b9" }}>{numeral(item.amount).format("0,0")}</div>
                             </List.Item>
                         )}
-                    /> : role === ROLE_NAMES.TEACHER2 ?
-                        <List rowKey="id"
-                            itemLayout="horizontal"
-                            // header={<div style={{ justifyContent: "end", display: "flex", fontWeight: 600 }}>{numeral(amountRevenue).format("0,0")}</div>}
-                            loading={revenueLoading}
-                            dataSource={get(lessons, "data", [])}
-                            renderItem={(item:LessonType) => (
-                                <List.Item>
-                                    <List.Item.Meta
-                                        title={<a href="#">{item.tuition_period_id}</a>}
-                                        description={item.tuition_period_id}
-                                    />
-                                    <div style={{ color: "#2980b9" }}>{item.date}</div>
+                    /> : role === ROLE_NAMES.TEACHER 
+                    ?
+                    <TeacherRevenueTable
+                    tuitionFeeList={get(tuitionFees, "data", [])}
+                    periodTuitionFeeList={periodTuitions}
+                    lessons={get(lessons, "data", [])}
+                    revenueLoading={revenueLoading}
+                    handleChangeTeacherRevenue={handleChangeTeacherRevenue}
+                />
+                       :
+                       <List rowKey="id"
+                       itemLayout="horizontal"
+                       // header={<div style={{ justifyContent: "end", display: "flex", fontWeight: 600 }}>{numeral(amountRevenue).format("0,0")}</div>}
+                       loading={revenueLoading}
+                       dataSource={get(lessons, "data", [])}
+                       renderItem={(item:LessonType) => (
+                           <List.Item>
+                               <List.Item.Meta
+                                   title={<a href="#">{item.class?.name}</a>}
+                                //    description={item.tuition_period_id}
+                               />
+                               <div style={{ color: "#2980b9" }}>{item.date}</div>
 
-                                </List.Item>
-                            )} /> :
-
-                        <TeacherRevenueTable
-                            tuitionFeeList={get(tuitionFees, "data", [])}
-                            periodTuitionFeeList={periodTuitions}
-                            lessons={get(lessons, "data", [])}
-                            revenueLoading={revenueLoading}
-                            handleChangeTeacherRevenue={handleChangeTeacherRevenue}
-                        />
+                           </List.Item>
+                       )} /> 
+                       
 
             }
         </Layout.Content>

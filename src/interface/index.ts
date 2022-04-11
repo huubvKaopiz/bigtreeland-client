@@ -89,7 +89,7 @@ export interface ClassType {
 	updated_at: "2021-11-06T16:01:41.000000Z";
 	act_session_num: 1;
 	active_period_tuition?: PeriodTuitionType;
-	period_tuition_lastest?:PeriodTuitionType;
+	period_tuition_lastest?: PeriodTuitionType;
 	students?: StudentType[];
 	assistant_id: number | null;
 	assistant: UserType;
@@ -168,7 +168,7 @@ export interface StudentType {
 	parent: {
 		id: number;
 		name: string;
-		phone:string;
+		phone: string;
 		profile: {
 			name: string;
 		}
@@ -328,7 +328,7 @@ export interface LessonType {
 	tuition_period_id: number;
 	title: string;
 	date: "";
-	assistant_id:number | null;
+	assistant_id: number | null;
 	lesson_feedback: {
 		id: number;
 		parent_id: number;
@@ -358,6 +358,7 @@ export interface LessonType {
 		}
 	}
 	tests: TestType[];
+	class?: ClassType
 }
 
 export interface SalaryType {

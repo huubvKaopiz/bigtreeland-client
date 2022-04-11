@@ -96,7 +96,11 @@ export function AddNewsModal(props: {
                 ]}
             >
                 <div style={{ marginBottom: 20 }}>
-                    <Text style={{ marginBottom: 15, fontWeight:'bold' }}>Tiêu đề</Text>
+                    <Text 
+                        style={{ marginBottom: 15, fontWeight:'bold' }}
+                        >
+                        Tiêu đề
+                    </Text>
                     <Input  placeholder="Tiêu đề" value={title} onChange={(e) => setTitle(e.target.value)} required />
                 </div>
                 <div style={{marginBottom:20}}>
@@ -124,8 +128,8 @@ export function AddNewsModal(props: {
                     <Text style={{ marginBottom: 15, fontWeight:'bold' }}>Nội dung</Text>
                     <Editor
                         // onInit={(evt, editor) => editorRef.current = editor}
-                        initialValue={content}
-                        onChange={(e) => setContent(e.target.getContent())}
+                        value={content}
+                        onEditorChange={(e) => setContent(e)}
                         init={{
                             height: 500,
                             menubar: false,

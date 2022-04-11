@@ -99,7 +99,7 @@ export default function Students(): JSX.Element {
 			dataIndex: "parent",
 			key: "parent",
 			render: function parentCol(value?: { email: string; id: number; name: string }): JSX.Element {
-				return <a>{get(value, "profile.name", "")}</a>;
+				return <Tooltip title={get(value,"phone","")}><a>{get(value, "profile.name", "")}</a></Tooltip>;
 			},
 		},
 		{
@@ -143,10 +143,13 @@ export default function Students(): JSX.Element {
 
 						{ 
 							(isAdmin || isHavePermission(permissionList, "students.update")) &&
-							<Button type="link" icon={<EditOutlined />} onClick={() => {
+							<Tooltip placement="top" title="Sửa thông tin">
+								<Button type="link" icon={<EditOutlined />} onClick={() => {
 								setShowEdit(true);
 								setEditIndex(index)
 							}} />
+							</Tooltip>
+							
 						}
 
 						{ 

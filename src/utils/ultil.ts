@@ -50,6 +50,28 @@ export function isRoleDefault(role: string): boolean {
 		role === ROLE_NAMES.CLASS_ASSISTANT
 }
 
+
+export function getSalaryTypeName(salaryType: number): string {
+	let name = "";
+	switch (salaryType) {
+		case 0:
+			name = "Sale"
+			break;
+		case 1:
+			name = "GV chính thức"
+			break;
+		case 2:
+			name = "GV hợp đồng"
+			break;
+		case 3:
+			name = "Trợ giảng"
+			break;
+		default:
+			break;
+	}
+	return name;
+}
+
 export function converRoleNameToVN(role: ROLE_NAMES): string {
 	let res = role as string;
 	switch (role) {
