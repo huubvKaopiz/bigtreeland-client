@@ -78,5 +78,15 @@
 		"less": "^4.1.2",
 		"less-loader": "^10.2.0",
 		"prettier": "^2.4.1"
-	}
+	},
+	"husky": {
+		"hooks": {
+		  "pre-commit": "lint-staged"
+		}
+	  },
+	  "lint-staged": {
+		"*.{js,jsx,ts,tsx,css,scss}": [
+		  "prettier --write"
+		]
+	  }
 }
