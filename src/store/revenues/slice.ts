@@ -49,6 +49,7 @@ export interface RevenuesSearchParam {
 	to_date?: string;
 	page?: number;
 	employee_id?: number;
+	per_page?: number;
 }
 
 export const RevenuesStatusList = ["Chưa xác nhận", "Đã xác nhận"];
@@ -163,6 +164,12 @@ export const slice = createSlice({
 		resetAddRevenuesStatus(state) {
 			state.addRevenuesStatus = "idle";
 		},
+		resetDeleteRevenueStatus(state) {
+			state.deleteRevenuesStatus = 'idle'
+		},
+		resetUpdateRevenuesStatus(state) {
+			state.updateRevenuesStatus = "idle";
+		},
 		actionUpdateRevenues(state) {
 			state.updateRevenuesStatus = "idle";
 		},
@@ -173,12 +180,10 @@ export const slice = createSlice({
 			state.getRevenuesStatus = "idle";
 			state.revenues = null;
 		},
-		resetUpdateRevenuesStatus(state) {
-			state.updateRevenuesStatus = "idle";
-		},
 		actionDeleteRevenue(state) {
-			state.deleteRevenuesStatus = 'idle'
-		}
+			state.deleteRevenuesStatus = "idle";
+		},
+
 	},
 
 	extraReducers: (builder) => {
@@ -257,5 +262,6 @@ export const {
 	resetAddRevenuesStatus,
 	resetUpdateRevenuesStatus,
 	actionSetListRevenuesNull,
+	resetDeleteRevenueStatus
 } = slice.actions;
 export default slice.reducer;

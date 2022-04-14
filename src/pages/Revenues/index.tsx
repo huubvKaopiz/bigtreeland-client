@@ -20,6 +20,7 @@ import {
 	actionDeleteRevenue,
 	actionGetRevenues, actionUpdateRevenueStatus,
 	resetAddRevenuesStatus,
+	resetDeleteRevenueStatus,
 	resetGetRevenuesStatus,
 	resetUpdateRevenuesStatus, RevenuesStatusList,
 	RevenuesTypeList,
@@ -60,6 +61,8 @@ function Revenues(): JSX.Element {
 	const statusGetRevenues = useSelector((state: RootState) => state.revenuesReducer.getRevenuesStatus);
 	const statusAddRevenues = useSelector((state: RootState) => state.revenuesReducer.addRevenuesStatus);
 	const statusUpdateRevenues = useSelector((state: RootState) => state.revenuesReducer.updateRevenuesStatus);
+	const statusDeleteRevenue = useSelector((state: RootState) => state.revenuesReducer.deleteRevenuesStatus);
+
 	const revenuesData = useSelector((state: RootState) => state.revenuesReducer.revenues);
 
 	const debounceSearch = useRef(
@@ -95,8 +98,11 @@ function Revenues(): JSX.Element {
 				dispatch(actionGetRevenues({}));
 			}
 			dispatch(resetUpdateRevenuesStatus());
+		}else if (statusDeleteRevenue === "success" || statusDeleteRevenue === "error") {
+			if(statusDeleteRevenue === "success") dispatch(actionGetRevenues({}));
+			dispatch(resetDeleteRevenueStatus());
 		}
-	}, [dispatch, statusAddRevenues, statusGetRevenues, statusUpdateRevenues]);
+	}, [dispatch, statusAddRevenues, statusGetRevenues, statusUpdateRevenues, statusDeleteRevenue]);
 
 	// actions handler
 	function searchRangeChange(_: any, dateString: string[]) {
@@ -218,7 +224,7 @@ function Revenues(): JSX.Element {
 				<Row style={{ justifyContent: "flex-end" }}>
 					<Statistic title="Tổng thu" value={receivedValue} suffix="VND" valueStyle={{ color: "#3f8600" }} />
 				</Row>
-				<Spin spinning={statusGetRevenues === "loading" || statusUpdateRevenues === "loading"}>
+				<Spin spinning={statusGetRevenues === "loading" || statusUpdateRevenues === "loading" || statusDeleteRevenue === 'loading'}>
 					{selectedRows.length > 0 &&
 						<Space style={{ marginBottom: 20 }}>
 							<Button type="primary" icon={<CheckCircleOutlined />} onClick={() => handleMultipleConfirmed()} loading={false}>

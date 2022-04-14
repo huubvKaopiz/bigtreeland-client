@@ -21,6 +21,7 @@ interface GetLessonsParmasType {
 	from_date?: string;
 	to_date?: string;
 	user_id?: number;
+	per_page?: number;
 }
 
 export const actionGetLessonInfo = createAsyncThunk(

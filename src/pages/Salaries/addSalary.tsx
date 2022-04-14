@@ -161,13 +161,15 @@ export default function AddSalary(): JSX.Element {
                 dispatch(actionGetRevenues({ 
                     employee_id: form.getFieldValue('employee_id'), 
                     from_date: dateRange[0], 
-                    to_date: dateRange[1] 
+                    to_date: dateRange[1],
+                    per_page:200
                 })).then(() => setRevenueLoading(false))
             }else {
                 dispatch(actionGetLessons({ 
                     user_id: form.getFieldValue('employee_id'), 
                     from_date: dateRange[0], 
-                    to_date: dateRange[1] 
+                    to_date: dateRange[1],
+                    per_page:200
                 })).then(() => setRevenueLoading(false));
             }
         }
