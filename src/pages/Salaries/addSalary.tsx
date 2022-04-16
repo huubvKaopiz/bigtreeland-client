@@ -1,10 +1,10 @@
 import { CheckCircleOutlined, SaveOutlined } from '@ant-design/icons';
-import { Alert, Button, Col, DatePicker, Divider, Form, Input, InputNumber, Layout, List, Modal, Row, Select, Space, Table, Tabs, Tag, Typography } from 'antd';
+import { Alert, Button, Col, DatePicker, Divider, Form, Input, InputNumber, Layout, List, Modal, notification, Row, Select, Space, Table, Tabs, Tag, Typography } from 'antd';
 import { LessonType, PeriodTuitionType, TuitionFeeType } from 'interface';
 import { findIndex, get } from 'lodash';
 import moment from 'moment';
 import numeral from 'numeral';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { actionGetEmployeeInfo, actionGetEmployees, actionSetListEmployeesNull } from 'store/employees/slice';
@@ -67,7 +67,7 @@ export default function AddSalary(): JSX.Element {
                 basic_salary: get(employeeInfo.employee_contract, "basic_salary", "0"),
             })
         }
-    }, [employeeInfo, form])
+    }, [employeeInfo])
 
     //handle receipts state change, call revenue for saler
     useEffect(() => {
@@ -87,13 +87,13 @@ export default function AddSalary(): JSX.Element {
                 + +form.getFieldValue("bonus")
                 - +form.getFieldValue("fines"))
         }
-    }, [receipts, form, role])
+    }, [receipts, role])
 
     // handle lessons state change, the list of lessons will be changed when the user clicks on the 'Get Revenue' button.
-    useEffect(() => {
+    useMemo(() => {
         if (get(lessons, "data", []).length > 0) {
             //if the role is teacher2 or assistant, cal Employee's revenue base on lessons and fee per session.
-            if (role === ROLE_NAMES.TEACHER2 || ROLE_NAMES.CLASS_ASSISTANT) {
+            if (role === ROLE_NAMES.TEACHER2 || role === ROLE_NAMES.CLASS_ASSISTANT) {
                 const count = get(lessons, "data", []).length;
                 setAmountRevenue(count)
                 form.setFieldsValue({
@@ -103,7 +103,7 @@ export default function AddSalary(): JSX.Element {
                     + +form.getFieldValue("bonus")
                     - +form.getFieldValue("fines"))
             }
-            // if the role is 'teacher' 
+            // if role is 'teacher' 
             else if (role === ROLE_NAMES.TEACHER) {
                 //1. get list of periods with count of lessons that this teacher has teached 
                 const peridoList: { id: number, count: number }[] = [];
@@ -128,7 +128,7 @@ export default function AddSalary(): JSX.Element {
                 setPeriodTuitions(peridoList);
             }
         }
-    }, [lessons, role, form, dispatch])
+    }, [lessons])
 
     useEffect(()=>{
         if (addSalaryStatus === 'success') {
@@ -172,6 +172,8 @@ export default function AddSalary(): JSX.Element {
                     per_page:200
                 })).then(() => setRevenueLoading(false));
             }
+        }else {
+           notification.error({message: 'Bạn chưa chọn nhân viên!'});
         }
     }
 

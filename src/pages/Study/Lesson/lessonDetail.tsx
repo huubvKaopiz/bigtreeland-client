@@ -19,7 +19,7 @@ import usePermissionList from "hooks/usePermissionList";
 import { StudentType } from "interface";
 import get from "lodash/get";
 import moment, { Moment } from "moment";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { useHistory, useLocation, useParams } from "react-router-dom";
 import {
@@ -80,11 +80,11 @@ function LessonDetails(): JSX.Element {
 		(state: RootState) => state.classReducer.classInfo
 	);
 
-	useEffect(() => {
+	useMemo(() => {
 		dispatch(actionGetLessonInfo(+lesson_id))
 		dispatch(actionGetClass({ class_id: parseInt(class_id), params: { students: true, active_periodinfo: false } }));
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [dispatch, class_id]);
+	}, [class_id, lesson_id]);
 
 	useEffect(() => {
 		pathname.includes("edit-attendace") && setEditMode(true);

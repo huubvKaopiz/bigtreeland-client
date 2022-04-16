@@ -66,8 +66,8 @@ export function Lesson(props: { classInfo: ClassType | null, students:StudentTyp
     const cols: any[] = [
         {
             title: 'Tên buổi học', dataIndex: 'title', key: 'title',
-            render: function col(text: string): JSX.Element {
-                return (<a>{text}</a>)
+            render: function col(text: string, record: LessonType): JSX.Element {
+                return (<Button type="link" onClick={() =>  history.push(`/study/${get(classInfo, 'id', 0)}/lesson-detail/${record.id}`)}>{text}</Button>)
             }
         },
         {
