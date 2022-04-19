@@ -58,25 +58,25 @@ export default function Settings(): JSX.Element {
     }, [systemInfo])
 
 
-    function dateCellRender(value: Moment) {
-        let isDayoff = false;
-        const dateValue = moment(value).format("YYYY-MM-DD")
-        get(dayoffs, "data", []).forEach((element: { from_date: string, to_date: string }) => {
-            if (moment(dateValue).isSame(moment(element.from_date))) {
-                isDayoff = true;
-            }
-        });
+    // function dateCellRender(value: Moment) {
+    //     let isDayoff = false;
+    //     const dateValue = moment(value).format("YYYY-MM-DD")
+    //     get(dayoffs, "data", []).forEach((element: { from_date: string, to_date: string }) => {
+    //         if (moment(dateValue).isSame(moment(element.from_date))) {
+    //             isDayoff = true;
+    //         }
+    //     });
 
-        if (isDayoff) {
-            return (
-                <>
-                    <Space >
-                        <Tag color="red"> Ngày nghỉ <Button danger type="link" icon={<CloseOutlined />} /></Tag>
-                    </Space>
-                </>
-            )
-        }
-    }
+    //     if (isDayoff) {
+    //         return (
+    //             <>
+    //                 <Space >
+    //                     <Tag color="red"> Ngày nghỉ <Button danger type="link" icon={<CloseOutlined />} /></Tag>
+    //                 </Space>
+    //             </>
+    //         )
+    //     }
+    // }
 
     function checkDayOff(): number {
         let isDayoff = -1;

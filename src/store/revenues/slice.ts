@@ -3,6 +3,7 @@ import { notification } from "antd";
 import { AxiosError } from "axios";
 import { GetResponseType } from "interface";
 import { get } from "lodash";
+import { TuitionFeeType } from "pages/Tuition/createTuitionPeriod";
 import { removeEmpty } from "utils/objectUtils";
 import request from "utils/request";
 import { handleResponseError } from "utils/ultil";
@@ -20,6 +21,7 @@ export interface RevenueType {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	creator: any;
 	saler?: null | number | string;
+	tuition_fee?: TuitionFeeType;
 }
 
 export interface RevenuesRequestAddType {

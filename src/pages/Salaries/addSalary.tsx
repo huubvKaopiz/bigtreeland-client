@@ -505,7 +505,8 @@ function TeacherRevenueTable(prop: {
                 } else {
                     let count = 0;
                     lessons.forEach((ls) => {
-                        if (moment(ls.date).isSameOrAfter(tuition.from_date) && ls.tuition_period_id === tuition.period_tuition_id) count++;
+                        const lsDataInTuitionPoriod = moment(ls.date).isSameOrAfter(tuition.from_date) && moment(ls.date).isSameOrBefore(tuition.to_date)
+                        if (lsDataInTuitionPoriod && ls.tuition_period_id === tuition.period_tuition_id) count++;
                     })
                     lessonNumList[tuition.id] = count;
                 }

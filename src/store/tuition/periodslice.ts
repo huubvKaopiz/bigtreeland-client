@@ -64,7 +64,7 @@ const initialState: PeriodTuitionReducerState = {
 	addPeriodTuitionStatus: "idle",
 	updatePeriodTuitionStatus: "idle",
 	deletePeriodTuitionStatus: "idle",
-	sendNotificationsStatus:"idle",
+	sendNotificationsStatus: "idle",
 };
 
 export const actionGetPeriodTuion = createAsyncThunk(

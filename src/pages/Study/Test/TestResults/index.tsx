@@ -97,7 +97,7 @@ export default function (props: {
             with: 10,
             fixed: 'left',
             render: function col(_: string, record: TestResultDataType, index: number): JSX.Element {
-                return <span>{index}</span>
+                return <span>{index+1}</span>
             },
         },
         Table.EXPAND_COLUMN,

@@ -244,55 +244,6 @@ function Routes(): JSX.Element {
 						: null
 				)
 			}
-			{/* <Route exact path="/" component={Home} />
-			<Route path="/users" component={Users} />
-			<Route path="/employees" component={Employees} />
-			<Route path="/salaries" component={Salaries} />
-			<Route path="/salaries-create" component={AddSalary} />
-			<Route path="/classes" component={Classes} />
-			<Route exact path="/study/:class_id" component={Study} />
-			<Route
-				exact
-				path="/study/:class_id/lesson-detail/:lesson_id"
-				component={LessonDetails}
-			/>
-			<Route
-				path="/study-tests/:test_id/:class_id"
-				component={TestDetail}
-			/>
-			<Route path="/study-summary" component={StudySumaryBoard} />
-			<Route
-				path="/study-summary-detail/:sumamry_id"
-				component={StudySummaryDetail}
-			/>
-			<Route path="/students" component={Students} />
-			<Route
-				path="/students-study-profile/:student_id"
-				component={StudyProfile}
-			/>
-			<Route path="/payments/tuition" component={Tuition} />
-			<Route
-				path="/payments/tuition-detail/:tuition_id"
-				component={TuitionDetail}
-			/>
-			<Route path="/payments/tuition-create" component={CreateTuitionPeriod} />
-			<Route path="/payments/revenue" component={Revenue} />
-			<Route path="/parents" component={Parents} />
-			<Route path="/permissions" component={Permissions} />
-			<Route path="/roles" component={Roles} />
-			<Route
-				path="/roles-set-permissions/:role_id"
-				component={SetRolePermissions}
-			/>
-			<Route
-				path="/user-set-permissions/:user_id"
-				component={SetUserPermissions}
-			/>
-			<Route path="/payments/payment-slips" component={Payment} />
-			<Route path="/news" component={News} />
-			<Route path="/gifts" component={Gifts} />
-			<Route path="/files" component={Files} />
-			<Route path="/settings" component={Settings} /> */}
 		</>
 	);
 }

@@ -1,15 +1,16 @@
-import { FileTextOutlined } from '@ant-design/icons';
-import { Button, Form, Input, InputNumber, Modal, Tooltip } from 'antd';
+import { Button, DatePicker, Form, Input, InputNumber, Modal, Tooltip } from 'antd';
 import { PeriodTuitionType } from 'interface';
 import { get } from 'lodash';
+import moment from 'moment';
 import numeral from 'numeral';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState, useAppDispatch } from 'store/store';
 import { actionGetPeriodTuion } from 'store/tuition/periodslice';
 import { actionUpdateTuitionFee } from 'store/tuition/tuition';
 import { TuitionFeeType } from './createTuitionPeriod';
 const { TextArea } = Input;
+const { RangePicker } = DatePicker;
 
 export function EditTuitionFeeModal(prop: {
 	periodInfo: PeriodTuitionType | null,
@@ -27,13 +28,14 @@ export function EditTuitionFeeModal(prop: {
 	const updateStatus = useSelector((state: RootState) => state.tuitionFeeReducer.updateTuitionFeeState)
 
 
-	useEffect(() => {
+	useMemo(() => {
 		if (tuitionFeeInfo) {
 			const est_session_num = get(tuitionFeeInfo, "est_session_num", 0) > 0 ? get(tuitionFeeInfo, "est_session_num", 0) : get(periodInfo, "est_session_num", 0);
 			const est_fee = est_session_num * get(periodInfo, "fee_per_session", 0);
 			uFrom.setFieldsValue(
 				{
 					"stname": get(tuitionFeeInfo, "student.name", ""),
+					"period_date_range": tuitionFeeInfo?.from_date ? [moment(tuitionFeeInfo.from_date), moment(tuitionFeeInfo?.to_date)] : [moment(periodInfo?.from_date), moment(periodInfo?.to_date)],
 					"est_fee": est_fee,
 					"prev_debt": get(tuitionFeeInfo, "prev_debt", "0"),
 					"residual": get(tuitionFeeInfo, "residual", "0"),
@@ -50,7 +52,7 @@ export function EditTuitionFeeModal(prop: {
 		}
 	}, [tuitionFeeInfo, uFrom, periodInfo])
 
-	useEffect(() => {
+	useMemo(() => {
 		if (updateStatus === 'success') {
 			dispatch(actionGetPeriodTuion(get(periodInfo, "id", 0)));
 			setShow(false)
@@ -124,6 +126,9 @@ export function EditTuitionFeeModal(prop: {
 				>
 					<Form.Item label="Họ và tên" name="stname">
 						<Input disabled style={{ color: "#2c3e50" }} />
+					</Form.Item>
+					<Form.Item label="Chu kỳ thu" name="period_date_range">
+						<RangePicker />
 					</Form.Item>
 					<Form.Item label={`Học phí ước tính (${get(tuitionFeeInfo, "est_session_num", 0) > 0 ? get(tuitionFeeInfo, "est_session_num", 0) : get(periodInfo, "est_session_num", 0)} buổi)`} name="est_fee">
 						<InputNumber formatter={(value) => numeral(value).format()} style={{ width: "50%", color: "#3498db", fontWeight: 700 }} disabled />

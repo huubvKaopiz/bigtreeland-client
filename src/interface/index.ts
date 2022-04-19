@@ -289,14 +289,14 @@ export interface TuitionFeeType {
 	id: number;
 	period_tuition_id: number;
 	student_id: number;
-	fixed_deduction: "null";
-	flexible_deduction: "null";
-	prev_debt: "null";
-	note: "null";
-	residual: "null";
+	fixed_deduction: string;
+	flexible_deduction: string;
+	prev_debt: string;
+	note: string;
+	residual: string;
 	status: number;
-	from_date: "null";
-	to_date: "null";
+	from_date: string;
+	to_date: string;
 	est_session_num: number;
 	paid_amount: string;
 	dayoffs: string[];
@@ -309,8 +309,8 @@ export interface TuitionFeeType {
 	period_tuition: {
 		id: 3;
 		class_id: 4;
-		from_date: "2022-01 - 01";
-		to_date: "2022 - 01 - 31";
+		from_date: string;
+		to_date: string;
 		est_session_num: 13;
 		fee_per_session: number;
 		dayoffs: string[];
