@@ -193,7 +193,7 @@ function Revenues(props:{period_tuition_id?:number,}): JSX.Element {
 					{
 						type === 2 
 						?
-						<Tooltip title={`${record?.tuition_fee?.student?.name} - ${record?.tuition_fee?.student?.class.name}`}><Tag color={"#d35400"}>{RevenuesTypeList[type]}</Tag></Tooltip>
+						<Tooltip title={`${record?.tuition_fee?.student?.name} - ${record?.tuition_fee?.student?.class?.name}`}><Tag color={"#d35400"}>{RevenuesTypeList[type]}</Tag></Tooltip>
 						:
 						<Tag color={type === 1 ? "#3498db" : "#d35400"}>{RevenuesTypeList[type]}</Tag>
 					}
