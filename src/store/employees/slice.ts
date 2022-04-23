@@ -25,6 +25,8 @@ export interface ParamGetUsers {
 	class_id?: number;
 	role_name?: string;
 	role_ids?: string;
+	page?: number;
+	exclude?: ROLE_NAMES.PARENT;
 }
 
 export interface EmployeeParams {
@@ -245,7 +247,7 @@ export const employeeSlice = createSlice({
 			.addCase(actionGetTeachers.rejected, (state, action) => {
 				state.getEmployeesStatus = "error";
 				const error = action.payload as AxiosError;
-				handleResponseError(error,"lấy ds giáo viên");
+				handleResponseError(error, "lấy ds giáo viên");
 			})
 
 			//get assistants

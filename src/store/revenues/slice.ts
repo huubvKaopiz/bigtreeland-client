@@ -51,6 +51,7 @@ export interface RevenuesSearchParam {
 	to_date?: string;
 	page?: number;
 	employee_id?: number;
+	period_tuition_id?: number;
 	per_page?: number;
 }
 

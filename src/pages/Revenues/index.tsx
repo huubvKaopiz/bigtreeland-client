@@ -42,9 +42,12 @@ const Wrapper = styled.div`
 	}
 `;
 
-function Revenues(): JSX.Element {
+function Revenues(props:{period_tuition_id?:number,}): JSX.Element {
+	const {period_tuition_id} = props;
 	const dispatch = useDispatch();
 	const [receivedValue, setReceivedValue] = useState(123);
+	const [perPage, setPerPage] = useState(20);
+	const [page, setPage] = useState(1);
 	const [rowValueChange, setRowValueChange] = useState<RevenueType | null>(null);
 	const [selectedRows, setSelectedRows] = useState<RevenueType[]>([]);
 	const [selectedRowKeys, setsSlectedRowKeys] = useState< React.Key[]>([])
@@ -65,15 +68,40 @@ function Revenues(): JSX.Element {
 
 	const revenuesData = useSelector((state: RootState) => state.revenuesReducer.revenues);
 
+	useEffect(() => {
+		if(period_tuition_id && period_tuition_id > 0){
+			dispatch(actionGetRevenues({period_tuition_id, page}));
+		}
+	},[period_tuition_id])
+
 	const debounceSearch = useRef(
-		debounce((nextValue, fromDate, toDate) => setSearchObj({ searchRange: [fromDate, toDate], search: nextValue }), 500)
+		debounce((nextValue, fromDate, toDate) => setSearchObj(
+			{ 
+				searchRange: [fromDate, toDate], 
+				search: nextValue, 
+			}
+			), 500)
 	).current;
 
 	useEffect(() => {
 		const [from_date, to_date] = searchObj.searchRange;
 		const search = searchObj.search;
-		dispatch(actionGetRevenues({ from_date, to_date, search }));
-	}, [dispatch, searchObj]);
+		let payload:any = {	
+			page, 
+			per_page:perPage 
+		} 
+		if(period_tuition_id && period_tuition_id > 0){
+			payload = {...payload, period_tuition_id}
+		}else {
+			payload = {
+				...payload,
+				from_date, 
+				to_date, 
+				search, 
+			}
+		}
+		dispatch(actionGetRevenues(payload));
+	},[searchObj, page, perPage]);
 
 	useEffect(() => {
 		const tableData = get(revenuesData, "data", []) as RevenueType[];
@@ -90,19 +118,19 @@ function Revenues(): JSX.Element {
 			setsSlectedRowKeys([]);
 		} else if (statusAddRevenues === "success" || statusAddRevenues === "error") {
 			if (statusAddRevenues === "success") {
-				dispatch(actionGetRevenues({}));
+				dispatch(actionGetRevenues({period_tuition_id}));
 			}
 			dispatch(resetAddRevenuesStatus());
 		} else if (statusUpdateRevenues === "success" || statusUpdateRevenues === "error") {
 			if (statusUpdateRevenues === "success") {
-				dispatch(actionGetRevenues({}));
+				dispatch(actionGetRevenues({period_tuition_id}));
 			}
 			dispatch(resetUpdateRevenuesStatus());
 		}else if (statusDeleteRevenue === "success" || statusDeleteRevenue === "error") {
 			if(statusDeleteRevenue === "success") dispatch(actionGetRevenues({}));
 			dispatch(resetDeleteRevenueStatus());
 		}
-	}, [dispatch, statusAddRevenues, statusGetRevenues, statusUpdateRevenues, statusDeleteRevenue]);
+	}, [statusAddRevenues, statusGetRevenues, statusUpdateRevenues, statusDeleteRevenue]);
 
 	// actions handler
 	function searchRangeChange(_: any, dateString: string[]) {
@@ -215,10 +243,13 @@ function Revenues(): JSX.Element {
 			},
 		},
 	];
+	console.log('period_tuition_id',period_tuition_id)
 	return (
 		<Wrapper>
 			<Layout.Content style={{ height: 1000 }}>
-				<Row style={{ marginBottom: 20, marginTop: 20 }} justify="start">
+				{
+					!period_tuition_id && 
+					<Row style={{ marginBottom: 20, marginTop: 20 }} justify="start">
 					<Col>
 						<Row justify="start">
 							<RangePicker
@@ -233,6 +264,7 @@ function Revenues(): JSX.Element {
 						<AddNewRevenues />
 					</Col>
 				</Row>
+				}
 				<Row style={{ justifyContent: "flex-end" }}>
 					<Statistic title="Tổng thu" value={receivedValue} suffix="VND" valueStyle={{ color: "#3f8600" }} />
 				</Row>
@@ -263,7 +295,11 @@ function Revenues(): JSX.Element {
 							}),
 						}}
 						pagination={{
-							pageSize: 20,
+							pageSize: perPage,
+							onChange:(page, pageSize) =>{
+								setPage(page);
+								setPerPage(pageSize)
+							},
 							total: get(revenuesData, "total", 0),
 						}}
 					/>

@@ -60,13 +60,11 @@ function Payment(): JSX.Element {
 	const [rawTableData, setRawTableData] = useState<PaymentType[]>([]);
 	const [spenValue, setSpenValue] = useState(0);
 	const [showDetail, setShowDetail] = useState(false);
-	const [currentDrawerData, setCurrentDrawerData] =
-		useState<PaymentType | null>(null);
+	const [currentDrawerData, setCurrentDrawerData] = useState<PaymentType | null>(null);
 	const [page, setPage] = useState(1);
+	const [perPage, setPerPage] = useState(20);
 	const [searchInput, setSearchInput] = useState("");
-	const [selectedPaymentRows, setSelectedPaymentRows] = useState<PaymentType[]>(
-		[]
-	);
+	const [selectedPaymentRows, setSelectedPaymentRows] = useState<PaymentType[]>([]);
 	const [selectedRowKeys, setsSlectedRowKeys] = useState<React.Key[]>([]);
 
 	// application state
@@ -89,7 +87,7 @@ function Payment(): JSX.Element {
 
 	const debounceSearch = useRef(
 		debounce(
-			(nextValue) => dispatch(actionGetPayments({ search: nextValue })),
+			(nextValue) => dispatch(actionGetPayments({ search: nextValue, per_page:perPage })),
 			500
 		)
 	).current;
@@ -98,7 +96,7 @@ function Payment(): JSX.Element {
 		const startOfMonth = moment().startOf("month").format("YYYY-MM-DD");
 		const endOfMonth = moment().endOf("month").format("YYYY-MM-DD");
 		// setSearchRange([startOfMonth, endOfMonth]);
-		dispatch(actionGetPayments({ fromDate: startOfMonth, toDate: endOfMonth }));
+		dispatch(actionGetPayments({ fromDate: startOfMonth, toDate: endOfMonth, per_page:perPage }));
 	}, [dispatch]);
 
 	useEffect(() => {
@@ -197,8 +195,6 @@ function Payment(): JSX.Element {
 			},
 		});
 	}
-
-	console.log(selectedPaymentRows);
 
 	const tableColumn = [
 		{

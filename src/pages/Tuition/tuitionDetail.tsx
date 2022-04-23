@@ -5,7 +5,8 @@ import {
 	NotificationOutlined,
 	QuestionCircleOutlined,
 	TransactionOutlined,
-	FileTextOutlined
+	FileTextOutlined,
+	ReloadOutlined
 } from "@ant-design/icons";
 import {
 	Alert,
@@ -29,10 +30,12 @@ import { PeriodTuitionType, StudentType, TuitionFeeType } from "interface";
 import { get } from "lodash";
 import moment from "moment";
 import numeral from "numeral";
+import Revenues from "pages/Revenues";
 import React, { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { actionAddNotification } from "store/notifications/slice";
+import { actionGetRevenues } from "store/revenues/slice";
 import { RootState, useAppDispatch } from "store/store";
 import { actionGetStudents } from "store/students/slice";
 import { actionGetPeriodTuion } from "store/tuition/periodslice";
@@ -182,6 +185,12 @@ export default function TuitionDetail(): JSX.Element {
 		setShowTuitionFeeDetailForm(false);
 		if(refresh) {
 			dispatch(actionGetPeriodTuion(+params.tuition_id));
+		}
+	}
+
+	const handleReloadRevenues = () => {
+		if(tuitionPeriodInfo){
+			dispatch(actionGetRevenues({period_tuition_id:tuitionPeriodInfo.id}));
 		}
 	}
 
@@ -556,14 +565,22 @@ export default function TuitionDetail(): JSX.Element {
 								""
 							)}
 						<TabPane tab="Danh sách buổi học" key="lessionInfo">
-							<Table
-								rowKey="id"
-								bordered
-								style={{ paddingTop: 20 }}
-								dataSource={get(tuitionPeriodInfo, "lessons", [])}
-								columns={lesson_columns}
-								pagination={{ defaultPageSize: 100 }}
-							/>
+							<Space size={[8, 16]} wrap style={{padding: 20 }}>
+								{
+									get(tuitionPeriodInfo, "lessons", []).map(
+										lesson => 
+										<Tag key={lesson.id} color="blue">{lesson.date}</Tag>
+									)
+								}
+							</Space>
+						</TabPane>
+						<TabPane tab="Danh sách phiếu thu" key="revenues">
+							<div className="space-align-block">
+								<Space align="end">
+									<Button type="primary" onClick={handleReloadRevenues} icon={<ReloadOutlined />}>Tải lại</Button>
+								</Space>
+							</div>
+							<Revenues period_tuition_id = {get(tuitionPeriodInfo, "id",0)} />
 						</TabPane>
 					</Tabs>
 				}
