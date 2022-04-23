@@ -153,8 +153,20 @@ function Revenues(): JSX.Element {
 			dataIndex: "type",
 			key: "payemnt_type",
 			align: "center" as "center",
-			render: function TypeCol(type: number): JSX.Element {
-				return <Tag color={type === 1 ? "#3498db" : "#d35400"}>{RevenuesTypeList[type]}</Tag>;
+			render: function TypeCol(type: number, record: RevenueType): JSX.Element {
+				return (
+					<>
+					{
+						type === 2 
+						?
+						<Tooltip title={`${record?.tuition_fee?.student?.name} - ${record?.tuition_fee?.student?.class?.name}`}><Tag color={"#d35400"}>{RevenuesTypeList[type]}</Tag></Tooltip>
+						:
+						<Tag color={type === 1 ? "#3498db" : "#d35400"}>{RevenuesTypeList[type]}</Tag>
+					}
+					</>
+				)
+				
+				
 			},
 		},
 		{
