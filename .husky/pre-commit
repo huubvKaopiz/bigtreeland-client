@@ -1,4 +1,5 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
-
+echo "🚗 starting check before commit..."
 npx --no-install lint-staged
+echo "🛑 end check before commit..."

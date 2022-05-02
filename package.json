@@ -46,7 +46,8 @@
 	},
 	"scripts": {
 		"start": "react-scripts start",
-		"build": "react-scripts build"
+		"build": "react-scripts build",
+		"prepare": "husky install"
 	},
 	"eslintConfig": {
 		"extends": [
@@ -75,18 +76,20 @@
 		"@typescript-eslint/parser": "^5.1.0",
 		"eslint-plugin-react": "^7.26.1",
 		"eslint-plugin-react-hooks": "^4.2.0",
+		"husky": "^7.0.4",
 		"less": "^4.1.2",
 		"less-loader": "^10.2.0",
+		"lint-staged": "^12.4.1",
 		"prettier": "^2.4.1"
 	},
 	"husky": {
 		"hooks": {
-		  "pre-commit": "lint-staged"
+			"pre-commit": "lint-staged"
 		}
-	  },
-	  "lint-staged": {
-		"*.{js,jsx,ts,tsx,css,scss}": [
-		  "prettier --write"
+	},
+	"lint-staged": {
+		"*.{js,jsx,ts,tsx,css,scss,json}": [
+			"prettier --write"
 		]
-	  }
+	}
 }
