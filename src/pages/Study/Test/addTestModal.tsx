@@ -1,43 +1,46 @@
-import { PlusOutlined, UploadOutlined } from "@ant-design/icons";
-import { Button, DatePicker, Form, Input, Modal, Select, Space } from "antd";
-import FileSelectModal from "components/FileSelectModal";
-import { ClassType, FileType, LessonType } from "interface";
-import { get } from "lodash";
-import moment from "moment";
-import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import {
-	resetRecentFileTestUploaded
-} from "store/files/slice";
-import { actionGetLessons } from "store/lesson/slice";
-import { RootState, useAppDispatch } from "store/store";
-import { actionAddTest, actionGetTestes } from "store/testes/slice";
+import { PlusOutlined, UploadOutlined } from "@ant-design/icons"
+import { Button, DatePicker, Form, Input, Modal, Select, Space } from "antd"
+import FileSelectModal from "components/FileSelectModal"
+import { ClassType, FileType, LessonType } from "interface"
+import { get } from "lodash"
+import moment from "moment"
+import React, { useEffect, useState } from "react"
+import { useSelector } from "react-redux"
+import { resetRecentFileTestUploaded } from "store/files/slice"
+import { actionGetLessons } from "store/lesson/slice"
+import { RootState, useAppDispatch } from "store/store"
+import { actionAddTest, actionGetTestes } from "store/testes/slice"
 // import { dummyRequest } from "utils/ultil";
-const { RangePicker } = DatePicker;
-export default function AddTest(props: { classInfo: ClassType | null }): JSX.Element {
-	const { classInfo } = props;
-	const dispatch = useAppDispatch();
-	const [show, setShow] = useState(false);
-	const [submiting, setSubmiting] = useState(false);
-	const [showSelect, setShowSelect] = useState(false);
-	const [resultFilesModal, setResultFilesModal] = useState(false);
-	const [fileSelected, setFileSelected] = useState<Array<FileType>>([]);
-	const [resultFiles, setResultFiles] = useState<Array<FileType>>([]);
+const { RangePicker } = DatePicker
+export default function AddTest(props: {
+	classInfo: ClassType | null
+}): JSX.Element {
+	const { classInfo } = props
+	const dispatch = useAppDispatch()
+	const [show, setShow] = useState(false)
+	const [submiting, setSubmiting] = useState(false)
+	const [showSelect, setShowSelect] = useState(false)
+	const [resultFilesModal, setResultFilesModal] = useState(false)
+	const [fileSelected, setFileSelected] = useState<Array<FileType>>([])
+	const [resultFiles, setResultFiles] = useState<Array<FileType>>([])
 
-	const lessonList = useSelector((state: RootState) => state.lessonReducer.lessons);
-	const getLessonListState = useSelector((state: RootState) => state.lessonReducer.getLessonsState);
-
+	const lessonList = useSelector(
+		(state: RootState) => state.lessonReducer.lessons
+	)
+	const getLessonListState = useSelector(
+		(state: RootState) => state.lessonReducer.getLessonsState
+	)
 
 	useEffect(() => {
 		if (classInfo) {
-			const from_date = moment().startOf('month').format('YYYY-MM-DD');
-			const to_date = moment().endOf('month').format('YYYY-MM-DD');
+			const from_date = moment().startOf("month").format("YYYY-MM-DD")
+			const to_date = moment().endOf("month").format("YYYY-MM-DD")
 			dispatch(actionGetLessons({ from_date, to_date, class_id: classInfo.id }))
 		}
 	}, [classInfo])
 
 	function handleFileSelected(filesSelected: Array<FileType>) {
-		setFileSelected(filesSelected);
+		setFileSelected(filesSelected)
 	}
 
 	function handleResultFileSelected(filesSelected: Array<FileType>) {
@@ -45,26 +48,27 @@ export default function AddTest(props: { classInfo: ClassType | null }): JSX.Ele
 	}
 
 	function handleSubmit(values: any) {
-		setSubmiting(true);
-		const listIdFile = fileSelected.map(file => file.id) as number[]
-		const listResultsFileId = resultFiles.map(file => file.id) as number[]
+		setSubmiting(true)
+		const listIdFile = fileSelected.map((file) => file.id) as number[]
+		const listResultsFileId = resultFiles.map((file) => file.id) as number[]
 		const data = {
 			class_id: get(classInfo, "id", 0),
 			title: values.title,
 			date: moment(values.date).format("YYYY-MM-DD"),
 			content_files: listIdFile,
+			description: values.description,
 			content_link: values.content_link,
 			result_files: listResultsFileId,
 			result_link: values.result_link,
-			lesson_id: values.lesson_id
-		};
+			lesson_id: values.lesson_id,
+		}
 		dispatch(actionAddTest(data))
 			.then(() => {
-				setShow(false);
-				dispatch(resetRecentFileTestUploaded());
-				dispatch(actionGetTestes({ class_id: get(classInfo, "id", 0) }));
+				setShow(false)
+				dispatch(resetRecentFileTestUploaded())
+				dispatch(actionGetTestes({ class_id: get(classInfo, "id", 0) }))
 			})
-			.finally(() => setSubmiting(false));
+			.finally(() => setSubmiting(false))
 	}
 
 	return (
@@ -120,37 +124,59 @@ export default function AddTest(props: { classInfo: ClassType | null }): JSX.Ele
 					<Form.Item label="Buổi học">
 						<Space>
 							<Form.Item>
-								<DatePicker picker="month" format={"MMMM"} defaultValue={moment()} onChange={(value) => {
-									if (value && classInfo) {
-										const from_date = value.startOf('month').format('YYYY-MM-DD');
-										const to_date = value.endOf('month').format('YYYY-MM-DD');
-										dispatch(actionGetLessons({ from_date, to_date, class_id: classInfo.id }))
-									}
-								}} />
+								<DatePicker
+									picker="month"
+									format={"MMMM"}
+									defaultValue={moment()}
+									onChange={(value) => {
+										if (value && classInfo) {
+											const from_date = value
+												.startOf("month")
+												.format("YYYY-MM-DD")
+											const to_date = value.endOf("month").format("YYYY-MM-DD")
+											dispatch(
+												actionGetLessons({
+													from_date,
+													to_date,
+													class_id: classInfo.id,
+												})
+											)
+										}
+									}}
+								/>
 							</Form.Item>
 							<Form.Item name="lesson_id">
 								<Select
 									placeholder="Chọn buổi học"
 									style={{ width: 600 }}
 									allowClear
-									loading={getLessonListState === 'loading'}
-									disabled={getLessonListState === 'loading'}
+									loading={getLessonListState === "loading"}
+									disabled={getLessonListState === "loading"}
 									filterOption={(input, option) =>
 										(option?.label as string)
 											?.toLowerCase()
 											.indexOf(input.toLowerCase()) >= 0
 									}
 								>
-									{get(lessonList, 'data', []).map((lesson: LessonType) => {
+									{get(lessonList, "data", []).map((lesson: LessonType) => {
 										return (
 											<Select.Option
 												key={lesson.id}
 												value={lesson.id}
 												// label={}
 											>
-												<><a>{lesson.title} </a> <span style={{fontStyle:"italic", color:"#7f8c8d"}}>{moment(lesson.date, 'YYYY-MM-DD').format('DD-MM-YYYY')}</span></>
+												<>
+													<a>{lesson.title} </a>{" "}
+													<span
+														style={{ fontStyle: "italic", color: "#7f8c8d" }}
+													>
+														{moment(lesson.date, "YYYY-MM-DD").format(
+															"DD-MM-YYYY"
+														)}
+													</span>
+												</>
 											</Select.Option>
-										);
+										)
 									})}
 								</Select>
 							</Form.Item>
@@ -159,6 +185,9 @@ export default function AddTest(props: { classInfo: ClassType | null }): JSX.Ele
 
 					<Form.Item label="Ngày" name="date">
 						<DatePicker format="DD-MM-YYYY" />
+					</Form.Item>
+					<Form.Item label="Mô tả bài test" name="description">
+						<Input />
 					</Form.Item>
 					<Form.Item label="Link đề bài" name="content_link">
 						<Input />
@@ -209,5 +238,5 @@ export default function AddTest(props: { classInfo: ClassType | null }): JSX.Ele
 				</Form>
 			</Modal>
 		</>
-	);
+	)
 }

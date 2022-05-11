@@ -6,91 +6,100 @@ import {
 	DatePicker,
 	Select,
 	Space,
-} from "antd";
-import { UploadOutlined, FormOutlined } from "@ant-design/icons";
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import Modal from "antd/lib/modal/Modal";
-import { RootState } from "store/store";
+} from "antd"
+import { UploadOutlined, FormOutlined } from "@ant-design/icons"
+import React, { useEffect, useState } from "react"
+import { useDispatch, useSelector } from "react-redux"
+import Modal from "antd/lib/modal/Modal"
+import { RootState } from "store/store"
 import {
 	actionGetTest,
 	actionResetUpdateTest,
 	actionUpdateTest,
-} from "store/testes/slice";
-import moment from "moment";
+} from "store/testes/slice"
+import moment from "moment"
 
-import FileSelectModal from "components/FileSelectModal";
-import { FileType, LessonType, TestType } from "interface";
-import { get } from "lodash";
-import { actionGetLessons } from "store/lesson/slice";
+import FileSelectModal from "components/FileSelectModal"
+import { FileType, LessonType, TestType } from "interface"
+import { get } from "lodash"
+import { actionGetLessons } from "store/lesson/slice"
 
-export default function UpdateTestModal(props: { testInfo: TestType | null }): JSX.Element {
-	const { testInfo } = props;
-	const dispatch = useDispatch();
-	const [utFrom] = Form.useForm();
-	const [show, setShow] = useState(false);
-	const [resultFilesModal, setResultFilesModal] = useState(false);
-	const [showSelect, setShowSelect] = useState(false);
-	const [resultFiles, setResultFiles] = useState<Array<FileType>>([]);
-	const [contentFiles, setContentFiles] = useState<Array<FileType>>([]);
+export default function UpdateTestModal(props: {
+	testInfo: TestType | null
+}): JSX.Element {
+	const { testInfo } = props
+	const dispatch = useDispatch()
+	const [utFrom] = Form.useForm()
+	const [show, setShow] = useState(false)
+	const [resultFilesModal, setResultFilesModal] = useState(false)
+	const [showSelect, setShowSelect] = useState(false)
+	const [resultFiles, setResultFiles] = useState<Array<FileType>>([])
+	const [contentFiles, setContentFiles] = useState<Array<FileType>>([])
 
 	const storeUpdateTestState = useSelector(
 		(state: RootState) => state.testReducer.updateTestStatus
-	);
+	)
 	const lessonList = useSelector(
 		(state: RootState) => state.lessonReducer.lessons
-	);
-	const getLessonListState = useSelector((state: RootState) => state.lessonReducer.getLessonsState);
-
+	)
+	const getLessonListState = useSelector(
+		(state: RootState) => state.lessonReducer.getLessonsState
+	)
 
 	useEffect(() => {
 		if (testInfo && storeUpdateTestState === "success") {
-			dispatch(actionResetUpdateTest());
-			dispatch(actionGetTest(testInfo.id));
-			setShow(false);
+			dispatch(actionResetUpdateTest())
+			dispatch(actionGetTest(testInfo.id))
+			setShow(false)
 		}
-	}, [dispatch, testInfo, storeUpdateTestState]);
+	}, [dispatch, testInfo, storeUpdateTestState])
 
 	useEffect(() => {
 		if (testInfo) {
 			utFrom.setFieldsValue({
+				description: testInfo.description,
 				result_link: testInfo.result_link,
 				content_link: testInfo.content_link,
 				title: testInfo.title,
 				date: moment(testInfo.date),
-				lesson_id: testInfo.lesson_id
+				lesson_id: testInfo.lesson_id,
 			})
 			setResultFiles(testInfo.result_files)
 			setContentFiles(testInfo.content_files)
 		}
-	}, [testInfo]);
+	}, [testInfo])
 
 	function handleSubmit(values: any) {
 		if (testInfo) {
-			const { result_link, content_link, title, date, lesson_id } = values;
-			const result_files = resultFiles.map((file) => file.id);
-			const content_files = contentFiles.map((file) => file.id);
+			const { result_link, description, content_link, title, date, lesson_id } =
+				values
+			const result_files = resultFiles.map((file) => file.id)
+			const content_files = contentFiles.map((file) => file.id)
 			// Todo update
 			dispatch(
 				actionUpdateTest({
 					id: testInfo.id,
 					title,
-					date: moment(date).format('YYYY-MM-DD'),
+					date: moment(date).format("YYYY-MM-DD"),
 					content_files,
-					content_link: content_link === '' ? null : content_link,
-					result_link: result_link === '' ? null : result_link,
+					description,
+					content_link: content_link === "" ? null : content_link,
+					result_link: result_link === "" ? null : result_link,
 					result_files,
-					lesson_id
+					lesson_id,
 				})
-			);
+			)
 		}
-
 	}
-	if (testInfo == undefined) return (<></>)
+	if (testInfo == undefined) return <></>
 
 	return (
 		<>
-			<Button type="primary" icon={<FormOutlined />} onClick={() => setShow(true)}>
+			<Button
+				type="primary"
+				icon={<FormOutlined />}
+				onClick={() => setShow(true)}
+			>
 				Cập nhật
 			</Button>
 			<Modal
@@ -137,37 +146,59 @@ export default function UpdateTestModal(props: { testInfo: TestType | null }): J
 					<Form.Item label="Buổi học">
 						<Space>
 							<Form.Item>
-								<DatePicker picker="month" format={"MMMM"} defaultValue={moment()} onChange={(value) => {
-									if (value && testInfo) {
-										const from_date = value.startOf('month').format('YYYY-MM-DD');
-										const to_date = value.endOf('month').format('YYYY-MM-DD');
-										dispatch(actionGetLessons({ from_date, to_date, class_id: testInfo.class_id }))
-									}
-								}} />
+								<DatePicker
+									picker="month"
+									format={"MMMM"}
+									defaultValue={moment()}
+									onChange={(value) => {
+										if (value && testInfo) {
+											const from_date = value
+												.startOf("month")
+												.format("YYYY-MM-DD")
+											const to_date = value.endOf("month").format("YYYY-MM-DD")
+											dispatch(
+												actionGetLessons({
+													from_date,
+													to_date,
+													class_id: testInfo.class_id,
+												})
+											)
+										}
+									}}
+								/>
 							</Form.Item>
 							<Form.Item name="lesson_id">
 								<Select
 									placeholder="Chọn buổi học"
 									style={{ width: 600 }}
 									allowClear
-									loading={getLessonListState === 'loading'}
-									disabled={getLessonListState === 'loading'}
+									loading={getLessonListState === "loading"}
+									disabled={getLessonListState === "loading"}
 									filterOption={(input, option) =>
 										(option?.label as string)
 											?.toLowerCase()
 											.indexOf(input.toLowerCase()) >= 0
 									}
 								>
-									{get(lessonList, 'data', []).map((lesson: LessonType) => {
+									{get(lessonList, "data", []).map((lesson: LessonType) => {
 										return (
 											<Select.Option
 												key={lesson.id}
 												value={lesson.id}
-											// label={}
+												// label={}
 											>
-												<><a>{lesson.title} </a> <span style={{ fontStyle: "italic", color: "#7f8c8d" }}>{moment(lesson.date, 'YYYY-MM-DD').format('DD-MM-YYYY')}</span></>
+												<>
+													<a>{lesson.title} </a>{" "}
+													<span
+														style={{ fontStyle: "italic", color: "#7f8c8d" }}
+													>
+														{moment(lesson.date, "YYYY-MM-DD").format(
+															"DD-MM-YYYY"
+														)}
+													</span>
+												</>
 											</Select.Option>
-										);
+										)
 									})}
 								</Select>
 							</Form.Item>
@@ -175,6 +206,9 @@ export default function UpdateTestModal(props: { testInfo: TestType | null }): J
 					</Form.Item>
 					<Form.Item label="Ngày" name="date">
 						<DatePicker format="DD-MM-YYYY" />
+					</Form.Item>
+					<Form.Item label="Mô tả bài test" name="description">
+						<Input />
 					</Form.Item>
 					<Form.Item label="Link đề bài" name="content_link">
 						<Input />
@@ -225,5 +259,5 @@ export default function UpdateTestModal(props: { testInfo: TestType | null }): J
 				</Form>
 			</Modal>
 		</>
-	);
+	)
 }
