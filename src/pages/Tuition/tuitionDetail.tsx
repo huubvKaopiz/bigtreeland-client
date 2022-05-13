@@ -54,24 +54,6 @@ const { TabPane } = Tabs;
 const { confirm } = Modal;
 const dateFormat = "DD/MM/YYYY";
 
-const lesson_columns = [
-	{
-		title: "Ngày học",
-		dataIndex: "date",
-		key: "date",
-	},
-	{
-		title: "Giáo viên",
-		dataIndex: "",
-		key: "",
-	},
-	{
-		title: "Số học sinh tham gia",
-		dataIndex: "attendances",
-		key: "attendances",
-	},
-];
-
 export default function TuitionDetail(): JSX.Element {
 	const params = useParams() as { tuition_id: string };
 	const dispatch = useAppDispatch();

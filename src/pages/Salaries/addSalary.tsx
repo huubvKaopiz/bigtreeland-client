@@ -583,7 +583,15 @@ function TeacherRevenueTable(prop: {
             key: "status",
             render: function studentCol(val: number): JSX.Element {
                 return (
-                    <span>{val === 0 ? <Tag color="red">Chưa nộp</Tag> : val === 1 ? <Tag color="green">Đã nộp</Tag> : <Tag color="orange">Chuyển nợ</Tag>}</span>
+                    <span>{
+                        val === 0 
+                        ? <Tag color="red">Chưa nộp</Tag> 
+                        : val === 1 
+                        ? <Tag color="green">Đã nộp</Tag> 
+                        : val === 3 
+                        ?  <Tag color="orange">Chuyển nợ</Tag>
+                        :  <Tag color="blue">Thanh toán 1 phần</Tag>
+                    }</span>
                 )
             }
         },
