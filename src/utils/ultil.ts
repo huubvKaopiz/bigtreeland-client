@@ -278,6 +278,12 @@ export function getPermissionDes(name: string): string {
 		case 'class-histories':
 			res = "Lịch sử nhập học của hs";
 			break;
+		case 'summary-detail':
+			res = "Xem bảng tổng kết";
+			break;
+		case 'unpaid-wages':
+			res = "Nợ lương";
+			break;
 		default:
 			break;
 	}
