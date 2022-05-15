@@ -102,25 +102,27 @@ export function StudySummaryDetail(): JSX.Element {
 				student.test_results.forEach((test_result) => {
 					const dateKey =
 						test_result.test?.lesson?.date ?? test_result.test.date
-					total += +test_result.point ?? 0
+					const test_point = test_result.point
+						? +test_result.point.replace(",", ".")
+						: 0
+					total += test_point
 					count++
 					if (dateList.findIndex((date) => date === dateKey) === -1)
 						dateList.push(dateKey)
 					if (summaryBoardStudentData[dateKey]) {
-						summaryBoardStudentData[dateKey].test_points.push(
-							+test_result.point
-						)
+						summaryBoardStudentData[dateKey].test_points.push(test_point)
 					} else {
 						summaryBoardStudentData[dateKey] = {
 							conduct_point: 0,
-							test_points: [+test_result.point],
+							test_points: [test_point],
 						}
 					}
 				})
 				summaryBoardData[student.id] = summaryBoardStudentData
 				finalScore[student.id] = {
 					final_conduct_point: score + 10,
-					avg_test_points: count > 0 ? total / count : 0,
+					avg_test_points:
+						count > 0 ? Math.floor((total / count) * 100) / 100 : 0,
 				}
 			})
 			setSummaryDataSource(summaryBoardData)
