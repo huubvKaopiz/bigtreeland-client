@@ -222,6 +222,11 @@ export interface TestType {
 	updated_at: string
 	lesson_id?: number
 	test_results: TestResultsType[]
+	lesson:{
+		id: number,
+		date: string, 
+		name: string,
+	}
 	class: {
 		id: number
 		name: string
@@ -511,7 +516,8 @@ export interface TestResultsType {
 	teacher_comment: string
 	parent_feedback: string
 	updated_at: string
-	student: StudentType
+	student: StudentType,
+	test: TestType,
 }
 
 export interface BirthdayListType {
@@ -527,3 +533,26 @@ export interface DocumentType {
 	files: FileType[]
 	created_at: string
 }
+
+export interface AttendanceType {
+	id:number;
+	student_id:number;
+	lesson_id:number;
+	comment:string;
+	conduct_point: number;
+	reminder:string;
+	lesson:{
+		id:number;
+		tuition_period_id: number;
+		date:string;
+		class_id:number;
+		assistant_id: number | null;
+		employee_id: number;
+	}
+}
+export interface StudentSummaryBoardType {
+	id:number;
+	name:string;
+	test_results:TestResultsType[];
+	attendances:AttendanceType[];
+}	
