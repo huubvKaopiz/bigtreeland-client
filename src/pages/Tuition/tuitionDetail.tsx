@@ -5,8 +5,7 @@ import {
 	NotificationOutlined,
 	QuestionCircleOutlined,
 	TransactionOutlined,
-	FileTextOutlined,
-	ReloadOutlined
+	FileTextOutlined
 } from "@ant-design/icons";
 import {
 	Alert,
@@ -30,12 +29,10 @@ import { PeriodTuitionType, StudentType, TuitionFeeType } from "interface";
 import { get } from "lodash";
 import moment from "moment";
 import numeral from "numeral";
-import Revenues from "pages/Revenues";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { actionAddNotification } from "store/notifications/slice";
-import { actionGetRevenues } from "store/revenues/slice";
 import { RootState, useAppDispatch } from "store/store";
 import { actionGetStudents } from "store/students/slice";
 import { actionGetPeriodTuion } from "store/tuition/periodslice";
@@ -48,11 +45,28 @@ import { formatCurrency } from "utils/ultil";
 import { CreateTuitionFeeModal } from "./createTuitionFreeModal";
 import { EditTuitionFeeModal } from "./editTuitionFeeModal";
 import ExportExcel from "./exportExcel";
-import TuitionFeeDetailForm from "./tuitionFeeDetailForm";
 
 const { TabPane } = Tabs;
 const { confirm } = Modal;
 const dateFormat = "DD/MM/YYYY";
+
+const lesson_columns = [
+	{
+		title: "Ngày học",
+		dataIndex: "date",
+		key: "date",
+	},
+	{
+		title: "Giáo viên",
+		dataIndex: "",
+		key: "",
+	},
+	{
+		title: "Số học sinh tham gia",
+		dataIndex: "attendances",
+		key: "attendances",
+	},
+];
 
 export default function TuitionDetail(): JSX.Element {
 	const params = useParams() as { tuition_id: string };
@@ -63,7 +77,8 @@ export default function TuitionDetail(): JSX.Element {
 	const [feesPerStudent, setFeesPerStudent] = useState<number[]>([]);
 	const [paymentCount, setPaymentCount] = useState<number>(0);
 	const [showNotiForm, setShowNotiForm] = useState(false);
-	const [showTuitionFeeDetailForm, setShowTuitionFeeDetailForm] = useState(false);
+	const [showAddTuitionFee, setShowAddTuitionFee] = useState(false);
+	const [showEditTuitionFee, setShowEditTuitionFee] = useState(false);
 	const [showPaymentForm, setShowPaymentForm] = useState(false);
 	const [actionIndex, setActionIndex] = useState(-1);
 	const [addTuitionFeeStudent, setAddTuitionFeeStudent] = useState<StudentType | null>(null);
@@ -84,7 +99,7 @@ export default function TuitionDetail(): JSX.Element {
 	);
 
 	//get period information
-	useMemo(() => {
+	useEffect(() => {
 		if (params.tuition_id || tuitionFeePaymentState === "success") {
 
 			dispatch(actionGetPeriodTuion(+params.tuition_id));
@@ -93,7 +108,7 @@ export default function TuitionDetail(): JSX.Element {
 				setActionIndex(-1)
 			}
 		}
-	}, [params.tuition_id, tuitionFeePaymentState]);
+	}, [dispatch, params.tuition_id, tuitionFeePaymentState]);
 
 	//handle period information change
 	useEffect(() => {
@@ -118,10 +133,10 @@ export default function TuitionDetail(): JSX.Element {
 								: get(tuitionPeriodInfo, "est_session_num", 0);
 						const est_fee =
 							get(tuitionPeriodInfo, "fee_per_session", 0) * est_session_num +
-							+ isNaN(+tuition.prev_debt)  ? 0 : +tuition.prev_debt;
+							+get(tuition, "prev_debt", "0");
 						const deduce_amount =
-							+ isNaN(+tuition.residual) ? 0 : +tuition.residual +
-							+ isNaN(+tuition.fixed_deduction) ? 0 : +tuition.fixed_deduction +
+							+get(tuition, "residual", 0) +
+							+get(tuition, "fixed_deduction", 0) +
 							+get(tuition, "flexible_deduction", 0);
 						const cal_fee = est_fee - deduce_amount;
 						if (cal_fee > 0) totalTuitionFee += cal_fee;
@@ -144,7 +159,7 @@ export default function TuitionDetail(): JSX.Element {
 			setPaymentCount(paidCount);
 			setFeesPerStudent(estTuiionFeeMap);
 		}
-	}, [tuitionPeriodInfo]);
+	}, [dispatch, tuitionPeriodInfo]);
 
 	// handle students change
 	useEffect(() => {
@@ -156,25 +171,18 @@ export default function TuitionDetail(): JSX.Element {
 					(tuition) => tuition.student_id === st.id
 				);
 				if (index === -1) newList.push(st);
+				// if (index === -1) {
+				// 	if (st.class_histories.length >= 1) {
+				// 		if (
+				// 			moment(st.class_histories[st.class_histories.length - 1].date).isSameOrAfter(moment(get(tuitionPeriodInfo, "from_date", "")))
+				// 		)
+				// 			newList.push(st);
+				// 	}
+				// }
 			});
 			setNewStudentList(newList);
 		}
 	}, [students, tuitionPeriodInfo]);
-
-	const hanelCloseTuitionFeeDetailForm = (refresh:boolean) => {
-		setActionIndex(-1);
-		setAddTuitionFeeStudent(null);
-		setShowTuitionFeeDetailForm(false);
-		if(refresh) {
-			dispatch(actionGetPeriodTuion(+params.tuition_id));
-		}
-	}
-
-	const handleReloadRevenues = () => {
-		if(tuitionPeriodInfo){
-			dispatch(actionGetRevenues({period_tuition_id:tuitionPeriodInfo.id}));
-		}
-	}
 
 	function handleTraferDebt(tuition: TuitionFeeType) {
 		confirm({
@@ -346,7 +354,7 @@ export default function TuitionDetail(): JSX.Element {
 						<Space>
 							<Tooltip title="Chi tiết bảng học phí">
 								<Button onClick={() => {
-									setShowTuitionFeeDetailForm(true);
+									setShowEditTuitionFee(true);
 									setActionIndex(index)
 								}} icon={<FileTextOutlined />} type="link" />
 							</Tooltip>
@@ -456,7 +464,9 @@ export default function TuitionDetail(): JSX.Element {
 											cũ trước khi lập bảng học phí ở lớp mới!
 										</p>
 										<p>
-											Quyết toán bằng cách cập nhật lại khoảng thời gian thu học phí của phiếu thu.
+											Quyết toán bằng cách cập nhật lại bảng học phí theo đúng
+											số buổi đã học ở lớp cũ (cập nhật giảm trừ, ghi chú cụ
+											thể...)
 										</p>
 									</>
 								}
@@ -513,7 +523,7 @@ export default function TuitionDetail(): JSX.Element {
 											key="admission_date"
 											render={(_: number, record: StudentType) => (
 												<strong>
-													{record.class_histories.length && moment(
+													{moment(
 														record.class_histories[
 															record.class_histories.length - 1
 														].date
@@ -530,8 +540,7 @@ export default function TuitionDetail(): JSX.Element {
 													<Tooltip title="Tạo bảng học phí">
 														<Button
 															onClick={() => {
-																setShowTuitionFeeDetailForm(true);
-																setActionIndex(-1);
+																setShowAddTuitionFee(true);
 																setAddTuitionFeeStudent(record);
 															}}
 															icon={<FileAddOutlined />}
@@ -547,45 +556,30 @@ export default function TuitionDetail(): JSX.Element {
 								""
 							)}
 						<TabPane tab="Danh sách buổi học" key="lessionInfo">
-							<Space size={[8, 16]} wrap style={{padding: 20 }}>
-								{
-									get(tuitionPeriodInfo, "lessons", []).map(
-										lesson => 
-										<Tag key={lesson.id} color="blue">{lesson.date}</Tag>
-									)
-								}
-							</Space>
-						</TabPane>
-						<TabPane tab="Danh sách phiếu thu" key="revenues">
-							<div className="space-align-block">
-								<Space align="end">
-									<Button type="primary" onClick={handleReloadRevenues} icon={<ReloadOutlined />}>Tải lại</Button>
-								</Space>
-							</div>
-							<Revenues period_tuition_id = {get(tuitionPeriodInfo, "id",0)} />
+							<Table
+								rowKey="id"
+								bordered
+								style={{ paddingTop: 20 }}
+								dataSource={get(tuitionPeriodInfo, "lessons", [])}
+								columns={lesson_columns}
+								pagination={{ defaultPageSize: 100 }}
+							/>
 						</TabPane>
 					</Tabs>
 				}
 			>
 				<Content extra={extraContent}>{renderContent()}</Content>
-				{/* <EditTuitionFeeModal
+				<EditTuitionFeeModal
 					tuitionFeeInfo={actionIndex > -1 ? get(tuitionPeriodInfo, "tuition_fees", [])[actionIndex] : null}
 					show={showEditTuitionFee}
 					setShow={setShowEditTuitionFee}
 					periodInfo={tuitionPeriodInfo}
-				/> */}
-				{/* <CreateTuitionFeeModal
+				/>
+				<CreateTuitionFeeModal
 					periodInfo={tuitionPeriodInfo}
 					studentInfo={addTuitionFeeStudent}
 					show={showAddTuitionFee}
 					setShow={setShowAddTuitionFee}
-				/> */}
-				<TuitionFeeDetailForm 
-					periodTuition={tuitionPeriodInfo}
-					studentInfo={addTuitionFeeStudent}
-					show={showTuitionFeeDetailForm}
-					onClose={hanelCloseTuitionFeeDetailForm}
-					currentTuitionFee={actionIndex > -1 ? get(tuitionPeriodInfo, "tuition_fees", [])[actionIndex] : null} 				
 				/>
 				<SendNotiModal
 					tuitionIndex={actionIndex}

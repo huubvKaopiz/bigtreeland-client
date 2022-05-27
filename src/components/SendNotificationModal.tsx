@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 import { actionAddNotification } from "store/notifications/slice";
 import { RootState, useAppDispatch } from "store/store";
 import { NOTIFI_URIS } from "utils/const";
+import React from "react";
 
 export default function SendNotificationModal(prop: {
     students: StudentType[],

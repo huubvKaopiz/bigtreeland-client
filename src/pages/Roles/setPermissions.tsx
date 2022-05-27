@@ -280,7 +280,7 @@ export function SetRolePermissions(): JSX.Element {
 				]}
 			/>
 			<Table
-				// scroll={{ y: 800 }}
+				scroll={{ y: 1500 }}
 				loading={loading === "loading" ? true : false}
 				columns={permissions_columns}
 				dataSource={rolePermissions}

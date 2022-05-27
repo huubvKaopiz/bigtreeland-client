@@ -7,58 +7,67 @@ import {
 	Typography,
 	Spin,
 	Divider,
-} from "antd"
-import { PlayCircleFilled, PauseCircleFilled } from "@ant-design/icons"
-import React, { useEffect, useState } from "react"
-import ReactPlayer from "react-player"
-import { useDispatch, useSelector } from "react-redux"
-import { useParams } from "react-router-dom"
-import { RootState } from "store/store"
-import { actionGetTest } from "store/testes/slice"
-import moment from "moment"
-import { dayOptions, fileIconList } from "utils/const"
-import { isHavePermission, isImageType } from "utils/ultil"
-import get from "lodash/get"
-import UpdateTestModal from "./updateTestModal"
-import TestResults from "./TestResults"
-import usePermissionList from "hooks/usePermissionList"
-import useIsAdmin from "hooks/useIsAdmin"
+} from "antd";
+import { PlayCircleFilled, PauseCircleFilled } from '@ant-design/icons';
+import React, { useEffect, useState } from "react";
+import ReactPlayer from 'react-player'
+import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
+import { RootState } from "store/store";
+import {
+	actionGetTest,
+} from "store/testes/slice";
+import moment from "moment";
+import { dayOptions, fileIconList } from "utils/const";
+import { isHavePermission, isImageType } from "utils/ultil";
+import get from "lodash/get";
+import UpdateTestModal from "./updateTestModal";
+import TestResults from "./TestResults";
+import usePermissionList from "hooks/usePermissionList";
+import useIsAdmin from "hooks/useIsAdmin";
 
-const { Title } = Typography
-const dateFormat = "DD-MM-YYYY"
+const { Title } = Typography;
+const dateFormat = "DD-MM-YYYY";
 
 export function TestDetail(): JSX.Element {
-	const params = useParams() as { test_id: string; class_id: string }
-	const dispatch = useDispatch()
-	const permissionList = usePermissionList()
-	const isAdmin = useIsAdmin()
-	const [videoPlaying, setVideoPlaying] = useState(false)
-	const testInfo = useSelector((state: RootState) => state.testReducer.testInfo)
+	const params = useParams() as { test_id: string; class_id: string };
+	const dispatch = useDispatch();
+	const permissionList = usePermissionList();
+	const isAdmin = useIsAdmin();
+	const [videoPlaying, setVideoPlaying] = useState(false);
+	const testInfo = useSelector(
+		(state: RootState) => state.testReducer.testInfo
+	);
 	const storeGetTestStatus = useSelector(
 		(state: RootState) => state.testReducer.getTestStatus
-	)
+	);
+
 
 	useEffect(() => {
 		if (params.test_id) {
-			dispatch(actionGetTest(+params.test_id))
+			dispatch(actionGetTest(+params.test_id));
 		}
-	}, [dispatch, params])
+	}, [dispatch, params]);
 
 	return (
 		<Layout.Content>
-			<Spin spinning={storeGetTestStatus === "loading"}>
+			<Spin
+				spinning={storeGetTestStatus === "loading"}
+			>
 				<PageHeader
 					title={get(testInfo, "title", "")}
 					subTitle={moment(get(testInfo, "date", null)).format(dateFormat)}
 					onBack={() => window.history.back()}
 					style={{ backgroundColor: "white", marginTop: 20 }}
 					extra={[
-						(isAdmin || isHavePermission(permissionList, "tests.update")) && (
-							<UpdateTestModal testInfo={testInfo} />
-						),
+						(isAdmin || isHavePermission(permissionList, "tests.update")) &&
+						<UpdateTestModal
+							testInfo={testInfo}
+						/>,
 					]}
 				>
 					<Descriptions size="small" column={2} bordered>
+
 						<Descriptions.Item label="Lớp">
 							<p>{testInfo?.class.name ?? ""}</p>
 						</Descriptions.Item>
@@ -72,11 +81,11 @@ export function TestDetail(): JSX.Element {
 							{(() => {
 								const sortedSchedule = testInfo?.class.schedule
 									? [...testInfo?.class.schedule]
-									: []
+									: [];
 								return sortedSchedule
 									.sort()
 									.map((day) => dayOptions[day])
-									.join(", ")
+									.join(", ");
 							})()}
 							<span>({testInfo?.class.schedule_time ?? ""})</span>
 						</Descriptions.Item>
@@ -86,98 +95,106 @@ export function TestDetail(): JSX.Element {
 					<Title style={{ marginTop: 20 }} level={5}>
 						Đề bài
 					</Title>
-					{testInfo?.description && (
-						<div style={{ marginBottom: 10 }}>
-							Mô tả bài test:{" "}
-							<a rel="noreferrer" style={{ marginLeft: 10 }}>
-								{testInfo.description}
-							</a>
-						</div>
-					)}
-					{testInfo?.content_link && (
+					{
+						testInfo?.content_link &&
 						<Space
 							style={{ backgroundColor: "white", marginBottom: 10 }}
 							size={[10, 10]}
 							wrap
 						>
 							Link đề bài:{" "}
-							<a target="_blank" rel="noreferrer" href={testInfo?.content_link}>
+							<a
+								target="_blank"
+								rel="noreferrer"
+								href={testInfo?.content_link}
+							>
 								{testInfo?.content_link}
 							</a>
 						</Space>
-					)}
-					{get(testInfo, "content_files", []).length > 0 && (
+					}
+					{
+						get(testInfo, "content_files", []).length > 0 &&
 						<div style={{}}>
 							{/* <p>Đề bài</p> */}
 							<Space style={{ backgroundColor: "white" }} size={[10, 10]} wrap>
 								{testInfo?.content_files.map((file, index) => (
 									<div key={index}>
-										{file.type === "mp4" || file.type === "mov" ? (
-											<div>
-												<ReactPlayer url={file.url} playing={videoPlaying} />
-												<div
-													style={{
-														justifyContent: "center",
-														alignItems: "center",
-														display: "flex",
+										{
+											file.type === 'mp4' || file.type === 'mov'
+												?
+												<div>
+													<ReactPlayer url={file.url} playing={videoPlaying} />
+													<div style={{
+														justifyContent: 'center',
+														alignItems: 'center',
+														display: 'flex',
 														fontSize: 18,
 														marginTop: 10,
-														color: "#e67e22",
-													}}
-												>
-													{videoPlaying ? (
-														<PauseCircleFilled
-															onClick={() => setVideoPlaying(!videoPlaying)}
-														/>
-													) : (
-														<PlayCircleFilled
-															onClick={() => setVideoPlaying(!videoPlaying)}
-														/>
-													)}
+														color: "#e67e22"
+													}}>
+														{
+															videoPlaying
+																?
+																<PauseCircleFilled onClick={() => setVideoPlaying(!videoPlaying)} />
+																:
+																<PlayCircleFilled onClick={() => setVideoPlaying(!videoPlaying)} />
+														}
+													</div>
 												</div>
-											</div>
-										) : (
-											<Image
-												width={100}
-												height={100}
-												style={{ objectFit: "cover" }}
-												alt="logo"
-												src={
-													isImageType(file.type || "")
-														? file.url
-														: fileIconList[
-																Object.keys(fileIconList).find(
-																	(k) => k === file.type
-																) as keyof typeof fileIconList
-														  ]
-												}
-											/>
-										)}
+												:
+												<Image
+													width={100}
+													height={100}
+													style={{ objectFit: "cover" }}
+													alt="logo"
+													src={
+														isImageType(file.type || "")
+															? file.url
+															: fileIconList[
+															Object.keys(fileIconList).find(
+																(k) => k === file.type
+															) as keyof typeof fileIconList
+															]
+													}
+												/>
+										}
+
 									</div>
+
 								))}
 							</Space>
 						</div>
-					)}
+					}
 
 					<Title style={{ marginTop: 20 }} level={5}>
 						Đáp án
 					</Title>
-					{testInfo?.result_link && (
+					{
+						testInfo?.result_link &&
 						<Space
 							style={{ backgroundColor: "white", marginBottom: 10 }}
 							size={[10, 10]}
 							wrap
 						>
 							Link đáp án:{" "}
-							<a target="_blank" rel="noreferrer" href={testInfo?.result_link}>
+							<a
+								target="_blank"
+								rel="noreferrer"
+								href={testInfo?.result_link}
+							>
 								{testInfo?.result_link ?? ""}
 							</a>
 						</Space>
-					)}
-					{get(testInfo, "result_files", []).length > 0 && (
+					}
+					{
+						get(testInfo, "result_files", []).length > 0 &&
 						<div>
 							<p>Ảnh đáp án</p>
-							<Space style={{ backgroundColor: "white" }} size={[10, 10]} wrap>
+							<Space
+								style={{ backgroundColor: "white" }}
+								size={[10, 10]}
+								wrap
+							>
 								{testInfo?.result_files.map((file, index) => (
 									<div key={index}>
 										<Image
@@ -189,17 +206,17 @@ export function TestDetail(): JSX.Element {
 												isImageType(file.type || "")
 													? file.url
 													: fileIconList[
-															Object.keys(fileIconList).find(
-																(k) => k === file.type
-															) as keyof typeof fileIconList
-													  ]
+													Object.keys(fileIconList).find(
+														(k) => k === file.type
+													) as keyof typeof fileIconList
+													]
 											}
 										/>
 									</div>
 								))}
 							</Space>
 						</div>
-					)}
+					}
 
 					<Divider />
 					<Title style={{ marginTop: 20 }} level={5}>
@@ -209,5 +226,8 @@ export function TestDetail(): JSX.Element {
 				</div>
 			</Spin>
 		</Layout.Content>
-	)
+	);
 }
+
+
+

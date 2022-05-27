@@ -12,8 +12,6 @@ export interface TestResultsState {
 	getTestResultsStatus: "idle" | "loading" | "success" | "error";
 	addTestResultStatus: "idle" | "loading" | "success" | "error";
 	updateTestResultStatus: "idle" | "loading" | "success" | "error";
-	deleteTestResultStatus: "idle" | "loading" | "success" | "error";
-
 }
 
 export interface GetTestResultsParam {
@@ -88,28 +86,11 @@ export const actionUpdateTestResult = createAsyncThunk(
 	}
 );
 
-
-export const actionDeleteTestResult = createAsyncThunk(
-	"action/tesreusul/delete",
-	async (id:number, { rejectWithValue }) => {
-		try {
-			const response = await request({
-				url: `api/test-results/${id}`,
-				method: "delete",
-			});
-			return response.data;
-		} catch (error) {
-			return rejectWithValue(error);
-		}
-	}
-);
-
 const initialState: TestResultsState = {
 	testResults: null,
 	getTestResultsStatus: "idle",
 	addTestResultStatus: "idle",
 	updateTestResultStatus: "idle",
-	deleteTestResultStatus:'idle',
 };
 
 export const testResults = createSlice({
@@ -123,9 +104,6 @@ export const testResults = createSlice({
 			status.getTestResultsStatus = "idle";
 		},
 		resetUpdateTestResultsStatus(status) {
-			status.getTestResultsStatus = "idle";
-		},
-		resetDeleteTestResultsStatus(status) {
 			status.getTestResultsStatus = "idle";
 		},
 	},
@@ -166,21 +144,6 @@ export const testResults = createSlice({
 			})
 			.addCase(actionUpdateTestResult.fulfilled, (state) => {
 				state.updateTestResultStatus = "success";
-				notification.success({message: "Cập nhật bài làm thành công!"})
-			})
-
-			//delete
-			.addCase(actionDeleteTestResult.pending, (state) => {
-				state.deleteTestResultStatus = "loading";
-			})
-			.addCase(actionDeleteTestResult.rejected, (state, action) => {
-				state.deleteTestResultStatus = "error";
-				const error = action.payload as AxiosError;
-				handleResponseError(error);
-			})
-			.addCase(actionDeleteTestResult.fulfilled, (state) => {
-				state.deleteTestResultStatus = "success";
-				notification.success({message: "Huỷ bài làm thành công!"})
 			});
 	},
 });

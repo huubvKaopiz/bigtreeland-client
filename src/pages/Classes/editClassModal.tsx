@@ -9,6 +9,7 @@ import { actionGetClasses, actionUpdateClass } from "store/classes/slice";
 import { RootState, useAppDispatch } from "store/store";
 import { dayOptions, ROLE_NAMES } from "utils/const";
 import { converRoleNameToVN } from "utils/ultil";
+import React from "react";
 
 export default function EditClassModal(props: {
 	classInfo: ClassType;

@@ -20,8 +20,6 @@ interface GetLessonsParmasType {
 	class_id?: number;
 	from_date?: string;
 	to_date?: string;
-	user_id?: number;
-	per_page?: number;
 }
 
 export const actionGetLessonInfo = createAsyncThunk(
@@ -76,7 +74,7 @@ const initialState: LessionReducerState = {
 	lessons: null,
 	getLessonsState: "idle",
 	getLessonInfoSate: "idle",
-	updateLessonState: "idle"
+	updateLessonState:"idle"
 };
 
 export const lessonSlice = createSlice({
@@ -92,7 +90,7 @@ export const lessonSlice = createSlice({
 		actionSetLessionsStateNull(state) {
 			state.lessons = null;
 		},
-		actionUpdatePeriodTuition(state) {
+		actionUpdatePeriodTuition(state){
 			state.updateLessonState = 'idle'
 		}
 	},
@@ -127,7 +125,7 @@ export const lessonSlice = createSlice({
 			})
 			.addCase(actionUpdatePeriodTuition.fulfilled, (state, action) => {
 				state.updateLessonState = "success";
-				notification.success({ message: "Cập nhật thành công" })
+				notification.success({message:"Cập nhật thành công"})
 			})
 			.addCase(actionUpdatePeriodTuition.rejected, (state, action) => {
 				state.updateLessonState = "error";

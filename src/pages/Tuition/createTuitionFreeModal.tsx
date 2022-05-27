@@ -1,4 +1,4 @@
-import { Button, DatePicker, Form, Input, InputNumber, Modal } from 'antd';
+import { Button, Form, Input, InputNumber, Modal } from 'antd';
 import { PeriodTuitionType, StudentType } from 'interface';
 import { get } from 'lodash';
 import numeral from 'numeral';
@@ -9,7 +9,6 @@ import { RootState, useAppDispatch } from 'store/store';
 import { actionGetPeriodTuion } from 'store/tuition/periodslice';
 import { actionAddTuitionFee } from 'store/tuition/tuition';
 import { getDatesInRange, getSameDates } from 'utils/dateUltils';
-const { RangePicker } = DatePicker;
 
 export function CreateTuitionFeeModal(prop: {
 	periodInfo: PeriodTuitionType | null;
@@ -51,7 +50,7 @@ export function CreateTuitionFeeModal(prop: {
 					count += dateListInRang.length;
 					dayoff_list = dayoff_list.concat(getSameDates(dateListInRang, dayoffList))
 				})
-				// console.log(count, dayoffList);
+				console.log(count, dayoffList);
 				count -= dayoff_list.length;
 				setEstSessionNum(count);
 				setDayoffList(dayoff_list);
@@ -136,9 +135,6 @@ export function CreateTuitionFeeModal(prop: {
 				>
 					<Form.Item label="Họ và tên" name="stname">
 						<Input disabled style={{ color: "#2c3e50" }} />
-					</Form.Item>
-					<Form.Item label="Chu kỳ thu" name="period_date_range">
-						<RangePicker />
 					</Form.Item>
 					<Form.Item label={`Học phí ước tính (${estSessionNum} buổi)`} name="est_fee">
 						<InputNumber formatter={(value) => numeral(value).format()} style={{ width: "100%", color: "#3498db", fontWeight: 700 }} disabled />

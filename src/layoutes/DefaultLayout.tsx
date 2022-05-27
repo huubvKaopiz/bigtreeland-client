@@ -5,6 +5,7 @@ import { actionGetRoles } from "store/roles/slice";
 import LeftMenu from "./LeftMenu";
 import Routes from "./Routes";
 import TopHeader from "./TopHeader";
+import React from "react";
 const { Content, Footer, Sider } = Layout;
 
 function DefaultLayout(): JSX.Element {

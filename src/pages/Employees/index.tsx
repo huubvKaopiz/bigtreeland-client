@@ -31,9 +31,9 @@ import UpdateEmplyeeForm from "./updateEmployee";
 function Employees(): JSX.Element {
 	const dispatch = useAppDispatch();
 
-	const [page, setPage] = useState(1);
+	const [page, setPage] = useState(0);
 	const [search, setSearch] = useState("");
-	const [role, setRole] = useState('');
+	const [role, setRole] = useState(ROLE_NAMES.TEACHER);
 	const [showEdit, setShowEdit] = useState(false);
 	const [editIndex, setEditIndex] = useState(-1);
 
@@ -50,22 +50,22 @@ function Employees(): JSX.Element {
 	const debounceSearch = useRef(
 		debounce(
 			(nextValue) =>
-				dispatch(actionGetEmployees({ search: nextValue, role_name: role, exclude:ROLE_NAMES.PARENT })),
+				dispatch(actionGetEmployees({ search: nextValue, role_name: role })),
 			500
 		)
 	).current;
 
 	useEffect(() => {
-		dispatch(actionGetEmployees({ page, search, role_name: role, exclude:ROLE_NAMES.PARENT }));
+		dispatch(actionGetEmployees({ per_page: 100, search, role_name: role }));
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [role, page]);
+	}, [dispatch, role]);
 
 	useEffect(() => {
 		if (statusUpdateEmployee === "success") {
-			dispatch(actionGetEmployees({ per_page: 20, search, role_name: role, exclude:ROLE_NAMES.PARENT }));
+			dispatch(actionGetEmployees({ per_page: 100, search, role_name: role }));
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [statusUpdateEmployee]);
+	}, [dispatch, statusUpdateEmployee, role]);
 
 	useEffect(() => {
 		dispatch(actionGetRoles(0));

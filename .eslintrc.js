@@ -21,7 +21,7 @@ module.exports = {
 	rules: {
 		"react-hooks/rules-of-hooks": "warn",
 		"react-hooks/exhaustive-deps": "warn",
-		"@typescript-eslint/no-explicit-any": "warn",
+		"@typescript-eslint/no-explicit-any": "off",
 		"@typescript-eslint/explicit-module-boundary-types": "warn",
 		"react/react-in-jsx-scope": "off",
 		"prefer-const": "off",

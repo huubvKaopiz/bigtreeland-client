@@ -23,7 +23,7 @@ export interface AddSalaryData {
 	debt: "";
 	bonus: "";
 	fines: "";
-	period_id?: number;
+	period_id: number;
 	from_date: string;
 	to_date: string;
 	note: "";

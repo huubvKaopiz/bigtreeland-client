@@ -1,3 +1,4 @@
+import React from 'react';
 import {EditOutlined } from "@ant-design/icons";
 import {
 	Button, Col, Form, Input, Layout, Row, Space, Table, Tag,

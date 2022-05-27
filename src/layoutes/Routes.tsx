@@ -6,7 +6,6 @@ import { Route, useHistory, useLocation } from "react-router-dom";
 import Classes from "../pages/Classes";
 import Employees from "../pages/Employees";
 import Home from "../pages/Home";
-import Permissions from "../pages/Permissions";
 import Users from "../pages/Users";
 import Files from "pages/Files";
 import Revenue from "pages/Revenues";
@@ -32,6 +31,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "store/store";
 import { MenuList } from "utils/leftMenu";
 import { RoleType } from "interface";
+import React from "react";
 
 interface RouteElementType {
 	path: string;

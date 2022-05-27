@@ -5,6 +5,7 @@ import { ParentType } from "interface";
 import { useState } from "react";
 import { useAppDispatch } from "store/store";
 import { actionDeleteParent, actionGetParents } from "../../store/parents/slice";
+import React from "react";
 
 export default function DeleteParent(props: { parent: ParentType }): JSX.Element {
 	const { parent } = props;

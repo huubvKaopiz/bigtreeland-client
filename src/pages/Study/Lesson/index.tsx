@@ -13,6 +13,7 @@ import { RootState, useAppDispatch } from "store/store";
 import { STUDY_TABS } from "utils/const";
 import { isHavePermission } from "utils/ultil";
 import CreateLesson from "./createLesson";
+import React from "react";
 
 const { RangePicker } = DatePicker;
 
@@ -66,8 +67,8 @@ export function Lesson(props: { classInfo: ClassType | null, students:StudentTyp
     const cols: any[] = [
         {
             title: 'Tên buổi học', dataIndex: 'title', key: 'title',
-            render: function col(text: string, record: LessonType): JSX.Element {
-                return (<Button type="link" onClick={() =>  history.push(`/study/${get(classInfo, 'id', 0)}/lesson-detail/${record.id}`)}>{text}</Button>)
+            render: function col(text: string): JSX.Element {
+                return (<a>{text}</a>)
             }
         },
         {

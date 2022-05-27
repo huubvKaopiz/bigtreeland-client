@@ -1,3 +1,4 @@
+import React from "react";
 import { ExclamationCircleOutlined, MinusCircleOutlined, RedoOutlined, SafetyCertificateOutlined, SearchOutlined } from "@ant-design/icons";
 import { Button, Input, Layout, Modal, Radio, Space, Spin, Table, Tag, Tooltip } from "antd";
 import { AddNewUser, UserType as User } from "interface";
@@ -25,8 +26,12 @@ export default function Users(): JSX.Element {
 	const [search, setSearch] = useState("");
 	const [page, setPage] = useState(1);
 	const [statusFilter, setStatusFilter] = useState('active');
-	const status = useSelector((state: RootState) => state.userReducer.statusGetUsers);
-	const statusDeactiveUser = useSelector((state: RootState) => state.userReducer.statusUpdateUserState);
+	const status = useSelector(
+		(state: RootState) => state.userReducer.statusGetUser
+	);
+	const statusDeactiveUser = useSelector(
+		(state: RootState) => state.userReducer.statusUpdateUserState
+	);
 
 	const debounceSearch = useRef(
 		debounce(

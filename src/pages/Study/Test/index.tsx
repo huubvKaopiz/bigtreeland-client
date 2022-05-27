@@ -18,6 +18,7 @@ import { actionDeleteTest, actionGetTestes } from "store/testes/slice";
 import { defaul_image_base64, STUDY_TABS } from "utils/const";
 import { isHavePermission } from "utils/ultil";
 import AddTest from "./addTestModal";
+import React from "react";
 const { RangePicker } = DatePicker;
 
 export function Tests(props: {
@@ -77,7 +78,6 @@ export function Tests(props: {
 			<List
 				itemLayout="vertical"
 				size="large"
-				rowKey={(test => test.id)}
 				loading={getTestListState === "loading" || deleteTestStatus === "loading"}
 				pagination={{
 					onChange: handleChangePageOfTest,

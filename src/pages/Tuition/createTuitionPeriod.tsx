@@ -38,7 +38,6 @@ export interface TuitionFeeType {
 	to_date?: string;
 	status: number;
 	dayoffs: string[];
-	student?:StudentType;
 }
 
 export default function CreateTuitionPeriod(): JSX.Element {

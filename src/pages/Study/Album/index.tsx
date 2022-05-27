@@ -25,6 +25,7 @@ import {
 	STUDY_TABS,
 } from "utils/const";
 import { dummyRequest, isHavePermission } from "utils/ultil";
+import React from "react";
 
 export function ClassPhotos(props: { class_id: string }): JSX.Element {
 	const { class_id } = props;

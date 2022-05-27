@@ -31,6 +31,7 @@ import {
 // import { useTranslation } from "react-i18next";
 import { RootState, useAppDispatch } from "store/store";
 import { submitDateFormat } from "utils/const";
+import React from "react";
 const { RangePicker } = DatePicker;
 
 interface ChartDataType {

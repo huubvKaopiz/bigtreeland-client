@@ -20,7 +20,6 @@ import {
 	actionDeleteRevenue,
 	actionGetRevenues, actionUpdateRevenueStatus,
 	resetAddRevenuesStatus,
-	resetDeleteRevenueStatus,
 	resetGetRevenuesStatus,
 	resetUpdateRevenuesStatus, RevenuesStatusList,
 	RevenuesTypeList,
@@ -42,12 +41,9 @@ const Wrapper = styled.div`
 	}
 `;
 
-function Revenues(props:{period_tuition_id?:number,}): JSX.Element {
-	const {period_tuition_id} = props;
+function Revenues(): JSX.Element {
 	const dispatch = useDispatch();
 	const [receivedValue, setReceivedValue] = useState(123);
-	const [perPage, setPerPage] = useState(20);
-	const [page, setPage] = useState(1);
 	const [rowValueChange, setRowValueChange] = useState<RevenueType | null>(null);
 	const [selectedRows, setSelectedRows] = useState<RevenueType[]>([]);
 	const [selectedRowKeys, setsSlectedRowKeys] = useState< React.Key[]>([])
@@ -64,44 +60,17 @@ function Revenues(props:{period_tuition_id?:number,}): JSX.Element {
 	const statusGetRevenues = useSelector((state: RootState) => state.revenuesReducer.getRevenuesStatus);
 	const statusAddRevenues = useSelector((state: RootState) => state.revenuesReducer.addRevenuesStatus);
 	const statusUpdateRevenues = useSelector((state: RootState) => state.revenuesReducer.updateRevenuesStatus);
-	const statusDeleteRevenue = useSelector((state: RootState) => state.revenuesReducer.deleteRevenuesStatus);
-
 	const revenuesData = useSelector((state: RootState) => state.revenuesReducer.revenues);
 
-	useEffect(() => {
-		if(period_tuition_id && period_tuition_id > 0){
-			dispatch(actionGetRevenues({period_tuition_id, page}));
-		}
-	},[period_tuition_id])
-
 	const debounceSearch = useRef(
-		debounce((nextValue, fromDate, toDate) => setSearchObj(
-			{ 
-				searchRange: [fromDate, toDate], 
-				search: nextValue, 
-			}
-			), 500)
+		debounce((nextValue, fromDate, toDate) => setSearchObj({ searchRange: [fromDate, toDate], search: nextValue }), 500)
 	).current;
 
 	useEffect(() => {
 		const [from_date, to_date] = searchObj.searchRange;
 		const search = searchObj.search;
-		let payload:any = {	
-			page, 
-			per_page:perPage 
-		} 
-		if(period_tuition_id && period_tuition_id > 0){
-			payload = {...payload, period_tuition_id}
-		}else {
-			payload = {
-				...payload,
-				from_date, 
-				to_date, 
-				search, 
-			}
-		}
-		dispatch(actionGetRevenues(payload));
-	},[searchObj, page, perPage]);
+		dispatch(actionGetRevenues({ from_date, to_date, search }));
+	}, [dispatch, searchObj]);
 
 	useEffect(() => {
 		const tableData = get(revenuesData, "data", []) as RevenueType[];
@@ -118,19 +87,16 @@ function Revenues(props:{period_tuition_id?:number,}): JSX.Element {
 			setsSlectedRowKeys([]);
 		} else if (statusAddRevenues === "success" || statusAddRevenues === "error") {
 			if (statusAddRevenues === "success") {
-				dispatch(actionGetRevenues({period_tuition_id}));
+				dispatch(actionGetRevenues({}));
 			}
 			dispatch(resetAddRevenuesStatus());
 		} else if (statusUpdateRevenues === "success" || statusUpdateRevenues === "error") {
 			if (statusUpdateRevenues === "success") {
-				dispatch(actionGetRevenues({period_tuition_id}));
+				dispatch(actionGetRevenues({}));
 			}
 			dispatch(resetUpdateRevenuesStatus());
-		}else if (statusDeleteRevenue === "success" || statusDeleteRevenue === "error") {
-			if(statusDeleteRevenue === "success") dispatch(actionGetRevenues({}));
-			dispatch(resetDeleteRevenueStatus());
 		}
-	}, [statusAddRevenues, statusGetRevenues, statusUpdateRevenues, statusDeleteRevenue]);
+	}, [dispatch, statusAddRevenues, statusGetRevenues, statusUpdateRevenues]);
 
 	// actions handler
 	function searchRangeChange(_: any, dateString: string[]) {
@@ -187,20 +153,8 @@ function Revenues(props:{period_tuition_id?:number,}): JSX.Element {
 			dataIndex: "type",
 			key: "payemnt_type",
 			align: "center" as "center",
-			render: function TypeCol(type: number, record: RevenueType): JSX.Element {
-				return (
-					<>
-					{
-						type === 2 
-						?
-						<Tooltip title={`${record?.tuition_fee?.student?.name} - ${record?.tuition_fee?.student?.class?.name}`}><Tag color={"#d35400"}>{RevenuesTypeList[type]}</Tag></Tooltip>
-						:
-						<Tag color={type === 1 ? "#3498db" : "#d35400"}>{RevenuesTypeList[type]}</Tag>
-					}
-					</>
-				)
-				
-				
+			render: function TypeCol(type: number): JSX.Element {
+				return <Tag color={type === 1 ? "#3498db" : "#d35400"}>{RevenuesTypeList[type]}</Tag>;
 			},
 		},
 		{
@@ -243,13 +197,10 @@ function Revenues(props:{period_tuition_id?:number,}): JSX.Element {
 			},
 		},
 	];
-	console.log('period_tuition_id',period_tuition_id)
 	return (
 		<Wrapper>
 			<Layout.Content style={{ height: 1000 }}>
-				{
-					!period_tuition_id && 
-					<Row style={{ marginBottom: 20, marginTop: 20 }} justify="start">
+				<Row style={{ marginBottom: 20, marginTop: 20 }} justify="start">
 					<Col>
 						<Row justify="start">
 							<RangePicker
@@ -264,11 +215,10 @@ function Revenues(props:{period_tuition_id?:number,}): JSX.Element {
 						<AddNewRevenues />
 					</Col>
 				</Row>
-				}
 				<Row style={{ justifyContent: "flex-end" }}>
 					<Statistic title="Tổng thu" value={receivedValue} suffix="VND" valueStyle={{ color: "#3f8600" }} />
 				</Row>
-				<Spin spinning={statusGetRevenues === "loading" || statusUpdateRevenues === "loading" || statusDeleteRevenue === 'loading'}>
+				<Spin spinning={statusGetRevenues === "loading" || statusUpdateRevenues === "loading"}>
 					{selectedRows.length > 0 &&
 						<Space style={{ marginBottom: 20 }}>
 							<Button type="primary" icon={<CheckCircleOutlined />} onClick={() => handleMultipleConfirmed()} loading={false}>
@@ -295,11 +245,7 @@ function Revenues(props:{period_tuition_id?:number,}): JSX.Element {
 							}),
 						}}
 						pagination={{
-							pageSize: perPage,
-							onChange:(page, pageSize) =>{
-								setPage(page);
-								setPerPage(pageSize)
-							},
+							pageSize: 20,
 							total: get(revenuesData, "total", 0),
 						}}
 					/>

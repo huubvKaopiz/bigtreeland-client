@@ -3,7 +3,6 @@ import { notification } from "antd";
 import { AxiosError } from "axios";
 import { GetResponseType } from "interface";
 import { get } from "lodash";
-import { TuitionFeeType } from "pages/Tuition/createTuitionPeriod";
 import { removeEmpty } from "utils/objectUtils";
 import request from "utils/request";
 import { handleResponseError } from "utils/ultil";
@@ -21,7 +20,6 @@ export interface RevenueType {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	creator: any;
 	saler?: null | number | string;
-	tuition_fee?: TuitionFeeType;
 }
 
 export interface RevenuesRequestAddType {
@@ -51,8 +49,6 @@ export interface RevenuesSearchParam {
 	to_date?: string;
 	page?: number;
 	employee_id?: number;
-	period_tuition_id?: number;
-	per_page?: number;
 }
 
 export const RevenuesStatusList = ["Chưa xác nhận", "Đã xác nhận"];
@@ -167,12 +163,6 @@ export const slice = createSlice({
 		resetAddRevenuesStatus(state) {
 			state.addRevenuesStatus = "idle";
 		},
-		resetDeleteRevenueStatus(state) {
-			state.deleteRevenuesStatus = 'idle'
-		},
-		resetUpdateRevenuesStatus(state) {
-			state.updateRevenuesStatus = "idle";
-		},
 		actionUpdateRevenues(state) {
 			state.updateRevenuesStatus = "idle";
 		},
@@ -183,10 +173,12 @@ export const slice = createSlice({
 			state.getRevenuesStatus = "idle";
 			state.revenues = null;
 		},
-		actionDeleteRevenue(state) {
-			state.deleteRevenuesStatus = "idle";
+		resetUpdateRevenuesStatus(state) {
+			state.updateRevenuesStatus = "idle";
 		},
-
+		actionDeleteRevenue(state) {
+			state.deleteRevenuesStatus = 'idle'
+		}
 	},
 
 	extraReducers: (builder) => {
@@ -265,6 +257,5 @@ export const {
 	resetAddRevenuesStatus,
 	resetUpdateRevenuesStatus,
 	actionSetListRevenuesNull,
-	resetDeleteRevenueStatus
 } = slice.actions;
 export default slice.reducer;

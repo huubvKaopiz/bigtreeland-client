@@ -22,6 +22,7 @@ import StudentsOfClass from "./Students/StudentsOfClass";
 import { StudySumaryBoard } from "./Summary";
 import { CreateStudySummary } from "./Summary/createModal";
 import { Tests } from "./Test";
+import React from 'react';
 
 export default function Test(): JSX.Element {
 	const params = useParams() as { class_id: string };

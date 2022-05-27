@@ -10,10 +10,10 @@ import {
 	Select,
 	Spin,
 } from "antd";
-import { EmployeeType, UserType } from "interface";
-import { debounce, get } from "lodash";
+import { EmployeeType } from "interface";
+import { get } from "lodash";
 import moment from "moment";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import {
 	actionAddNewRevenues,
@@ -21,9 +21,7 @@ import {
 	RevenuesTypeList,
 } from "store/revenues/slice";
 import { RootState, useAppDispatch } from "store/store";
-import { actionGetUsers } from "store/users/slice";
 import styled from "styled-components";
-import { ROLE_NAMES } from "utils/const";
 
 const Wrapper = styled.div``;
 
@@ -35,18 +33,12 @@ function AddNewRevenues(): JSX.Element {
 	//Redux state
 	const dispatch = useAppDispatch();
 	const creatorUser = useSelector((state: RootState) => state.auth.user);
-	const userList = useSelector((state: RootState) => state.userReducer.users);
-	const getUsersStatus = useSelector((state: RootState) => state.userReducer.statusGetUsers);
-
-	const statusAddRevenues = useSelector((state: RootState) => state.revenuesReducer.addRevenuesStatus);
-	const debounceSearch = useRef(
-		debounce((nextValue) => dispatch(actionGetUsers({ search: nextValue, exclude:ROLE_NAMES.PARENT })), 500)
-	).current;
-
-	useEffect(() => {
-		console.log(show)
-		if(show) dispatch(actionGetUsers({exclude:ROLE_NAMES.PARENT }));
-	},[show])
+	const userList = useSelector(
+		(state: RootState) => state.employeeReducer.employees
+	);
+	const statusAddRevenues = useSelector(
+		(state: RootState) => state.revenuesReducer.addRevenuesStatus
+	);
 
 	useEffect(() => {
 		if (statusAddRevenues === "success") {
@@ -77,14 +69,11 @@ function AddNewRevenues(): JSX.Element {
 				closable={true}
 				onCancel={() => setShow(false)}
 				footer={[
-					<Button key="" onClick={() => {
-						setShow(false);
-						revenuesForm.resetFields();
-					}}>
-						Huỷ bỏ
+					<Button key="" onClick={() => setShow(false)}>
+						Cancel
 					</Button>,
 					<Button type="primary" form="eForm" key="submit" htmlType="submit">
-						Lưu lại
+						Submit
 					</Button>,
 				]}
 			>
@@ -99,16 +88,11 @@ function AddNewRevenues(): JSX.Element {
 					>
 						<Divider>Tạo phiếu doanh thu</Divider>
 						<Form.Item name="sale_id" label="Người thu">
-							<Select
-								showSearch={true}
-								onSearch={(e) => debounceSearch(e)}
-								notFoundContent={getUsersStatus === "loading"? <Spin size="small" /> : null}
-								filterOption={false}
-							>
+							<Select>
 								{userList &&
-									get(userList, "data", []).map((user: UserType) => (
-										<Select.Option key={user.id} value={user.id}>
-											{`${get(user,"profile.name","")}`} <a>{user.phone ?? ''}</a>
+									get(userList, "data", []).map((emp: EmployeeType) => (
+										<Select.Option key={emp.id} value={emp.id}>
+											{`${get(emp,"profile.name","")}`} <a>{emp.phone ?? ''}</a>
 										</Select.Option>
 									))}
 							</Select>
