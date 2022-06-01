@@ -146,7 +146,7 @@ export default function CreateTuitionPeriod(): JSX.Element {
 						if (tuitionFee.from_date) {
 							let act_session_num = 0;
 							get(classInfo.active_period_tuition, "lessons", []).forEach((ls) => {
-								if (moment(ls.date).isSameOrBefore(tuitionFee.from_date)) act_session_num++;
+								if (moment(ls.date).isSameOrAfter(moment(tuitionFee.from_date),"day")) act_session_num++;
 							});
 							special_residual_session_num = get(tuitionFee, "est_session_num", 0) - act_session_num;
 							flexible_deduction_percent = 100 * +get(tuitionFee, "flexible_deduction", 0) / (get(tuitionFee, "est_session_num", 0) * fee_per_session)
