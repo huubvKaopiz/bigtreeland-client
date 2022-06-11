@@ -40,7 +40,6 @@ import tuition, {
 	actionTuitionFeePayment,
 	actionTuitionFeeTranferDebt,
 } from "store/tuition/tuition";
-import { NOTIFI_URIS } from "utils/const";
 import { formatCurrency } from "utils/ultil";
 import { CreateTuitionFeeModal } from "./createTuitionFreeModal";
 import { EditTuitionFeeModal } from "./editTuitionFeeModal";
@@ -724,7 +723,7 @@ function SendNotiModal(prop: {
 				title: "Thông báo học phí",
 				body: message,
 				data: {
-					uri: NOTIFI_URIS.TUITION_FEE,
+					uri:null,
 				},
 			},
 		};

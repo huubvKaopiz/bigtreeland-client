@@ -1,4 +1,4 @@
-import { GiftOutlined } from "@ant-design/icons";
+import { GiftOutlined } from "@ant-design/icons"
 import {
 	Button,
 	Descriptions,
@@ -9,222 +9,174 @@ import {
 	Table,
 	Tag,
 	Typography,
-} from "antd";
-import Modal from "antd/lib/modal/Modal";
-import { StudentGiftType, StudySummaryType } from "interface";
-import { get } from "lodash";
-import moment from "moment";
-import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { useHistory, useLocation } from "react-router-dom";
-import { actionGetLessons } from "store/lesson/slice";
-import { RootState, useAppDispatch } from "store/store";
-import { actionGetStudents } from "store/students/slice";
-import { actionGetStudyGifts } from "store/study-summary/slice";
-import { actionGetTestes } from "store/testes/slice";
-import React from "react";
+} from "antd"
 
-const { Title } = Typography;
+import Modal from "antd/lib/modal/Modal"
+import { StudentGiftType, StudySummaryType } from "interface"
+import { get } from "lodash"
+import moment from "moment"
+import React, { useEffect, useState } from "react"
+import { useSelector } from "react-redux"
+import { useHistory, useLocation } from "react-router-dom"
+import { actionGetClassSummaryBoard } from "store/classes/slice"
+import { RootState, useAppDispatch } from "store/store"
+import { actionGetStudyGifts } from "store/study-summary/slice"
 
-interface SummaryType {
-	date: string;
-	conduct_point: number;
-	test_points: number[];
-}
-interface SummaryStudentType {
-	student: string;
-	summaries: SummaryType[];
-	total_conduct_point: number;
-	test_point_avg: number;
-}
+const { Title } = Typography
 
-export function StudySummaryDetail(): JSX.Element {
-	const location = useLocation();
-	const dispatch = useAppDispatch();
-	const history = useHistory();
+export default function StudySummaryDetail(): JSX.Element {
+	const location = useLocation()
+	const dispatch = useAppDispatch()
+	const history = useHistory()
 	const summaryInfo = get(
 		location,
 		"state.summaryInfo",
 		null
-	) as StudySummaryType;
-	const [summaryDataList, setSummaryDataList] = useState<SummaryStudentType[]>(
-		[]
-	);
+	) as StudySummaryType
+	const [loading, setLoading] = useState(false)
+	const [summaryBoardDataSource, setSummaryDataSource] = useState<any>({})
+	const [summaryBoardAvgData, setSummaryBoardAvgData] = useState<{
+		[id: number]: { final_conduct_point: number; avg_test_points: number }
+	}>({})
+	const [summaryBoardDateList, setSummaryBoardDateList] = useState<string[]>([])
 
 	//application state
-	const testes = useSelector((state: RootState) => state.testReducer.testes);
-	const lessons = useSelector(
-		(state: RootState) => state.lessonReducer.lessons
-	);
-	const students = useSelector(
-		(state: RootState) => state.studentReducer.students
-	);
-	const getLessonsStat = useSelector(
-		(state: RootState) => state.lessonReducer.getLessonsState
-	);
-	const getTestsStat = useSelector(
-		(state: RootState) => state.testReducer.getTestesStatus
-	);
-	const getStudentsStat = useSelector(
-		(state: RootState) => state.studentReducer.getStudentsStatus
-	);
-
-	// get list students, lessons, tests
+	const summaryBoard = useSelector(
+		(state: RootState) => state.classReducer.summaryBoard
+	)
+	const getSummaryBoardStatus = useSelector(
+		(state: RootState) => state.classReducer.getSummaryBoardStatus
+	)
+	// get list summary board data
 	useEffect(() => {
 		if (summaryInfo) {
+			setLoading(true)
 			dispatch(
-				actionGetStudents({
-					class_id: summaryInfo.class_id,
-				})
-			);
-			dispatch(
-				actionGetTestes({
-					class_id: summaryInfo.class_id,
-					from_date: summaryInfo.from_date,
-					to_date: summaryInfo.to_date,
-					lesson_id: null,
-				})
-			);
-			dispatch(
-				actionGetLessons({
+				actionGetClassSummaryBoard({
 					class_id: summaryInfo.class_id,
 					from_date: summaryInfo.from_date,
 					to_date: summaryInfo.to_date,
 				})
-			);
+			)
 		}
-	}, [dispatch, summaryInfo]);
+	}, [dispatch, summaryInfo])
 
-	// update summary_data_list
+	// handle summary data received
 	useEffect(() => {
-		if (students && lessons && testes) {
-			// const conduct: number[] = [];
-			const summaryStudentData: SummaryStudentType[] = [];
-			get(students, "data", []).forEach((st) => {
-				// if (st.class_histories.length > 1) {
-				//     if (moment(st.class_histories[1].date).isAfter(moment(summaryInfo.from_date))) {
-				//         console.log(st.name, 'có điểm tổng kết ở 2 lớp', st.class_histories[1].class_id)
-				//     }
-				// }
-				let total_conduct_point = 10;
-				let total_test_point = 0;
-				let test_point_count = 0;
-				const summaries: SummaryType[] = [];
-				lessons.data?.forEach((ls) => {
-					const test_points: number[] = [];
-					ls.tests.forEach((test) => {
-						const test_result = test.test_results.find(
-							(tr) => tr.student_id === st.id
-						);
-						if (test_result && +test_result.point > 0) {
-							test_points.push(+test_result.point);
-							total_test_point += +test_result.point;
-							test_point_count++;
-						}
-					});
-					const attendance = ls.attendances.find(
-						(at) => at.student_id === st.id
-					);
-					if (attendance) total_conduct_point += +attendance.conduct_point;
-					summaries.push({
-						date: ls.date,
-						conduct_point: +get(attendance, "conduct_point", "0"),
-						test_points,
-					});
-				});
-				testes.data?.forEach((test) => {
-					if (test.lesson_id === null) {
-						const test_result = test.test_results.find(
-							(tr) => tr.student_id === st.id
-						);
-						if (test_result && +test_result.point > 0) {
-							total_test_point += +test_result.point;
-							test_point_count++;
-						}
-						summaries.push({
-							date: test.date,
-							conduct_point: 0,
-							test_points: [+get(test_result, "point", "0")],
-						});
-					}
-				});
-				// console.log(total_test_point)
-
-				summaries.sort((first, seconds) =>
-					moment(first.date).diff(moment(seconds.date))
-				);
-				summaryStudentData.push({
-					student: st.name,
-					summaries,
-					total_conduct_point,
-					test_point_avg:
-						total_test_point > 0
-							? Math.floor((total_test_point / test_point_count) * 100) / 100
-							: 0,
-				});
-			});
-			setSummaryDataList(summaryStudentData);
+		if (getSummaryBoardStatus === "error") {
+			setLoading(false)
+			return
 		}
-	}, [students, lessons, testes]);
+		if (summaryBoard) {
+			const summaryBoardData: {
+				[id: number]: {
+					[date: string]: { conduct_point: number; test_points: number[] }
+				}
+			} = {}
+			const dateList: string[] = []
+			const finalScore: {
+				[id: number]: { final_conduct_point: number; avg_test_points: number }
+			} = {}
+			summaryBoard.forEach((student) => {
+				const summaryBoardStudentData: {
+					[date: string]: { conduct_point: number; test_points: number[] }
+				} = {}
+				let score = 0
+				student.attendances.forEach((attendance) => {
+					score += attendance.conduct_point ?? 0
+					const dateKey = attendance.lesson.date
+					if (dateList.findIndex((date) => date === dateKey) === -1)
+						dateList.push(dateKey)
+					summaryBoardStudentData[dateKey] = {
+						conduct_point: attendance.conduct_point ?? 0,
+						test_points: [],
+					}
+				})
+				let total = 0
+				let count = 0
+				student.test_results.forEach((test_result) => {
+					const dateKey =
+						test_result.test?.lesson?.date ?? test_result.test.date
+					const test_point = test_result.point
+						? +test_result.point.replace(",", ".")
+						: 0
+					total += test_point
+					count++
+					if (dateList.findIndex((date) => date === dateKey) === -1)
+						dateList.push(dateKey)
+					if (summaryBoardStudentData[dateKey]) {
+						summaryBoardStudentData[dateKey].test_points.push(test_point)
+					} else {
+						summaryBoardStudentData[dateKey] = {
+							conduct_point: 0,
+							test_points: [test_point],
+						}
+					}
+				})
+				summaryBoardData[student.id] = summaryBoardStudentData
+				finalScore[student.id] = {
+					final_conduct_point: score + 10,
+					avg_test_points:
+						count > 0 ? Math.floor((total / count) * 100) / 100 : 0,
+				}
+			})
+			setSummaryDataSource(summaryBoardData)
+			setSummaryBoardAvgData(finalScore)
+			setSummaryBoardDateList(dateList)
+			setLoading(false)
+		}
+	}, [summaryBoard, getSummaryBoardStatus])
 
+	//create table columns
 	let columns: any[] = [
-		// {
-		// 	title: "STT",
-		// 	key: "index",
-		// 	dataIndex: "",
-		// 	fixed: "left",
-		// 	with:10,
-		// 	render: function StudentCol(
-		// 		_: string,
-		// 		record: SummaryStudentType,
-		// 		index: number
-		// 	): JSX.Element {
-		// 		return <span>{index + 1}</span>
-		// 	},
-		// },
 		{
 			title: "Học sinh",
-			dataIndex: "student",
-			key: "student",
+			dataIndex: "name",
+			key: "name",
 			width: 200,
 			fixed: "left",
-			render: function col(text: string): JSX.Element {
-				return <strong>{text}</strong>;
+			render: function col(text: string) {
+				return <strong>{text}</strong>
 			},
 		},
-	];
-	summaryDataList.length > 0 &&
-		summaryDataList[0].summaries.forEach((sm, index) => {
+	]
+	summaryBoardDateList.length > 0 &&
+		summaryBoardDateList.forEach((date) => {
 			columns.push({
-				title: `${moment(sm.date).format("DD/MM/YY")}`,
+				title: `${moment(date).format("DD/MM/YY")}`,
 				dataIndex: "",
-				key: `${index}`,
-				with: 80,
-				render: function col(
-					_: string,
-					record: SummaryStudentType
-				): JSX.Element {
+				width: 135,
+				key: `${date}`,
+				render: function col(_: string, record: StudySummaryType) {
+					const studentSummaryBoard = summaryBoardDataSource[record.id]
+					if (!studentSummaryBoard) return null;
+					let conduct_point = 0
+					let test_points: number[] = []
+					if (studentSummaryBoard[date]) {
+						conduct_point = studentSummaryBoard[date].conduct_point
+						test_points = studentSummaryBoard[date].test_points
+					}
 					return (
 						<div style={{ textAlign: "center" }}>
 							<span style={{ color: "#e67e22", height: 28 }}>
-								{record.summaries[index].conduct_point > 0
-									? record.summaries[index].conduct_point
-									: "-"}
+								{conduct_point !== 0 ? conduct_point : "-"}
 							</span>{" "}
 							|{" "}
 							<span style={{ color: "#3498db" }}>
-								{record.summaries[index].test_points.length > 0
-									? record.summaries[index].test_points.map((tp, index) => (
-										<span key={index}>{`${tp} ${index < sm.test_points.length - 1 ? ", " : ""
+								{test_points.length > 0
+									? test_points.map((tp, index) => (
+											<span key={index}>{`${tp} ${
+												index < test_points.length - 1 ? ", " : ""
 											}`}</span>
-									))
+									  ))
 									: "-"}
 							</span>
 						</div>
-					);
+					)
 				},
-			});
-		});
+			})
+		})
+
 	columns = columns.concat([
 		{
 			title: "Điểm HK",
@@ -232,8 +184,12 @@ export function StudySummaryDetail(): JSX.Element {
 			key: "total_conduct_point",
 			width: 80,
 			fixed: "right",
-			render: function col(text: number): JSX.Element {
-				return <strong style={{ color: "#e67e22" }}>{text}</strong>;
+			render: function col(_: number, record: StudySummaryType) {
+				return (
+					<strong style={{ color: "#e67e22" }}>
+						{summaryBoardAvgData[record.id]?.final_conduct_point ?? 0}
+					</strong>
+				)
 			},
 		},
 		{
@@ -242,34 +198,54 @@ export function StudySummaryDetail(): JSX.Element {
 			key: "test_point_avg",
 			width: 80,
 			fixed: "right",
-			render: function col(text: number): JSX.Element {
-				return <strong style={{ color: "#3498db" }}>{text}</strong>;
+			render: function col(_: number, record: StudySummaryType) {
+				return (
+					<strong style={{ color: "#3498db" }}>
+						{summaryBoardAvgData[record.id]?.avg_test_points ?? 0}
+					</strong>
+				)
 			},
 		},
 		{
 			title: "Điểm TK",
 			dataIndex: "tk",
+			defaultSortOrder: 'descend',
+			sorter: (a: StudySummaryType, b: StudySummaryType) => {
+				const aScore =
+					summaryBoardAvgData[a.id]?.avg_test_points > 0
+						? (summaryBoardAvgData[a.id]?.final_conduct_point +
+								summaryBoardAvgData[a.id]?.avg_test_points * 3) /
+						  4
+						: summaryBoardAvgData[a.id]?.final_conduct_point
+				const bScore =
+					summaryBoardAvgData[b.id]?.avg_test_points > 0
+						? (summaryBoardAvgData[b.id]?.final_conduct_point +
+								summaryBoardAvgData[b.id]?.avg_test_points * 3) /
+						  4
+						: summaryBoardAvgData[b.id]?.final_conduct_point
+				return aScore - bScore
+			},
 			key: "tl",
 			width: 80,
 			fixed: "right",
-			// defaultSortOrder: 'descend',
-			// sorted: (a, b) => ((a.total_conduct_point + a.test_point_avg * 3) / 4 - (b.total_conduct_point + b.test_point_avg * 3) / 4),
-			render: function col(_: string, record: SummaryStudentType): JSX.Element {
+			render: function col(_: string, record: StudySummaryType) {
 				return (
 					<strong style={{ color: "#27ae60" }}>
-						{record.test_point_avg > 0
+						{summaryBoardAvgData[record.id]?.avg_test_points > 0
 							? Math.floor(
-								((record.total_conduct_point + record.test_point_avg * 3) /
-									4) *
-								100
-							) / 100
-							: record.total_conduct_point}
+									((summaryBoardAvgData[record.id]?.final_conduct_point +
+										summaryBoardAvgData[record.id]?.avg_test_points * 3) /
+										4) *
+										100
+							  ) / 100
+							: summaryBoardAvgData[record.id]?.final_conduct_point}
 					</strong>
-				);
+				)
 			},
 		},
-	]);
+	])
 
+	// rendering
 	return (
 		<Layout.Content>
 			<PageHeader
@@ -292,7 +268,6 @@ export function StudySummaryDetail(): JSX.Element {
 						>
 							{get(summaryInfo, "class.name", "")}
 						</Button>
-
 					</Descriptions.Item>
 					{/* <Descriptions.Item label="Giáo viên">Hangzhou, Zhejiang</Descriptions.Item> */}
 					<Descriptions.Item label="Số học sinh">
@@ -313,42 +288,38 @@ export function StudySummaryDetail(): JSX.Element {
 				</Title>
 				<Table
 					rowKey="id"
-					loading={
-						getTestsStat === "loading" ||
-						getLessonsStat === "loading" ||
-						getStudentsStat === "loading"
-					}
+					loading={loading}
 					bordered
 					columns={columns}
-					dataSource={summaryDataList}
+					dataSource={summaryBoard}
 					pagination={{ defaultPageSize: 100 }}
 					scroll={{ x: "calc(700px + 50%)" }}
 				/>
 			</div>
 		</Layout.Content>
-	);
+	)
 }
 
 function StudentGiftsModal(props: {
-	summaryInfo: StudySummaryType;
-}): JSX.Element {
-	const { summaryInfo } = props;
-	const dispatch = useAppDispatch();
-	const [show, setShow] = useState(false);
+	summaryInfo: StudySummaryType
+}) {
+	const { summaryInfo } = props
+	const dispatch = useAppDispatch()
+	const [show, setShow] = useState(false)
 
 	//application state
 	const studentGifts = useSelector(
 		(state: RootState) => state.studySummaryReducer.studentGifts
-	);
+	)
 	const getStudentGiftsStatus = useSelector(
 		(state: RootState) => state.studySummaryReducer.getStudyGiftsState
-	);
+	)
 
 	useEffect(() => {
 		if (summaryInfo) {
-			dispatch(actionGetStudyGifts({ study_summary_board_id: summaryInfo.id }));
+			dispatch(actionGetStudyGifts({ study_summary_board_id: summaryInfo.id }))
 		}
-	}, [dispatch, summaryInfo]);
+	}, [dispatch, summaryInfo])
 
 	const cols: any[] = [
 		{
@@ -358,8 +329,8 @@ function StudentGiftsModal(props: {
 			render: function StudentCol(
 				_: string,
 				record: StudentGiftType
-			): JSX.Element {
-				return <strong>{get(record, "student.name", "")}</strong>;
+			) {
+				return <strong>{get(record, "student.name", "")}</strong>
 			},
 		},
 		{
@@ -369,7 +340,7 @@ function StudentGiftsModal(props: {
 			render: function GiftCol(
 				_: string,
 				record: StudentGiftType
-			): JSX.Element {
+			) {
 				return (
 					<Space>
 						<Image
@@ -379,7 +350,7 @@ function StudentGiftsModal(props: {
 						/>
 						<span>{get(record, "gift.name", "")}</span>
 					</Space>
-				);
+				)
 			},
 		},
 		{
@@ -389,27 +360,27 @@ function StudentGiftsModal(props: {
 			render: function StatusCol(
 				_: string,
 				record: StudentGiftType
-			): JSX.Element {
+			) {
 				return (
 					<strong style={{ color: "#109444" }}>
 						{get(record, "gift.condition_point", "")}
 					</strong>
-				);
+				)
 			},
 		},
 		{
 			title: "Trạng thái",
 			key: "status",
 			dataIndex: "status",
-			render: function statusCol(status: number): JSX.Element {
+			render: function statusCol(status: number) {
 				return (
 					<Tag color={status === 1 ? "green" : "red"}>
 						{status === 1 ? "Đã nhận" : "Chưa nhận"}
 					</Tag>
-				);
+				)
 			},
 		},
-	];
+	]
 
 	return (
 		<>
@@ -434,5 +405,5 @@ function StudentGiftsModal(props: {
 				/>
 			</Modal>
 		</>
-	);
+	)
 }

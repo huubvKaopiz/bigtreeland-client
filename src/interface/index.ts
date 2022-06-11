@@ -209,18 +209,24 @@ export interface ListAttendancesType {
 }
 
 export interface TestType {
-	class_id: number;
-	content_files: FileType[];
-	content_link: string;
-	created_at: string;
-	date: string;
-	id: number;
-	result_files: FileType[];
-	result_link: string;
-	title: string;
-	updated_at: string;
-	lesson_id?: number;
-	test_results: TestResultsType[];
+	class_id: number
+	content_files: FileType[]
+	content_link: string
+	created_at: string
+	date: string
+	id: number
+	description: string | null
+	result_files: FileType[]
+	result_link: string
+	title: string
+	updated_at: string
+	lesson_id?: number
+	test_results: TestResultsType[]
+	lesson:{
+		id: number,
+		date: string, 
+		name: string,
+	}
 	class: {
 		id: number;
 		name: string;
@@ -500,18 +506,19 @@ export interface StudentStatType {
 }
 
 export interface TestResultsType {
-	id: number;
-	student_id: number;
-	test_id: number;
-	result_files: FileType[];
-	result_link: number | null;
-	correct_files: FileType[];
-	correct_link: string;
-	point: string;
-	teacher_comment: string;
-	parent_feedback: string;
-	updated_at: string;
-	student: StudentType
+	id: number
+	student_id: number
+	test_id: number
+	result_files: FileType[]
+	result_link: number | null
+	correct_files: FileType[]
+	correct_link: string
+	point: string
+	teacher_comment: string
+	parent_feedback: string
+	updated_at: string
+	student: StudentType,
+	test: TestType,
 }
 
 export interface BirthdayListType {
@@ -520,10 +527,33 @@ export interface BirthdayListType {
 }
 
 export interface DocumentType {
-	id: number;
-	title: string;
-	class_id: number;
-	link: string;
-	files: FileType[];
-	created_at: string;
+	id: number
+	title: string
+	class_id: number
+	link: string
+	files: FileType[]
+	created_at: string
 }
+
+export interface AttendanceType {
+	id:number;
+	student_id:number;
+	lesson_id:number;
+	comment:string;
+	conduct_point: number;
+	reminder:string;
+	lesson:{
+		id:number;
+		tuition_period_id: number;
+		date:string;
+		class_id:number;
+		assistant_id: number | null;
+		employee_id: number;
+	}
+}
+export interface StudentSummaryBoardType {
+	id:number;
+	name:string;
+	test_results:TestResultsType[];
+	attendances:AttendanceType[];
+}	

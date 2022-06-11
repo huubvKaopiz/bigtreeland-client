@@ -16,7 +16,6 @@ import Salaries from "pages/Salaries";
 import AddSalary from "pages/Salaries/addSalary";
 import CreateTuitionPeriod from "pages/Tuition/createTuitionPeriod";
 import { StudySumaryBoard } from "pages/Study/Summary";
-import { StudySummaryDetail } from "pages/Study/Summary/studySummaryDetail";
 import { SetRolePermissions } from "pages/Roles/setPermissions";
 import { SetUserPermissions } from "pages/Users/SetPermissions";
 import { StudyProfile } from "pages/Students/studyProfile";
@@ -32,6 +31,7 @@ import { RootState } from "store/store";
 import { MenuList } from "utils/leftMenu";
 import { RoleType } from "interface";
 import React from "react";
+import StudySummaryDetail from "pages/Study/Summary/studySummaryDetail";
 
 interface RouteElementType {
 	path: string;

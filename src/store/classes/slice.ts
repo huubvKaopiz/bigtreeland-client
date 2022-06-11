@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { notification } from "antd";
 import { AxiosError } from "axios";
-import { ClassPhotoType, ClassType, FileType, GetResponseType, StudentType } from "interface";
+import { ClassPhotoType, ClassType, FileType, GetResponseType, StudentSummaryBoardType, StudentType } from "interface";
 import { get } from "lodash";
 import { STUDY_TABS } from "utils/const";
 import request from "utils/request";
@@ -13,8 +13,10 @@ export interface ClassReducerState {
 	recentTestAdded: FileType | null;
 	classDetailTabKey: string;
 	photos: GetResponseType<ClassPhotoType> | null;
+	summaryBoard:StudentSummaryBoardType[];
 	getClassStatus: "idle" | "loading" | "success" | "error";
 	getClassesStatus: "idle" | "loading" | "success" | "error";
+	getSummaryBoardStatus: "idle" | "loading" | "success" | "error";
 	addClassStatus: "idle" | "loading" | "success" | "error";
 	updateClassStatus: "idle" | "loading" | "success" | "error";
 	addStudentsStatus: "idle" | "loading" | "success" | "error";
@@ -54,6 +56,7 @@ const initialState: ClassReducerState = {
 	classDetailTabKey: STUDY_TABS.STUDENTS,
 	recentTestAdded: null,
 	photos: null,
+	summaryBoard:[],
 	getClassStatus: "idle",
 	getClassesStatus: "idle",
 	addClassStatus: "idle",
@@ -62,7 +65,7 @@ const initialState: ClassReducerState = {
 	getClassPhotosStatus: "idle",
 	addClassPhotosStatus: 'idle',
 	deleteClassPhotosStatus: "idle",
-
+	getSummaryBoardStatus: "idle"
 };
 
 export const actionGetClass = createAsyncThunk(
@@ -78,6 +81,25 @@ export const actionGetClass = createAsyncThunk(
 		try {
 			const response = await request({
 				url: `/api/classes/${class_id}`,
+				method: "get",
+				params,
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
+	}
+);
+
+export const actionGetClassSummaryBoard = createAsyncThunk(
+	"action/get-class-summary-board",
+	async (
+		params: { class_id:number, from_date:string; to_date: string },
+		{ rejectWithValue }
+	) => {
+		try {
+			const response = await request({
+				url: `/api/classes/summary-detail`,
 				method: "get",
 				params,
 			});
@@ -280,6 +302,10 @@ export const classSlice = createSlice({
 		actionGetOnlineClasses(state){
 			state.classes = null;
 			state.getClassesStatus = 'idle';
+		},
+		actionGetClassSummaryBoard(state){
+			state.summaryBoard = [];
+			state.getSummaryBoardStatus = 'idle';
 		}
 	},
 	extraReducers: (builder) => {
@@ -419,6 +445,19 @@ export const classSlice = createSlice({
 				state.deleteClassPhotosStatus = "error";
 				const error = action.payload as AxiosError;
 				handleResponseError(error);
+			})
+			//class summary board
+			.addCase(actionGetClassSummaryBoard.pending, (state) => {
+				state.getSummaryBoardStatus = "loading";
+			})
+			.addCase(actionGetClassSummaryBoard.fulfilled, (state, action) => {
+				state.summaryBoard = action.payload as StudentSummaryBoardType[];
+				state.getSummaryBoardStatus = "success";
+			})
+			.addCase(actionGetClassSummaryBoard.rejected, (state, action) => {
+				state.getSummaryBoardStatus = "error";
+				const error = action.payload as AxiosError;
+				handleResponseError(error, "lấy ds lớp");
 			});
 	},
 });
