@@ -311,6 +311,7 @@ export interface TuitionFeeType {
 		name: string;
 		birthday: string;
 		class_id: number;
+		class?: ClassType;
 	};
 	period_tuition: {
 		id: 3;

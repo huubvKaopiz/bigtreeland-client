@@ -46,6 +46,7 @@ export interface PaymentSearchParam {
 	fromDate?: string;
 	toDate?: string;
 	page?: number;
+	per_page?: number;
 }
 
 export interface PaymentState {
@@ -99,7 +100,7 @@ export const actionAddNewPayment = createAsyncThunk(
 
 export const actionUpdatePaymentStatus = createAsyncThunk(
 	"actionUpdatePaymentStatus",
-	async ( data: { status: number, payment_slip_ids: number[]}, { rejectWithValue }) => {
+	async (data: { status: number, payment_slip_ids: number[] }, { rejectWithValue }) => {
 		try {
 			const response = await request({
 				url: `/api/payment-slips/update-status`,
@@ -145,7 +146,7 @@ export const slice = createSlice({
 		actionDeletePayment(state) {
 			state.deletePaymentStatus = 'idle';
 		},
-		actionUpdatePaymentStatus(state){
+		actionUpdatePaymentStatus(state) {
 			state.updatePaymentStatus = 'idle';
 		}
 	},

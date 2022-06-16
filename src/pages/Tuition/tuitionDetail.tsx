@@ -5,7 +5,8 @@ import {
 	NotificationOutlined,
 	QuestionCircleOutlined,
 	TransactionOutlined,
-	FileTextOutlined
+	FileTextOutlined,
+	ReloadOutlined
 } from "@ant-design/icons";
 import {
 	Alert,
@@ -29,21 +30,22 @@ import { PeriodTuitionType, StudentType, TuitionFeeType } from "interface";
 import { get } from "lodash";
 import moment from "moment";
 import numeral from "numeral";
-import React, { useEffect, useState } from "react";
+import Revenues from "pages/Revenues";
+import React, { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { actionAddNotification } from "store/notifications/slice";
+import { actionGetRevenues } from "store/revenues/slice";
 import { RootState, useAppDispatch } from "store/store";
 import { actionGetStudents } from "store/students/slice";
 import { actionGetPeriodTuion } from "store/tuition/periodslice";
-import tuition, {
+import {
 	actionTuitionFeePayment,
 	actionTuitionFeeTranferDebt,
 } from "store/tuition/tuition";
 import { formatCurrency } from "utils/ultil";
-import { CreateTuitionFeeModal } from "./createTuitionFreeModal";
-import { EditTuitionFeeModal } from "./editTuitionFeeModal";
 import ExportExcel from "./exportExcel";
+import TuitionFeeDetailForm from "./tuitionFeeDetailForm";
 
 const { TabPane } = Tabs;
 const { confirm } = Modal;
@@ -76,8 +78,7 @@ export default function TuitionDetail(): JSX.Element {
 	const [feesPerStudent, setFeesPerStudent] = useState<number[]>([]);
 	const [paymentCount, setPaymentCount] = useState<number>(0);
 	const [showNotiForm, setShowNotiForm] = useState(false);
-	const [showAddTuitionFee, setShowAddTuitionFee] = useState(false);
-	const [showEditTuitionFee, setShowEditTuitionFee] = useState(false);
+	const [showTuitionFeeDetailForm, setShowTuitionFeeDetailForm] = useState(false);
 	const [showPaymentForm, setShowPaymentForm] = useState(false);
 	const [actionIndex, setActionIndex] = useState(-1);
 	const [addTuitionFeeStudent, setAddTuitionFeeStudent] = useState<StudentType | null>(null);
@@ -132,10 +133,10 @@ export default function TuitionDetail(): JSX.Element {
 								: get(tuitionPeriodInfo, "est_session_num", 0);
 						const est_fee =
 							get(tuitionPeriodInfo, "fee_per_session", 0) * est_session_num +
-							+get(tuition, "prev_debt", "0");
+							+ isNaN(+tuition.prev_debt) ? 0 : +tuition.prev_debt;
 						const deduce_amount =
-							+get(tuition, "residual", 0) +
-							+get(tuition, "fixed_deduction", 0) +
+						+ isNaN(+tuition.residual) ? 0 : +tuition.residual +
+							+ isNaN(+tuition.fixed_deduction) ? 0 : +tuition.fixed_deduction +
 							+get(tuition, "flexible_deduction", 0);
 						const cal_fee = est_fee - deduce_amount;
 						if (cal_fee > 0) totalTuitionFee += cal_fee;
@@ -182,6 +183,21 @@ export default function TuitionDetail(): JSX.Element {
 			setNewStudentList(newList);
 		}
 	}, [students, tuitionPeriodInfo]);
+
+	const hanelCloseTuitionFeeDetailForm = (refresh:boolean) => {
+		setActionIndex(-1);
+		setAddTuitionFeeStudent(null);
+		setShowTuitionFeeDetailForm(false);
+		if(refresh) {
+			dispatch(actionGetPeriodTuion(+params.tuition_id));
+		}
+	}
+
+	const handleReloadRevenues = () => {
+		if(tuitionPeriodInfo){
+			dispatch(actionGetRevenues({period_tuition_id:tuitionPeriodInfo.id}));
+		}
+	}
 
 	function handleTraferDebt(tuition: TuitionFeeType) {
 		confirm({
@@ -353,7 +369,7 @@ export default function TuitionDetail(): JSX.Element {
 						<Space>
 							<Tooltip title="Chi tiết bảng học phí">
 								<Button onClick={() => {
-									setShowEditTuitionFee(true);
+									setShowTuitionFeeDetailForm(true);
 									setActionIndex(index)
 								}} icon={<FileTextOutlined />} type="link" />
 							</Tooltip>
@@ -422,7 +438,6 @@ export default function TuitionDetail(): JSX.Element {
 			</div>
 		);
 	};
-
 	return (
 		<Layout.Content>
 			<PageHeader
@@ -539,7 +554,7 @@ export default function TuitionDetail(): JSX.Element {
 													<Tooltip title="Tạo bảng học phí">
 														<Button
 															onClick={() => {
-																setShowAddTuitionFee(true);
+																setShowTuitionFeeDetailForm(true);
 																setAddTuitionFeeStudent(record);
 															}}
 															icon={<FileAddOutlined />}
@@ -555,30 +570,33 @@ export default function TuitionDetail(): JSX.Element {
 								""
 							)}
 						<TabPane tab="Danh sách buổi học" key="lessionInfo">
-							<Table
-								rowKey="id"
-								bordered
-								style={{ paddingTop: 20 }}
-								dataSource={get(tuitionPeriodInfo, "lessons", [])}
-								columns={lesson_columns}
-								pagination={{ defaultPageSize: 100 }}
-							/>
+							<Space size={[8, 16]} wrap style={{padding: 20 }}>
+								{
+									get(tuitionPeriodInfo, "lessons", []).map(
+										lesson => 
+										<Tag key={lesson.id} color="blue">{lesson.date}</Tag>
+									)
+								}
+							</Space>
+						</TabPane>
+						<TabPane tab="Danh sách phiếu thu" key="revenues">
+							<div className="space-align-block">
+								<Space align="end">
+									<Button type="primary" onClick={handleReloadRevenues} icon={<ReloadOutlined />}>Tải lại</Button>
+								</Space>
+							</div>
+							<Revenues period_tuition_id = {get(tuitionPeriodInfo, "id",0)} />
 						</TabPane>
 					</Tabs>
 				}
 			>
 				<Content extra={extraContent}>{renderContent()}</Content>
-				<EditTuitionFeeModal
-					tuitionFeeInfo={actionIndex > -1 ? get(tuitionPeriodInfo, "tuition_fees", [])[actionIndex] : null}
-					show={showEditTuitionFee}
-					setShow={setShowEditTuitionFee}
-					periodInfo={tuitionPeriodInfo}
-				/>
-				<CreateTuitionFeeModal
-					periodInfo={tuitionPeriodInfo}
+				<TuitionFeeDetailForm 
+					periodTuition={tuitionPeriodInfo}
 					studentInfo={addTuitionFeeStudent}
-					show={showAddTuitionFee}
-					setShow={setShowAddTuitionFee}
+					show={showTuitionFeeDetailForm}
+					onClose={hanelCloseTuitionFeeDetailForm}
+					currentTuitionFee={actionIndex > -1 ? get(tuitionPeriodInfo, "tuition_fees", [])[actionIndex] : null} 				
 				/>
 				<SendNotiModal
 					tuitionIndex={actionIndex}
@@ -613,7 +631,7 @@ function PaymentModal(props: {
 		(state: RootState) => state.tuitionFeeReducer.tuitionFeePaymentState
 	);
 
-	useEffect(() => {
+	useMemo(() => {
 		if (tuition_fee) {
 			const amount = fee_per_student +
 				+tuition_fee.prev_debt -

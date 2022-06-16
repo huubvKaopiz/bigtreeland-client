@@ -8,7 +8,7 @@ import request from "../../utils/request";
 
 export interface UserReducerState {
 	users: GetResponseType<UserType> | null;
-	statusGetUser: "idle" | "loading" | "success" | "error";
+	statusGetUsers: "idle" | "loading" | "success" | "error";
 	statusChangePassword: "idle" | "loading" | "success" | "error";
 	statusUpdateUserState: "idle" | "loading" | "success" | "error";
 	statusSetPermissionsForUser: "idle" | "loading" | "success" | "error";
@@ -20,11 +20,12 @@ export interface ParamGetUsers {
 	page?: number;
 	per_page?: number;
 	status?: string;
+	exclude?: string;
 }
 
 const initialState: UserReducerState = {
 	users: null,
-	statusGetUser: "idle",
+	statusGetUsers: "idle",
 	statusChangePassword: "idle",
 	statusUpdateUserState: "idle",
 	statusSetPermissionsForUser: "idle",
@@ -157,14 +158,14 @@ export const slice = createSlice({
 		builder
 			// GET USERS
 			.addCase(actionGetUsers.pending, (state) => {
-				state.statusGetUser = "loading";
+				state.statusGetUsers = "loading";
 			})
 			.addCase(actionGetUsers.fulfilled, (state, action) => {
 				state.users = action.payload as GetResponseType<UserType>;
-				state.statusGetUser = "success";
+				state.statusGetUsers = "success";
 			})
 			.addCase(actionGetUsers.rejected, (state, action) => {
-				state.statusGetUser = "error";
+				state.statusGetUsers = "error";
 				state.users = null;
 				const error = action.payload as AxiosError;
 				handleResponseError(error)

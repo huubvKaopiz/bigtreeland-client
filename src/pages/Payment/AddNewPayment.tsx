@@ -10,10 +10,10 @@ import {
 	Select,
 	Spin,
 } from "antd";
-import { EmployeeType } from "interface";
-import { get } from "lodash";
+import { EmployeeType, UserType } from "interface";
+import { debounce, get } from "lodash";
 import moment from "moment";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { actionGetEmployees } from "store/employees/slice";
 import {
@@ -21,26 +21,32 @@ import {
 	PaymentRequestAddType,
 } from "store/payments/slice";
 import { RootState, useAppDispatch } from "store/store";
+import { actionGetUsers } from "store/users/slice";
 import styled from "styled-components";
+import { ROLE_NAMES } from "utils/const";
 
 const Wrapper = styled.div``;
 
 function AddNewPayment(): JSX.Element {
 	const dispatch = useAppDispatch();
-	const userList = useSelector(
-		(state: RootState) => state.employeeReducer.employees
-	);
-	const creatorUser = useSelector((state: RootState) => state.auth.user);
-	const statusAddNewPayment = useSelector(
-		(state: RootState) => state.paymentReducer.addPaymentStatus
-	);
 	const [show, setShow] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [paymentForm] = Form.useForm();
 
+	const userList = useSelector((state: RootState) => state.userReducer.users);
+	const getUsersStatus = useSelector((state: RootState) => state.userReducer.statusGetUsers);
+	const creatorUser = useSelector((state: RootState) => state.auth.user);
+	const statusAddNewPayment = useSelector((state: RootState) => state.paymentReducer.addPaymentStatus);
+
+
+	const debounceSearch = useRef(
+		debounce((nextValue) => dispatch(actionGetUsers({ search: nextValue, exclude:ROLE_NAMES.PARENT })), 500)
+	).current;
+
 	useEffect(() => {
-		dispatch(actionGetEmployees({}));
-	}, [dispatch]);
+		console.log(show)
+		if(show) dispatch(actionGetUsers({exclude:ROLE_NAMES.PARENT }));
+	},[show])
 
 	useEffect(() => {
 		if (statusAddNewPayment === "loading") {
@@ -74,11 +80,14 @@ function AddNewPayment(): JSX.Element {
 				closable={true}
 				onCancel={() => setShow(false)}
 				footer={[
-					<Button key="" onClick={() => setShow(false)}>
-						Cancel
+					<Button key="" onClick={() => {
+						setShow(false);
+						paymentForm.resetFields();
+					}}>
+						Huỷ bỏ
 					</Button>,
 					<Button type="primary" form="eForm" key="submit" htmlType="submit">
-						Submit
+						Lưu lại
 					</Button>,
 				]}
 			>
@@ -99,9 +108,14 @@ function AddNewPayment(): JSX.Element {
 								{ required: true, message: "Người chi không được để trống!" },
 							]}
 						>
-							<Select>
+							<Select
+								showSearch={true}
+								onSearch={(e) => debounceSearch(e)}
+								notFoundContent={getUsersStatus === "loading"? <Spin size="small" /> : null}
+								filterOption={false}
+							>
 								{userList &&
-									get(userList, "data", []).map((emp: EmployeeType) => (
+									get(userList, "data", []).map((emp: UserType) => (
 										<Select.Option key={emp.id} value={emp.id}>
 											{`${get(emp,"profile.name","")}`} <a>{emp.phone ?? ''}</a>
 										</Select.Option>

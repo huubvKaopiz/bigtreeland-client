@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { notification } from "antd";
 import { AxiosError } from "axios";
-import { GetResponseType } from "interface";
+import { GetResponseType, TuitionFeeType } from "interface";
 import { get } from "lodash";
 import { removeEmpty } from "utils/objectUtils";
 import request from "utils/request";
@@ -20,6 +20,7 @@ export interface RevenueType {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	creator: any;
 	saler?: null | number | string;
+	tuition_fee?:TuitionFeeType;
 }
 
 export interface RevenuesRequestAddType {
@@ -49,6 +50,8 @@ export interface RevenuesSearchParam {
 	to_date?: string;
 	page?: number;
 	employee_id?: number;
+	period_tuition_id?: number;
+	per_page?: number;
 }
 
 export const RevenuesStatusList = ["Chưa xác nhận", "Đã xác nhận"];
