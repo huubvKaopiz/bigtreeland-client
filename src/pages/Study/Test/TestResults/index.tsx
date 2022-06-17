@@ -4,13 +4,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from 'store/store';
 import ReactPlayer from 'react-player'
 import { actionGetStudents } from 'store/students/slice';
-import { Button, Space, Table, Tag, Tooltip, Image } from 'antd';
-import { NotificationOutlined, IssuesCloseOutlined, PauseCircleFilled, PlayCircleFilled } from "@ant-design/icons";
+import { Button, Space, Table, Tag, Tooltip, Image, Popconfirm } from 'antd';
+import { NotificationOutlined, IssuesCloseOutlined, CheckCircleOutlined } from "@ant-design/icons";
 import moment from 'moment';
 import get from 'lodash/get';
 import { defaul_image_base64, NOTIFI_URIS } from 'utils/const';
 import UpdateModal from './updateModal';
-import { resetUpdateTestResultsStatus } from 'store/test-results/slice';
+import { actionCreateMultiTestResult, resetAddTestResultsStatus, resetUpdateTestResultsStatus } from 'store/test-results/slice';
 import { actionGetTest } from 'store/testes/slice';
 import SendNotificationModal from 'components/SendNotificationModal';
 
@@ -29,9 +29,8 @@ export default function (props: {
     const [showAddTestCommentModal, setShowAddTestCommentModal] = useState(false);
     const [showSendNotiModal, setShowSendNotiModal] = useState(false);
     const [testResultSelected, setTestResultSelected] = useState<TestResultDataType | null>(null);
-    const [videoPlaying, setVideoPlaying] = useState(false);
-    const [videoPlayingId, setVideoPlayingId] = useState(-1);
-
+    const [selectedRows, setSelectedRows] = useState<TestResultDataType[]>([]);
+	const [selectedRowKeys, setsSlectedRowKeys] = useState< React.Key[]>([])
     const students = useSelector(
         (state: RootState) => state.studentReducer.students
     );
@@ -42,12 +41,16 @@ export default function (props: {
         (state: RootState) => state.testResultsReducer.addTestResultStatus
     );
 
+    const createMultiState = useSelector(
+        (state: RootState) => state.testResultsReducer.createMultipleStatus
+    );
+
     // get the testinfo following the test_id
     useEffect(() => {
         if (testInfo) {
             dispatch(actionGetStudents({ class_id: testInfo.class_id, per_page:50 }))
         }
-    }, [testInfo]);
+    }, [testInfo, dispatch]);
 
     useEffect(() => {
         if (testInfo && students) {
@@ -80,16 +83,27 @@ export default function (props: {
 
     // When the updatting is complete, reload the data.
     useEffect(() => {
-        if (updateTestResultState === "success" || addTestResultState === 'success') {
+        if (updateTestResultState === "success" || addTestResultState === 'success' || createMultiState === "success") {
             setShowAddTestCommentModal(false);
             dispatch(resetUpdateTestResultsStatus());
+            dispatch(resetAddTestResultsStatus());
+            setSelectedRows([]);
+			setsSlectedRowKeys([]);
             if (testInfo) {
                 dispatch(actionGetTest(testInfo.id))
             }
         }
-    }, [dispatch, updateTestResultState, addTestResultState]);
+    }, [dispatch, updateTestResultState, addTestResultState, testInfo,createMultiState]);
+
+    const handleMultipleConfirmed = () => {
+        if(!testInfo) return;
+        const student_ids = selectedRows?.map((row) => row?.student?.id)
+        if(student_ids?.length === 0)return;
+        dispatch(actionCreateMultiTestResult({test_id:testInfo.id, student_ids}))
+    }
 
     const testResultCols: any[] = [
+        Table.SELECTION_COLUMN,
         Table.EXPAND_COLUMN,
         {
             title: 'Name',
@@ -103,11 +117,11 @@ export default function (props: {
             }
         },
         {
-            title: 'Ngày nộp',
+            title: 'Nộp bài',
             dataIndex: '',
             key: 'date',
             render: function nameCol(_: string, record: TestResultDataType): JSX.Element {
-                return <span>{record.test_result ? moment(record.test_result.updated_at).format("DD-MM-YYYY HH:mm") : <Tag color="red">Chưa nộp</Tag>}</span>
+                return <span>{record.test_result ? <Tag color="green">Đã nộp</Tag> : <Tag color="red">Chưa nộp</Tag>}</span>
             }
         },
         {
@@ -160,112 +174,37 @@ export default function (props: {
     ];
     return (
         <>
+        	{selectedRows.length > 0 &&
+						<Space style={{ marginBottom: 20 }}>
+                            <Popconfirm placement="topLeft" title={"Xác nhận đã nộp cho học sinh?"} onConfirm={handleMultipleConfirmed} okText="Yes" cancelText="No">
+							<Button type="primary" icon={<CheckCircleOutlined />} loading={createMultiState === "loading"}>
+								Xác nhận đã nộp
+							</Button>
+                            </Popconfirm>
+							<span style={{ marginLeft: 8 }}>
+								{selectedRows.length > 0 ? `${selectedRows.length} đã chọn` : ''}
+							</span>
+						</Space>
+					}
             <Table
                 bordered
                 rowKey={(record) => record.student.id}
                 dataSource={testResultData}
                 columns={testResultCols}
+                rowSelection={{
+                    selectedRowKeys,
+                    onChange: (selectedRowKeys: React.Key[], selectedRows: TestResultDataType[]) => {
+                        console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+                        setSelectedRows(selectedRows);
+                        setsSlectedRowKeys(selectedRowKeys);
+                    },
+                    getCheckboxProps: (record: TestResultDataType) => ({
+                        disabled: record.test_result !== undefined, // Column configuration not to be checked
+                    }),
+                }}
                 expandable={{
-                    expandedRowRender: record =>
-                        <div>
-                            {
-                                record.test_result &&
-                                <>
-                                    {
-                                        record.test_result.correct_link &&
-                                        <div style={{ marginBottom: 10 }}>
-                                            <h1>Link chữa bài:</h1>
-                                            <a href={record.test_result.correct_link}>{record.test_result.correct_link}</a>
-                                        </div>
-                                    }
-                                    {
-                                        record.test_result.result_files.length > 0 &&
-                                        <>
-                                            <h1 style={{ marginBottom: 10 }}>Files bài làm:</h1>
-                                            <Space 
-                                                size={[10, 10]}
-                                                wrap
-                                            >
-                                                {get(record, "test_result.result_files", []).map(
-                                                    (file: FileType, index: number) =>
-                                                        <div key={index}>
-                                                            {
-                                                                file.type === "mp4" || file.type === "mov"
-                                                                    ?
-                                                                    <div>
-                                                                        <ReactPlayer 
-                                                                            loop={true}
-                                                                            style={{width:200, height:'auto'}} 
-                                                                            url={file.url} 
-                                                                            playing={videoPlaying && videoPlayingId === file.id} />
-                                                                        <div style={{
-                                                                            justifyContent: 'center',
-                                                                            alignItems: 'center',
-                                                                            display: 'flex',
-                                                                            fontSize: 18,
-                                                                            marginTop: 10,
-                                                                            color: "#e67e22"
-                                                                        }}>
-                                                                            {
-                                                                                videoPlaying
-                                                                                    ?
-                                                                                    <PauseCircleFilled onClick={() => {
-                                                                                        setVideoPlaying(!videoPlaying);
-                                                                                        setVideoPlayingId(file.id)
-                                                                                    }} />
-                                                                                    :
-                                                                                    <PlayCircleFilled onClick={() => {
-                                                                                        setVideoPlaying(!videoPlaying);
-                                                                                        setVideoPlayingId(file.id)
-                                                                                    }} />
-                                                                            }
-                                                                        </div>
-                                                                    </div>
-                                                                    :
-                                                                    <Image
-                                                                        width={150}
-                                                                        height={150}
-                                                                        style={{ objectFit: "cover" }}
-                                                                        alt="logo"
-                                                                        src={file.url}
-                                                                        fallback={defaul_image_base64}
-                                                                    />
-                                                            }
-                                                        </div>
-
-                                                )}
-                                            </Space>
-                                        </>
-                                    }
-                                    {
-                                        record.test_result.correct_files.length > 0 &&
-                                        <>
-                                            <h1 style={{ marginBottom: 10 }}>Ảnh chữa bài:</h1>
-                                            <Space
-                                                style={{ backgroundColor: "white" }}
-                                                size={[10, 10]}
-                                                wrap
-                                            >
-                                                {get(record, "test_result.correct_files", []).map(
-                                                    (photo: FileType, index: number) => (
-                                                        <Image
-                                                            key={index}
-                                                            width={100}
-                                                            height={100}
-                                                            style={{ objectFit: "cover" }}
-                                                            alt="logo"
-                                                            src={photo.url}
-                                                            fallback={defaul_image_base64}
-                                                        />
-                                                    )
-                                                )}
-                                            </Space>
-                                        </>
-                                    }
-                                </>
-                            }
-
-                        </div>
+                    expandedRowRender: record => <TestResultExpand record={record}/>
+                       
                 }}
                 pagination={{ pageSize: 40 }}
             />
@@ -286,4 +225,86 @@ export default function (props: {
         </>
     )
 
+}
+
+const TestResultExpand = (props:{record:TestResultDataType}) => {
+    const {record} = props;
+    return (
+        <div>
+        {
+            record.test_result &&
+            <>
+                {
+                    record.test_result.correct_link &&
+                    <div style={{ marginBottom: 10 }}>
+                        <h1>Link chữa bài:</h1>
+                        <a href={record.test_result.correct_link}>{record.test_result.correct_link}</a>
+                    </div>
+                }
+                {
+                    record.test_result.result_files.length > 0 &&
+                    <>
+                        <h1 style={{ marginBottom: 10 }}>Files bài làm:</h1>
+                        <Space 
+                            size={[10, 10]}
+                            wrap
+                        >
+                            {get(record, "test_result.result_files", []).map(
+                                (file: FileType, index: number) =>
+                                    <div key={index}>
+                                        {
+                                            file.type === "mp4" || file.type === "mov"
+                                                ?
+                                                <ReactPlayer 
+                                                        loop={true}
+                                                        style={{width:200, height:'auto'}} 
+                                                        url={file.url}
+                                                        controls={true} 
+                                                    />
+                                                :
+                                                <Image
+                                                    width={150}
+                                                    height={150}
+                                                    style={{ objectFit: "cover" }}
+                                                    alt="logo"
+                                                    src={file.url}
+                                                    fallback={defaul_image_base64}
+                                                />
+                                        }
+                                    </div>
+
+                            )}
+                        </Space>
+                    </>
+                }
+                {
+                    record.test_result.correct_files.length > 0 &&
+                    <>
+                        <h1 style={{ marginBottom: 10 }}>Ảnh chữa bài:</h1>
+                        <Space
+                            style={{ backgroundColor: "white" }}
+                            size={[10, 10]}
+                            wrap
+                        >
+                            {get(record, "test_result.correct_files", []).map(
+                                (photo: FileType, index: number) => (
+                                    <Image
+                                        key={index}
+                                        width={100}
+                                        height={100}
+                                        style={{ objectFit: "cover" }}
+                                        alt="logo"
+                                        src={photo.url}
+                                        fallback={defaul_image_base64}
+                                    />
+                                )
+                            )}
+                        </Space>
+                    </>
+                }
+            </>
+        }
+
+    </div>
+    )
 }

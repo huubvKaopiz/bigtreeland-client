@@ -12,6 +12,7 @@ export interface TestResultsState {
 	getTestResultsStatus: "idle" | "loading" | "success" | "error";
 	addTestResultStatus: "idle" | "loading" | "success" | "error";
 	updateTestResultStatus: "idle" | "loading" | "success" | "error";
+	createMultipleStatus:"idle" | "loading" | "success" | "error";
 }
 
 export interface GetTestResultsParam {
@@ -69,6 +70,22 @@ export const actionAddTestResult = createAsyncThunk(
 	}
 );
 
+export const actionCreateMultiTestResult = createAsyncThunk(
+	"action/test-result/create-multiple",
+	async (data: {test_id:number, student_ids:number[]}, { rejectWithValue }) => {
+		try {
+			const response = await request({
+				url: "api/test-results/create-multi",
+				method: "post",
+				data,
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
+	}
+);
+
 export const actionUpdateTestResult = createAsyncThunk(
 	"actionUpdateTestResults",
 	async (params: UpdateTestResultsParam, { rejectWithValue }) => {
@@ -91,6 +108,7 @@ const initialState: TestResultsState = {
 	getTestResultsStatus: "idle",
 	addTestResultStatus: "idle",
 	updateTestResultStatus: "idle",
+	createMultipleStatus:"idle",
 };
 
 export const testResults = createSlice({
@@ -102,9 +120,11 @@ export const testResults = createSlice({
 		},
 		resetAddTestResultsStatus(status) {
 			status.getTestResultsStatus = "idle";
+			status.addTestResultStatus = "idle";
+			status.createMultipleStatus = "idle";
 		},
 		resetUpdateTestResultsStatus(status) {
-			status.getTestResultsStatus = "idle";
+			status.updateTestResultStatus = "idle";
 		},
 	},
 	extraReducers: (builder) => {
@@ -118,6 +138,18 @@ export const testResults = createSlice({
 			})
 			.addCase(actionGetTestResults.rejected, (state, action) => {
 				state.getTestResultsStatus = "error";
+				const error = action.payload as AxiosError;
+				handleResponseError(error);
+			})
+
+			.addCase(actionCreateMultiTestResult.fulfilled, (state) => {
+				state.createMultipleStatus = "success";
+			})
+			.addCase(actionCreateMultiTestResult.pending, (state) => {
+				state.createMultipleStatus = "loading";
+			})
+			.addCase(actionCreateMultiTestResult.rejected, (state, action) => {
+				state.createMultipleStatus = "error";
 				const error = action.payload as AxiosError;
 				handleResponseError(error);
 			})
