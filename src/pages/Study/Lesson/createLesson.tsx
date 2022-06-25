@@ -13,7 +13,6 @@ import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { actionAddAttendance, AttendanceStudentComment } from 'store/attendances/slice';
 import { RootState, useAppDispatch } from 'store/store';
-import { NOTIFI_URIS } from 'utils/const';
 
 const dateFormat = "DD-MM-YYYY";
 
@@ -309,7 +308,6 @@ export default function CreateLesson(props: {
                 show={showNotiForm}
                 setShow={setShowNotiForm}
                 students={notiIndex !== -1 ? new Array(students[notiIndex]) : []}
-                uri={NOTIFI_URIS.ATTENDANCE_REMIND}
             />
         </div>
     )

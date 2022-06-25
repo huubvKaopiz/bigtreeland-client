@@ -6,9 +6,8 @@ import ReactPlayer from 'react-player'
 import { actionGetStudents } from 'store/students/slice';
 import { Button, Space, Table, Tag, Tooltip, Image, Popconfirm } from 'antd';
 import { NotificationOutlined, IssuesCloseOutlined, CheckCircleOutlined } from "@ant-design/icons";
-import moment from 'moment';
 import get from 'lodash/get';
-import { defaul_image_base64, NOTIFI_URIS } from 'utils/const';
+import { defaul_image_base64 } from 'utils/const';
 import UpdateModal from './updateModal';
 import { actionCreateMultiTestResult, resetAddTestResultsStatus, resetUpdateTestResultsStatus } from 'store/test-results/slice';
 import { actionGetTest } from 'store/testes/slice';
@@ -217,7 +216,6 @@ export default function (props: {
             />
             <SendNotificationModal
                 title="Nhắc nhở nộp bài tập"
-                uri={NOTIFI_URIS.SUBMIT_TEST_RESULT_REMIND}
                 students={testResultSelected ? new Array(testResultSelected.student) : []}
                 show={showSendNotiModal}
                 setShow={setShowSendNotiModal}

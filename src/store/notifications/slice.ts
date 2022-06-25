@@ -27,9 +27,7 @@ export interface AddNotificationParams {
     message: {
         title: string;
         body: string;
-        data: {
-            uri: string | null;
-        }
+        data: any
     }
     role_id?: number
 }

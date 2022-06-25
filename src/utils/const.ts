@@ -50,16 +50,6 @@ export enum DEFAULT_ROLE_IDS {
 	EMPLOYEE = 0
 }
 
-export enum NOTIFI_URIS {
-	TUITION_FEE = 'main/tuition',
-	STUDY = 'main/study/lesson',
-	ATTENDANCE_REMIND = 'main/study/lesson',
-	NOTIFICATIONS = 'main/notification',
-	SUBMIT_TEST_RESULT_REMIND = 'main/study/test',
-	SUMMARY_BOARD = 'main/study/summary-board',
-
-}
-
 export enum STUDY_TABS {
 	DOCUMENTS = '6',
 	TEST = '2',

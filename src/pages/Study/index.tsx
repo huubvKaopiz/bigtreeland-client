@@ -13,7 +13,7 @@ import {
 	actionSetClassDetailTabKey
 } from "store/classes/slice";
 import { RootState, useAppDispatch } from "store/store";
-import { dayOptions, NOTIFI_URIS, STUDY_TABS } from "utils/const";
+import { dayOptions, STUDY_TABS } from "utils/const";
 import { isHavePermission } from 'utils/ultil';
 import { ClassPhotos } from "./Album";
 import Documents from "./Documents";
@@ -194,7 +194,6 @@ export default function Test(): JSX.Element {
 					show={showNotiform}
 					setShow={setShowNotiForm}
 					students={get(classInfo, "students", [])}
-					uri={NOTIFI_URIS.STUDY}
 				/>
 			</Spin>
 		</Layout.Content>
