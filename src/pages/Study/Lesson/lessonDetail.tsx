@@ -286,7 +286,7 @@ function LessonDetails(): JSX.Element {
 			width: 100,
 			render: function col(
 				conduct_point: number,
-				_: AttendanceDetailType,
+				record: AttendanceDetailType,
 				index: number
 			): JSX.Element {
 				return (
@@ -298,7 +298,7 @@ function LessonDetails(): JSX.Element {
 						placeholder={editMode ? "0.0" : ""}
 						onChange={(e) => handleChangeCoductPoint(e, index)}
 						defaultValue={conduct_point}
-						disabled={!editMode}
+						disabled={!editMode || !record?.isAttendance}
 					/>
 				);
 			},
@@ -309,7 +309,7 @@ function LessonDetails(): JSX.Element {
 			dataIndex: "reminder",
 			render: function col(
 				reminder: string,
-				_: AttendanceDetailType,
+				record: AttendanceDetailType,
 				index: number
 			): JSX.Element {
 				return (
@@ -322,7 +322,7 @@ function LessonDetails(): JSX.Element {
 							handleChangeReminder(value, index);
 						}}
 						defaultValue={reminder}
-						disabled={!editMode}
+						disabled={!editMode || !record?.isAttendance}
 					/>
 				);
 			},
