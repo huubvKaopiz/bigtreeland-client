@@ -159,7 +159,7 @@ export function Lesson(props: { classInfo: ClassType | null, students:StudentTyp
                                         renderItem={item => (
                                             <li>
                                                 <Comment
-                                                    author={get(item, "parent.phone", 'No name')}
+                                                    author={get(item, "parent.profile.name", 'No name')}
                                                     avatar={'https://joeschmoe.io/api/v1/random'}
                                                     content={item.feedback}
                                                 // datetime={new Date()}
