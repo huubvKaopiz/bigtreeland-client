@@ -149,7 +149,7 @@ export default function Tuition(): JSX.Element {
 		<Layout.Content>
 			<Space style={{ marginBottom: 20, marginTop: 20 }}>
 				<DatePicker style={{ width: 200 }} placeholder="Lọc theo quý" onChange={onChangeDateFilter} picker="quarter" />
-				<Select defaultValue={0} style={{ width: 280 }} onChange={handleChangeClass}
+				<Select defaultValue={0} style={{ width: 480 }} onChange={handleChangeClass}
 					showSearch
 					onSearch={(e) => searchClass(e)}
 					filterOption={false}

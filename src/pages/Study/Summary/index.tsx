@@ -1,11 +1,12 @@
 import { CheckCircleOutlined } from '@ant-design/icons';
-import { Button, DatePicker, Layout, List, Modal, Select, Space } from 'antd';
+import { Button, DatePicker, Layout, List, Modal, Select, Space, Spin } from 'antd';
+import useDebouncedCallback from 'hooks/useDebounceCallback';
 import useIsAdmin from 'hooks/useIsAdmin';
 import usePermissionList from 'hooks/usePermissionList';
 import { StudySummaryType } from 'interface';
 import { get } from 'lodash';
 import moment, { Moment } from 'moment';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { actionGetClasses } from 'store/classes/slice';
@@ -22,12 +23,18 @@ export function StudySumaryBoard(props: { class_id?: number }): JSX.Element {
     const dispatch = useAppDispatch();
     const permissionList = usePermissionList();
 	const isAdmin = useIsAdmin();
+	const [search, setSearch] = useState("");
 
+	const searchClassState = useSelector((state: RootState) => state.classReducer.getClassesStatus);
     const classList = useSelector((state: RootState) => state.classReducer.classes)
     const studySummaryList = useSelector((state: RootState) => state.studySummaryReducer.studySummaryList)
     const getStudySummaryListStatus = useSelector((state: RootState) => state.studySummaryReducer.getStudySummaryListState)
 
-
+    const searchClass = useDebouncedCallback((searchText) => {
+        setSearch(searchText)
+		dispatch(actionGetClasses({ search }))
+	}, 500)
+    
     useEffect(() => {
         if (class_id) {
             dispatch(actionGetStudySummaryList({ class_id }));
@@ -74,15 +81,20 @@ export function StudySumaryBoard(props: { class_id?: number }): JSX.Element {
                 !class_id &&
                 <Space style={{ marginBottom: 20, marginTop: 20 }}>
                     <DatePicker style={{ width: 200 }} placeholder="Lọc theo quý" onChange={onChangeDateFilter} picker="quarter" />
-                    <Select defaultValue={0} style={{ width: 280 }} onChange={handleChangeClass}>
-                        <Option value={0}>Tất cả</Option>
-                        {get(classList, "data", []).map((cl) => (
-                            <Option value={cl.id} key={cl.id}>
-                                {" "}
-                                {cl.name}
-                            </Option>
-                        ))}
-                    </Select>
+                    <Select defaultValue={0} style={{ width: 480 }} onChange={handleChangeClass}
+					showSearch
+					onSearch={(e) => searchClass(e)}
+					filterOption={false}
+					notFoundContent={searchClassState === "loading" ? <Spin size="small" /> : null}
+					>
+					<Option value={0}>Tất cả</Option>
+					{get(classList, "data", []).map((cl) => (
+						<Option value={cl.id} key={cl.id}>
+							{" "}
+							{cl.name}
+						</Option>
+					))}
+				</Select>
                     { (isAdmin || isHavePermission(permissionList, "study-summary-boards.store")) && 
                         <CreateStudySummary classList={get(classList, "data", [])} class_id={0} />
                     }
