@@ -21,6 +21,7 @@ import { useHistory, useLocation } from "react-router-dom"
 import { actionGetClassSummaryBoard } from "store/classes/slice"
 import { RootState, useAppDispatch } from "store/store"
 import { actionGetStudyGifts } from "store/study-summary/slice"
+import { isAfter, isBefore } from "utils/dateUltils"
 
 const { Title } = Typography
 
@@ -94,9 +95,11 @@ export default function StudySummaryDetail(): JSX.Element {
 				})
 				let total = 0
 				let count = 0
+			
 				student.test_results.forEach((test_result) => {
+					if(test_result.test?.lesson?.date && isBefore(test_result?.test?.lesson?.date, summaryInfo.from_date)) return;
 					const dateKey =
-						test_result.test?.lesson?.date ?? test_result.test.date
+						test_result.test?.lesson?.date ?? test_result.test.date;
 					const test_point = test_result.point
 						? +test_result.point.replace(",", ".")
 						: 0
@@ -122,13 +125,20 @@ export default function StudySummaryDetail(): JSX.Element {
 			})
 			setSummaryDataSource(summaryBoardData)
 			setSummaryBoardAvgData(finalScore)
+			dateList.sort((a,b) => Date.parse(a) - Date.parse(b))
 			setSummaryBoardDateList(dateList)
 			setLoading(false)
 		}
-	}, [summaryBoard, getSummaryBoardStatus])
+	}, [summaryBoard, getSummaryBoardStatus, summaryInfo.from_date])
 
 	//create table columns
 	let columns: any[] = [
+		{
+			title: "STT",
+			key: "stt",
+			width:60,
+			render:(_:string,record:StudySummaryType,index) => <span>{index + 1}</span>
+		},
 		{
 			title: "Học sinh",
 			dataIndex: "name",
@@ -322,6 +332,11 @@ function StudentGiftsModal(props: {
 	}, [dispatch, summaryInfo])
 
 	const cols: any[] = [
+		{
+			title: "STT",
+			key: "stt",
+			render:(_:string,record:StudentGiftType,index) => <span>{index}</span>
+		},
 		{
 			title: "Học sinh",
 			key: "student",

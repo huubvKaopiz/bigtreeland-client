@@ -21,6 +21,10 @@ export function isBefore(strDateA: string, strDateB: string): boolean {
 	return moment(strDateA).isBefore(moment(strDateB));
 }
 
+export function isAfter(strDateA: string, strDateB: string): boolean {
+	return moment(strDateA).isAfter(moment(strDateB));
+}
+
 // func get list of dates in range 
 // input: range of date, day in week
 export function getDatesInRange(startDate: string, endDate: string, day: number): string[] {
