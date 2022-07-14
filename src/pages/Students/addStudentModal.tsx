@@ -120,7 +120,7 @@ export default function AddStudentModal(props: {
 							<Select.Option value={0}>Offline</Select.Option>
 						</Select>
 					</Form.Item>
-					<Form.Item name="gender" label="Giới tính" wrapperCol={{ span: 2 }}>
+					<Form.Item name="gender" label="Giới tính" wrapperCol={{ span: 2 }} rules={[{ required: true, message: "Giới tính không được để trống!" }]}>
 						<Select>
 							<Select.Option value={1}>Nam</Select.Option>
 							<Select.Option value={0}>Nữ</Select.Option>

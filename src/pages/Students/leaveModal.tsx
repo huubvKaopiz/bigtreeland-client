@@ -3,7 +3,7 @@ import { Button, notification, Tooltip } from "antd";
 import Modal from "antd/lib/modal/Modal";
 import React, { useState } from "react";
 import { useAppDispatch } from "store/store";
-import { actionLeaveClass } from "store/students/slice";
+import { actionDeleteStudent, actionLeaveClass } from "store/students/slice";
 
 export default function LeaveModal(props: { studen_id: number }): JSX.Element {
 	const { studen_id } = props;
@@ -14,10 +14,7 @@ export default function LeaveModal(props: { studen_id: number }): JSX.Element {
 	const handleSubmit = () => {
 		setLoading(true);
 		dispatch(
-			actionLeaveClass({
-				data: {
-					class_id: 0,
-				},
+			actionDeleteStudent({
 				sID: studen_id,
 			})
 		)

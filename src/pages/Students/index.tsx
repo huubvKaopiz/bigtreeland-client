@@ -35,6 +35,7 @@ export default function Students(): JSX.Element {
 	const searchParentStatus = useSelector((state: RootState) => state.parentReducer.getParentsStatus);
 	const searchClassStatus = useSelector((state: RootState) => state.classReducer.getClassesStatus);
 	const updateStudentStatus = useSelector((state: RootState) => state.studentReducer.updateStudentStatus);
+	const deleteStudentStatus = useSelector((state: RootState) => state.studentReducer.deleteStudentStatus);
 	const permissionList = usePermissionList();
 	const isAdmin = useIsAdmin();
 
@@ -56,11 +57,11 @@ export default function Students(): JSX.Element {
 	}, [dispatch, page]);
 
 	useEffect(() => {
-		if (updateStudentStatus === "success") {
+		if (updateStudentStatus === "success" || deleteStudentStatus === "success") {
 			dispatch(actionGetStudents({ page }));
 			dispatch(actionResetUpdateStudent());
 		}
-	}, [dispatch, updateStudentStatus]);
+	}, [dispatch, updateStudentStatus, deleteStudentStatus, page]);
 
 	const debounceSearchStudent = useRef(
 		debounce((search) => {

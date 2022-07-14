@@ -15,7 +15,7 @@ export interface StudentReducerState {
 	updateStudentStatus: "idle" | "loading" | "success" | "error";
 	updateStudentStatusStatus: "idle" | "loading" | "success" | "error";
 	updateStudentClasHistoryStatus: "idle" | "loading" | "success" | "error";
-
+	deleteStudentStatus: "idle" | "loading" | "success" | "error";
 }
 
 export interface GetStudentPrams {
@@ -55,7 +55,9 @@ const initialState: StudentReducerState = {
 	addStudentStatus: "idle",
 	updateStudentStatus: "idle",
 	updateStudentStatusStatus: "idle",
-	updateStudentClasHistoryStatus:'idle'
+	updateStudentClasHistoryStatus:'idle',
+	deleteStudentStatus:'idle'
+
 };
 
 export const actionGetStudentProfile = createAsyncThunk(
@@ -139,6 +141,22 @@ export const actionLeaveClass = createAsyncThunk(
 	}
 );
 
+export const actionDeleteStudent = createAsyncThunk(
+	"actions/delete-student",
+	async (params: {sID: number }, { rejectWithValue }) => {
+		try {
+			const { sID } = params;
+			const response = await request({
+				url: `/api/students/${sID}`,
+				method: "delete",
+			});
+			return response.data;
+		} catch (error) {
+			return rejectWithValue(error);
+		}
+	}
+);
+
 export const updateStudentStatus = createAsyncThunk(
 	"actionUpdateStudentStatus",
 	async (data: UpdateStudentStatusParams, { rejectWithValue }) => {
@@ -184,6 +202,7 @@ export const studentSlice = createSlice({
 		},
 		actionResetUpdateStudent(state) {
 			state.updateStudentStatus = "idle";
+			state.deleteStudentStatus = "idle";
 		},
 		actionUpdateStudentStatus(state) {
 			state.updateStudentStatusStatus = "idle";
@@ -197,6 +216,9 @@ export const studentSlice = createSlice({
 		},
 		actionUpdateStudentClassHistory(state){
 			state.updateStudentClasHistoryStatus = 'idle';
+		},
+		actionDeleteStudent(state) {
+			state.deleteStudentStatus = "idle";
 		}
 	},
 	extraReducers: (builder) => {
@@ -281,6 +303,18 @@ export const studentSlice = createSlice({
 			})
 			.addCase(actionUpdateStudentClassHistory.rejected, (state, action) => {
 				state.updateStudentClasHistoryStatus = "error";
+				const error = action.payload as AxiosError;
+				handleResponseError(error);
+			})
+			//delete student 
+			.addCase(actionDeleteStudent.pending, (state) => {
+				state.deleteStudentStatus = "loading";
+			})
+			.addCase(actionDeleteStudent.fulfilled, (state) => {
+				state.deleteStudentStatus = "success";
+			})
+			.addCase(actionDeleteStudent.rejected, (state, action) => {
+				state.deleteStudentStatus = "error";
 				const error = action.payload as AxiosError;
 				handleResponseError(error);
 			});
