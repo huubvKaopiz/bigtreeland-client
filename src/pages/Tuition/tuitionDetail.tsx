@@ -313,9 +313,9 @@ export default function TuitionDetail(): JSX.Element {
 			render: function nameCol(_: string, record: TuitionFeeType): JSX.Element {
 				return (
 					<>
-						<a>{record.student.name}</a>{" "}
+						<a>{get(record, "student.name", "")}</a>{" "}
 						<i style={{ color: "#7f8c8d" }}>
-							{moment(record.student.birthday).format("DD-MM-YYYY")}
+							{moment(get(record, "student.birthday", "")).format("DD-MM-YYYY")}
 						</i>
 					</>
 				)
@@ -352,7 +352,7 @@ export default function TuitionDetail(): JSX.Element {
 				return (
 					<>
 						{status === 0 ? (
-							<Tag color="red">Chư nộp</Tag>
+							<Tag color="red">Chưa nộp</Tag>
 						) : status === 1 ? (
 							<Tag color="green">Đã nộp</Tag>
 						) : status === 2 ? (
