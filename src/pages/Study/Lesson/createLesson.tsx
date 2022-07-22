@@ -118,7 +118,7 @@ export default function CreateLesson(props: {
 
     function handleSubmit() {
         if (!classInfo) return;
-        const teacher_id = get(userInfo, "id", null);
+        const teacher_id = get(classInfo, "employee_id", null);
         if (!teacher_id) {
             notification.warn({ message: "Chưa có thông tin giáo viên!" });
         } else if (attendantList.length > 0) {

@@ -1,5 +1,5 @@
-import { PlusOutlined, UnorderedListOutlined, IssuesCloseOutlined } from "@ant-design/icons";
-import { Button, Comment, DatePicker, List, Space, Table, Tag, Tooltip } from "antd";
+import { PlusOutlined, UnorderedListOutlined, IssuesCloseOutlined, UserOutlined } from "@ant-design/icons";
+import { Avatar, Button, Comment, DatePicker, List, Space, Table, Tag, Tooltip } from "antd";
 import useIsAdmin from "hooks/useIsAdmin";
 import usePermissionList from "hooks/usePermissionList";
 import { ClassType, LessonType, StudentType } from "interface";
@@ -160,7 +160,7 @@ export function Lesson(props: { classInfo: ClassType | null, students:StudentTyp
                                             <li>
                                                 <Comment
                                                     author={get(item, "parent.profile.name", 'No name')}
-                                                    avatar={'https://joeschmoe.io/api/v1/random'}
+                                                    avatar={ <Avatar size="large" icon={<UserOutlined />} />}
                                                     content={item.feedback}
                                                 // datetime={new Date()}
                                                 />

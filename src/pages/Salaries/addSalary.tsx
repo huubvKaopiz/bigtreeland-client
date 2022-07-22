@@ -1,6 +1,6 @@
 import { CheckCircleOutlined, SaveOutlined } from '@ant-design/icons';
 import { Alert, Button, Col, DatePicker, Divider, Form, Input, InputNumber, Layout, List, Modal, Row, Select, Space, Table, Tabs, Tag, Typography } from 'antd';
-import { LessonType, PeriodTuitionType, TuitionFeeType } from 'interface';
+import { LessonType, PeriodTuitionType, RoleType, TuitionFeeType } from 'interface';
 import { findIndex, get } from 'lodash';
 import moment from 'moment';
 import numeral from 'numeral';
@@ -10,10 +10,12 @@ import { useHistory } from 'react-router-dom';
 import { actionGetEmployeeInfo, actionGetEmployees, actionSetListEmployeesNull } from 'store/employees/slice';
 import { actionGetLessons, actionSetLessionsStateNull } from 'store/lesson/slice';
 import { actionGetRevenues, actionSetListRevenuesNull, RevenueType } from 'store/revenues/slice';
+import { actionGetRoles } from 'store/roles/slice';
 import { actionAddSalary, actionSetAddSalaryStateIdle, AddSalaryData } from 'store/salaries/slice';
 import { RootState, useAppDispatch } from 'store/store';
 import { actionGetTuitionFees, actionSetTuitionFeesStateNull } from 'store/tuition/tuition';
 import { ROLE_NAMES } from 'utils/const';
+import { converRoleNameToVN } from 'utils/ultil';
 
 const { Option } = Select;
 const { Title } = Typography;
@@ -39,7 +41,7 @@ export default function AddSalary(): JSX.Element {
     const addSalaryStatus = useSelector((state: RootState) => state.salariesReducer.addSalaryStatus);
     const lessons = useSelector((state: RootState) => state.lessonReducer.lessons);
     const tuitionFees = useSelector((state: RootState) => state.tuitionFeeReducer.tuitionFees);
-
+    const roles = useSelector((state: RootState) => state.roleReducer.roles);
     //initialize
     useEffect(() => {
         form.setFieldsValue({
@@ -67,7 +69,8 @@ export default function AddSalary(): JSX.Element {
                 basic_salary: get(employeeInfo.employee_contract, "basic_salary", "0"),
             })
         }
-    }, [employeeInfo, form])
+        dispatch(actionGetRoles(0));
+    }, [employeeInfo, form, dispatch])
 
     //handle receipts state change
     useEffect(() => {
@@ -321,12 +324,15 @@ export default function AddSalary(): JSX.Element {
                             name={'role'}
                             noStyle
                         >
-                            <Select placeholder="Vị trí" style={{ width: 240 }}>
-                                <Option value="none">Chọn vị trí</Option>
-                                <Option value={ROLE_NAMES.TEACHER}>Giáo viên chính thức</Option>
-                                <Option value={ROLE_NAMES.TEACHER2}>Giáo viên hợp đồng</Option>
-                                <Option value={ROLE_NAMES.SALE}>Nhân viên sale</Option>
-                                <Option value={ROLE_NAMES.EMPLOYEE}>Khác</Option>
+                            <Select style={{ width: 400 }} placeholder="Chọn vai trò" onChange={(value:any) => setRole(value)} allowClear={true}>
+                                {roles.map((role: RoleType) => {
+                                    return (
+                                        role.name !== ROLE_NAMES.PARENT &&
+                                        <Select.Option key={role.id} value={role.name}>
+                                            {role.description ? role.description : <span>{converRoleNameToVN(role.name as ROLE_NAMES)}</span>}
+                                        </Select.Option>
+                                    );
+                                })}
                             </Select>
                         </Form.Item>
                         <Form.Item

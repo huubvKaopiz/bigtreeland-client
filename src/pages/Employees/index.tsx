@@ -189,7 +189,7 @@ function Employees(): JSX.Element {
 					/>
 				</Col>
 				<Col>
-					<Select style={{ width: 200 }} placeholder="Lọc theo vai trò" onChange={handleChangeRole}>
+					<Select style={{ width: 400 }} placeholder="Lọc theo vai trò" onChange={handleChangeRole} allowClear={true}>
 						{roles.map((role: RoleType) => {
 							return (
 								role.name !== ROLE_NAMES.PARENT &&

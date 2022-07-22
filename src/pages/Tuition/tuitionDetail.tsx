@@ -307,6 +307,14 @@ export default function TuitionDetail(): JSX.Element {
 
 	const std_fee_columns = [
 		{
+			title: "STT",
+			key: "stt",
+			width:80,
+			render: function nameCol(_: string, record: TuitionFeeType, index: number): JSX.Element {
+				return <span>{index + 1}</span>
+			},
+		},
+		{
 			title: "Họ tên",
 			dataIndex: "student",
 			key: "student",
